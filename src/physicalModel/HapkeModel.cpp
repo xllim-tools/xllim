@@ -8,6 +8,7 @@
 #include "Enumeration.h"
 
 #define DEGREE_180 180
+#define THETA_BAR_SCALING 30
 
 using namespace HapkeEnumeration;
 
@@ -27,14 +28,17 @@ enum geom_helper_index{
 };
 
 //-------------------------------- PUBLIC ------------------------------------//
-HapkeModel::HapkeModel()= default;
+HapkeModel::HapkeModel(mat geometries){
+    setupGeometries(std::move(geometries));
+}
 
-void HapkeModel::F(const rowvec &x, rowvec y) {
+void HapkeModel::F(const rowvec &x, rowvec &y) {
 
     rowvec photometry = rowvec(x) ;
 
     //Handling Hapke model of 4 parameters
     if(photometry.n_cols == 4){
+        L_dimension = 4;
         photometry.resize(6);
         photometry(B0) = DEFAULT_B0;
         photometry(H) = DEFAULT_H;
@@ -53,12 +57,12 @@ void HapkeModel::F(const rowvec &x, rowvec y) {
             * (photometry(OMEGA) / configuredGeometries.col(ALPHA).t() % mu0e / (mue + mu0e))
             % define_different_part(photometry,mue, mu0e)
             % calculate_S(photometry(THETA_BAR), mue, mu0e, mue_0, mu0e_0);
-    y.print();
 }
 
 rowvec HapkeModel::F(const rowvec &x) {
     rowvec y = rowvec(configuredGeometries.n_rows);
     this->F(x,y);
+    y.print();
     return y;
 }
 
@@ -72,6 +76,22 @@ mat HapkeModel::F(const mat &x) {
     }
 
     return result;
+}
+
+int HapkeModel::get_D_dimension() {
+    return configuredGeometries.n_rows;
+}
+
+int HapkeModel::get_L_dimension() {
+    return L_dimension;
+}
+
+rowvec HapkeModel::nomalize(rowvec x){
+    return x * THETA_BAR_SCALING;
+}
+
+rowvec HapkeModel::invNormalize(rowvec x){
+    return x / THETA_BAR_SCALING;
 }
 
 void HapkeModel::setupGeometries(mat geometries) {
@@ -285,6 +305,8 @@ void HapkeModel::infinity_to_max(subview_col<double> x) {
         x(i) = std::min(std::numeric_limits<double>::max(), x(i));
     }
 }
+
+
 
 
 

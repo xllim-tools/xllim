@@ -4,9 +4,11 @@
 
 #include "Hapke02Model.h"
 
+#include <utility>
+
 using namespace HapkeEnumeration;
 
-Hapke02Model::Hapke02Model() {}
+Hapke02Model::Hapke02Model(mat geometries) : HapkeModel(std::move(geometries)) {}
 
 
 double Hapke02Model::set_coef() {

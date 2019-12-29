@@ -16,15 +16,20 @@
 class HapkeModel : public FunctionnalModel{
 public:
 
-    HapkeModel();
+    HapkeModel(mat geometries);
     void setupGeometries(mat geometries);
-    void F(const rowvec &x, rowvec y) final ;
+    void F(const rowvec &x, rowvec &y) final ;
     rowvec F(const rowvec &x) final;
     mat F(const mat &x) final;
+    int get_D_dimension() final;
+    int get_L_dimension() final;
+    rowvec nomalize(rowvec x) final;
+    rowvec invNormalize(rowvec x) final;
 
 protected:
     mat geom_helper_mat;
     mat configuredGeometries;
+    double L_dimension = 6;
 
     FRIEND_TEST(Hapke02ModelTest, CalculateP);
     FRIEND_TEST(Hapke02ModelTest, ConfigureGeometries);

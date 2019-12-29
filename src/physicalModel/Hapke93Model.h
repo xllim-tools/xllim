@@ -10,7 +10,7 @@
 
 class Hapke93Model : public HapkeModel {
 public:
-    Hapke93Model();
+    Hapke93Model(mat geometries);
 
 private:
     double set_coef() override ;
