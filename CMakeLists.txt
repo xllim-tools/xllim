@@ -19,4 +19,4 @@ set(CMAKE_CXX_STANDARD 14)
 #        src/physicalModel/Hapke02Model.cpp
 #        src/physicalModel/Hapke02Model.h)
 
-add_executable(Test main.cpp src/physicalModel/Hapke02Model.cpp src/physicalModel/HapkeModel.cpp)
+add_executable(Test main.cpp src/physicalModel/Hapke02Model.cpp src/physicalModel/Hapke93Model.cpp src/physicalModel/HapkeModel.cpp src/physicalModel/FunctionnalModelFactory.cpp src/physicalModel/FunctionnalModelFactory.h)

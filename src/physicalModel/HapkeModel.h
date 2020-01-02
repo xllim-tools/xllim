@@ -11,20 +11,20 @@
 #include <gtest/gtest_prod.h>
 
 #include "FunctionnalModel.h"
+#include "Enumeration.h"
 #include <utility>
 
 class HapkeModel : public FunctionnalModel{
 public:
 
-    HapkeModel(mat geometries);
-    void setupGeometries(mat geometries);
-    void F(const rowvec &x, rowvec &y) final ;
-    rowvec F(const rowvec &x) final;
-    mat F(const mat &x) final;
+    HapkeModel(std::vector<std::vector<double>> &geometries);
+    void F(const std::vector<double> &x, std::vector<double> &y) final ;
+    std::vector<double> F(const std::vector<double> &x) final;
+    std::vector<std::vector<double>> F(const std::vector<std::vector<double>> &x) final;
     int get_D_dimension() final;
     int get_L_dimension() final;
-    rowvec nomalize(rowvec x) final;
-    rowvec invNormalize(rowvec x) final;
+    std::vector<double> nomalize(std::vector<double> x) final;
+    std::vector<double> invNormalize(std::vector<double> x) final;
 
 protected:
     mat geom_helper_mat;
@@ -34,6 +34,7 @@ protected:
     FRIEND_TEST(Hapke02ModelTest, CalculateP);
     FRIEND_TEST(Hapke02ModelTest, ConfigureGeometries);
 
+    void setupGeometries(mat geometries);
     rowvec calculate_P(double b, double c);
     rowvec calculate_S(double theta_bar, const rowvec& mue, const rowvec& mu0e,const rowvec& mue_0, const rowvec& mu0e_0);
     rowvec calculate_B(double b0, double h);

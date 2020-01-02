@@ -5,7 +5,6 @@
 #include "HapkeModel.h"
 
 #include <utility>
-#include "Enumeration.h"
 
 #define DEGREE_180 180
 #define THETA_BAR_SCALING 30
@@ -28,13 +27,22 @@ enum geom_helper_index{
 };
 
 //-------------------------------- PUBLIC ------------------------------------//
-HapkeModel::HapkeModel(mat geometries){
-    setupGeometries(std::move(geometries));
+HapkeModel::HapkeModel(std::vector<std::vector<double>> &geometries){
+    mat geomsMat = mat(geometries.size(),3);
+    for(unsigned i=0; i<geometries.size(); i++){
+        for(unsigned j=0; j<3; j++){
+            geomsMat(i,j) = geometries[i][j];
+        }
+    }
+    setupGeometries(geomsMat);
 }
 
-void HapkeModel::F(const rowvec &x, rowvec &y) {
+void HapkeModel::F(const std::vector<double> &x, std::vector<double> &y) {
 
-    rowvec photometry = rowvec(x) ;
+    rowvec photometry = rowvec(x);
+
+    //Set THETA_BAR to radian
+    photometry(THETA_BAR) = degToGrad(photometry(THETA_BAR));
 
     //Handling Hapke model of 4 parameters
     if(photometry.n_cols == 4){
@@ -53,28 +61,26 @@ void HapkeModel::F(const rowvec &x, rowvec &y) {
     rowvec mu0e_0 = calculate_Mu0E_0(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
 
     //Caculate reflectances
-    y = set_coef()
+    rowvec reflectances = set_coef()
             * (photometry(OMEGA) / configuredGeometries.col(ALPHA).t() % mu0e / (mue + mu0e))
             % define_different_part(photometry,mue, mu0e)
             % calculate_S(photometry(THETA_BAR), mue, mu0e, mue_0, mu0e_0);
+
+    //reflectances.print();
+    y = conv_to< std::vector<double> >::from(reflectances);
 }
 
-rowvec HapkeModel::F(const rowvec &x) {
-    rowvec y = rowvec(configuredGeometries.n_rows);
+std::vector<double> HapkeModel::F(const std::vector<double> &x) {
+    std::vector<double> y(configuredGeometries.n_rows);
     this->F(x,y);
-    y.print();
     return y;
 }
 
-mat HapkeModel::F(const mat &x) {
-    mat result = mat(x.n_rows,configuredGeometries.n_rows);
-    rowvec y = rowvec(configuredGeometries.n_rows);
-
-    for(unsigned i=0 ; i<result.n_rows; i++){
-        this->F(conv_to< colvec >::from(x.row(i)),y);
-        result.row(i) = y;
+std::vector<std::vector<double>> HapkeModel::F(const std::vector<std::vector<double>> &x) {
+    std::vector<std::vector<double>> result(x.size());
+    for(unsigned i=0 ; i<x.size(); i++){
+        this->F(x[i],result[i]);
     }
-
     return result;
 }
 
@@ -86,12 +92,24 @@ int HapkeModel::get_L_dimension() {
     return L_dimension;
 }
 
-rowvec HapkeModel::nomalize(rowvec x){
-    return x * THETA_BAR_SCALING;
+std::vector<double> HapkeModel::nomalize(std::vector<double> x){
+    std::vector<double> x_normalized(x.size());
+    for(unsigned i=0; i<x.size(); i++)
+        x_normalized[i] = x[i];
+
+    x_normalized[THETA_BAR] *= THETA_BAR_SCALING;
+
+    return x_normalized;
 }
 
-rowvec HapkeModel::invNormalize(rowvec x){
-    return x / THETA_BAR_SCALING;
+std::vector<double> HapkeModel::invNormalize(std::vector<double> x){
+    std::vector<double> x_non_normalized(x.size());
+    for(unsigned i=0; i<x.size(); i++)
+        x_non_normalized[i] = x[i];
+
+    x_non_normalized[THETA_BAR] /= THETA_BAR_SCALING;
+
+    return x_non_normalized;
 }
 
 void HapkeModel::setupGeometries(mat geometries) {
@@ -118,8 +136,10 @@ void HapkeModel::setupGeometries(mat geometries) {
             configuredGeometries.col(ALPHA));
 
     generate_geom_heper_mat();
-    //configuredGeometries.row(48).print();
-    //geom_helper_mat.row(3).print();
+    //cout<< "configured geoms" <<endl;
+    //configuredGeometries.row(0).print();
+    //cout<< "mat helper" <<endl;
+    //geom_helper_mat.row(0).print();
 }
 
 //--------------------------------------- PRIVATE ----------------------------------------//
@@ -183,6 +203,7 @@ rowvec HapkeModel::calculate_P(const double b, const double c) {
                         c / pow(1 - 2 * b * configuredGeometries(i, COS_G) + b2,1.5)
                 );
     }
+    //cout<< "P " << P(0) <<endl;
     return P.t();
 }
 
@@ -199,7 +220,7 @@ rowvec HapkeModel::calculate_S(const double theta_bar, const rowvec& mue, const 
                     ( 1 - geom_helper_mat(i,F_PSI) + geom_helper_mat(i,F_PSI) * x_theta_bar * ( geom_helper_mat(i,COS_THETA)/ mue_0(i)));
         }
     }
-
+    //cout<< "S " << result(0) <<endl;
     return result.t();
 }
 
@@ -207,7 +228,7 @@ rowvec HapkeModel::calculate_B(const double b0, const double h) {
     rowvec B = rowvec(configuredGeometries.n_rows);
 
     B = b0 / (1 + geom_helper_mat.col(TAN_G_DIV_2).t() / h);
-
+    //cout<< "B " << B(0) <<endl;
     return B;
 }
 
@@ -233,7 +254,7 @@ rowvec HapkeModel::calculate_MuE(const double theta_bar, const double E1_THETA_B
                     );
         }
     }
-
+    //cout<< "mue " << result(0) <<endl;
     return result.t();
 }
 
@@ -259,7 +280,7 @@ rowvec HapkeModel::calculate_Mu0E(const double theta_bar, const double E1_THETA_
                         );
         }
     }
-
+    //cout<< "mu0e " << result(0) <<endl;
     return result.t();
 }
 
@@ -277,6 +298,7 @@ rowvec HapkeModel::calculate_MuE_0(const double theta_bar, const double E1_THETA
                 )
 
             );
+    //cout<< "mue_0 " << result(0) <<endl;
     return result.t();
 }
 
@@ -289,6 +311,7 @@ rowvec HapkeModel::calculate_Mu0E_0(const double theta_bar, const double E1_THET
                               tan(theta_bar) /(2 - pow(geom_helper_mat.col(E1_THETA_0), E1_THETA_BAR)))
                       )
               );
+    //cout<< "mu0e_0 " << result(0) <<endl;
     return result.t();
 }
 

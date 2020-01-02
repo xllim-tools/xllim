@@ -13,13 +13,13 @@ using namespace arma;
 
 class FunctionnalModel{
 public:
-    virtual void F(const rowvec &x, rowvec &y) = 0;
-    virtual rowvec F(const rowvec &x) = 0;
-    virtual mat F(const mat &x) = 0;
+    virtual void F(const std::vector<double> &x, std::vector<double> &y) = 0;
+    virtual std::vector<double> F(const std::vector<double> &x) = 0;
+    virtual std::vector<std::vector<double>> F(const std::vector<std::vector<double>> &x) = 0;
     virtual int get_D_dimension() = 0;
     virtual int get_L_dimension() = 0;
-    virtual rowvec nomalize(rowvec x) = 0;
-    virtual rowvec invNormalize(rowvec x) = 0;
+    virtual std::vector<double> nomalize(std::vector<double> x) = 0;
+    virtual std::vector<double> invNormalize(std::vector<double> x) = 0;
 };
 
 #endif //UNTITLED_FUNCTIONNALMODEL_H

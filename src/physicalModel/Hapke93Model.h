@@ -6,11 +6,11 @@
 #define UNTITLED_HAPKE93MODEL_H
 
 #include "HapkeModel.h"
-#include "Enumeration.h"
+
 
 class Hapke93Model : public HapkeModel {
 public:
-    Hapke93Model(mat geometries);
+    Hapke93Model(std::vector<std::vector<double>> &geometries);
 
 private:
     double set_coef() override ;

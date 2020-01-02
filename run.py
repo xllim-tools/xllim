@@ -1,15 +1,31 @@
-import complexFunLib
 import numpy as np
+import pandas as pd
+import kernel as ker
+import json
+import time
 
-# Create arrays of non-trivial complex numbers to be exponentiated,
-# i.e. res = k*exp(ee)
-k = np.ones(int(2.5e5), dtype='complex64')*1.1234 + np.complex64(1.1234j)
-ee = np.ones(int(2.5e5), dtype='complex64')*1.1234 + np.complex64(1.1234j)
-sz = k.size  # Get size integer
-res = np.zeros(int(2.5e5), dtype='complex64')  # Create array for results
+# Read geometries and photometries from file 'test_hapke.json'
+with open('test_hapke.json') as json_file:
+    data = json.load(json_file)
+    geom = np.array([data['eme'], data['inc'], data['phi']]).transpose()
+    photom = np.array([data['omega'], data['theta0'], data['b'], data['c'], data['b0'], data['hh']]).transpose()
 
-# Call function
-complexFunLib.mp_exp_c4(k, ee, sz, res, 8)
+# Create Hapke2002 Model
+myModel = ker.PyFunctionnalModelFactory().getModel('hapke02', geom)
 
-# Print results
-print(res)
+# Start time
+start_time = time.time()
+
+# Calculate reflectances
+y = myModel.F(photom)
+
+
+#print(y)
+
+# Calculate elapsed time for generating reflectances
+elapsed_time = (time.time() - start_time)
+print(elapsed_time)
+
+# Write reflectances in file 'result.json'
+with open('result.json','w') as out_file:
+    out_file.write(pd.Series({'y':y}).to_json())
