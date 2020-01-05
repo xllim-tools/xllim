@@ -83,7 +83,7 @@ Temporary Items
 bin/
 gen/
 out/
-#  Uncomment the following line in case you need and you don't have the release build type files in your app
+#  Uncomment the following line in case you need and you don't have the release build type files in your apps
 # release/
 
 #library folders
@@ -761,7 +761,7 @@ csx/
 ecf/
 rcf/
 
-# Windows Store app package directories and files
+# Windows Store apps package directories and files
 AppPackages/
 BundleArtifacts/
 Package.StoreAssociation.xml
