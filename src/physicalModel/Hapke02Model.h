@@ -24,7 +24,7 @@ public:
      * @details Hapke02Model class constructor
      * @param geometries : matrix of geometries that will be used by the model
      */
-    Hapke02Model(std::vector<std::vector<double>> &geometries);
+    Hapke02Model(const double *geometries, int row_size, int col_size);
 
 private:
     double set_coef() override ;

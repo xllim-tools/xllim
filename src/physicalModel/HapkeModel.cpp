@@ -22,12 +22,14 @@ enum geom_helper_index{
 };
 
 //-------------------------------- PUBLIC ------------------------------------//
-HapkeModel::HapkeModel(std::vector<std::vector<double>> &geometries){
-    // Transform the geometry structure from vector<vector<double>> to armadillo::mat
-    mat geomsMat = mat(geometries.size(),3);
-    for(unsigned i=0; i<geometries.size(); i++){
-        for(unsigned j=0; j<3; j++){
-            geomsMat(i,j) = geometries[i][j];
+HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size) {
+    // Transform the geometry structure from double * to armadillo::mat
+    mat geomsMat = mat(row_size,col_size);
+
+
+    for(unsigned i=0; i<row_size; i++){
+        for(unsigned j=0; j<col_size; j++){
+            geomsMat(i,j) = geometries[i*col_size+j];
         }
     }
 
@@ -35,7 +37,7 @@ HapkeModel::HapkeModel(std::vector<std::vector<double>> &geometries){
     setupGeometries(geomsMat);
 }
 
-void HapkeModel::F(const std::vector<double> &x, std::vector<double> &y) {
+void HapkeModel::F(const rowvec &x, rowvec &y) {
 
     rowvec photometry = rowvec(x);
 
@@ -50,13 +52,17 @@ void HapkeModel::F(const std::vector<double> &x, std::vector<double> &y) {
         photometry(H) = DEFAULT_H;
     }
 
+
     double E1_THETA_BAR = calculate_E1_THETA_BAR(photometry(THETA_BAR));
     double E2_THETA_BAR = calculate_E2_THETA_BAR(photometry(THETA_BAR));
+
+
 
     rowvec mu0e = calculate_Mu0E(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
     rowvec mue = calculate_MuE(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
     rowvec mue_0 = calculate_MuE_0(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
     rowvec mu0e_0 = calculate_Mu0E_0(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
+
 
     //Caculate reflectances
     rowvec reflectances = set_coef()
@@ -65,31 +71,21 @@ void HapkeModel::F(const std::vector<double> &x, std::vector<double> &y) {
             % calculate_S(photometry(THETA_BAR), mue, mu0e, mue_0, mu0e_0);
 
     //convert reflectances to std::vector<double> format and return the results
-    y = conv_to< std::vector<double> >::from(reflectances);
+    y = rowvec(reflectances);
 }
 
-std::vector<double> HapkeModel::F(const std::vector<double> &x) {
-    // Create a return object y
-    std::vector<double> y(configuredGeometries.n_rows);
-
-    // Fill y
-    this->F(x,y);
-
-    // Return y
-    return y;
+void HapkeModel::F(double *x, int size_x, double *y, int size_y){
+    FunctionnalModel::F(x,size_x,y,size_y);
 }
 
-std::vector<std::vector<double>> HapkeModel::F(const std::vector<std::vector<double>> &x) {
+void HapkeModel::F(double *x, int x_row_size, int x_col_size, double *y, int y_row_size, int y_col_size) {
     // Create a return object result
-    std::vector<std::vector<double>> result(x.size());
+    //std::vector<std::vector<double>> result(x_row_size);
 
     // Fill result matrix row by row
-    for(unsigned i=0 ; i<x.size(); i++){
-        this->F(x[i],result[i]);
-    }
-
-    // return result
-    return result;
+    //for(unsigned i=0 ; i<x_row_size; i++){
+        //this->F(x[i], result[i]);
+    //}
 }
 
 int HapkeModel::get_D_dimension() {
@@ -100,30 +96,14 @@ int HapkeModel::get_L_dimension() {
     return L_dimension;
 }
 
-std::vector<double> HapkeModel::nomalize(std::vector<double> x){
-    std::vector<double> x_normalized(x.size());
-
-    // Copy the elements that will not be normalized
-    for(unsigned i=0; i<x.size(); i++)
-        x_normalized[i] = x[i];
-
+void HapkeModel::to_physic(double *x, int size) {
     // Normalize THETA_BAR
-    x_normalized[THETA_BAR] *= THETA_BAR_SCALING;
-
-    return x_normalized;
+    x[THETA_BAR] *= THETA_BAR_SCALING;
 }
 
-std::vector<double> HapkeModel::invNormalize(std::vector<double> x){
-    std::vector<double> x_non_normalized(x.size());
-
-    // Copy the elements that will not be denormalized
-    for(unsigned i=0; i<x.size(); i++)
-        x_non_normalized[i] = x[i];
-
+void HapkeModel::from_physic(double *x, int size) {
     // Denormalize THETA_BAR
-    x_non_normalized[THETA_BAR] /= THETA_BAR_SCALING;
-
-    return x_non_normalized;
+    x[THETA_BAR] /= THETA_BAR_SCALING;
 }
 
 //--------------------------------------- PRIVATE ----------------------------------------//

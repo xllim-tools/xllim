@@ -34,14 +34,14 @@ public:
      * @details Hapke Model class constructor
      * @param geometries : matrix of geometries that will be used by the model
      */
-    HapkeModel(std::vector<std::vector<double>> &geometries);
-    void F(const std::vector<double> &x, std::vector<double> &y) final ;
-    std::vector<double> F(const std::vector<double> &x) final;
-    std::vector<std::vector<double>> F(const std::vector<std::vector<double>> &x) final;
+    HapkeModel(const double *geometries, int row_size, int col_size);
+    void F(const rowvec &x, rowvec &y) final ;
+    void F(double *x, int size_x, double *y, int size_y) final;
+    void F(double *x, int x_row_size, int x_col_size, double *y, int y_row_size, int y_col_size) final;
     int get_D_dimension() final;
     int get_L_dimension() final;
-    std::vector<double> nomalize(std::vector<double> x) final;
-    std::vector<double> invNormalize(std::vector<double> x) final;
+    void to_physic(double *x, int size) final;
+    void from_physic(double *x, int size) final;
 
 protected:
     mat geom_helper_mat; /**< A matrix containing intermediate results in relation to geometries */

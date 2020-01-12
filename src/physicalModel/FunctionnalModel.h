@@ -33,7 +33,7 @@ public:
      * @param x
      * @param y vector of results
      */
-    virtual void F(const std::vector<double> &x, std::vector<double> &y) = 0;
+    virtual void F(const rowvec &x, rowvec &y) = 0;
 
     /**
      * This method calculates F(x) where x is a vector and return the results
@@ -41,7 +41,14 @@ public:
      * @param x
      * @return vector of results
      */
-    virtual std::vector<double> F(const std::vector<double> &x) = 0;
+    virtual void F(double *x, int size_x, double *y, int size_y) {
+        rowvec x_arma = rowvec(&x[0],size_x);
+        rowvec y_arma = rowvec(size_y);
+        F(x_arma,y_arma);
+        for(unsigned i=0 ; i<size_y; i++){
+            y[i] = y_arma(i);
+        }
+    }
 
     /**
      * This method calculates F(x) where x is a matrix and return the results
@@ -49,7 +56,7 @@ public:
      * @param x
      * @return matrix of results
      */
-    virtual std::vector<std::vector<double>> F(const std::vector<std::vector<double>> &x) = 0;
+    virtual void F(double *x, int x_row_size, int x_col_size, double *y, int y_row_size, int y_col_size) = 0;
 
     /**
      * This method returns the D dimension of the problem
@@ -64,18 +71,16 @@ public:
     virtual int get_L_dimension() = 0;
 
     /**
-     * This method returns a normalized vector of x
+     * his method normalizes the vector
      * @param x the vector to normalize
-     * @return normalized vector
      */
-    virtual std::vector<double> nomalize(std::vector<double> x) = 0;
+    virtual void to_physic(double *x, int size) = 0;
 
     /**
-     * This method returns a  denormalized vector of x
+     * This method denormalizes the vector
      * @param x the vector to denormalize
-     * @return denormalized vector
      */
-    virtual std::vector<double> invNormalize(std::vector<double> x) = 0;
+    virtual void from_physic(double *x, int size) = 0;
 };
 
 #endif //UNTITLED_FUNCTIONNALMODEL_H

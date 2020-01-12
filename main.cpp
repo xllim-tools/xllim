@@ -26,7 +26,7 @@ namespace pt = boost::property_tree;
 int main(){
 
 
-    std::vector<std::vector<double>> geometries(50,std::vector<double>(3));
+    auto *geometries = new double[50*3];
     unsigned i = 0;
 
 
@@ -35,21 +35,27 @@ int main(){
     i = 0;
     for (pt::ptree::value_type& v : root.get_child("eme"))
     {
-        geometries[i][0] = stod(v.second.data());
+        geometries[i*3+0] = stod(v.second.data());
         i++;
     }
     i = 0;
     for (pt::ptree::value_type& v : root.get_child("inc"))
     {
-        geometries[i][1] = stod(v.second.data());
+        geometries[i*3+1] = stod(v.second.data());
+
         i++;
     }
     i = 0;
+
+
+
     for (pt::ptree::value_type& v : root.get_child("phi"))
     {
-        geometries[i][2] = stod(v.second.data());
+        geometries[i*3+2] = stod(v.second.data());
         i+=1;
     }
+
+
 
     mat photometries = mat(10000,6);
 
@@ -90,18 +96,28 @@ int main(){
         i++;
     }
 
-    
-    std::shared_ptr<FunctionnalModel> myModel = FunctionnalModelFactory::getModel("hapke02", geometries);
 
-    std::vector<std::vector<double>> x(photometries.n_rows);
-    for(unsigned j=0; j<photometries.n_rows; j++){
-        x[j] = conv_to< std::vector<double> >::from(photometries.row(j));
+
+    std::shared_ptr<FunctionnalModel> myModel = FunctionnalModelFactory::getModel("hapke02", geometries,50,3);
+
+    auto *x = new double[6];
+    for(unsigned j=0; j<6; j++){
+        x[j] = photometries(0,j);
     }
 
-    cout << myModel->F(x[658])[3]<<'\n';
+    auto *y = new double[50];
+
+    myModel->F(x, 6, y, 50);
+
+    cout << y[0] << endl;
 
     cout << myModel->get_D_dimension() <<'\n';
     cout << myModel->get_L_dimension() <<'\n';
+
+    delete [] x;
+    delete [] y;
+    delete [] geometries;
+
 
 
 

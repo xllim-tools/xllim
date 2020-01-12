@@ -8,7 +8,7 @@
 
 using namespace HapkeEnumeration;
 
-Hapke02Model::Hapke02Model(std::vector<std::vector<double>> &geometries) : HapkeModel(geometries) {}
+Hapke02Model::Hapke02Model(const double *geometries, int row_size, int col_size) : HapkeModel(geometries, row_size, col_size) {}
 
 
 double Hapke02Model::set_coef() {

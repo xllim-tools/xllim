@@ -6,7 +6,7 @@
 
 using namespace HapkeEnumeration;
 
-Hapke93Model::Hapke93Model(std::vector<std::vector<double>> &geometries): HapkeModel(geometries){}
+Hapke93Model::Hapke93Model(const double *geometries, int row_size, int col_size): HapkeModel(geometries, row_size, col_size) {}
 
 rowvec Hapke93Model::calculate_H(const rowvec &x , double omega) {
     double y = sqrt(1 - omega);
