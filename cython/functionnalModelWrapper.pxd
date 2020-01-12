@@ -17,7 +17,7 @@ cdef extern from "../src/physicalModel/FunctionnalModel.h":
         vector[vector[double]] F(vector[vector[double]] &x)
         int get_D_dimension()
         int get_L_dimension()
-        vector[double] nomalize(vector[double] x)
+        vector[double] to_physic(vector[double] x)
         vector[double] invNormalize(vector[double] x)
 
 cdef extern from "../src/physicalModel/FunctionnalModelFactory.h":

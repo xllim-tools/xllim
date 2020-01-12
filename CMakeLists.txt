@@ -8,7 +8,7 @@ include(ExternalProject)
 project(Kernelo VERSION ${PROJECT_VERSION} DESCRIPTION "This is Planeto kernel" LANGUAGES CXX)
 
 
-
+add_library(dataGeneration STATIC src/dataGeneration/DataGenerator.h dataGenerationTest.cpp)
 
 add_library(functionalModel STATIC
         src/physicalModel/HapkeModel.cpp
@@ -26,5 +26,7 @@ target_include_directories(functionalModel PUBLIC include)
 target_compile_features(functionalModel PUBLIC cxx_std_11)
 
 add_executable(Test main.cpp)
+
+add_executable(DataGenerationTest dataGenerationTest.cpp)
 
 target_link_libraries(Test PUBLIC functionalModel)
