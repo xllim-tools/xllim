@@ -139,8 +139,8 @@ void HapkeModel::generate_geom_heper_mat() {
 
     geom_helper_mat.col(E1_THETA) = exp(-2 / datum::pi * geom_helper_mat.col(COS_THETA)/geom_helper_mat.col(SIN_THETA));
     geom_helper_mat.col(E1_THETA_0) = exp(-2 / datum::pi * geom_helper_mat.col(COS_THETA_0)/geom_helper_mat.col(SIN_THETA_0));
-    geom_helper_mat.col(E2_THETA) = exp(-2 / datum::pi * pow(geom_helper_mat.col(COS_THETA)/geom_helper_mat.col(SIN_THETA),2));
-    geom_helper_mat.col(E2_THETA_0) = exp(-2 / datum::pi * pow(geom_helper_mat.col(COS_THETA_0)/geom_helper_mat.col(SIN_THETA_0),2));
+    geom_helper_mat.col(E2_THETA) = exp(-1 / datum::pi * pow(geom_helper_mat.col(COS_THETA)/geom_helper_mat.col(SIN_THETA),2));
+    geom_helper_mat.col(E2_THETA_0) = exp(-1 / datum::pi * pow(geom_helper_mat.col(COS_THETA_0)/geom_helper_mat.col(SIN_THETA_0),2));
 
     geom_helper_mat.col(TAN_G_DIV_2) = tan(configuredGeometries.col(G)/2);
     geom_helper_mat.col(F_PSI) = calculate_f(configuredGeometries.col(PSI));

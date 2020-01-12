@@ -35,19 +35,19 @@ int main(){
     i = 0;
     for (pt::ptree::value_type& v : root.get_child("eme"))
     {
-        geometries[i][0] = 0.0;//stod(v.second.data());
+        geometries[i][0] = stod(v.second.data());
         i++;
     }
     i = 0;
     for (pt::ptree::value_type& v : root.get_child("inc"))
     {
-        geometries[i][1] = 0.0;//stod(v.second.data());
+        geometries[i][1] = stod(v.second.data());
         i++;
     }
     i = 0;
     for (pt::ptree::value_type& v : root.get_child("phi"))
     {
-        geometries[i][2] = 180.0;//stod(v.second.data());
+        geometries[i][2] = stod(v.second.data());
         i+=1;
     }
 
@@ -98,7 +98,7 @@ int main(){
         x[j] = conv_to< std::vector<double> >::from(photometries.row(j));
     }
 
-    cout << myModel->F(x[0])[0]<<'\n';
+    cout << myModel->F(x[658])[3]<<'\n';
 
     cout << myModel->get_D_dimension() <<'\n';
     cout << myModel->get_L_dimension() <<'\n';
