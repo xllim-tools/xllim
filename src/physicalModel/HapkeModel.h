@@ -9,14 +9,13 @@
 #ifndef UNTITLED_HAPKEMODEL_H
 #define UNTITLED_HAPKEMODEL_H
 
-#define DEFAULT_B0 0.0
-#define DEFAULT_H 0.1
 
 #include <gtest/gtest_prod.h>
-
+#include "HapkeAdapter.h"
 #include "FunctionnalModel.h"
 #include "Enumeration.h"
 #include <utility>
+#include <memory>
 
 /**
  * @class HapkeModel
@@ -34,7 +33,7 @@ public:
      * @details Hapke Model class constructor
      * @param geometries : matrix of geometries that will be used by the model
      */
-    HapkeModel(const double *geometries, int row_size, int col_size);
+    HapkeModel(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter);
     void F(const rowvec &x, rowvec &y) final ;
     void F(double *x, int size_x, double *y, int size_y) final;
     void F(double *x, int x_row_size, int x_col_size, double *y, int y_row_size, int y_col_size) final;
@@ -46,7 +45,7 @@ public:
 protected:
     mat geom_helper_mat; /**< A matrix containing intermediate results in relation to geometries */
     mat configuredGeometries; /**< A matrix of the configured geometries */
-    double L_dimension = 6; /**< L dimension of the problem */
+    std::shared_ptr<HapkeAdapter> adapter;
 
     FRIEND_TEST(Hapke02ModelTest, CalculateP);
     FRIEND_TEST(Hapke02ModelTest, CalculateB);

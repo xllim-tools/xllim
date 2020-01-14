@@ -1,5 +1,6 @@
 #include "HapkeModel.h"
 #include <utility>
+#include "HapkeAdapterFactory.h"
 
 #define DEGREE_180 180
 #define THETA_BAR_SCALING 30
@@ -22,10 +23,11 @@ enum geom_helper_index{
 };
 
 //-------------------------------- PUBLIC ------------------------------------//
-HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size) {
+HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter) {
     // Transform the geometry structure from double * to armadillo::mat
     mat geomsMat = mat(row_size,col_size);
 
+    this->adapter = adapter;
 
     for(unsigned i=0; i<row_size; i++){
         for(unsigned j=0; j<col_size; j++){
@@ -44,19 +46,11 @@ void HapkeModel::F(const rowvec &x, rowvec &y) {
     //Set THETA_BAR to radian
     photometry(THETA_BAR) = degToGrad(photometry(THETA_BAR));
 
-    //Handling Hapke model of 4 parameters
-    if(photometry.n_cols == 4){
-        L_dimension = 4;
-        photometry.resize(6);
-        photometry(B0) = DEFAULT_B0;
-        photometry(H) = DEFAULT_H;
-    }
-
+    //Adapting Hapke model
+    adapter->adaptModel(photometry);
 
     double E1_THETA_BAR = calculate_E1_THETA_BAR(photometry(THETA_BAR));
     double E2_THETA_BAR = calculate_E2_THETA_BAR(photometry(THETA_BAR));
-
-
 
     rowvec mu0e = calculate_Mu0E(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
     rowvec mue = calculate_MuE(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
@@ -93,7 +87,7 @@ int HapkeModel::get_D_dimension() {
 }
 
 int HapkeModel::get_L_dimension() {
-    return L_dimension;
+    return adapter->get_dimension_L();
 }
 
 void HapkeModel::to_physic(double *x, int size) {

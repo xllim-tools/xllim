@@ -8,7 +8,8 @@
 
 using namespace HapkeEnumeration;
 
-Hapke02Model::Hapke02Model(const double *geometries, int row_size, int col_size) : HapkeModel(geometries, row_size, col_size) {}
+Hapke02Model::Hapke02Model(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter)
+        : HapkeModel(geometries, row_size,col_size, adapter) {}
 
 
 double Hapke02Model::set_coef() {
@@ -17,7 +18,7 @@ double Hapke02Model::set_coef() {
 
 rowvec Hapke02Model::define_different_part(const rowvec &x, rowvec mue, rowvec mu0e) {
     rowvec result = rowvec(configuredGeometries.n_rows);
-    result = (1 + calculate_B(x(B0),x(H))) % calculate_P(x(B), x(C)) + (calculate_H(mu0e, x(OMEGA)) % calculate_H(mue , x(OMEGA))) - 1;
+    result = (1 + calculate_B(adapter->get_b0(),adapter->get_h())) % calculate_P(x(B), adapter->get_c()) + (calculate_H(mu0e, x(OMEGA)) % calculate_H(mue , x(OMEGA))) - 1;
     //cout<< "diff part " << result(0) <<endl;
     return result;
 }
