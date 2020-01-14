@@ -7,7 +7,19 @@ include(ExternalProject)
 
 project(Kernelo VERSION ${PROJECT_VERSION} DESCRIPTION "This is Planeto kernel" LANGUAGES CXX)
 
-
+add_library(dataGeneration STATIC
+        src/dataGeneration/GaussianStatModel.cpp
+        src/dataGeneration/GaussianStatModel.h
+        src/dataGeneration/GeneratorFactory.h
+        src/dataGeneration/GeneratorFactory.cpp
+        src/dataGeneration/GeneratorStrategy.h
+        src/dataGeneration/LatinCubeGenerator.cpp
+        src/dataGeneration/LatinCubeGenerator.h
+        src/dataGeneration/RandomGenerator.cpp
+        src/dataGeneration/RandomGenerator.h
+        src/dataGeneration/SobolGenerator.cpp
+        src/dataGeneration/SobolGenerator.h
+        src/dataGeneration/StatModel.h)
 
 
 add_library(functionalModel STATIC
@@ -26,5 +38,7 @@ target_include_directories(functionalModel PUBLIC include)
 target_compile_features(functionalModel PUBLIC cxx_std_11)
 
 add_executable(Test main.cpp)
+
+add_executable(TestGeneration dataGenerationTest.cpp)
 
 target_link_libraries(Test PUBLIC functionalModel)
