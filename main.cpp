@@ -7,6 +7,10 @@
 #include <armadillo>
 #include "src/physicalModel/FunctionnalModel.h"
 #include "src/physicalModel/FunctionnalModelFactory.h"
+#include "src/physicalModel/Hapke02Model.h"
+#include "src/physicalModel/FourParamsModel.h"
+#include "src/physicalModel/ThreeParamsModel.h"
+#include "src/physicalModel/SixParamsModel.h"
 #include <utility>
 
 #include <iostream>
@@ -25,7 +29,7 @@ namespace pt = boost::property_tree;
 
 int main(){
 
-    /*
+
     auto *geometries = new double[50*3];
     unsigned i = 0;
 
@@ -98,7 +102,7 @@ int main(){
 
 
 
-    std::shared_ptr<FunctionnalModel> myModel = FunctionnalModelFactory::getModel("hapke02", geometries,50,3);
+    std::shared_ptr<FunctionnalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
 
     auto *x = new double[6];
     for(unsigned j=0; j<6; j++){
@@ -116,7 +120,7 @@ int main(){
 
     delete [] x;
     delete [] y;
-    delete [] geometries;*/
+    delete [] geometries;
 
 
 

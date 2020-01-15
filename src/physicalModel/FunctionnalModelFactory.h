@@ -19,7 +19,7 @@
  */
 class FunctionnalModelFactory {
 public:
-    static std::shared_ptr<FunctionnalModel> getModel(std::string type, std::vector<std::vector<double>> &data);
+    static std::shared_ptr<FunctionnalModel> getModel(std::string type,const double *data, int row_size, int col_size);
 };
 
 

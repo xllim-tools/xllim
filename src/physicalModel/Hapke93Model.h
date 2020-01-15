@@ -25,7 +25,7 @@ public:
      * @details Hapke93Model class constructor
      * @param geometries : matrix of geometries that will be used by the model
      */
-    Hapke93Model(std::vector<std::vector<double>> &geometries);
+    Hapke93Model(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter);
 
 private:
     double set_coef() override ;

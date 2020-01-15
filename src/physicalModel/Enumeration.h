@@ -19,7 +19,7 @@ namespace HapkeEnumeration{
         OMEGA, /**< enum value 0*/
         THETA_BAR, /**< enum value 1*/
         B, /**< enum value 2*/
-        C,/**< enum value 3*/
+        C, /**< enum value 3*/
         B0,/**< enum value 4*/
         H /**< enum value 5*/
     };

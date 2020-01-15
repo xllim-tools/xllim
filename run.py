@@ -17,15 +17,15 @@ myModel = ker.PyFunctionnalModelFactory().getModel('hapke02', geom)
 start_time = time.time()
 
 # Calculate reflectances
-y = myModel.F(photom)
+y = myModel.F(photom[0])
 
 
-#print(y)
+print(y)
 
 # Calculate elapsed time for generating reflectances
-elapsed_time = (time.time() - start_time)
-print(elapsed_time)
+#elapsed_time = (time.time() - start_time)
+#print(elapsed_time)
 
 # Write reflectances in file 'result.json'
-with open('result.json','w') as out_file:
-    out_file.write(pd.Series({'y':y}).to_json())
+#with open('result.json','w') as out_file:
+ #   out_file.write(pd.Series({'y':y}).to_json())

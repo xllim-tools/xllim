@@ -6,7 +6,8 @@
 
 using namespace HapkeEnumeration;
 
-Hapke93Model::Hapke93Model(std::vector<std::vector<double>> &geometries): HapkeModel(geometries){}
+Hapke93Model::Hapke93Model(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter)
+        : HapkeModel(geometries, row_size, col_size, adapter) {}
 
 rowvec Hapke93Model::calculate_H(const rowvec &x , double omega) {
     double y = sqrt(1 - omega);
@@ -21,7 +22,7 @@ double Hapke93Model::set_coef() {
 
 rowvec Hapke93Model::define_different_part(const rowvec &x, rowvec mue, rowvec mu0e) {
     rowvec result = rowvec(configuredGeometries.n_rows);
-    result = (1 + calculate_B(x(B0),x(H))) % calculate_P(x(B), x(C)) + calculate_H(mu0e, x(OMEGA)) % calculate_H(mue , x(OMEGA)) - 1;
+    result = (1 + calculate_B(adapter->get_b0(),adapter->get_h())) % calculate_P(x(B), adapter->get_c()) + calculate_H(mu0e, x(OMEGA)) % calculate_H(mue , x(OMEGA)) - 1;
     return result;
 }
 

@@ -9,10 +9,12 @@
 #include "Hapke93Model.h"
 
 
-std::shared_ptr<FunctionnalModel> FunctionnalModelFactory::getModel(std::string type, std::vector<std::vector<double>> &data) {
-    if(type == "hapke02"){
-        return std::shared_ptr<FunctionnalModel> (new Hapke02Model(data));
+std::shared_ptr<FunctionnalModel> FunctionnalModelFactory::getModel(std::string type,const double *data, int row_size, int col_size) {
+    /*if(type == "hapke02"){
+        return std::shared_ptr<FunctionnalModel> (new Hapke02Model(data, row_size, col_size, 0, 0));
     }else {
-        return std::shared_ptr<FunctionnalModel> (new Hapke93Model(data));
-    }
+        return std::shared_ptr<FunctionnalModel> (new Hapke93Model(data, row_size, col_size, 0, 0));
+    }*/
+    return std::shared_ptr<FunctionnalModel>();
+
 }
