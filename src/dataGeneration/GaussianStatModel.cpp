@@ -5,38 +5,40 @@
 #include "GaussianStatModel.h"
 
 #include <utility>
-#include <random>
 #include "GeneratorFactory.h"
 
 using namespace DataGeneration;
 
-GaussianStatModel::GaussianStatModel(std::string generatorType, double variance) {
+
+GaussianStatModel::GaussianStatModel(std::string generatorType, const double *covariance, int cov_size) {
     generator = GeneratorFactory::create(std::move(generatorType));
-    this->variance = variance;
+
+    //Transform cov from double* to arma::rowvec
+    this->covariance = rowvec(cov_size);
+    for(unsigned j=0; j<cov_size; j++){
+        this->covariance(j) = covariance[j];
+    }
 }
 
-void GaussianStatModel::gen_data(int n, FunctionnalModel &functionnalModel, mat x, mat y) {
+void GaussianStatModel::gen_data(FunctionnalModel &functionnalModel, int n, double *x, double *y) {
+    int dimension_D = functionnalModel.get_D_dimension();
+    int dimension_L = functionnalModel.get_L_dimension();
+    rowvec y_temp = rowvec(dimension_D);
 
-    x = mat(n,functionnalModel.get_L_dimension());
-    rowvec y_temp = rowvec(functionnalModel.get_D_dimension());
+    //Genrate x
+    generator->execute(n, dimension_L, x);
 
-    generator->execute(n, 0, x);
+    // create a vector of random values under a normal distribution with 0 mean and 1 variance
+    rowvec noise = randn<rowvec>(dimension_D);
+    noise  = noise % sqrt(covariance);
 
+    //Generate Y
     for(unsigned i=0; i<n; i++){
-        //functionalModel.F(x.row(i),y_temp)
-        y.row(i) = y_temp;
+        //functionnalModel.F(x,y_temp);
+        for(unsigned j=0; j<dimension_D;j++){
+            y[i*dimension_D+j] = y_temp(j) + noise(j);
+        }
     }
-
-    // Add noise to Y
-
-    //default random engine
-    std::default_random_engine generator;
-
-    // create normal distribution with 0 mean and "variance" variance
-    std::normal_distribution<double> normal_dist(0.0,variance);
-
-    // generate epsilon
-
 }
 
 double GaussianStatModel::density_X_Y(mat x, mat y) {

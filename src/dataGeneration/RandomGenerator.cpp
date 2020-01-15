@@ -4,7 +4,7 @@
 
 #include "RandomGenerator.h"
 
-void DataGeneration::RandomGenerator::execute(int n, int dimension, mat &x) {
+void DataGeneration::RandomGenerator::execute(int n, int dimension, double *x) {
 
     std::uniform_real_distribution<double> unif(0, 1);
 
@@ -21,7 +21,7 @@ void DataGeneration::RandomGenerator::execute(int n, int dimension, mat &x) {
     for (unsigned i=0; i<n; i++)
     {
         for(unsigned j=0; j<dimension; j++){
-            x(i,j) = unif(engine);
+            x[i*dimension+j] = unif(engine);
         }
     }
 }

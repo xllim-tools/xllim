@@ -8,7 +8,7 @@
 namespace DataGeneration{
     class GeneratorStrategy{
     public:
-        virtual void execute(int n, int dimension, mat &x) = 0;
+        virtual void execute(int n, int dimension, double *x) = 0;
     };
 }
 

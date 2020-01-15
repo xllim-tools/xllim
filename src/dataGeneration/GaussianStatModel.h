@@ -13,13 +13,13 @@
 namespace DataGeneration{
     class GaussianStatModel : StatModel{
     public :
-        GaussianStatModel(std::string generatorType, double variance);
-        void gen_data(int n, FunctionnalModel &functionnalModel, mat x, mat y) override;
+        GaussianStatModel(std::string generatorType, const double *covariance, int cov_size);
+        void gen_data(FunctionnalModel &functionnalModel, int n, double *x, double *y) override;
         double density_X_Y(mat x, mat y) override;
 
     private:
         std::shared_ptr<GeneratorStrategy> generator;
-        double variance;
+        rowvec covariance;
     };
 
 }
