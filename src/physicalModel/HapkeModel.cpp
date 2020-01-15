@@ -68,20 +68,6 @@ void HapkeModel::F(const rowvec &x, rowvec &y) {
     y = rowvec(reflectances);
 }
 
-void HapkeModel::F(double *x, int size_x, double *y, int size_y){
-    FunctionnalModel::F(x,size_x,y,size_y);
-}
-
-void HapkeModel::F(double *x, int x_row_size, int x_col_size, double *y, int y_row_size, int y_col_size) {
-    // Create a return object result
-    //std::vector<std::vector<double>> result(x_row_size);
-
-    // Fill result matrix row by row
-    //for(unsigned i=0 ; i<x_row_size; i++){
-        //this->F(x[i], result[i]);
-    //}
-}
-
 int HapkeModel::get_D_dimension() {
     return configuredGeometries.n_rows;
 }

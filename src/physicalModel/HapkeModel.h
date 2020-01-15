@@ -35,8 +35,6 @@ public:
      */
     HapkeModel(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter);
     void F(const rowvec &x, rowvec &y) final ;
-    void F(double *x, int size_x, double *y, int size_y) final;
-    void F(double *x, int x_row_size, int x_col_size, double *y, int y_row_size, int y_col_size) final;
     int get_D_dimension() final;
     int get_L_dimension() final;
     void to_physic(double *x, int size) final;
