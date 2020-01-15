@@ -33,7 +33,7 @@ public:
      * @param x
      * @param y vector of results
      */
-    virtual void F(const rowvec &x, rowvec &y) = 0;
+    virtual void F(rowvec x, rowvec &y) = 0;
 
     /**
      * This method calculates F(x) where x is a vector and return the results

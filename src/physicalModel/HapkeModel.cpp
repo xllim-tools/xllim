@@ -39,9 +39,7 @@ HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size, con
     setupGeometries(geomsMat);
 }
 
-void HapkeModel::F(const rowvec &x, rowvec &y) {
-
-    rowvec photometry = rowvec(x);
+void HapkeModel::F(rowvec photometry, rowvec &y) {
 
     //Set THETA_BAR to radian
     photometry(THETA_BAR) = degToGrad(photometry(THETA_BAR));

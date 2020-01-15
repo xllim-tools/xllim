@@ -34,7 +34,7 @@ public:
      * @param geometries : matrix of geometries that will be used by the model
      */
     HapkeModel(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter);
-    void F(const rowvec &x, rowvec &y) final ;
+    void F(rowvec photometry, rowvec &y) final ;
     int get_D_dimension() final;
     int get_L_dimension() final;
     void to_physic(double *x, int size) final;
