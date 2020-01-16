@@ -11,11 +11,11 @@
 #include <memory>
 
 namespace DataGeneration{
-    class GaussianStatModel : StatModel{
+    class GaussianStatModel : public StatModel{
     public :
         GaussianStatModel(std::string generatorType, const double *covariance, int cov_size);
-        void gen_data(FunctionnalModel &functionnalModel, int n, double *x, double *y) override;
-        double density_X_Y(mat x, mat y) override;
+        void gen_data(std::shared_ptr<FunctionnalModel> functionnalModel, int n, double *x, double *y) final;
+        double density_X_Y(mat x, mat y) final;
 
     private:
         std::shared_ptr<GeneratorStrategy> generator;

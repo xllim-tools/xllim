@@ -11,9 +11,9 @@
 using namespace arma;
 
 namespace DataGeneration{
-    class SobolGenerator : GeneratorStrategy {
+    class SobolGenerator : public GeneratorStrategy {
     public:
-        static void execute(int n, int dimension, double *x);
+        void execute(int n, int dimension, double *x) final ;
     };
 }
 

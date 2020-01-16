@@ -11,8 +11,8 @@
 using namespace arma;
 
 namespace DataGeneration{
-    class RandomGenerator : GeneratorStrategy {
-        static void execute(int n, int dimension, double *x);
+    class RandomGenerator : public GeneratorStrategy {
+        void execute(int n, int dimension, double *x) final;
     };
 }
 
