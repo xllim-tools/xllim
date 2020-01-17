@@ -39,7 +39,9 @@ HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size, con
     setupGeometries(geomsMat);
 }
 
-void HapkeModel::F(rowvec photometry, rowvec &y) {
+void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
+    // transform photometry from mathematical space to physical space
+    to_physic(photometry);
 
     //Set THETA_BAR to radian
     photometry(THETA_BAR) = degToGrad(photometry(THETA_BAR));
@@ -55,15 +57,11 @@ void HapkeModel::F(rowvec photometry, rowvec &y) {
     rowvec mue_0 = calculate_MuE_0(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
     rowvec mu0e_0 = calculate_Mu0E_0(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
 
-
     //Caculate reflectances
-    rowvec reflectances = set_coef()
+    reflectances = set_coef()
             * (photometry(OMEGA) / configuredGeometries.col(ALPHA).t() % mu0e / (mue + mu0e))
             % define_different_part(photometry,mue, mu0e)
             % calculate_S(photometry(THETA_BAR), mue, mu0e, mue_0, mu0e_0);
-
-    //convert reflectances to std::vector<double> format and return the results
-    y = rowvec(reflectances);
 }
 
 int HapkeModel::get_D_dimension() {
@@ -74,7 +72,7 @@ int HapkeModel::get_L_dimension() {
     return adapter->get_dimension_L();
 }
 
-void HapkeModel::to_physic(double *x, int size) {
+void HapkeModel::to_physic(rowvec &x) {
     // Normalize THETA_BAR
     x[THETA_BAR] *= THETA_BAR_SCALING;
 }

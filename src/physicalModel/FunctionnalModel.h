@@ -56,7 +56,9 @@ public:
      * @param x
      * @return matrix of results
      */
-    virtual void F(double *x, int x_row_size, int x_col_size, double *y, int y_row_size, int y_col_size) = 0;
+    virtual void F(double *x, int x_row_size, int x_col_size, double *y, int y_row_size, int y_col_size) {
+        //test
+    };
 
     /**
      * This method returns the D dimension of the problem
@@ -74,7 +76,7 @@ public:
      * his method normalizes the vector
      * @param x the vector to normalize
      */
-    virtual void to_physic(double *x, int size) = 0;
+    virtual void to_physic(rowvec &x) = 0;
 
     /**
      * This method denormalizes the vector
