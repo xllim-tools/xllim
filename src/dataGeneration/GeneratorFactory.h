@@ -12,7 +12,7 @@
 namespace DataGeneration {
     class GeneratorFactory {
     public:
-        static std::shared_ptr<GeneratorStrategy> create(std::string generatorType);
+        static std::shared_ptr<GeneratorStrategy> create(const std::string& generatorType);
     };
 }
 
