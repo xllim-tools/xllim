@@ -1,26 +1,19 @@
 //
-// Created by reverse-proxy on 13‏/1‏/2020.
+// Created by reverse-proxy on 17‏/1‏/2020.
 //
 
-#include "GaussianStatModel.h"
-
-#include <utility>
+#include "DependentGaussianStatModel.h"
 #include "GeneratorFactory.h"
 
 using namespace DataGeneration;
 
-
-GaussianStatModel::GaussianStatModel(std::string generatorType, const double *covariance, int cov_size) {
+DependentGaussianStatModel::DependentGaussianStatModel(std::string generatorType, int r) {
     generator = GeneratorFactory::create(std::move(generatorType));
-
-    //Transform cov from double* to arma::rowvec
-    this->covariance = rowvec(cov_size);
-    for(unsigned j=0; j<cov_size; j++){
-        this->covariance(j) = covariance[j];
-    }
+    this->r = r;
 }
 
-void GaussianStatModel::gen_data(std::shared_ptr<FunctionnalModel> functionnalModel, int n, double *x, double *y) {
+void
+DependentGaussianStatModel::gen_data(std::shared_ptr<FunctionnalModel> functionnalModel, int n, double *x, double *y) {
     int dimension_D = functionnalModel->get_D_dimension();
     int dimension_L = functionnalModel->get_L_dimension();
     auto *y_temp = new double[dimension_D];
@@ -38,6 +31,7 @@ void GaussianStatModel::gen_data(std::shared_ptr<FunctionnalModel> functionnalMo
 
     rowvec noise(dimension_D);
 
+
     // generate Y
     for(unsigned i=0; i<n; i++){
         // normalize vector to physical intervals
@@ -49,18 +43,15 @@ void GaussianStatModel::gen_data(std::shared_ptr<FunctionnalModel> functionnalMo
         // add noise
         for(unsigned j=0; j<dimension_D;j++){
             noise(j) = normalDistribution(engine);
-            y[i*dimension_D+j] = y_temp[j] + noise(j) * sqrt(covariance(j));
+            y[i*dimension_D+j] = y_temp[j] + noise(j) * sqrt(y_temp[j]/r);
+            cout << y_temp[j] << " " << noise(j) << " " << y[i*dimension_D+j] << " | ";
         }
+        cout << endl;
     }
 
     delete[] y_temp;
 }
 
-double GaussianStatModel::density_X_Y(mat x, mat y) {
-    //try something
+double DependentGaussianStatModel::density_X_Y(mat x, mat y) {
     return 0;
 }
-
-
-
-

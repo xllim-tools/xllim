@@ -12,10 +12,9 @@ using namespace DataGeneration;
 std::shared_ptr<GeneratorStrategy> GeneratorFactory::create(std::string generatorType) {
     if(generatorType == "sobol"){
         return std::shared_ptr<GeneratorStrategy> (new SobolGenerator());
-    }//else if (generatorType == "latin_cube") {
-       // return std::shared_ptr<GeneratorStrategy> (new LatinCubeGenerator());
-    //}
-    else {
+    }else if (generatorType == "latin_cube") {
+        return std::shared_ptr<GeneratorStrategy> (new LatinCubeGenerator());
+    }else {
         return std::shared_ptr<GeneratorStrategy> (new RandomGenerator());
     }
 }

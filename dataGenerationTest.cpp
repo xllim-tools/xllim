@@ -13,6 +13,7 @@
 #include "src/physicalModel/FourParamsModel.h"
 #include "src/physicalModel/ThreeParamsModel.h"
 #include "src/physicalModel/SixParamsModel.h"
+#include "src/dataGeneration//LatinCubeGenerator.h"
 
 #include <iostream>
 #include <cstring>
@@ -21,6 +22,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include "src/dataGeneration/GaussianStatModel.h"
+#include "src/dataGeneration/DependentGaussianStatModel.h"
 
 using namespace std;
 namespace pt = boost::property_tree;
@@ -29,7 +31,7 @@ using namespace boost::random;
 typedef sobol_engine< boost::uint_least64_t, 64u, default_sobol_table > Sobol;
 
 int main(){
-    /*static const std::size_t dimension = 6;
+    static const std::size_t dimension = 6;
 
     // Create a generator
     typedef boost::variate_generator<Sobol, boost::uniform_01<double>> quasi_random_gen_t;
@@ -62,33 +64,6 @@ int main(){
         //std::cout << std::endl;
     }
 
-    // LATIN HYPERCUBE
-    //DataGeneration::LatinCubeGenerator::
-
-    int seed_latin = 123456789;
-    int m = 6;
-    int i;
-    int j;
-    int k;
-    int kk;
-    int n = 20;
-    double *x;
-
-    std::cout << "\n";
-    std::cout << "TEST01\n";
-    std::cout << "  LATIN_RANDOM chooses a Latin Square cell arrangement,\n";
-    std::cout << "  and then chooses a random point from each cell.\n";
-    std::cout << "\n";
-    std::cout << "  Spatial dimension = " << m << "\n";
-    std::cout << "  Number of points =  " << n << "\n";
-    std::cout << "  Initial seed for UNIFORM = " << seed << "\n";
-
-    x = DataGeneration::LatinCubeGenerator::latin_random_new ( m, n, seed_latin );
-
-    DataGeneration::LatinCubeGenerator::r8mat_transpose_print ( m, n, x, "  Latin Random Square:" );
-
-    delete [] x;*/
-
     auto *geometries = new double[50*3];
     unsigned i = 0;
 
@@ -120,10 +95,10 @@ int main(){
 
     double cov[50];
     std::fill_n(cov,50,1.0/400);
-    auto *x = new double[6*10000];
-    auto *y = new double[50*10000];
+    auto *x = new double[6*10];
+    auto *y = new double[50*10];
     std::shared_ptr<FunctionnalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
-    DataGeneration::GaussianStatModel statModel = DataGeneration::GaussianStatModel("no",cov,50);
+    DataGeneration::DependentGaussianStatModel statModel = DataGeneration::DependentGaussianStatModel("latin_cube",20.0);
     statModel.gen_data(myModel,10,x,y);
 
     delete[] x;

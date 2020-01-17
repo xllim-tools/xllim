@@ -6,15 +6,35 @@
 
 # include <cstdlib>
 # include <iostream>
-# include <iomanip>
 # include <cmath>
 # include <ctime>
-# include <fstream>
-# include <cstring>
 
 using namespace std;
 using namespace DataGeneration;
 
+
+void LatinCubeGenerator::execute(int n, int dimension, double *x) {
+    int seed_latin = get_seed();
+
+    double *generated_x;
+
+    std::cout << "\n";
+    std::cout << "TEST01\n";
+    std::cout << "  LATIN_RANDOM chooses a Latin Square cell arrangement,\n";
+    std::cout << "  and then chooses a random point from each cell.\n";
+    std::cout << "\n";
+    std::cout << "  Spatial dimension = " << dimension << "\n";
+    std::cout << "  Number of points =  " << n << "\n";
+    std::cout << "  Initial seed for UNIFORM = " << seed_latin << "\n";
+
+    generated_x = DataGeneration::LatinCubeGenerator::latin_random_new ( dimension, n, seed_latin );
+
+    for(unsigned i=0; i<n ; i++){
+        for(unsigned j=0; j<dimension; j++){
+            x[i*dimension+j] = generated_x[i*dimension+j];
+        }
+    }
+}
 
 //****************************************************************************80
 
@@ -221,53 +241,6 @@ int LatinCubeGenerator::i4_uniform_ab ( int a, int b, int &seed )
 }
 //****************************************************************************80
 
-void LatinCubeGenerator::i4vec_print ( int n, int a[], string title )
-
-//****************************************************************************80
-//
-//  Purpose:
-//
-//    I4VEC_PRINT prints an I4VEC.
-//
-//  Discussion:
-//
-//    An I4VEC is a vector of I4's.
-//
-//  Licensing:
-//
-//    This code is distributed under the GNU LGPL license.
-//
-//  Modified:
-//
-//    14 November 2003
-//
-//  Author:
-//
-//    John Burkardt
-//
-//  Parameters:
-//
-//    Input, int N, the number of components of the vector.
-//
-//    Input, int A[N], the vector to be printed.
-//
-//    Input, string TITLE, a title.
-//
-{
-    int i;
-
-    cout << "\n";
-    cout << title << "\n";
-    cout << "\n";
-    for ( i = 0; i < n; i++ )
-    {
-        cout << "  " << setw(8) << i
-             << ": " << setw(8) << a[i]  << "\n";
-    }
-    return;
-}
-//****************************************************************************80
-
 double *LatinCubeGenerator::latin_random_new ( int dim_num, int point_num, int &seed )
 
 //****************************************************************************80
@@ -396,185 +369,6 @@ int * LatinCubeGenerator::perm_uniform_new ( int n, int &seed )
 }
 //****************************************************************************80
 
-void LatinCubeGenerator::r8mat_transpose_print ( int m, int n, double a[], string title )
-
-//****************************************************************************80
-//
-//  Purpose:
-//
-//    R8MAT_TRANSPOSE_PRINT prints an R8MAT, transposed.
-//
-//  Discussion:
-//
-//    An R8MAT is a doubly dimensioned array of R8 values, stored as a vector
-//    in column-major order.
-//
-//  Licensing:
-//
-//    This code is distributed under the GNU LGPL license.
-//
-//  Modified:
-//
-//    10 September 2009
-//
-//  Author:
-//
-//    John Burkardt
-//
-//  Parameters:
-//
-//    Input, int M, N, the number of rows and columns.
-//
-//    Input, double A[M*N], an M by N matrix to be printed.
-//
-//    Input, string TITLE, a title.
-//
-{
-    r8mat_transpose_print_some( m, n, a, 1, 1, m, n, title );
-
-    return;
-}
-//****************************************************************************80
-
-void LatinCubeGenerator::r8mat_transpose_print_some ( int m, int n, double a[], int ilo, int jlo,
-                                  int ihi, int jhi, string title )
-
-//****************************************************************************80
-//
-//  Purpose:
-//
-//    R8MAT_TRANSPOSE_PRINT_SOME prints some of an R8MAT, transposed.
-//
-//  Discussion:
-//
-//    An R8MAT is a doubly dimensioned array of R8 values, stored as a vector
-//    in column-major order.
-//
-//  Licensing:
-//
-//    This code is distributed under the GNU LGPL license.
-//
-//  Modified:
-//
-//    07 April 2014
-//
-//  Author:
-//
-//    John Burkardt
-//
-//  Parameters:
-//
-//    Input, int M, N, the number of rows and columns.
-//
-//    Input, double A[M*N], an M by N matrix to be printed.
-//
-//    Input, int ILO, JLO, the first row and column to print.
-//
-//    Input, int IHI, JHI, the last row and column to print.
-//
-//    Input, string TITLE, a title.
-//
-{
-# define INCX 5
-
-    int i;
-    int i2;
-    int i2hi;
-    int i2lo;
-    int i2lo_hi;
-    int i2lo_lo;
-    int inc;
-    int j;
-    int j2hi;
-    int j2lo;
-
-    cout << "\n";
-    cout << title << "\n";
-
-    if ( m <= 0 || n <= 0 )
-    {
-        cout << "\n";
-        cout << "  (None)\n";
-        return;
-    }
-
-    if ( ilo < 1 )
-    {
-        i2lo_lo = 1;
-    }
-    else
-    {
-        i2lo_lo = ilo;
-    }
-
-    if ( ihi < m )
-    {
-        i2lo_hi = m;
-    }
-    else
-    {
-        i2lo_hi = ihi;
-    }
-
-    for ( i2lo = i2lo_lo; i2lo <= i2lo_hi; i2lo = i2lo + INCX )
-    {
-        i2hi = i2lo + INCX - 1;
-
-        if ( m < i2hi )
-        {
-            i2hi = m;
-        }
-        if ( ihi < i2hi )
-        {
-            i2hi = ihi;
-        }
-
-        inc = i2hi + 1 - i2lo;
-
-        cout << "\n";
-        cout << "  Row: ";
-        for ( i = i2lo; i <= i2hi; i++ )
-        {
-            cout << setw(7) << i - 1 << "       ";
-        }
-        cout << "\n";
-        cout << "  Col\n";
-        cout << "\n";
-
-        if ( jlo < 1 )
-        {
-            j2lo = 1;
-        }
-        else
-        {
-            j2lo = jlo;
-        }
-        if ( n < jhi )
-        {
-            j2hi = n;
-        }
-        else
-        {
-            j2hi = jhi;
-        }
-
-        for ( j = j2lo; j <= j2hi; j++ )
-        {
-            cout << setw(5) << j - 1 << ":";
-            for ( i2 = 1; i2 <= inc; i2++ )
-            {
-                i = i2lo - 1 + i2;
-                cout << setw(14) << a[(i-1)+(j-1)*m];
-            }
-            cout << "\n";
-        }
-    }
-
-    return;
-# undef INCX
-}
-//****************************************************************************80
-
 double * LatinCubeGenerator::r8mat_uniform_01_new ( int m, int n, int &seed )
 
 //****************************************************************************80
@@ -664,122 +458,6 @@ double * LatinCubeGenerator::r8mat_uniform_01_new ( int m, int n, int &seed )
 
     return r;
 }
-//****************************************************************************80
 
-void LatinCubeGenerator::r8mat_write ( string output_filename, int m, int n, double table[] )
 
 //****************************************************************************80
-//
-//  Purpose:
-//
-//    R8MAT_WRITE writes an R8MAT file.
-//
-//  Discussion:
-//
-//    An R8MAT is an array of R8's.
-//
-//  Licensing:
-//
-//    This code is distributed under the GNU LGPL license.
-//
-//  Modified:
-//
-//    09 November 2014
-//
-//  Author:
-//
-//    John Burkardt
-//
-//  Parameters:
-//
-//    Input, string OUTPUT_FILENAME, the output filename.
-//
-//    Input, int M, the spatial dimension.
-//
-//    Input, int N, the number of points.
-//
-//    Input, double TABLE[M*N], the data.
-//
-{
-    int i;
-    int j;
-    ofstream output;
-//
-//  Open the file.
-//
-    output.open ( output_filename.c_str ( ) );
-
-    if ( !output )
-    {
-        cerr << "\n";
-        cerr << "R8MAT_WRITE - Fatal error!\n";
-        cerr << "  Could not open the output file.\n";
-        exit ( 1 );
-    }
-//
-//  Write the data.
-//
-    for ( j = 0; j < n; j++ )
-    {
-        for ( i = 0; i < m; i++ )
-        {
-            output << "  " << table[i+j*m];
-//    output << "  " << setw(24) << setprecision(16) << table[i+j*m];
-        }
-        output << "\n";
-    }
-//
-//  Close the file.
-//
-    output.close ( );
-
-    return;
-}
-//****************************************************************************80
-
-void LatinCubeGenerator::timestamp ( )
-
-//****************************************************************************80
-//
-//  Purpose:
-//
-//    TIMESTAMP prints the current YMDHMS date as a time stamp.
-//
-//  Example:
-//
-//    May 31 2001 09:45:54 AM
-//
-//  Licensing:
-//
-//    This code is distributed under the GNU LGPL license.
-//
-//  Modified:
-//
-//    03 October 2003
-//
-//  Author:
-//
-//    John Burkardt
-//
-//  Parameters:
-//
-//    None
-//
-{
-# define TIME_SIZE 40
-
-    static char time_buffer[TIME_SIZE];
-    const struct tm *tm;
-    size_t len;
-    time_t now;
-
-    now = time ( NULL );
-    tm = localtime ( &now );
-
-    len = strftime ( time_buffer, TIME_SIZE, "%d %B %Y %I:%M:%S %p", tm );
-
-    cout << time_buffer << "\n";
-
-    return;
-# undef TIME_SIZE
-}

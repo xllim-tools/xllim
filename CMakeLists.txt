@@ -19,7 +19,9 @@ add_library(dataGeneration STATIC
         src/dataGeneration/RandomGenerator.cpp
         src/dataGeneration/RandomGenerator.h
         src/dataGeneration/SobolGenerator.cpp
-        src/dataGeneration/SobolGenerator.h)
+        src/dataGeneration/SobolGenerator.h
+        src/dataGeneration/DependentGaussianStatModel.cpp
+        src/dataGeneration/DependentGaussianStatModel.h)
 
 
 add_library(functionalModel STATIC
