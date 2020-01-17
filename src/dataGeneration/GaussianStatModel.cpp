@@ -14,10 +14,7 @@ GaussianStatModel::GaussianStatModel(std::string generatorType, const double *co
     generator = GeneratorFactory::create(std::move(generatorType));
 
     //Transform cov from double* to arma::rowvec
-    this->covariance = rowvec(cov_size);
-    for(unsigned j=0; j<cov_size; j++){
-        this->covariance(j) = covariance[j];
-    }
+    this->covariance = rowvec(covariance, cov_size);
 }
 
 void GaussianStatModel::gen_data(std::shared_ptr<FunctionnalModel> functionnalModel, int n, double *x, double *y) {
