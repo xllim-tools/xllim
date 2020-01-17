@@ -8,6 +8,8 @@
 #include <memory>
 #include "HapkeAdapter.h"
 
+using namespace Functional;
+
 class HapkeAdapterFactory {
 public:
     static std::shared_ptr<HapkeAdapter> create(int dimension_L);

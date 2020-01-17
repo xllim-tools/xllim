@@ -5,7 +5,7 @@
 
 
 #include <armadillo>
-#include "src/physicalModel/FunctionnalModel.h"
+#include "src/physicalModel/FunctionalModel.h"
 #include "src/physicalModel/FunctionnalModelFactory.h"
 #include "src/physicalModel/Hapke02Model.h"
 #include "src/physicalModel/FourParamsModel.h"
@@ -102,7 +102,7 @@ int main(){
 
 
 
-    std::shared_ptr<FunctionnalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
+    std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
 
     auto *x = new double[6];
     for(unsigned j=0; j<6; j++){

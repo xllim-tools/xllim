@@ -15,7 +15,7 @@ add_library(functionalModel STATIC
         src/physicalModel/FunctionnalModelFactory.cpp
         src/physicalModel/Enumeration.h
         src/physicalModel/HapkeModel.h
-        src/physicalModel/FunctionnalModel.h
+        src/physicalModel/FunctionalModel.h
         src/physicalModel/Hapke93Model.h
         src/physicalModel/Hapke02Model.h src/physicalModel/ThreeParamsModel.cpp src/physicalModel/ThreeParamsModel.h src/physicalModel/HapkeAdapter.h src/physicalModel/HapkeAdapterFactory.cpp src/physicalModel/HapkeAdapterFactory.h src/physicalModel/SixParamsModel.cpp src/physicalModel/SixParamsModel.h src/physicalModel/FourParamsModel.cpp src/physicalModel/FourParamsModel.h)
 

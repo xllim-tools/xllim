@@ -22,8 +22,8 @@ cdef extern from "../src/physicalModel/Hapke93Model.cpp":
 cdef extern from "../src/physicalModel/HapkeModel.cpp":
     pass
 
-cdef extern from "../src/physicalModel/FunctionnalModel.h":
-    cdef cppclass FunctionnalModel:
+cdef extern from "../src/physicalModel/FunctionalModel.h":
+    cdef cppclass FunctionalModel:
         void F(double *x, int size_x, double *y, int size_y)
         int get_D_dimension()
         int get_L_dimension()
@@ -33,13 +33,13 @@ cdef extern from "../src/physicalModel/FunctionnalModel.h":
 cdef extern from "../src/physicalModel/FunctionnalModelFactory.h":
     cdef cppclass FunctionnalModelFactory:
         @staticmethod
-        shared_ptr[FunctionnalModel] getModel(string type, double *data, int row_size, int col_size)
+        shared_ptr[FunctionalModel] getModel(string type, double *data, int row_size, int col_size)
 
 cdef class PyFunctionnalModel:
-    cdef shared_ptr[FunctionnalModel] c_model
+    cdef shared_ptr[FunctionalModel] c_model
 
     @staticmethod
-    cdef PyFunctionnalModel create(shared_ptr[FunctionnalModel] model):
+    cdef PyFunctionnalModel create(shared_ptr[FunctionalModel] model):
         obj = <PyFunctionnalModel>PyFunctionnalModel.__new__(PyFunctionnalModel)
         obj.c_model = model
         return obj
@@ -75,6 +75,6 @@ cdef class PyFunctionnalModelFactory:
 
     def getModel(self,type,data):
         cdef double[:,::1] t2 = np.ascontiguousarray(data)
-        cdef shared_ptr[FunctionnalModel] model = self.c_factory.getModel(<string>type.encode('utf-8'),&t2[0,0], data.shape[0],data.shape[1])
+        cdef shared_ptr[FunctionalModel] model = self.c_factory.getModel(<string>type.encode('utf-8'),&t2[0,0], data.shape[0],data.shape[1])
         return PyFunctionnalModel.create(model)
 

@@ -1,9 +1,13 @@
-//
-// Created by reverse-proxy on 25‏/12‏/2019.
-//
+/**
+ * @file Hapke93Model.cpp
+ * @brief 1993 Hapke model class implmentation
+ * @author Sami DJOUADI
+ * @version 1.0
+ * @date 25/12/2019
+ */
 
 #include "Hapke93Model.h"
-
+using namespace Functional;
 using namespace HapkeEnumeration;
 
 Hapke93Model::Hapke93Model(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter)
@@ -20,9 +24,9 @@ double Hapke93Model::set_coef() {
     return 1;
 }
 
-rowvec Hapke93Model::define_different_part(const rowvec &x, rowvec mue, rowvec mu0e) {
+rowvec Hapke93Model::define_different_part(const rowvec &photometry, rowvec mue, rowvec mu0e) {
     rowvec result = rowvec(configuredGeometries.n_rows);
-    result = (1 + calculate_B(adapter->get_b0(),adapter->get_h())) % calculate_P(x(B), adapter->get_c()) + calculate_H(mu0e, x(OMEGA)) % calculate_H(mue , x(OMEGA)) - 1;
+    result = (1 + calculate_B(adapter->get_b0(),adapter->get_h())) % calculate_P(photometry(B), adapter->get_c()) + calculate_H(mu0e, photometry(OMEGA)) % calculate_H(mue , photometry(OMEGA)) - 1;
     return result;
 }
 

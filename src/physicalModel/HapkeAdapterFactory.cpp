@@ -6,6 +6,8 @@
 #include "SixParamsModel.h"
 #include "ThreeParamsModel.h"
 
+using namespace Functional;
+
 std::shared_ptr<HapkeAdapter> HapkeAdapterFactory::create(int dimension_L) {
 
     /*if(dimension_L == 6){

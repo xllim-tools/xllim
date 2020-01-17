@@ -1,14 +1,19 @@
-//
-// Created by reverse-proxy on 14‏/1‏/2020.
-//
+/**
+ * @file ThreeParamsModel.cpp
+ * @brief Class implementation of the 3 parameters Hapke model adapter
+ * @author Sami DJOUADI
+ * @version 1.0
+ * @date 14/12/2019
+ */
 
 #include "ThreeParamsModel.h"
 #include "Enumeration.h"
 
+using namespace Functional;
 using namespace HapkeEnumeration;
 
-void ThreeParamsModel::adaptModel(rowvec &x) {
-    this->c = 3.29 * exp(-17.4 * pow(x(B),2) + 0.092)/2;
+void ThreeParamsModel::adaptModel(rowvec &photometry) {
+    this->c = 3.29 * exp(-17.4 * pow(photometry(B), 2) + 0.092) / 2;
 }
 
 ThreeParamsModel::ThreeParamsModel(double b0, double h): HapkeAdapter(){
