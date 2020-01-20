@@ -15,20 +15,20 @@ using namespace arma;
 namespace Functional {
 /**
  * @class HapkeAdapter
- * @brief abstract class that adapt @ref HapkeModel "hapke model" to models with different
- * number of parameters for example a model with 3 parameters {omega, theta_bar, b}.
+ * @brief Abstract class that adapt @ref HapkeModel "Hapke's model" to models with different
+ * number of parameters (for example,  3 parameters {omega, theta_bar, b}).
  *
  * The class contains the parameters which may be initialized like b0 and h or calculated
- * from other parameters like c, these attributes are accessible via getters.
+ * from other parameters like c; these attributes are accessible via getters.
  */
     class HapkeAdapter {
     public:
 
         /**
          * This method adapts the photometry to a 6 parameters model in order to have same
-         * formulas in @ref HapkeModel "hapke model" for all the variants.
+         * formulas in @ref HapkeModel "Hapke's model" for all the variants.
          *
-         * Example : if using a 4 parameters model, the method sets b0 and h to default value or
+         * Example : if using a 4 parameters model, the method sets b0 and h
          * to the arguments in the constructor of a 4 parameters adapter. And it sets C to value of C
          * in the photometry vector.
          *
@@ -37,7 +37,7 @@ namespace Functional {
         virtual void adaptModel(rowvec &photometry) = 0;
 
         /**
-         * this method returns the photometry dimension
+         * this method returns the number of the actual variables
          * @return photometry dimension
          */
         virtual int get_dimension_L() = 0;

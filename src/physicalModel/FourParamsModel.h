@@ -14,8 +14,8 @@
 namespace Functional{
     /**
      * @class FourParamsModel
-     * @brief This class adapts @ref HapkeModel "hapke model" to models with 4 parameters {omega, theta_bar, b , c}.
-     * By using a default or chosen values of b0 and h.
+     * @brief This class adapts @ref HapkeModel "Hapke's model" to a reduced model with 4 parameters {omega, theta_bar, b , c},
+     * by using default values of b0 and h.
      */
     class FourParamsModel : public HapkeAdapter{
     public:
