@@ -5,7 +5,7 @@
 
 
 #include <armadillo>
-#include "src/physicalModel/FunctionnalModel.h"
+#include "src/physicalModel/FunctionalModel.h"
 #include "src/physicalModel/FunctionnalModelFactory.h"
 #include "src/physicalModel/Hapke02Model.h"
 #include "src/physicalModel/FourParamsModel.h"
@@ -96,13 +96,13 @@ int main(){
     i = 0;
     for (pt::ptree::value_type& v : root.get_child("theta0"))
     {
-        photometries(i,1) = stod(v.second.data());
+        photometries(i,1) = stod(v.second.data()) / 30;
         i++;
     }
 
 
 
-    std::shared_ptr<FunctionnalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
+    std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
 
     auto *x = new double[6];
     for(unsigned j=0; j<6; j++){
@@ -113,7 +113,8 @@ int main(){
 
     myModel->F(x, 6, y, 50);
 
-    cout << y[0] << endl;
+    cout.precision(16);
+    cout << y[3] << endl;
 
     cout << myModel->get_D_dimension() <<'\n';
     cout << myModel->get_L_dimension() <<'\n';

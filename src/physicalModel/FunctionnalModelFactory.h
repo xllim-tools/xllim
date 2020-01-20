@@ -9,7 +9,9 @@
 #ifndef UNTITLED_FUNCTIONNALMODELFACTORY_H
 #define UNTITLED_FUNCTIONNALMODELFACTORY_H
 
-#include "FunctionnalModel.h"
+#include "FunctionalModel.h"
+
+using namespace Functional;
 
 /**
  * @class FunctionnalModelFactory
@@ -19,7 +21,7 @@
  */
 class FunctionnalModelFactory {
 public:
-    static std::shared_ptr<FunctionnalModel> getModel(std::string type,const double *data, int row_size, int col_size);
+    static std::shared_ptr<FunctionalModel> getModel(std::string type, const double *data, int row_size, int col_size);
 };
 
 

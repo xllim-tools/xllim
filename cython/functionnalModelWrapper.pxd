@@ -10,8 +10,8 @@ cdef extern from "../src/physicalModel/Hapke93Model.cpp":
 cdef extern from "../src/physicalModel/HapkeModel.cpp":
     pass
 
-cdef extern from "../src/physicalModel/FunctionnalModel.h":
-    cdef cppclass FunctionnalModel:
+cdef extern from "../src/physicalModel/FunctionalModel.h":
+    cdef cppclass FunctionalModel:
         void F(vector[double] &x, vector[double] &y)
         vector[double] F(vector[double] &x)
         vector[vector[double]] F(vector[vector[double]] &x)
@@ -23,4 +23,4 @@ cdef extern from "../src/physicalModel/FunctionnalModel.h":
 cdef extern from "../src/physicalModel/FunctionnalModelFactory.h":
     cdef cppclass FunctionnalModelFactory:
         @staticmethod
-        shared_ptr[FunctionnalModel] getModel(string type, vector[vector[double]] &geometries)
+        shared_ptr[FunctionalModel] getModel(string type, vector[vector[double]] &geometries)

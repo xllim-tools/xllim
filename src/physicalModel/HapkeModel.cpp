@@ -1,3 +1,11 @@
+/**
+ * @file HapkeModel.cpp
+ * @brief Hapke model class implementation
+ * @author Sami DJOUADI
+ * @version 1.0
+ * @date 18/12/2019
+ */
+
 #include "HapkeModel.h"
 #include <utility>
 #include "HapkeAdapterFactory.h"
@@ -5,8 +13,10 @@
 #define DEGREE_180 180
 #define THETA_BAR_SCALING 30
 
+using namespace Functional;
 using namespace HapkeEnumeration;
 
+// this index is used to access the matrix of intermediate results
 enum geom_helper_index{
     COS_THETA = 0,
     SIN_THETA = 1,
@@ -39,9 +49,9 @@ HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size, con
     setupGeometries(geomsMat);
 }
 
-void HapkeModel::F(const rowvec &x, rowvec &y) {
-
-    rowvec photometry = rowvec(x);
+void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
+    // transform photometry from mathematical space to physical space
+    to_physic(photometry);
 
     //Set THETA_BAR to radian
     photometry(THETA_BAR) = degToGrad(photometry(THETA_BAR));
@@ -57,29 +67,11 @@ void HapkeModel::F(const rowvec &x, rowvec &y) {
     rowvec mue_0 = calculate_MuE_0(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
     rowvec mu0e_0 = calculate_Mu0E_0(photometry(THETA_BAR), E1_THETA_BAR, E2_THETA_BAR);
 
-
     //Caculate reflectances
-    rowvec reflectances = set_coef()
+    reflectances = set_coef()
             * (photometry(OMEGA) / configuredGeometries.col(ALPHA).t() % mu0e / (mue + mu0e))
             % define_different_part(photometry,mue, mu0e)
             % calculate_S(photometry(THETA_BAR), mue, mu0e, mue_0, mu0e_0);
-
-    //convert reflectances to std::vector<double> format and return the results
-    y = rowvec(reflectances);
-}
-
-void HapkeModel::F(double *x, int size_x, double *y, int size_y){
-    FunctionnalModel::F(x,size_x,y,size_y);
-}
-
-void HapkeModel::F(double *x, int x_row_size, int x_col_size, double *y, int y_row_size, int y_col_size) {
-    // Create a return object result
-    //std::vector<std::vector<double>> result(x_row_size);
-
-    // Fill result matrix row by row
-    //for(unsigned i=0 ; i<x_row_size; i++){
-        //this->F(x[i], result[i]);
-    //}
 }
 
 int HapkeModel::get_D_dimension() {
@@ -90,18 +82,19 @@ int HapkeModel::get_L_dimension() {
     return adapter->get_dimension_L();
 }
 
-void HapkeModel::to_physic(double *x, int size) {
+void HapkeModel::to_physic(rowvec &x) {
     // Normalize THETA_BAR
     x[THETA_BAR] *= THETA_BAR_SCALING;
 }
 
 void HapkeModel::from_physic(double *x, int size) {
     // Denormalize THETA_BAR
-    x[THETA_BAR] /= THETA_BAR_SCALING;
+    if(THETA_BAR < size){
+        x[THETA_BAR] /= THETA_BAR_SCALING;
+    }
 }
 
-//--------------------------------------- PRIVATE ----------------------------------------//
-
+//--------------------------------------- PRIVATE METHODS ----------------------------------------//
 void HapkeModel::generate_geom_heper_mat() {
     geom_helper_mat = mat(configuredGeometries.n_rows,12);
 
@@ -135,7 +128,7 @@ void HapkeModel::calculate_alpha(const vec &theta_0, subview_col<double> alpha) 
     alpha = 4 * cos(theta_0);
 }
 
-//------------------------------------------- PROTECTED ---------------------------------------//
+//------------------------------------------- PROTECTED METHODS ---------------------------------------//
 
 void HapkeModel::setupGeometries(mat geometries) {
     configuredGeometries = std::move(geometries);
@@ -147,7 +140,7 @@ void HapkeModel::setupGeometries(mat geometries) {
 
     configuredGeometries.resize(configuredGeometries.n_rows,6);
 
-    // calculate phase angle and his cosinus
+    // calculate phase angle and its cosinus
     calculate_phase_angle(
             configuredGeometries.col(THETA),
             configuredGeometries.col(THETA_0),
@@ -199,9 +192,9 @@ rowvec HapkeModel::calculate_S(const double theta_bar, const rowvec& mue, const 
 }
 
 rowvec HapkeModel::calculate_B(const double b0, const double h) {
-    rowvec B = rowvec(configuredGeometries.n_rows);
-    B = b0 / (1 + geom_helper_mat.col(TAN_G_DIV_2).t() / h);
-    return B;
+    rowvec result = rowvec(configuredGeometries.n_rows);
+    result = b0 / (1 + geom_helper_mat.col(TAN_G_DIV_2).t() / h);
+    return result;
 }
 
 rowvec HapkeModel::calculate_MuE(const double theta_bar, const double E1_THETA_BAR, const double E2_THETA_BAR) {
@@ -289,12 +282,6 @@ double HapkeModel::calculate_E1_THETA_BAR(const double theta_bar) {
 
 double HapkeModel::calculate_E2_THETA_BAR(const double theta_bar) {
     return std::min(std::numeric_limits<double>::max(),  1/pow(tan(theta_bar),2));
-}
-
-void HapkeModel::infinity_to_max(subview_col<double> x) {
-    for(unsigned i=0 ; i<x.n_rows ; i++){
-        x(i) = std::min(std::numeric_limits<double>::max(), x(i));
-    }
 }
 
 

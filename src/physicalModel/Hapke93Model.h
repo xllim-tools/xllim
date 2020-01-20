@@ -6,39 +6,51 @@
  * @date 25/12/2019
  */
 
-#ifndef UNTITLED_HAPKE93MODEL_H
-#define UNTITLED_HAPKE93MODEL_H
+#ifndef KERNELO_HAPKE93MODEL_H
+#define KERNELO_HAPKE93MODEL_H
 
 #include "HapkeModel.h"
 
+namespace Functional {
 /**
  * @class Hapke93Model
- * @brief Abstract class representing the 1993 version of the Hapke model
+ * @brief A class representing the 1993 version of the Hapke model
  *
  * @details This class overrides the uncommon parts of the reflectance formula.
  *
+ * See : Hapke B. 1993 Theory of Reflectance and Emittance Spectroscopy. Topics in Remote Sensing.
+ * Cambridge University Press, Cambridge, UK.
+ *
+ * See : Schmidt F. and Fernando J. 2015 Realistic uncertainties on Hapke model parameters from
+ * photometric measurement. Icarus, 260 :73 - 93, 2015.
+ * 
  */
-class Hapke93Model : public HapkeModel {
-public:
-    /**
-     * @brief Constructor
-     * @details Hapke93Model class constructor
-     * @param geometries : matrix of geometries that will be used by the model
-     */
-    Hapke93Model(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter);
+    class Hapke93Model : public HapkeModel {
+    public:
+        /**
+         * @brief Constructor
+         * @details Hapke93Model class constructor
+         * @param geometries : matrix of geometries that will be used by the model
+         * @param row_size : number of geometries.
+         * @param col_size : number of parameters per geometry (Dimenion D = 3).
+         * @param adapter : a shared pointer to the @ref HapkeAdapter "adapter".
+         */
+        Hapke93Model(const double *geometries, int row_size, int col_size,
+                     const std::shared_ptr<HapkeAdapter> &adapter);
 
-private:
-    double set_coef() override ;
-    rowvec define_different_part(const rowvec &x, rowvec mue, rowvec mu0e) override ;
+    private:
+        double set_coef() override;
 
-    /**
-     * This method calculates the multiple scattering
-     * @param x
-     * @param omega
-     * @return a vector of D results
-     */
-    static rowvec calculate_H(const rowvec &x , double omega);
-};
+        rowvec define_different_part(const rowvec &photometry, rowvec mue, rowvec mu0e) override;
 
+        /**
+         * This method calculates the multiple scattering
+         * @param x
+         * @param omega : single scattering albedo
+         * @return a vector of D results
+         */
+        static rowvec calculate_H(const rowvec &x, double omega);
+    };
+}
 
-#endif //UNTITLED_HAPKE93MODEL_H
+#endif //KERNELO_HAPKE93MODEL_H
