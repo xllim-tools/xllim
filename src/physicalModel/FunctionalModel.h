@@ -18,7 +18,7 @@ using namespace arma;
 namespace Functional {
 /**
  * @class FunctionalModel
- * @brief abstract class representing the functional model
+ * @brief Abstract class representing the functional model
  *
  * This class is an interface of the functional model. It offers the
  * functional method "F" which requires that the parameters of X be 
@@ -47,8 +47,8 @@ namespace Functional {
          *
          * @param x : pointer to the set of parameters of the physical model.
          * @param size_x : number of parameters (L dimension)
-         * @param y pointer : to the set of results
-         * @param size_y
+         * @param y : pointer  to the set of results
+         * @param size_y : number of outputs (D dimension)
          */
         virtual void F(double *x, int size_x, double *y, int size_y) {
             //create an armadillo row vector pointing to the standard array
@@ -79,13 +79,13 @@ namespace Functional {
 
         /**
          * This method returns the D dimension of the problem
-         * @return thd D dimension of the problem
+         * @return the dimension D of the problem
          */
         virtual int get_D_dimension() = 0;
 
         /**
          * This method returns the L dimension of the problem
-         * @return thd L dimension of the problem
+         * @return the dimension L of the problem
          */
         virtual int get_L_dimension() = 0;
 

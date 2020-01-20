@@ -17,8 +17,8 @@
 namespace Functional {
 /**
  * @class ThreeParamsModel
- * @brief This class adapts @ref HapkeModel "hapke model" to models with 3 parameters {omega, theta_bar, b}.
- * By using a default or chosen values of b0 and h, and calculating c using the hokey stick relation.
+ * @brief A class that adapts @ref HapkeModel "Hapke's model" to a reduced model with 3 parameters {omega, theta_bar, b},
+ * by using default values of b0 and h, and calculating c using the hokey stick relation.
  */
     class ThreeParamsModel : public HapkeAdapter {
     public:

@@ -14,9 +14,9 @@
 namespace Functional {
 /**
  * @class Hapke93Model
- * @brief A class representing the 1993 version of the Hapke model
+ * @brief A class representing the 1993 version of Hapke's model
  *
- * @details This class overrides the uncommon parts of the reflectance formula.
+ * @details This class overrides the varying parts of the reflectance formula.
  *
  * See : Hapke B. 1993 Theory of Reflectance and Emittance Spectroscopy. Topics in Remote Sensing.
  * Cambridge University Press, Cambridge, UK.
