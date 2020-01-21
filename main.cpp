@@ -104,20 +104,22 @@ int main(){
 
     std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
 
-    auto *x = new double[6];
-    for(unsigned j=0; j<6; j++){
-        x[j] = photometries(0,j);
+    auto *x = new double[6*10000];
+    for(unsigned k=0; k<10000; k++){
+        for(unsigned j=0; j<6; j++){
+            x[k*6+j] = photometries(i,j);
+        }
     }
 
+
     auto *y = new double[50];
-
-    myModel->F(x, 6, y, 50);
-
-    cout.precision(16);
-    cout << y[3] << endl;
-
-    cout << myModel->get_D_dimension() <<'\n';
-    cout << myModel->get_L_dimension() <<'\n';
+    auto start = chrono::high_resolution_clock::now();
+    for(unsigned k=0; k<10000; k++){
+        myModel->F(&x[k*6], 6, y, 50);
+    }
+    auto end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
+    cout << duration.count() << endl;
 
     delete [] x;
     delete [] y;

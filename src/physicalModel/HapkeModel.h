@@ -105,11 +105,11 @@ namespace Functional {
         /**
          * This method calculates MuE(THETA)
          * @param theta_bar : surface macroscopic roughness
-         * @param E1_THETA_BAR : E1 value dependent only on THETA_BAR
-         * @param E2_THETA_BAR : E2 value dependent only on THETA_BAR
+         * @param E1 : E1 value dependent only on THETA_BAR
+         * @param E1_0 : E2 value dependent only on THETA_BAR
          * @return a vector of D results
          */
-        rowvec calculate_MuE(double theta_bar, double E1_THETA_BAR, double E2_THETA_BAR);
+        rowvec calculate_MuE(double theta_bar, rowvec &E1, rowvec &E1_0, rowvec &E2, rowvec &E2_0);
 
         /**
          * This method calculates Mu0E(THETA)
@@ -118,7 +118,7 @@ namespace Functional {
          * @param E2_THETA_BAR : E2 value dependent only on THETA_BAR
          * @return a vector of D results
          */
-        rowvec calculate_Mu0E(double theta_bar, double E1_THETA_BAR, double E2_THETA_BAR);
+        rowvec calculate_Mu0E(double theta_bar, rowvec &E1, rowvec &E1_0, rowvec &E2, rowvec &E2_0);
 
         /**
          * This method calculates MuE(0)
@@ -127,7 +127,7 @@ namespace Functional {
          * @param E2_THETA_BAR : E2 value dependent only on THETA_BAR
          * @return a vector of D results
          */
-        rowvec calculate_MuE_0(double theta_bar, double E1_THETA_BAR, double E2_THETA_BAR);
+        rowvec calculate_MuE_0(double theta_bar, rowvec &E1, rowvec &E1_0, rowvec &E2, rowvec &E2_0);
 
         /**
          * This method calculates Mu0E(0)
@@ -136,7 +136,7 @@ namespace Functional {
          * @param E2_THETA_BAR : E2 value dependent only on THETA_BAR
          * @return a vector of D results
          */
-        rowvec calculate_Mu0E_0(double theta_bar, double E1_THETA_BAR, double E2_THETA_BAR);
+        rowvec calculate_Mu0E_0(double theta_bar, rowvec &E1, rowvec &E1_0, rowvec &E2, rowvec &E2_0);
 
         /**
          * This method calculates X(THETA_BAR)
