@@ -6,13 +6,15 @@
 #define KERNELO_LATINCUBEGENERATOR_H
 
 #include <string>
+#include <armadillo>
 #include "GeneratorStrategy.h"
 
+using namespace arma;
 
 namespace DataGeneration{
     class LatinCubeGenerator : public GeneratorStrategy{
     public:
-        void execute(int n, int dimension, double *x) final;
+        void execute(mat &x) final;
     private:
         static int get_seed ();
         static int i4_uniform_ab ( int ilo, int ihi, int &seed );

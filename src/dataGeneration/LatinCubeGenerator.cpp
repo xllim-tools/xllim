@@ -13,25 +13,16 @@ using namespace std;
 using namespace DataGeneration;
 
 
-void LatinCubeGenerator::execute(int n, int dimension, double *x) {
+void LatinCubeGenerator::execute(arma::Mat<double> &x) {
     int seed_latin = get_seed();
 
     double *generated_x;
 
-    std::cout << "\n";
-    std::cout << "TEST01\n";
-    std::cout << "  LATIN_RANDOM chooses a Latin Square cell arrangement,\n";
-    std::cout << "  and then chooses a random point from each cell.\n";
-    std::cout << "\n";
-    std::cout << "  Spatial dimension = " << dimension << "\n";
-    std::cout << "  Number of points =  " << n << "\n";
-    std::cout << "  Initial seed for UNIFORM = " << seed_latin << "\n";
+    generated_x = DataGeneration::LatinCubeGenerator::latin_random_new ( x.n_cols, x.n_rows, seed_latin );
 
-    generated_x = DataGeneration::LatinCubeGenerator::latin_random_new ( dimension, n, seed_latin );
-
-    for(unsigned i=0; i<n ; i++){
-        for(unsigned j=0; j<dimension; j++){
-            x[i*dimension+j] = generated_x[i*dimension+j];
+    for(unsigned i=0; i<x.n_rows ; i++){
+        for(unsigned j=0; j<x.n_cols; j++){
+            x(i,j) = generated_x[i*x.n_cols+j];
         }
     }
 }

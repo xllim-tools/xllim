@@ -5,10 +5,14 @@
 #ifndef KERNELO_GENERATORSTRATEGY_H
 #define KERNELO_GENERATORSTRATEGY_H
 
+#include <armadillo>
+
+using namespace arma;
+
 namespace DataGeneration{
     class GeneratorStrategy{
     public:
-        virtual void execute(int n, int dimension, double *x) = 0;
+        virtual void execute(mat &x) = 0;
     };
 }
 

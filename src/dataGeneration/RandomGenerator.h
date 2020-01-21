@@ -12,7 +12,7 @@ using namespace arma;
 
 namespace DataGeneration{
     class RandomGenerator : public GeneratorStrategy {
-        void execute(int n, int dimension, double *x) final;
+        void execute(mat &x) final;
     };
 }
 

@@ -2,11 +2,10 @@
 // Created by reverse-proxy on 13‏/1‏/2020.
 //
 
+#include <memory>
 #include "RandomGenerator.h"
 
-void DataGeneration::RandomGenerator::execute(int n, int dimension, double *x) {
-
-    std::uniform_real_distribution<double> unif(0, 1);
+void DataGeneration::RandomGenerator::execute(mat &x) {
 
     // mt19937 is a standard mersenne_twister_engine
     std::mt19937_64 engine;
@@ -16,12 +15,12 @@ void DataGeneration::RandomGenerator::execute(int n, int dimension, double *x) {
     std::seed_seq ss{uint32_t(seed & 0xffffffff), uint32_t(seed>>32)};
     engine.seed(ss);
 
+    std::uniform_real_distribution<double> unif(0, 1);
+    auto ptr_to_unif = std::make_shared<std::uniform_real_distribution<double>>(unif);
+    auto ptr_tp_engine = std::make_shared<std::mt19937_64>(engine);
 
-    // generate random numbers
-    for (unsigned i=0; i<n; i++)
-    {
-        for(unsigned j=0; j<dimension; j++){
-            x[i*dimension+j] = unif(engine);
-        }
-    }
+    // generate numbers
+    x.for_each([ptr_tp_engine,ptr_to_unif](mat::elem_type& val){
+        val = ptr_to_unif->operator()(ptr_tp_engine.operator*());
+    });
 }

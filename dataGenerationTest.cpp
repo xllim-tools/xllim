@@ -7,7 +7,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <iostream>
 #include <chrono>
-#include "src/physicalModel/FunctionnalModel.h"
+#include "src/physicalModel/FunctionalModel.h"
 #include "src/physicalModel/FunctionnalModelFactory.h"
 #include "src/physicalModel/Hapke02Model.h"
 #include "src/physicalModel/FourParamsModel.h"
@@ -32,37 +32,6 @@ typedef sobol_engine< boost::uint_least64_t, 64u, default_sobol_table > Sobol;
 
 int main(){
     static const std::size_t dimension = 6;
-
-    // Create a generator
-    typedef boost::variate_generator<Sobol, boost::uniform_01<double>> quasi_random_gen_t;
-
-    // Initialize the engine to draw randomness out of thin air
-    Sobol engine(dimension);
-
-    std::vector<double> sample(dimension);
-
-    // At this point you can use std::generate, generate member f-n, etc.
-    //engine.generate(sample.begin(), sample.end());
-
-
-    //-------------------------------------------------------
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::seed_seq ss{uint32_t(seed & 0xffffffff), uint32_t(seed>>32)};
-
-    // mt19937 is a standard mersenne_twister_engine
-    std::mt19937_64 generator;
-    generator.seed(ss);
-
-    std::uniform_real_distribution<double> unif(0, 1);
-    // ready to generate random numbers
-    for (int i = 0; i < 20; i++)
-    {
-        for(int j=0; j<6; j++){
-            //double currentRandomNumber = unif(generator);
-            //std::cout << currentRandomNumber << " ";
-        }
-        //std::cout << std::endl;
-    }
 
     auto *geometries = new double[50*3];
     unsigned i = 0;
@@ -95,11 +64,15 @@ int main(){
 
     double cov[50];
     std::fill_n(cov,50,1.0/400);
-    auto *x = new double[6*10];
-    auto *y = new double[50*10];
-    std::shared_ptr<FunctionnalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
-    DataGeneration::DependentGaussianStatModel statModel = DataGeneration::DependentGaussianStatModel("latin_cube",20.0);
-    statModel.gen_data(myModel,10,x,y);
+    auto *x = new double[6*10000];
+    auto *y = new double[50*10000];
+
+    std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
+    DataGeneration::GaussianStatModel statModel = DataGeneration::GaussianStatModel("random",cov,50);
+
+
+    statModel.DataGeneration::StatModel::gen_data(myModel,10000,x,y);
+
 
     delete[] x;
     delete[] y;

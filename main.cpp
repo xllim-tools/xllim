@@ -111,13 +111,17 @@ int main(){
 
     auto *y = new double[50];
 
-    myModel->F(x, 6, y, 50);
 
-    cout.precision(16);
-    cout << y[3] << endl;
+    rowvec t(50);
+    auto start = std::chrono::high_resolution_clock::now();
+    for(unsigned j=0; j<1; j++){
+        myModel->F(photometries.row(3),t);
+    }
+    auto end1 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end1-start);
+    //cout << duration.count() << endl;
 
-    cout << myModel->get_D_dimension() <<'\n';
-    cout << myModel->get_L_dimension() <<'\n';
+
 
     delete [] x;
     delete [] y;

@@ -13,7 +13,7 @@ using namespace arma;
 namespace DataGeneration{
     class SobolGenerator : public GeneratorStrategy {
     public:
-        void execute(int n, int dimension, double *x) final ;
+        void execute(mat &x) final ;
     };
 }
 

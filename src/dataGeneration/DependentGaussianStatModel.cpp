@@ -12,14 +12,14 @@ DependentGaussianStatModel::DependentGaussianStatModel(std::string generatorType
     this->r = r;
 }
 
-void
-DependentGaussianStatModel::gen_data(std::shared_ptr<FunctionnalModel> functionnalModel, int n, double *x, double *y) {
-    int dimension_D = functionnalModel->get_D_dimension();
-    int dimension_L = functionnalModel->get_L_dimension();
-    auto *y_temp = new double[dimension_D];
+std::tuple<mat, mat> DependentGaussianStatModel::gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n) {
+    mat x_arma = mat(n,functionalModel->get_L_dimension());
+    mat y_arma = mat(n,functionalModel->get_D_dimension());
+    int dimension_D = functionalModel->get_D_dimension();
+    int dimension_L = functionalModel->get_L_dimension();
 
     // generate X
-    generator->execute(n, dimension_L, x);
+    generator->execute(x_arma);
 
     // create a vector of random values under a normal distribution with 0 mean and 1 variance
     std::normal_distribution<double> normalDistribution(0, 1);
@@ -31,25 +31,20 @@ DependentGaussianStatModel::gen_data(std::shared_ptr<FunctionnalModel> functionn
 
     rowvec noise(dimension_D);
 
-
     // generate Y
+    rowvec y_temp(dimension_D);
     for(unsigned i=0; i<n; i++){
-        // normalize vector to physical intervals
-        //functionnalModel->to_physic(&x[i*dimension_L],dimension_L);
-
-        // calucalte F(X)
-        functionnalModel->F(&x[i*dimension_L],dimension_L,y_temp,dimension_D);
+        // calculate F(X)
+        functionalModel->F(x_arma.row(i),y_temp);
 
         // add noise
         for(unsigned j=0; j<dimension_D;j++){
             noise(j) = normalDistribution(engine);
-            y[i*dimension_D+j] = y_temp[j] + noise(j) * sqrt(y_temp[j]/r);
-            cout << y_temp[j] << " " << noise(j) << " " << y[i*dimension_D+j] << " | ";
+            y_arma(i,j) = y_temp(j) + noise(j) * sqrt(y_arma(i,j)/r);
         }
-        cout << endl;
     }
 
-    delete[] y_temp;
+    return std::tuple<mat, mat>(x_arma,y_arma);
 }
 
 double DependentGaussianStatModel::density_X_Y(mat x, mat y) {

@@ -7,14 +7,16 @@
 
 #include "StatModel.h"
 #include "GeneratorStrategy.h"
-#include "../physicalModel/FunctionnalModel.h"
+#include "../physicalModel/FunctionalModel.h"
 #include <memory>
+
+using namespace Functional;
 
 namespace DataGeneration{
     class DependentGaussianStatModel : public StatModel{
     public:
         DependentGaussianStatModel(std::string generatorType, int r);
-        void gen_data(std::shared_ptr<FunctionnalModel> functionnalModel, int n, double *x, double *y) final;
+        std::tuple<mat, mat> gen_data(std::shared_ptr<FunctionalModel> functionnalModel, int n) final;
         double density_X_Y(mat x, mat y) final;
 
     private:
