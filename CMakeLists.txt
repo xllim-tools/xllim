@@ -8,6 +8,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -larmadillo -fopenmp")
 include(ExternalProject)
 
 project(Kernelo VERSION ${PROJECT_VERSION} DESCRIPTION "This is Planeto kernel" LANGUAGES CXX)
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -larmadillo -fopenmp -DARMA_NO_DEBUG")
 
 add_library(dataGeneration STATIC
         src/dataGeneration/StatModel.h

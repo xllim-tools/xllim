@@ -9,7 +9,7 @@
 namespace Functional {
 /**
  * @namespace HapkeEnumeration
- * Enumerations used in the Hapke model
+ * Enumerations used in Hapke's model
  */
     namespace HapkeEnumeration {
 

@@ -21,10 +21,10 @@ namespace Functional {
 
 /**
  * @class HapkeModel
- * @brief Abstract class representing the Hapke model
+ * @brief Abstract class representing Hapke's model
  *
- * @details This class inherits @ref FunctionalModel "FunctionalModel" contains a template
- * method for calculating F(x). Where common parts are implemented in this class and different
+ * @details This class inherits @ref FunctionalModel "FunctionalModel" and contains a template
+ * method for calculating F(x), where common parts are implemented in this class and different
  * parts are overloaded in the different versions of the model using subclasses.
  * The calculation in the class are initially designed for a 4 parameters model. The class can
  * use a @ref HapkeAdapter "HapkeAdapter" to adapt different variants of the model for example :
@@ -43,7 +43,7 @@ namespace Functional {
          * @brief Constructor
          * @param geometries : pointer to the matrix of geometries that will be used by the model.
          * @param row_size : number of geometries.
-         * @param col_size : number of parameters per geometry (Dimenion D = 3).
+         * @param col_size : number of parameters per geometry (should equals 3).
          * @param adapter : a shared pointer to the @ref HapkeAdapter "adapter".
          */
         HapkeModel(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter> &adapter);
@@ -103,43 +103,43 @@ namespace Functional {
         rowvec calculate_B(double b0, double h);
 
         /**
-         * This method calculated MuE(THETA)
+         * This method calculates MuE(THETA)
+         * @param theta_bar : surface macroscopic roughness
+         * @param E1 : E1 value dependent only on THETA_BAR
+         * @param E1_0 : E2 value dependent only on THETA_BAR
+         * @return a vector of D results
+         */
+        rowvec calculate_MuE(double theta_bar, rowvec &E1, rowvec &E1_0, rowvec &E2, rowvec &E2_0);
+
+        /**
+         * This method calculates Mu0E(THETA)
          * @param theta_bar : surface macroscopic roughness
          * @param E1_THETA_BAR : E1 value dependent only on THETA_BAR
          * @param E2_THETA_BAR : E2 value dependent only on THETA_BAR
          * @return a vector of D results
          */
-        rowvec calculate_MuE(double theta_bar, double E1_THETA_BAR, double E2_THETA_BAR);
+        rowvec calculate_Mu0E(double theta_bar, rowvec &E1, rowvec &E1_0, rowvec &E2, rowvec &E2_0);
 
         /**
-         * This method calculated Mu0E(THETA)
+         * This method calculates MuE(0)
          * @param theta_bar : surface macroscopic roughness
          * @param E1_THETA_BAR : E1 value dependent only on THETA_BAR
          * @param E2_THETA_BAR : E2 value dependent only on THETA_BAR
          * @return a vector of D results
          */
-        rowvec calculate_Mu0E(double theta_bar, double E1_THETA_BAR, double E2_THETA_BAR);
+        rowvec calculate_MuE_0(double theta_bar, rowvec &E1, rowvec &E1_0, rowvec &E2, rowvec &E2_0);
 
         /**
-         * This method calculated MuE(0)
+         * This method calculates Mu0E(0)
          * @param theta_bar : surface macroscopic roughness
          * @param E1_THETA_BAR : E1 value dependent only on THETA_BAR
          * @param E2_THETA_BAR : E2 value dependent only on THETA_BAR
          * @return a vector of D results
          */
-        rowvec calculate_MuE_0(double theta_bar, double E1_THETA_BAR, double E2_THETA_BAR);
+        rowvec calculate_Mu0E_0(double theta_bar, rowvec &E1, rowvec &E1_0, rowvec &E2, rowvec &E2_0);
 
         /**
-         * This method calculated Mu0E(0)
-         * @param theta_bar : surface macroscopic roughness
-         * @param E1_THETA_BAR : E1 value dependent only on THETA_BAR
-         * @param E2_THETA_BAR : E2 value dependent only on THETA_BAR
-         * @return a vector of D results
-         */
-        rowvec calculate_Mu0E_0(double theta_bar, double E1_THETA_BAR, double E2_THETA_BAR);
-
-        /**
-         * This method calculated X(THETA_BAR)
+         * This method calculates X(THETA_BAR)
          * @param theta_bar : surface macroscopic roughness
          * @return X(THETA_BAR)
          */
@@ -175,7 +175,7 @@ namespace Functional {
 
         /**
          * This method is virtual, it represents the changing part in the reflectance formula.
-         * Its implementation depends on the Hapke model version. It must be overridden in subclasses
+         * Its implementation depends on Hapke's model version. It must be overridden in subclasses
          * @param photometry : a vector of a photometry parameters
          * @param mue
          * @param mu0e

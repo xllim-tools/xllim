@@ -14,11 +14,11 @@ namespace Functional {
 
 /**
  * @class Hapke02Model
- * @brief A class representing the 2002 version of the Hapke model
+ * @brief A class representing the 2002 version of Hapke's model
  *
- * @details This class overrides the uncommon parts of the reflectance formula.
+ * @details This class overrides the varying parts of the reflectance formula.
  * 
- * * See : Hapke B. 1993 Theory of Reflectance and Emittance Spectroscopy. Topics in Remote Sensing.
+ * See : Hapke B. 1993 Theory of Reflectance and Emittance Spectroscopy. Topics in Remote Sensing.
  * Cambridge University Press, Cambridge, UK.
  *
  * See : Schmidt F. and Fernando J. 2015 Realistic uncertainties on Hapke model parameters from
@@ -32,7 +32,7 @@ namespace Functional {
          * @details Hapke02Model class constructor
          * @param geometries : matrix of geometries that will be used by the model
          * @param row_size : number of geometries.
-         * @param col_size : number of parameters per geometry (Dimenion D = 3).
+         * @param col_size : number of parameters per geometry (should equal 3).
          * @param adapter : a shared pointer to the @ref HapkeAdapter "adapter".
          */
         Hapke02Model(const double *geometries, int row_size, int col_size,

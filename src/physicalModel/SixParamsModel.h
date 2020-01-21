@@ -13,8 +13,7 @@
 namespace Functional{
     /**
      * @class SixParamsModel
-     * @brief This class that adapt @ref HapkeModel "hapke model" to models with 3 parameters {omega, theta_bar, b}.
-     * By using a default or chosen values of b0 and h, and calculating c using the hokey stick relation.
+     * @brief A class that computes the whole Hapke's model with 6 parameters
      */
     class SixParamsModel: public HapkeAdapter {
     public:
