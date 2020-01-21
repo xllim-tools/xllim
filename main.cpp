@@ -112,17 +112,17 @@ int main(){
     }
 
 
-    auto *y = new double[50];
+    rowvec y(50);
     auto start = chrono::high_resolution_clock::now();
-    for(unsigned k=0; k<10000; k++){
-        myModel->F(&x[k*6], 6, y, 50);
+    for(unsigned k=0; k<10; k++){
+        myModel->F(photometries.row(k),y);
     }
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
     cout << duration.count() << endl;
 
     delete [] x;
-    delete [] y;
+    //delete [] y;
     delete [] geometries;
 
 

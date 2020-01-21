@@ -12,7 +12,7 @@ using namespace arma;
 namespace DataGeneration{
     class GeneratorStrategy{
     public:
-        virtual void execute(mat &x) = 0;
+        virtual void execute(mat &x, unsigned seed) = 0;
     };
 }
 

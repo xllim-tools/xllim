@@ -14,7 +14,7 @@ using namespace arma;
 namespace DataGeneration{
     class LatinCubeGenerator : public GeneratorStrategy{
     public:
-        void execute(mat &x) final;
+        void execute(mat &x, unsigned seed) final;
     private:
         static int get_seed ();
         static int i4_uniform_ab ( int ilo, int ihi, int &seed );

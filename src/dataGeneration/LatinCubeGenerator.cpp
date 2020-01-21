@@ -13,12 +13,12 @@ using namespace std;
 using namespace DataGeneration;
 
 
-void LatinCubeGenerator::execute(arma::Mat<double> &x) {
-    int seed_latin = get_seed();
+void LatinCubeGenerator::execute(mat &x, unsigned seed) {
 
     double *generated_x;
 
-    generated_x = DataGeneration::LatinCubeGenerator::latin_random_new ( x.n_cols, x.n_rows, seed_latin );
+    generated_x = DataGeneration::LatinCubeGenerator::latin_random_new (x.n_cols, x.n_rows,
+            reinterpret_cast<int &>(seed));
 
     for(unsigned i=0; i<x.n_rows ; i++){
         for(unsigned j=0; j<x.n_cols; j++){

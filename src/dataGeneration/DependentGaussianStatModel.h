@@ -16,7 +16,7 @@ namespace DataGeneration{
     class DependentGaussianStatModel : public StatModel{
     public:
         DependentGaussianStatModel(std::string generatorType, int r);
-        std::tuple<mat, mat> gen_data(std::shared_ptr<FunctionalModel> functionnalModel, int n) final;
+        std::tuple<mat, mat> gen_data(std::shared_ptr<FunctionalModel> functionnalModel, int n, unsigned seed) final;
         double density_X_Y(mat x, mat y) final;
 
     private:

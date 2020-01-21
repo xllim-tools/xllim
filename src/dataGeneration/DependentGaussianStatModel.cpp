@@ -12,22 +12,22 @@ DependentGaussianStatModel::DependentGaussianStatModel(std::string generatorType
     this->r = r;
 }
 
-std::tuple<mat, mat> DependentGaussianStatModel::gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n) {
+std::tuple<mat, mat> DependentGaussianStatModel::gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n ,unsigned seed) {
     mat x_arma = mat(n,functionalModel->get_L_dimension());
     mat y_arma = mat(n,functionalModel->get_D_dimension());
     int dimension_D = functionalModel->get_D_dimension();
     int dimension_L = functionalModel->get_L_dimension();
 
     // generate X
-    generator->execute(x_arma);
+    generator->execute(x_arma, seed);
 
     // create a vector of random values under a normal distribution with 0 mean and 1 variance
     std::normal_distribution<double> normalDistribution(0, 1);
     std::mt19937_64 engine;
 
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::seed_seq ss{uint32_t(seed & 0xffffffff), uint32_t(seed>>32)};
-    engine.seed(ss);
+    //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    //std::seed_seq ss{uint32_t(seed & 0xffffffff), uint32_t(seed>>32)};
+    engine.seed(seed);
 
     rowvec noise(dimension_D);
 
