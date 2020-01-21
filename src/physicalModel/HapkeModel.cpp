@@ -23,15 +23,11 @@ enum geom_helper_index{
     COS_THETA_0 = 2,
     SIN_THETA_0 = 3,
     SIN2_PSI_DIV2 = 4,
-    E1 = 5,
-    E1_0 = 6,
-    E2 = 7,
-    E2_0 = 8,
-    TAN_G_DIV_2 = 9,
-    F_PSI = 10,
-    COS_PSI = 11,
-    TAN_THETA = 12,
-    TAN_THETA_0 = 13
+    TAN_G_DIV_2 = 5,
+    F_PSI = 6,
+    COS_PSI = 7,
+    TAN_THETA = 8,
+    TAN_THETA_0 = 9
 };
 
 //-------------------------------- PUBLIC ------------------------------------//
@@ -61,8 +57,8 @@ void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
     //Adapting Hapke model
     adapter->adaptModel(photometry);
 
-    rowvec E1 = exp(-1 / datum::pi * geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR)));
-    rowvec E1_0 = exp(-1 / datum::pi * geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR)));
+    rowvec E1 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR)));
+    rowvec E1_0 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR)));
     rowvec E2 = exp(-1 / datum::pi * pow(geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR)),2));
     rowvec E2_0 = exp(-1 / datum::pi * pow(geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR)),2));
 
@@ -76,6 +72,8 @@ void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
             * (photometry(OMEGA) / configuredGeometries.col(ALPHA).t() % mu0e / (mue + mu0e))
             % define_different_part(photometry,mue, mu0e)
             % calculate_S(photometry(THETA_BAR), mue, mu0e, mue_0, mu0e_0);
+
+    reflectances.print();
 }
 
 int HapkeModel::get_D_dimension() {
@@ -100,21 +98,17 @@ void HapkeModel::from_physic(double *x, int size) {
 
 //--------------------------------------- PRIVATE METHODS ----------------------------------------//
 void HapkeModel::generate_geom_heper_mat() {
-    geom_helper_mat = mat(configuredGeometries.n_rows,14);
-
+    geom_helper_mat = mat(configuredGeometries.n_rows,10);
     geom_helper_mat.col(COS_THETA) = cos(configuredGeometries.col(THETA));
     geom_helper_mat.col(SIN_THETA) = sin(configuredGeometries.col(THETA));
     geom_helper_mat.col(COS_THETA_0) = cos(configuredGeometries.col(THETA_0));
     geom_helper_mat.col(SIN_THETA_0) = sin(configuredGeometries.col(THETA_0));
     geom_helper_mat.col(SIN2_PSI_DIV2) = pow(sin(configuredGeometries.col(PSI)/2),2);
-
     geom_helper_mat.col(TAN_G_DIV_2) = tan(configuredGeometries.col(G)/2);
     geom_helper_mat.col(F_PSI) = calculate_f(configuredGeometries.col(PSI));
     geom_helper_mat.col(COS_PSI) = cos(configuredGeometries.col(PSI));
-
     geom_helper_mat.col(TAN_THETA) = 1/ tan(configuredGeometries.col(THETA));
     geom_helper_mat.col(TAN_THETA_0) = 1/ tan(configuredGeometries.col(THETA_0));
-
 }
 
 double HapkeModel::degToGrad(double degree) {
@@ -255,12 +249,7 @@ rowvec HapkeModel::calculate_MuE_0(double theta_bar, rowvec &E1, rowvec &E1_0, r
     vec result = vec(configuredGeometries.n_rows);
     result  = calculate_X(theta_bar) *
             (geom_helper_mat.col(COS_THETA) +
-                (
-                        (geom_helper_mat.col(SIN_THETA) % E2 *
-                        tan(theta_bar) /(2 - E1))
-                )
-
-            );
+            (geom_helper_mat.col(SIN_THETA) % E2.t() *tan(theta_bar) /(2 - E1.t())));
     return result.t();
 }
 
@@ -268,20 +257,9 @@ rowvec HapkeModel::calculate_Mu0E_0(double theta_bar, rowvec &E1, rowvec &E1_0, 
     vec result = vec(configuredGeometries.n_rows);
     result  = calculate_X(theta_bar) *
               (geom_helper_mat.col(COS_THETA_0) +
-                      (
-                              (geom_helper_mat.col(SIN_THETA_0) % E2_0 *
-                              tan(theta_bar) /(2 - E1_0))
-                      )
+              (geom_helper_mat.col(SIN_THETA_0) % E2_0.t() * tan(theta_bar) /(2 - E1_0.t()))
               );
     return result.t();
-}
-
-double HapkeModel::calculate_E1_THETA_BAR(const double theta_bar) {
-    return std::min(std::numeric_limits<double>::max(), 1/tan(theta_bar));
-}
-
-double HapkeModel::calculate_E2_THETA_BAR(const double theta_bar) {
-    return std::min(std::numeric_limits<double>::max(),  1/pow(tan(theta_bar),2));
 }
 
 
