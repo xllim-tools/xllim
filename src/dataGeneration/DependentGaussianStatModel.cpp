@@ -7,8 +7,8 @@
 
 using namespace DataGeneration;
 
-DependentGaussianStatModel::DependentGaussianStatModel(std::string generatorType, int r) {
-    generator = GeneratorFactory::create(std::move(generatorType));
+DependentGaussianStatModel::DependentGaussianStatModel(const std::string& generatorType, int r) {
+    generator = GeneratorFactory::create(generatorType);
     this->r = r;
 }
 

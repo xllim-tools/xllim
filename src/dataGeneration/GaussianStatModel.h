@@ -15,7 +15,7 @@ using namespace Functional;
 namespace DataGeneration{
     class GaussianStatModel : public StatModel{
     public :
-        GaussianStatModel(std::string generatorType, const double *covariance, int cov_size);
+        GaussianStatModel(const std::string& generatorType, const double *covariance, int cov_size);
         std::tuple<mat, mat> gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n, unsigned seed) final;
         double density_X_Y(mat x, mat y) final;
 
