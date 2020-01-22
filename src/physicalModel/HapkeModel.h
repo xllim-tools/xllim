@@ -64,9 +64,8 @@ namespace Functional {
         std::shared_ptr<HapkeAdapter> adapter;/**< a shared pointer to the @ref HapkeAdapter "adapter" */
 
         FRIEND_TEST(Hapke02ModelTest, CalculateP);
-
+        FRIEND_TEST(Hapke02ModelTest, CalculateX);
         FRIEND_TEST(Hapke02ModelTest, CalculateB);
-        //FRIEND_TEST(Hapke02ModelTest, ConfigureGeometries);
 
         /**
          * This method configures the geometries and prepares it for the calculation of reflectances
@@ -153,20 +152,6 @@ namespace Functional {
         static vec calculate_f(const vec &psi);
 
         /**
-         * This method calculates the part of E1 that depends on theta_bar one per set of geometries.
-         * @param theta_bar : macroscopic roughness
-         * @return
-         */
-        static double calculate_E1_THETA_BAR(double theta_bar);
-
-        /**
-        * This method calculates the part of E2 that depends on theta_bar one per set of geometries.
-        * @param theta_bar : macroscopic roughness
-        * @return
-        */
-        static double calculate_E2_THETA_BAR(double theta_bar);
-
-        /**
          * This is a virtual method returning the coefficient of the reflectance formula, it must
          * be overridden by subclasses
          * @return coefficient
@@ -184,7 +169,6 @@ namespace Functional {
         virtual rowvec define_different_part(const rowvec &photometry, rowvec mue, rowvec mu0e) = 0;
 
     private:
-        FRIEND_TEST(Hapke02ModelTest, CalculateX);
 
         /**
          * This method transforms a value in degree to a value in gradient.
