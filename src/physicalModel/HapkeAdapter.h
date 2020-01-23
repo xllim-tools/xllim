@@ -11,6 +11,8 @@
 
 #include <armadillo>
 
+#include "Enumeration.h"
+
 using namespace arma;
 namespace Functional {
 /**

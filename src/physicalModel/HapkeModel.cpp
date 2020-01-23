@@ -8,7 +8,6 @@
 
 #include "HapkeModel.h"
 #include <utility>
-#include "HapkeAdapterFactory.h"
 
 #define DEGREE_180 180
 
@@ -35,7 +34,7 @@ HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size,
                        double theta_bar_scaling) {
     // Transform the geometry structure from double * to armadillo::mat
     mat geomsMat = mat(row_size,col_size);
-
+    this->theta_bar_scaling = theta_bar_scaling;
     this->adapter = adapter;
 
     for(unsigned i=0; i<row_size; i++){

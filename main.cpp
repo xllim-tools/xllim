@@ -96,14 +96,14 @@ int main(){
     i = 0;
     for (pt::ptree::value_type& v : root.get_child("theta0"))
     {
-        photometries(i,1) = stod(v.second.data()) / 30;
+        photometries(i,1) = stod(v.second.data()) / 30.0;
         i++;
     }
 
 
 
     std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3,
-                                                               std::shared_ptr<HapkeAdapter>(new SixParamsModel()), 30));
+                                                               std::shared_ptr<HapkeAdapter>(new SixParamsModel()), 30.0));
 
     auto *x = new double[6*10000];
     for(unsigned k=0; k<10000; k++){
