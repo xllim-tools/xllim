@@ -13,8 +13,10 @@ using namespace Functional;
 using namespace HapkeEnumeration;
 
 
-Hapke02Model::Hapke02Model(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter)
-        : HapkeModel(geometries, row_size,col_size, adapter) {}
+Hapke02Model::Hapke02Model(const double *geometries, int row_size, int col_size,
+                           const std::shared_ptr<HapkeAdapter> &adapter,
+                           double theta_bar_scaling)
+        : HapkeModel(geometries, row_size, col_size, adapter, theta_bar_scaling) {}
 
 
 double Hapke02Model::set_coef() {

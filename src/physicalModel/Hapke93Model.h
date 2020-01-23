@@ -34,9 +34,10 @@ namespace Functional {
          * @param row_size : number of geometries.
          * @param col_size : number of parameters per geometry (Dimenion D = 3).
          * @param adapter : a shared pointer to the @ref HapkeAdapter "adapter".
+         * @param theta_bar_scaling : value used to transform theta_bar between physical and mathematical spaces.
          */
-        Hapke93Model(const double *geometries, int row_size, int col_size,
-                     const std::shared_ptr<HapkeAdapter> &adapter);
+        Hapke93Model(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter> &adapter,
+                     double theta_bar_scaling);
 
     private:
         double set_coef() override;

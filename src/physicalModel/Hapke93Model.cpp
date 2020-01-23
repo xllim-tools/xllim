@@ -10,8 +10,10 @@
 using namespace Functional;
 using namespace HapkeEnumeration;
 
-Hapke93Model::Hapke93Model(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter)
-        : HapkeModel(geometries, row_size, col_size, adapter) {}
+Hapke93Model::Hapke93Model(const double *geometries, int row_size, int col_size,
+                           const std::shared_ptr<HapkeAdapter> &adapter,
+                           double theta_bar_scaling)
+        : HapkeModel(geometries, row_size, col_size, adapter, theta_bar_scaling) {}
 
 rowvec Hapke93Model::calculate_H(const rowvec &x , double omega) {
     double y = sqrt(1 - omega);

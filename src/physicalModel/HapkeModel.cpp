@@ -11,7 +11,6 @@
 #include "HapkeAdapterFactory.h"
 
 #define DEGREE_180 180
-#define THETA_BAR_SCALING 30
 
 using namespace Functional;
 using namespace HapkeEnumeration;
@@ -31,7 +30,9 @@ enum geom_helper_index{
 };
 
 //-------------------------------- PUBLIC ------------------------------------//
-HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter>& adapter) {
+HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size,
+                       const std::shared_ptr<HapkeAdapter> &adapter,
+                       double theta_bar_scaling) {
     // Transform the geometry structure from double * to armadillo::mat
     mat geomsMat = mat(row_size,col_size);
 
@@ -86,13 +87,13 @@ int HapkeModel::get_L_dimension() {
 
 void HapkeModel::to_physic(rowvec &x) {
     // Normalize THETA_BAR
-    x[THETA_BAR] *= THETA_BAR_SCALING;
+    x[THETA_BAR] *= theta_bar_scaling;
 }
 
 void HapkeModel::from_physic(double *x, int size) {
     // Denormalize THETA_BAR
     if(THETA_BAR < size){
-        x[THETA_BAR] /= THETA_BAR_SCALING;
+        x[THETA_BAR] /= theta_bar_scaling;
     }
 }
 
