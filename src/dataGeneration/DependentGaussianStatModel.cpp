@@ -7,12 +7,13 @@
 
 using namespace DataGeneration;
 
-DependentGaussianStatModel::DependentGaussianStatModel(std::string generatorType, int r) {
+DependentGaussianStatModel::DependentGaussianStatModel(std::string generatorType, int r, unsigned seed) {
     generator = GeneratorFactory::create(std::move(generatorType));
     this->r = r;
+    this->seed = seed;
 }
 
-std::tuple<mat, mat> DependentGaussianStatModel::gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n ,unsigned seed) {
+std::tuple<mat, mat> DependentGaussianStatModel::gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n) {
     mat x_arma = mat(n,functionalModel->get_L_dimension());
     mat y_arma = mat(n,functionalModel->get_D_dimension());
     int dimension_D = functionalModel->get_D_dimension();

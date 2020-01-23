@@ -15,13 +15,14 @@ using namespace Functional;
 namespace DataGeneration{
     class GaussianStatModel : public StatModel{
     public :
-        GaussianStatModel(std::string generatorType, const double *covariance, int cov_size);
-        std::tuple<mat, mat> gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n, unsigned seed) final;
+        GaussianStatModel(std::string generatorType, const double *covariance, int cov_size, unsigned seed);
+        std::tuple<mat, mat> gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n) final;
         double density_X_Y(mat x, mat y) final;
 
     private:
         std::shared_ptr<GeneratorStrategy> generator;
         rowvec covariance;
+        unsigned seed;
     };
 
 }

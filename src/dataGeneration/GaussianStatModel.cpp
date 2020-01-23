@@ -12,11 +12,12 @@ using namespace std;
 using namespace DataGeneration;
 
 
-GaussianStatModel::GaussianStatModel(std::string generatorType, const double *covariance, int cov_size) {
+GaussianStatModel::GaussianStatModel(std::string generatorType, const double *covariance, int cov_size, unsigned seed) {
     generator = GeneratorFactory::create(std::move(generatorType));
 
     //Transform cov from double* to arma::rowvec
     this->covariance = rowvec(covariance, cov_size);
+    this->seed = seed;
 }
 
 
@@ -25,7 +26,7 @@ double GaussianStatModel::density_X_Y(mat x, mat y) {
     return 0;
 }
 
-std::tuple<mat, mat> GaussianStatModel::gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n, unsigned seed) {
+std::tuple<mat, mat> GaussianStatModel::gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n) {
     mat x_arma = mat(n,functionalModel->get_L_dimension());
     mat y_arma = mat(n,functionalModel->get_D_dimension());
     int dimension_D = functionalModel->get_D_dimension();
