@@ -45,8 +45,10 @@ namespace Functional {
          * @param row_size : number of geometries.
          * @param col_size : number of parameters per geometry (should equals 3).
          * @param adapter : a shared pointer to the @ref HapkeAdapter "adapter".
+         * @param theta_bar_scaling : value used to transform theta_bar between physical and mathematical spaces.
          */
-        HapkeModel(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter> &adapter);
+        HapkeModel(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter> &adapter,
+                   double theta_bar_scaling);
 
         void F(rowvec photometry, rowvec &reflectances) final;
 
@@ -61,7 +63,8 @@ namespace Functional {
     protected:
         mat geom_helper_mat; /**< A matrix containing intermediate results in relation to geometries */
         mat configuredGeometries; /**< A matrix of the configured geometries */
-        std::shared_ptr<HapkeAdapter> adapter;/**< a shared pointer to the @ref HapkeAdapter "adapter" */
+        std::shared_ptr<HapkeAdapter> adapter;/**< A shared pointer to the @ref HapkeAdapter "adapter" */
+        double theta_bar_scaling; /**< A value used to transform theta_bar between physical and mathematical spaces */
 
         FRIEND_TEST(Hapke02ModelTest, CalculateP);
         FRIEND_TEST(Hapke02ModelTest, CalculateX);

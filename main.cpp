@@ -102,7 +102,8 @@ int main(){
 
 
 
-    std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
+    std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3,
+                                                               std::shared_ptr<HapkeAdapter>(new SixParamsModel()), 30));
 
     auto *x = new double[6*10000];
     for(unsigned k=0; k<10000; k++){
