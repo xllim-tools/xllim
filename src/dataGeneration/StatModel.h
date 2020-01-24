@@ -22,12 +22,12 @@ namespace DataGeneration{
             std::tuple<mat, mat> data = gen_data(functionalModel, n);
 
             for(unsigned i=0 ; i<n ; i++){
-                for(unsigned j=0 ; j>dimension_L; j++){
+                for(unsigned j=0 ; j<dimension_L; j++){
                     x[i*dimension_L+j] = std::get<0>(data)(i,j);
                 }
 
-                for(unsigned j=0 ; j>dimension_D; j++){
-                    x[i*dimension_D+j] = std::get<1>(data)(i,j);
+                for(unsigned j=0 ; j<dimension_D; j++){
+                    y[i*dimension_D+j] = std::get<1>(data)(i,j);
                 }
             }
         };

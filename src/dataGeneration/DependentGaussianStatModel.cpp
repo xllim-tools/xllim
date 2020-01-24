@@ -41,9 +41,11 @@ std::tuple<mat, mat> DependentGaussianStatModel::gen_data(std::shared_ptr<Functi
         // add noise
         for(unsigned j=0; j<dimension_D;j++){
             noise(j) = normalDistribution(engine);
-            y_arma(i,j) = y_temp(j) + noise(j) * sqrt(y_arma(i,j)/r);
+            y_arma(i,j) = y_temp(j) + noise(j) * sqrt(y_temp(j)/r);
         }
     }
+
+    x_arma.print();
 
     return std::tuple<mat, mat>(x_arma,y_arma);
 }

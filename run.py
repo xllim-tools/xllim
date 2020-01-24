@@ -10,17 +10,23 @@ with open('test_hapke.json') as json_file:
     geom = np.array([data['eme'], data['inc'], data['phi']]).transpose()
     photom = np.array([data['omega'], [x / 30 for x in data['theta0']], data['b'], data['c'], data['b0'], data['hh']]).transpose()
 
+
+
 # Create Hapke2002 Model
 myAdapter = ker.PyThreeParamsModel(0.0, 0.1)
 
 myModel = ker.PyHapke02Model(geom, geom.shape[0], geom.shape[1], myAdapter, 30)
 
+myGenerator = ker.PyDependentGaussianStatModel("sobol", 20, 123456789)
+
+x_gen, y_gen = myGenerator.gen_data(myModel, 1)
+print(y_gen)
+
 # Start time
 start_time = time.time()
 
 # Calculate reflectances
-print(photom[0])
-y = myModel.F(photom[0])
+# y = myModel.F(photom[0])
 
 
 #print(y)

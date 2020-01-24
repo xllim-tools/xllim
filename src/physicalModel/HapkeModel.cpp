@@ -72,8 +72,6 @@ void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
             * (photometry(OMEGA) / configuredGeometries.col(ALPHA).t() % mu0e / (mue + mu0e))
             % define_different_part(photometry,mue, mu0e)
             % calculate_S(photometry(THETA_BAR), mue, mu0e, mue_0, mu0e_0);
-
-    reflectances.print();
 }
 
 int HapkeModel::get_D_dimension() {

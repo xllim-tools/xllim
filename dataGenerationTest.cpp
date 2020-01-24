@@ -68,14 +68,11 @@ int main(){
     auto *y = new double[50*10000];
 
 
-    std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel())));
-    DataGeneration::GaussianStatModel statModel = DataGeneration::GaussianStatModel("random", cov, 50, 0);
+    std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new ThreeParamsModel(0.0,0.1)), 30.0));
+    DataGeneration::DependentGaussianStatModel statModel = DataGeneration::DependentGaussianStatModel("sobol", 20, 123456789);
 
-    auto start = chrono::high_resolution_clock::now();
-    statModel.DataGeneration::StatModel::gen_data(myModel, 10000);
-    auto end = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::microseconds>(end-start);
-    //cout << duration.count() << endl;
+    std::get<1>(statModel.gen_data(myModel, 1)).print();
+
 
     delete[] x;
     delete[] y;
