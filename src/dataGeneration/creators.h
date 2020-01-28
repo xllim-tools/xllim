@@ -1,6 +1,12 @@
-//
-// Created by reverse-proxy on 27‏/1‏/2020.
-//
+/**
+ * @file creators.h
+ * @brief This file contains all data generation configuration structs responsible of the creation
+ * of various statistic models. theses structs should be exported to fonrt-end language instead of
+ * actual statsitci models.
+ * @author Sami DJOUADI
+ * @version 1.0
+ * @date 27/01/2020
+ */
 
 #ifndef KERNELO_DATAGENCREATORS_H
 #define KERNELO_DATAGENCREATORS_H

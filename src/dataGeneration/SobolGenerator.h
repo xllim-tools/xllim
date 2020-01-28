@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 13‏/1‏/2020.
-//
+/**
+ * @file SobolGenerator.h
+ * @brief SobolGenerator class definition
+ * @author Sami DJOUADI
+ * @version 1.0
+ * @date 13/01/2020
+ */
 
 #ifndef KERNELO_SOBOLGENERATOR_H
 #define KERNELO_SOBOLGENERATOR_H
@@ -11,6 +15,18 @@
 using namespace arma;
 
 namespace DataGeneration{
+
+    /**
+     * @brief A data generator using Sobol engine
+     *
+     * @details this concrete strategy uses Sobol engine to generate sobol sequence while following
+     * the base strategy interface.
+     *
+     * See Sobol engine code documentation in Boost library :
+     * https://www.boost.org/doc/libs/1_72_0/boost/random/sobol.hpp
+     *
+     * See Sobol sequence algorithm : https://en.wikipedia.org/wiki/Sobol_sequence
+     */
     class SobolGenerator : public GeneratorStrategy {
     public:
         void execute(mat &x, unsigned seed) final ;

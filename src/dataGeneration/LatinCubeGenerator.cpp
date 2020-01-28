@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 13‏/1‏/2020.
-//
+/**
+ * @file LatinCubeGenerator.cpp
+ * @brief LatinCubeGenerator class implementation
+ * @authors Sami DJOUADI & John Burkardt
+ * @version 1.0
+ * @date 13/01/2020
+ */
 
 #include "LatinCubeGenerator.h"
 

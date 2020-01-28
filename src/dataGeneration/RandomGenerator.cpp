@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 13‏/1‏/2020.
-//
+/**
+ * @file RandomGenerator.cpp
+ * @brief RandomGenerator class implementation
+ * @author Sami DJOUADI
+ * @version 1.0
+ * @date 13/01/2020
+ */
 
 #include <memory>
 #include "RandomGenerator.h"
@@ -11,8 +15,6 @@ void DataGeneration::RandomGenerator::execute(mat &x, unsigned seed) {
     std::mt19937_64 engine;
 
     // initialize a seed using system_clock
-    //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    //std::seed_seq ss{uint32_t(seed & 0xffffffff), uint32_t(seed>>32)};
     engine.seed(seed);
 
     std::uniform_real_distribution<double> unif(0, 1);

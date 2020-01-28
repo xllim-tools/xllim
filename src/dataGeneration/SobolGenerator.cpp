@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 13‏/1‏/2020.
-//
+/**
+ * @file SobolGenerator.cpp
+ * @brief SobolGenerator class implementation
+ * @author Sami DJOUADI
+ * @version 1.0
+ * @date 13/01/2020
+ */
 
 #include "SobolGenerator.h"
 #include <boost/random/sobol.hpp>

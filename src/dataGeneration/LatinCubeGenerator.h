@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 13‏/1‏/2020.
-//
+/**
+ * @file LatinCubeGenerator.h
+ * @brief LatinCubeGenerator class definition
+ * @author Sami DJOUADI
+ * @version 1.0
+ * @date 13/01/2020
+ */
 
 #ifndef KERNELO_LATINCUBEGENERATOR_H
 #define KERNELO_LATINCUBEGENERATOR_H
@@ -12,6 +16,15 @@
 using namespace arma;
 
 namespace DataGeneration{
+
+    /**
+     * @brief A Latin Hyper cube algorithm for data generation
+     *
+     * @details this concrete strategy implements the latin hyper cube algorithm while following
+     * the base strategy interface.
+     *
+     * See http://people.math.sc.edu/Burkardt/cpp_src/latin_random/latin_random.html
+     */
     class LatinCubeGenerator : public GeneratorStrategy{
     public:
         void execute(mat &x, unsigned seed) final;

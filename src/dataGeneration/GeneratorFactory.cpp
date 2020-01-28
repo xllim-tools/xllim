@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 13‏/1‏/2020.
-//
+/**
+ * @file GeneratorFactory.cpp
+ * @brief GeneratorFactory class implementation
+ * @author Sami DJOUADI
+ * @version 1.0
+ * @date 13/01/2020
+ */
 
 #include "GeneratorFactory.h"
 #include "SobolGenerator.h"
