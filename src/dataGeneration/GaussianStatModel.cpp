@@ -16,8 +16,8 @@ using namespace std;
 using namespace DataGeneration;
 
 
-GaussianStatModel::GaussianStatModel(std::string generatorType, const double *covariance, int cov_size, unsigned seed) {
-    generator = GeneratorFactory::create(std::move(generatorType));
+GaussianStatModel::GaussianStatModel(const std::string& generatorType, const double *covariance, int cov_size, unsigned seed) {
+    generator = GeneratorFactory::create(generatorType);
 
     //Transform cov from double* to arma::rowvec
     this->covariance = rowvec(covariance, cov_size);
