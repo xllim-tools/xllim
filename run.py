@@ -13,24 +13,23 @@ with open('test_hapke.json') as json_file:
 
 
 # Create Hapke2002 Model
-myAdapter = ker.PyThreeParamsModel(0.0, 0.1)
+myAdapter = ker.PySixParamsHapkeAdapterConfig()
 
-myModel = ker.PyHapke02Model(geom, geom.shape[0], geom.shape[1], myAdapter, 30)
+myModel = ker.PyHapkeModelConfig("2002", myAdapter, geom, 30).create()
 
-myGenerator = ker.PyDependentGaussianStatModel("sobol", 20, 123456789)
+#myGenerator = ker.PyDependentGaussianStatModel("sobol", 20, 123456789)
 
-x_gen, y_gen = myGenerator.gen_data(myModel, 1)
-print(y_gen)
+#x_gen, y_gen = myGenerator.gen_data(myModel, 1)
+#print(y_gen)
 
 # Start time
 start_time = time.time()
 
 # Calculate reflectances
-# y = myModel.F(photom[0])
+y = myModel.F(photom[0])
 
 
 #print(y)
-
 # Calculate elapsed time for generating reflectances
 #elapsed_time = (time.time() - start_time)
 #print(elapsed_time)

@@ -57,10 +57,10 @@ void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
     //Adapting Hapke model
     adapter->adaptModel(photometry);
 
-    rowvec E1 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR)));
-    rowvec E1_0 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR)));
-    rowvec E2 = exp(-1 / datum::pi * pow(geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR)),2));
-    rowvec E2_0 = exp(-1 / datum::pi * pow(geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR)),2));
+    rowvec E1 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR))).t();
+    rowvec E1_0 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR))).t();
+    rowvec E2 = exp(-1 / datum::pi * pow(geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR)),2)).t();
+    rowvec E2_0 = exp(-1 / datum::pi * pow(geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR)),2)).t();
 
     rowvec mu0e = calculate_Mu0E(photometry(THETA_BAR), E1, E1_0,E2, E2_0);
     rowvec mue = calculate_MuE(photometry(THETA_BAR), E1, E1_0,E2, E2_0);
@@ -72,6 +72,8 @@ void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
             * (photometry(OMEGA) / configuredGeometries.col(ALPHA).t() % mu0e / (mue + mu0e))
             % define_different_part(photometry,mue, mu0e)
             % calculate_S(photometry(THETA_BAR), mue, mu0e, mue_0, mu0e_0);
+
+    reflectances.print();
 }
 
 int HapkeModel::get_D_dimension() {

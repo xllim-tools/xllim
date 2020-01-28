@@ -7,7 +7,7 @@ from libcpp.memory cimport shared_ptr
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 
-from dataGenerationWrapper cimport StatModel, GaussianStatModel, DependentGaussianStatModel
+from dataGenerationWrapper cimport StatModel, GaussianStatModelConfig , DependentGaussianStatModelConfig
 
 cimport numpy as np
 import numpy as np
@@ -16,6 +16,12 @@ import numpy as np
 
 cdef class PyStatModel:
     cdef shared_ptr[StatModel] c_statModel
+
+    @staticmethod
+    cdef PyStatModel create(shared_ptr[StatModel] model):
+        obj = <PyStatModel>PyStatModel.__new__(PyStatModel)
+        obj.c_statModel = model
+        return obj
 
     def gen_data(self, functionalModel, n):
         x_countiguous = np.ascontiguousarray(
@@ -33,30 +39,31 @@ cdef class PyStatModel:
 
         return x_countiguous, y_countiguous
 
+cdef class PyGaussianStatModelConfig:
+    cdef GaussianStatModelConfig config
+
+    def __cinit__(self, generatorType, covariance, seed):
+        cdef double[::1] covariance_memview = np.ascontiguousarray(covariance)
+
+        self.config.generatorType = <string>generatorType.encode('utf-8')
+        self.config.covariance = &covariance_memview[0]
+        self.config.cov_size = covariance_memview.shape[0]
+        self.config.seed = seed
+
+    def create(self):
+        cdef shared_ptr[StatModel] model = self.config.create()
+        return PyStatModel.create(model)
 
 
-cdef class PyGaussianStatModel(PyStatModel):
-    cdef shared_ptr[GaussianStatModel] c_gaussianModel
-
-    def __cinit__(self, generatorType, covariance, cov_size, seed):
-        covariance_countiguous = np.ascontiguousarray(covariance)
-        cdef double[::1] covariance_memview = covariance_countiguous
-
-        self.c_gaussianModel = shared_ptr[GaussianStatModel](new GaussianStatModel(
-            <string>generatorType.encode('utf-8'),
-            &covariance_memview[0],
-            cov_size,
-            seed)
-        )
-        self.c_statModel = <shared_ptr[StatModel]>(self.c_gaussianModel)
-
-cdef class PyDependentGaussianStatModel(PyStatModel):
-    cdef shared_ptr[DependentGaussianStatModel] c_dependentGaussianModel
+cdef class PyDependentGaussianStatModelConfig:
+    cdef DependentGaussianStatModelConfig config
 
     def __cinit__(self, generatorType, r, seed):
-       self.c_dependentGaussianModel = shared_ptr[DependentGaussianStatModel](new DependentGaussianStatModel(
-            <string>generatorType.encode('utf-8'),
-            r,
-            seed)
-       )
-       self.c_statModel = <shared_ptr[StatModel]>(self.c_dependentGaussianModel)
+        self.config.generatorType = <string>generatorType.encode('utf-8')
+        self.config.r = r
+        self.config.seed = seed
+
+    def create(self):
+        cdef shared_ptr[StatModel] model = self.config.create()
+        return PyStatModel.create(model)
+

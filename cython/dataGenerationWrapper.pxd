@@ -10,13 +10,21 @@ cdef extern from "../src/dataGeneration/StatModel.h" namespace "DataGeneration":
     cdef cppclass StatModel:
         void gen_data(shared_ptr[FunctionalModel] functionalModel, int n, double *x, double *y)
 
-cdef extern from "../src/dataGeneration/GaussianStatModel.h" namespace "DataGeneration":
-    cdef cppclass GaussianStatModel(StatModel):
-        GaussianStatModel(string generatorType, double *covariance, int cov_size, unsigned seed) except +
+cdef extern from "../src/dataGeneration/creators.h" namespace "DataGeneration":
+    cdef struct GaussianStatModelConfig:
+        string generatorType
+        double *covariance
+        int cov_size
+        unsigned seed
 
-cdef extern from "../src/dataGeneration/DependentGaussianStatModel.h" namespace "DataGeneration":
-    cdef cppclass DependentGaussianStatModel(StatModel):
-        DependentGaussianStatModel(string generatorType, int r, unsigned seed) except +
+        shared_ptr[StatModel] create()
+
+    cdef struct DependentGaussianStatModelConfig:
+        string generatorType
+        int r
+        unsigned seed
+
+        shared_ptr[StatModel] create()
 
 
 # ---------------------------------- cpp files declaration ----------------------------------------------- #

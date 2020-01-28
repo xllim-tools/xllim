@@ -28,7 +28,7 @@ add_library(dataGeneration STATIC
         src/dataGeneration/SobolGenerator.cpp
         src/dataGeneration/SobolGenerator.h
         src/dataGeneration/DependentGaussianStatModel.cpp
-        src/dataGeneration/DependentGaussianStatModel.h)
+        src/dataGeneration/DependentGaussianStatModel.h src/dataGeneration/creators.h)
 
 add_library(functionalModel STATIC
         src/physicalModel/HapkeModel.cpp
@@ -39,7 +39,7 @@ add_library(functionalModel STATIC
         src/physicalModel/HapkeModel.h
         src/physicalModel/FunctionalModel.h
         src/physicalModel/Hapke93Model.h
-        src/physicalModel/Hapke02Model.h src/physicalModel/ThreeParamsModel.cpp src/physicalModel/ThreeParamsModel.h src/physicalModel/HapkeAdapter.h src/physicalModel/HapkeAdapterFactory.cpp src/physicalModel/HapkeAdapterFactory.h src/physicalModel/SixParamsModel.cpp src/physicalModel/SixParamsModel.h src/physicalModel/FourParamsModel.cpp src/physicalModel/FourParamsModel.h)
+        src/physicalModel/Hapke02Model.h src/physicalModel/ThreeParamsModel.cpp src/physicalModel/ThreeParamsModel.h src/physicalModel/HapkeAdapter.h src/physicalModel/HapkeAdapterFactory.cpp src/physicalModel/HapkeAdapterFactory.h src/physicalModel/SixParamsModel.cpp src/physicalModel/SixParamsModel.h src/physicalModel/FourParamsModel.cpp src/physicalModel/FourParamsModel.h src/physicalModel/creators.h)
 
 target_include_directories(functionalModel PUBLIC include)
 

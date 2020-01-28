@@ -45,8 +45,6 @@ std::tuple<mat, mat> DependentGaussianStatModel::gen_data(std::shared_ptr<Functi
         }
     }
 
-    x_arma.print();
-
     return std::tuple<mat, mat>(x_arma,y_arma);
 }
 

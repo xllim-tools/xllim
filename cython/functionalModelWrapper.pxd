@@ -11,45 +11,28 @@ cdef extern from "../src/physicalModel/FunctionalModel.h" namespace "Functional"
         int get_L_dimension()
         void from_physic(double *x, int size)
 
-cdef extern from "../src/physicalModel/HapkeModel.h" namespace "Functional":
-    cdef cppclass HapkeModel(FunctionalModel):
-        HapkeModel(double *geometries,
-                   int row_size,
-                   int col_size,
-                   shared_ptr[HapkeAdapter] adapter,
-                   double theta_bar_scaling) except +
-
-cdef extern from "../src/physicalModel/Hapke02Model.h" namespace "Functional":
-    cdef cppclass Hapke02Model(HapkeModel):
-        Hapke02Model(double *geometries,
-                     int row_size,
-                     int col_size,
-                     shared_ptr[HapkeAdapter] adapter,
-                     double theta_bar_scaling) except +
-
-cdef extern from "../src/physicalModel/Hapke93Model.h" namespace "Functional":
-    cdef cppclass Hapke93Model(HapkeModel):
-        Hapke93Model(double *geometries,
-                     int row_size,
-                     int col_size,
-                     shared_ptr[HapkeAdapter] adapter,
-                     double theta_bar_scaling) except +
-
 cdef extern from "../src/physicalModel/HapkeAdapter.h" namespace "Functional":
     cdef cppclass HapkeAdapter:
         pass
 
-cdef extern from "../src/physicalModel/SixParamsModel.h" namespace "Functional":
-    cdef cppclass SixParamsModel(HapkeAdapter):
-        SixParamsModel() except +
+cdef extern from "../src/physicalModel/creators.h" namespace "Functional":
+    cdef struct HapkeAdapterConfig:
+        string version
+        double b0
+        double h
 
-cdef extern from "../src/physicalModel/FourParamsModel.h" namespace "Functional":
-    cdef cppclass FourParamsModel(HapkeAdapter):
-        FourParamsModel(double b0, double h) except +
+    cdef struct HapkeModelConfig:
+        string version
+        HapkeAdapterConfig adapterConfig
+        double *geometries
+        int row_size
+        int col_size
+        double theta_bar_scalling
 
-cdef extern from "../src/physicalModel/ThreeParamsModel.h" namespace "Functional":
-    cdef cppclass ThreeParamsModel(HapkeAdapter):
-        ThreeParamsModel(double b0, double h) except +
+        shared_ptr[FunctionalModel] create()
+
+
+
 
 
 # ---------------------------------- cpp files declaration -------------------------------------------- #

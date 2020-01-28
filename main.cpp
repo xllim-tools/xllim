@@ -115,8 +115,9 @@ int main(){
 
     rowvec y(50);
     auto start = chrono::high_resolution_clock::now();
-    for(unsigned k=0; k<10; k++){
+    for(unsigned k=0; k<1; k++){
         myModel->F(photometries.row(k),y);
+        y.print();
     }
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
