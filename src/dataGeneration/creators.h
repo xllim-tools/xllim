@@ -1,8 +1,8 @@
 /**
  * @file creators.h
  * @brief This file contains all data generation configuration structs responsible of the creation
- * of various statistic models. theses structs should be exported to fonrt-end language instead of
- * actual statsitci models.
+ * of various statistic models. Theses structs should be exported to front-end language instead of
+ * actual statistical models.
  * @author Sami DJOUADI
  * @version 1.0
  * @date 27/01/2020
