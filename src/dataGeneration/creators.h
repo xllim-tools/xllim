@@ -13,6 +13,7 @@
 
 #include <string>
 #include <memory>
+#include <utility>
 #include "StatModel.h"
 #include "GaussianStatModel.h"
 #include "DependentGaussianStatModel.h"
@@ -21,12 +22,19 @@ namespace DataGeneration{
 
     struct GaussianStatModelConfig{
         std::string generatorType;
+        std::shared_ptr<FunctionalModel> functionalModel;
         double *covariance;
         int cov_size;
         unsigned seed;
 
-        GaussianStatModelConfig(std::string generatorType, double *covariance, int cov_size, unsigned seed){
-            this->generatorType = generatorType;
+        GaussianStatModelConfig(
+                std::string generatorType,
+                std::shared_ptr<FunctionalModel> functionalModel,
+                double *covariance,
+                int cov_size,
+                unsigned seed){
+            this->functionalModel = std::move(functionalModel);
+            this->generatorType = std::move(generatorType);
             this->covariance = covariance;
             this->cov_size = cov_size;
             this->seed = seed;
@@ -34,25 +42,40 @@ namespace DataGeneration{
 
         std::shared_ptr<StatModel> create(){
             return std::shared_ptr<StatModel>(
-                    new GaussianStatModel(generatorType,covariance,cov_size,seed)
+                    new GaussianStatModel(
+                            generatorType,
+                            functionalModel,
+                            covariance,
+                            cov_size,
+                            seed)
                     );
         }
     };
 
     struct DependentGaussianStatModelConfig{
         std::string generatorType;
+        std::shared_ptr<FunctionalModel> functionalModel;
         int r;
         unsigned seed;
 
-        DependentGaussianStatModelConfig(std::string generatorType, int r, unsigned seed){
-            this->generatorType = generatorType;
+        DependentGaussianStatModelConfig(
+                std::string generatorType,
+                std::shared_ptr<FunctionalModel> functionalModel,
+                int r,
+                unsigned seed){
+            this->functionalModel = std::move(functionalModel);
+            this->generatorType = std::move(generatorType);
             this->r = r;
             this->seed = seed;
         }
 
         std::shared_ptr<StatModel> create(){
             return std::shared_ptr<StatModel>(
-                    new DependentGaussianStatModel(generatorType,r,seed)
+                    new DependentGaussianStatModel(
+                            generatorType,
+                            functionalModel,
+                            r,
+                            seed)
             );
         }
     };

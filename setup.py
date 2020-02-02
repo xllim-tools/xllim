@@ -19,7 +19,7 @@ setup(name='kernel',
                                library_dirs = ['/usr/lib', '/usr/local/lib'],
                                libraries=["armadillo", "lapack_atlas", "blas"],
                                language='c++',
-                               extra_compile_args=["-std=c++11"]
+                               extra_compile_args=["-Ofast", "-DARMA_NO_DEBUG", "-std=c++11"]
                                ),
                      ]
       )

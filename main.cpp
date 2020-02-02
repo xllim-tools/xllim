@@ -112,12 +112,13 @@ int main(){
         }
     }
 
+    auto *yy = new double[50*10000];
+
 
     rowvec y(50);
     auto start = chrono::high_resolution_clock::now();
-    for(unsigned k=0; k<1; k++){
-        myModel->F(photometries.row(k),y);
-        y.print();
+    for(unsigned k=0; k<10000; k++){
+        myModel->F(photometries.row(k) , y);
     }
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(end - start);

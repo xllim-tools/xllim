@@ -10,20 +10,29 @@
 #include "GeneratorFactory.h"
 #include <omp.h>
 
+#include <utility>
+
 
 using namespace DataGeneration;
 
-DependentGaussianStatModel::DependentGaussianStatModel(const std::string& generatorType, int r, unsigned seed) {
-    generator = GeneratorFactory::create(generatorType);
+DependentGaussianStatModel::DependentGaussianStatModel(
+        const std::string& generatorType,
+        std::shared_ptr<FunctionalModel> functionalModel,
+        int r,
+        unsigned seed) {
+    this->generator = GeneratorFactory::create(generatorType);
+    this->functionalModel = std::move(functionalModel);
     this->r = r;
     this->seed = seed;
 }
 
-std::tuple<mat, mat> DependentGaussianStatModel::gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n) {
-    mat x_arma = mat(n,functionalModel->get_L_dimension());
-    mat y_arma = mat(n,functionalModel->get_D_dimension());
+std::tuple<mat, mat> DependentGaussianStatModel::gen_data(int n) {
     int dimension_D = functionalModel->get_D_dimension();
     int dimension_L = functionalModel->get_L_dimension();
+
+    mat x_arma = mat(n,dimension_L);
+    mat y_arma = mat(n,dimension_D);
+
 
     // generate X
     generator->execute(x_arma, seed);

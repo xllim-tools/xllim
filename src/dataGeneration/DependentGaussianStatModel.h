@@ -34,11 +34,16 @@ namespace DataGeneration{
          * @param r : noise effect in percentage ( example 20 means 20%)
          * @param seed : used by generators
          */
-        DependentGaussianStatModel(const std::string& generatorType, int r, unsigned seed);
-        std::tuple<mat, mat> gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n) final;
+        DependentGaussianStatModel(
+                const std::string& generatorType,
+                std::shared_ptr<FunctionalModel> functionalModel,
+                int r,
+                unsigned seed);
+        std::tuple<mat, mat> gen_data(int n) final;
         double density_X_Y(mat x, mat y) final;
 
     private:
+        std::shared_ptr<FunctionalModel> functionalModel;
         std::shared_ptr<GeneratorStrategy> generator; /**< generates X matrix values */
         double r; /**< noise effect in percentage */
         unsigned seed; /**< used by generators */

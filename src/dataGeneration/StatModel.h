@@ -39,19 +39,16 @@ namespace DataGeneration{
          * @param y : calculated values with the functional model and using the generated values in X
          *            (like reflectances in the context of space remote sensing)
          */
-        virtual void gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n, double *x, double *y) {
-            int dimension_L = functionalModel->get_L_dimension();
-            int dimension_D = functionalModel->get_D_dimension();
-
-            std::tuple<mat, mat> data = gen_data(functionalModel, n);
+        virtual void gen_data(int n, double *x, int x_dimension, double *y, int y_dimension) {
+            std::tuple<mat, mat> data = gen_data(n);
 
             for(unsigned i=0 ; i<n ; i++){
-                for(unsigned j=0 ; j<dimension_L; j++){
-                    x[i*dimension_L+j] = std::get<0>(data)(i,j);
+                for(unsigned j=0 ; j<x_dimension; j++){
+                    x[i*x_dimension+j] = std::get<0>(data)(i,j);
                 }
 
-                for(unsigned j=0 ; j<dimension_D; j++){
-                    y[i*dimension_D+j] = std::get<1>(data)(i,j);
+                for(unsigned j=0 ; j<y_dimension; j++){
+                    y[i*y_dimension+j] = std::get<1>(data)(i,j);
                 }
             }
         };
@@ -63,7 +60,7 @@ namespace DataGeneration{
          * @param n : number of rows in the dat set
          * @return A pair of X (generated data) and Y (calculated data using the functional model)
          */
-        virtual std::tuple<mat, mat> gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n) = 0;
+        virtual std::tuple<mat, mat> gen_data(int n) = 0;
         virtual double density_X_Y(mat x, mat y) = 0;
     };
 }

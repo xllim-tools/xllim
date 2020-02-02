@@ -70,10 +70,10 @@ int main(){
 
 
     std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel()), 30.0));
-    std::shared_ptr<DataGeneration::StatModel> statModel = DataGeneration::DependentGaussianStatModelConfig("sobol", 20, 123456789).create();
+    std::shared_ptr<DataGeneration::StatModel> statModel = DataGeneration::DependentGaussianStatModelConfig("sobol", myModel,20, 123456789).create();
 
     auto start = chrono::high_resolution_clock::now();
-    statModel->gen_data(myModel, 10000);
+    statModel->gen_data(10000);
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
     cout << duration.count() << endl;

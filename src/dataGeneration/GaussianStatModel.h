@@ -37,11 +37,17 @@ namespace DataGeneration{
          * @param cov_size : covariance square matrix size
          * @param seed : used by generators
          */
-        GaussianStatModel(const std::string& generatorType, const double *covariance, int cov_size, unsigned seed);
-        std::tuple<mat, mat> gen_data(std::shared_ptr<FunctionalModel> functionalModel, int n) final;
+        GaussianStatModel(
+                const std::string& generatorType,
+                std::shared_ptr<FunctionalModel> functionalModel,
+                const double *covariance,
+                int cov_size,
+                unsigned seed);
+        std::tuple<mat, mat> gen_data(int n) final;
         double density_X_Y(mat x, mat y) final;
 
     private:
+        std::shared_ptr<FunctionalModel> functionalModel;
         std::shared_ptr<GeneratorStrategy> generator; /**< generates X matrix values */
         rowvec covariance; /**< covariance row vector used to add noise to Y */
         unsigned seed; /**< used by generators */
