@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import kernel as ker
 import json
 import time
@@ -13,20 +12,20 @@ with open('test_hapke.json') as json_file:
 
 
 # Create Hapke2002 Model
-myAdapter = ker.PySixParamsHapkeAdapterConfig()
+myAdapter = ker.SixParamsHapkeAdapterConfig()
 
-myModel = ker.PyHapkeModelConfig("2002", myAdapter, geom, 30).create()
+myModel = ker.HapkeModelConfig("2002", myAdapter, geom, 30).create()
 
-#myGenerator = ker.PyDependentGaussianStatModel("sobol", 20, 123456789)
+myGenerator = ker.DependentGaussianStatModelConfig("sobol", myModel, 20, 123456789).create()
 
-#x_gen, y_gen = myGenerator.gen_data(myModel, 1)
-#print(y_gen)
+x_gen, y_gen = myGenerator.gen_data(1)
+print(y_gen)
 
 # Start time
-start_time = time.time()
+#start_time = time.time()
 
 # Calculate reflectances
-y = myModel.F(photom[0])
+#y = myModel.F(photom[0])
 
 
 #print(y)

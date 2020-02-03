@@ -8,15 +8,17 @@ from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libc.stdio cimport printf
 
-from functionalModelWrapper cimport FunctionalModel, HapkeAdapterConfig, HapkeModelConfig
+from functionalModelWrapper cimport FunctionalModel as CppFunctionalModel
+from functionalModelWrapper cimport HapkeAdapterConfig as CppHapkeAdapterConfig
+from functionalModelWrapper cimport HapkeModelConfig as CppHapkeModelConfig
 
 cimport numpy as np
 import numpy as np
 
 # ---------------------------------- python classes definition ------------------------------------------- #
 
-cdef class PyFunctionalModel:
-    cdef shared_ptr[FunctionalModel] c_functional
+cdef class FunctionalModel:
+    cdef shared_ptr[CppFunctionalModel] c_functional
 
     def get_D_dimension(self):
         return deref(self.c_functional).get_D_dimension()
@@ -38,47 +40,47 @@ cdef class PyFunctionalModel:
         deref(self.c_functional).F(&x_memview[0],x_memview.shape[0],&y_memview[0],y_memview.shape[0])
         return y_countiguous
 
-    cdef shared_ptr[FunctionalModel] getInstance(self):
+    cdef shared_ptr[CppFunctionalModel] getInstance(self):
             return self.c_functional
 
     @staticmethod
-    cdef PyFunctionalModel create(shared_ptr[FunctionalModel] model):
-        obj = <PyFunctionalModel>PyFunctionalModel.__new__(PyFunctionalModel)
+    cdef FunctionalModel create(shared_ptr[CppFunctionalModel] model):
+        obj = <FunctionalModel>FunctionalModel.__new__(FunctionalModel)
         obj.c_functional = model
         return obj
 
-cdef class PyHapkeAdapterConfig:
-    cdef HapkeAdapterConfig config
+cdef class HapkeAdapterConfig:
+    cdef CppHapkeAdapterConfig config
 
-    cdef HapkeAdapterConfig getInstance(self):
+    cdef CppHapkeAdapterConfig getInstance(self):
         return self.config
 
-cdef class PyFourParamsHapkeAdapterConfig(PyHapkeAdapterConfig):
+cdef class FourParamsHapkeAdapterConfig(HapkeAdapterConfig):
     def __cinit__(self, b0, h):
         version = "four"
         self.config.version = <string>version.encode('utf-8')
         self.config.b0 = b0
         self.config.h = h
 
-cdef class PyThreeParamsHapkeAdapterConfig(PyHapkeAdapterConfig):
+cdef class ThreeParamsHapkeAdapterConfig(HapkeAdapterConfig):
     def __cinit__(self, b0, h):
         version = "three"
         self.config.version = <string>version.encode('utf-8')
         self.config.b0 = b0
         self.config.h = h
 
-cdef class PySixParamsHapkeAdapterConfig(PyHapkeAdapterConfig):
+cdef class SixParamsHapkeAdapterConfig(HapkeAdapterConfig):
     def __cinit__(self):
         version = "six"
         self.config.version = <string>version.encode('utf-8')
 
-cdef class PyHapkeModelConfig:
-    cdef HapkeModelConfig config
+cdef class HapkeModelConfig:
+    cdef CppHapkeModelConfig config
     cdef double[:,::1] geometries_memview
 
     def __cinit__(self, version, adapter, geometries, theta_bar_scalling):
         self.geometries_memview = np.ascontiguousarray(geometries)
-        cdef HapkeAdapterConfig hapkeAdapterConfig
+        cdef CppHapkeAdapterConfig hapkeAdapterConfig
 
         self.config.geometries = &self.geometries_memview[0,0]
 
@@ -86,8 +88,8 @@ cdef class PyHapkeModelConfig:
         self.config.col_size = self.geometries_memview.shape[1]
         self.config.version = <string>version.encode('utf-8')
         self.config.theta_bar_scalling = theta_bar_scalling
-        self.config.adapterConfig = (<PyHapkeAdapterConfig>adapter).getInstance()
+        self.config.adapterConfig = (<HapkeAdapterConfig>adapter).getInstance()
 
     def create(self):
-        return PyFunctionalModel.create(self.config.create())
+        return FunctionalModel.create(self.config.create())
 

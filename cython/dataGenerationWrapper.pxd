@@ -8,11 +8,12 @@ from functionalModelWrapper cimport FunctionalModel
 
 cdef extern from "../src/dataGeneration/StatModel.h" namespace "DataGeneration":
     cdef cppclass StatModel:
-        void gen_data(shared_ptr[FunctionalModel] functionalModel, int n, double *x, double *y)
+        void gen_data(int n, double *x, int x_dimension, double *y, int y_dimension)
 
 cdef extern from "../src/dataGeneration/creators.h" namespace "DataGeneration":
     cdef struct GaussianStatModelConfig:
         string generatorType
+        shared_ptr[FunctionalModel] functionalModel
         double *covariance
         int cov_size
         unsigned seed
@@ -21,6 +22,7 @@ cdef extern from "../src/dataGeneration/creators.h" namespace "DataGeneration":
 
     cdef struct DependentGaussianStatModelConfig:
         string generatorType
+        shared_ptr[FunctionalModel] functionalModel
         int r
         unsigned seed
 

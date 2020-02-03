@@ -43,7 +43,6 @@ namespace Functional{
         std::shared_ptr<FunctionalModel> create(){
             std::shared_ptr<HapkeAdapter> adapter = this->adapterConfig.create();
             if(version == "2002"){
-                std::cout << &geometries[0] << std::endl;
                 return std::shared_ptr<FunctionalModel>(
                         new Hapke02Model(
                                 geometries,
