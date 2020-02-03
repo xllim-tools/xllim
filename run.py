@@ -1,5 +1,5 @@
 import numpy as np
-import kernel as ker
+import kernelo as ker
 import json
 import time
 
@@ -16,7 +16,7 @@ myAdapter = ker.SixParamsHapkeAdapterConfig()
 
 myModel = ker.HapkeModelConfig("2002", myAdapter, geom, 30).create()
 
-myGenerator = ker.DependentGaussianStatModelConfig("sobol", myModel, 20, 123456789).create()
+myGenerator = ker.GaussianStatModelConfig("sobol", myModel, np.arange(6.0), 123456789).create()
 
 x_gen, y_gen = myGenerator.gen_data(1)
 print(y_gen)

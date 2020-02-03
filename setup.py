@@ -5,13 +5,13 @@ from Cython.Distutils import build_ext
 from numpy import get_include
 import cyarma
 
-setup(name='kernel',
+setup(name='kernelo',
       version='0.1',
-      packages=['kernel'],
-      package_dir={'kernel': 'kernel'},
+      packages=['kernelo'],
+      package_dir={'kernelo': 'kernelo'},
       description='Wrapper to Armadillo',
       cmdclass = {'build_ext': build_ext},
-      ext_modules = [Extension("kernel",
+      ext_modules = [Extension("kernelo",
                                ["cython/kernelo.pyx"],
                                include_dirs = [get_include(), '/usr/include',
                                                '/usr/local/include',
@@ -19,6 +19,7 @@ setup(name='kernel',
                                library_dirs = ['/usr/lib', '/usr/local/lib'],
                                libraries=["armadillo", "lapack_atlas", "blas"],
                                language='c++',
+                               compiler_directives={'embedsignature': True},
                                extra_compile_args=["-Ofast", "-DARMA_NO_DEBUG", "-std=c++11"]
                                ),
                      ]

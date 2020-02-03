@@ -75,6 +75,10 @@ cdef class SixParamsHapkeAdapterConfig(HapkeAdapterConfig):
         self.config.version = <string>version.encode('utf-8')
 
 cdef class HapkeModelConfig:
+    """
+    This a Hapke model configuration wrapper for C++.
+    """
+
     cdef CppHapkeModelConfig config
     cdef double[:,::1] geometries_memview
 
