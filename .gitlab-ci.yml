@@ -20,6 +20,10 @@ staging:
     stage: deploy
     image: ruby:latest
     script:
+        script:
+        - apt-get update -qy
+        - apt-get install -yqq ruby ruby-dev nodejs --silent
+        - gem install dpl
         - dpl --provider=heroku --dir=test_env --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
     
     
