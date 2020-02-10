@@ -17,8 +17,10 @@ build:
             
 staging:
     before_script:
-        - cp ./*.so test_env/
+        - cp kernelo.cpython-37m-x86_64-linux-gnu.so test_env/kernelo.cpython-37m-x86_64-linux-gnu.so
+        - ls
         - cd test_env
+        - ls
     type: deploy
     stage: deploy
     image: ruby:latest
