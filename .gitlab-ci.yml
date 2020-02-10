@@ -20,7 +20,6 @@ staging:
     stage: deploy
     image: ruby:latest
     script:
-        script:
         - apt-get update -qy
         - apt-get install -y ruby-dev
         - gem install dpl
