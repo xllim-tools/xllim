@@ -6,14 +6,14 @@ stages:
     - build
     - deploy
 
-build:
-    stage: build
-    script:
-        - echo "building kernel"
-        - python3.7 setup.py build_ext --build-lib=test_env -vvv
-    artifacts:
-        paths:
-            - test_env/*.so
+#build:
+#    stage: build
+#    script:
+#        - echo "building kernel"
+#        - python3.7 setup.py build_ext --build-lib=test_env -vvv
+#    artifacts:
+#        paths:
+#            - test_env/*.so
             
 staging:
     type: deploy
@@ -23,6 +23,6 @@ staging:
         - apt-get update -qy
         - apt-get install -y ruby-dev
         - gem install dpl
-        - dpl --provider=heroku --dir="test_env" --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
+        - dpl --provider=heroku --dir=test_env --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
     
     
