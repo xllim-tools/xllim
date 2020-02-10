@@ -22,7 +22,7 @@ staging:
     script:
         script:
         - apt-get update -qy
-        - apt-get install -yqq ruby ruby-dev nodejs --silent
+        - apt-get install -y ruby-dev
         - gem install dpl
         - dpl --provider=heroku --dir=test_env --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
     
