@@ -18,17 +18,15 @@ build:
 staging:
     before_script:
         - cp kernelo.cpython-37m-x86_64-linux-gnu.so test_env/kernelo.cpython-37m-x86_64-linux-gnu.so
-        - ls
         - cd test_env
-        - ls
     type: deploy
     stage: deploy
     image: ruby:latest
     script:
-        - ls
         - apt-get update -qy
         - apt-get install -y ruby-dev
         - gem install dpl
         - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
+        - ls
     
     
