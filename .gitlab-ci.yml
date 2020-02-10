@@ -17,7 +17,7 @@ build:
             
 staging:
     type: deploy
-    stage: staging
+    stage: deploy
     image: ruby:latest
     script:
         - dpl --provider=heroku --dir=test_env --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
