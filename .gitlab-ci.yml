@@ -10,13 +10,14 @@ build:
     stage: build
     script:
         - echo "building kernel"
-        - python3.7 setup.py build_ext --build-lib=test_env -vvv
+        - python3.7 setup.py build_ext --inplace -vvv
     artifacts:
         paths:
-            - test_env/*.so
+            - ./*.so
             
 staging:
     before_script:
+        - cp ./*.so test_env/
         - cd test_env
     type: deploy
     stage: deploy
