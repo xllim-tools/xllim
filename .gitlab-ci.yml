@@ -26,6 +26,9 @@ staging:
         - apt-get update -qy
         - apt-get install -y ruby-dev
         - gem install dpl
+        - echo "the project directory is - $CI_PROJECT_DIR"
+        - cat $CI_PROJECT_DIR/README.md ; echo
+        - echo "and where am I? - $PWD"
         - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
         - ls
     
