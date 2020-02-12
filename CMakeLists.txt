@@ -43,6 +43,9 @@ add_library(functionalModel STATIC
         src/physicalModel/Hapke93Model.h
         src/physicalModel/Hapke02Model.h src/physicalModel/ThreeParamsModel.cpp src/physicalModel/ThreeParamsModel.h src/physicalModel/HapkeAdapter.h src/physicalModel/HapkeAdapterFactory.cpp src/physicalModel/HapkeAdapterFactory.h src/physicalModel/SixParamsModel.cpp src/physicalModel/SixParamsModel.h src/physicalModel/FourParamsModel.cpp src/physicalModel/FourParamsModel.h src/physicalModel/creators.h)
 
+add_library(learningModel STATIC
+        src/learningModel/LearningConfig.h src/learningModel/Estimators.h src/learningModel/GLLiMParameters.cpp src/learningModel/GLLiMParameters.h src/learningModel/Icovariance.h src/learningModel/EstimatorFactory.cpp src/learningModel/EstimatorFactory.h)
+
 target_include_directories(functionalModel PUBLIC include)
 
 target_compile_features(functionalModel PUBLIC cxx_std_11)
@@ -50,6 +53,10 @@ target_compile_features(functionalModel PUBLIC cxx_std_11)
 add_executable(Test main.cpp)
 
 add_executable(TestGeneration dataGenerationTest.cpp)
+
+add_executable(TestLearning learning_test.cpp)
+
+target_link_libraries(TestLearning PUBLIC learningModel)
 
 target_link_libraries(TestGeneration PUBLIC dataGeneration)
 
