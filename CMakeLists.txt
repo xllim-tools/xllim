@@ -14,6 +14,8 @@ include(ExternalProject)
 project(Kernelo VERSION ${PROJECT_VERSION} DESCRIPTION "This is Planeto kernel" LANGUAGES CXX)
 set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -larmadillo -fopenmp -DARMA_NO_DEBUG")
 
+include(CTest)
+
 add_library(dataGeneration STATIC
         src/dataGeneration/StatModel.h
         src/dataGeneration/GaussianStatModel.cpp
@@ -57,3 +59,5 @@ target_link_libraries(Test PUBLIC functionalModel)
 
 
 add_subdirectory(cpptest/functionalModel_tests)
+
+add_subdirectory(valgrind)

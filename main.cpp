@@ -35,7 +35,7 @@ int main(){
 
 
     pt::ptree root;
-    pt::read_json("../test_hapke.json", root);  // Load the json file in this ptree
+    pt::read_json("../../test_hapke.json", root);  // Load the json file in this ptree
     i = 0;
     for (pt::ptree::value_type& v : root.get_child("eme"))
     {
@@ -125,7 +125,7 @@ int main(){
     cout << duration.count() << endl;
 
     delete [] x;
-    //delete [] y;
+    delete [] yy;
     delete [] geometries;
 
 
