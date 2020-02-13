@@ -44,7 +44,7 @@ add_library(functionalModel STATIC
         src/physicalModel/Hapke02Model.h src/physicalModel/ThreeParamsModel.cpp src/physicalModel/ThreeParamsModel.h src/physicalModel/HapkeAdapter.h src/physicalModel/HapkeAdapterFactory.cpp src/physicalModel/HapkeAdapterFactory.h src/physicalModel/SixParamsModel.cpp src/physicalModel/SixParamsModel.h src/physicalModel/FourParamsModel.cpp src/physicalModel/FourParamsModel.h src/physicalModel/creators.h)
 
 add_library(learningModel STATIC
-        src/learningModel/LearningConfig.h src/learningModel/Estimators.h src/learningModel/GLLiMParameters.cpp src/learningModel/GLLiMParameters.h src/learningModel/Icovariance.h src/learningModel/EstimatorFactory.cpp src/learningModel/EstimatorFactory.h)
+        src/learningModel/LearningConfig.h src/learningModel/Estimators.h src/learningModel/GLLiMParameters.cpp src/learningModel/GLLiMParameters.h src/learningModel/Icovariance.h src/learningModel/EstimatorFactory.cpp src/learningModel/EstimatorFactory.h src/learningModel/IGLLiMLearning.h src/learningModel/GLLiMLearning.cpp src/learningModel/GLLiMLearning.h src/learningModel/Initializers.h)
 
 target_include_directories(functionalModel PUBLIC include)
 
