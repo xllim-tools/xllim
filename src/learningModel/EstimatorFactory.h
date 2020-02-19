@@ -11,6 +11,7 @@ namespace learningModel{
 
     class EstimatorFactory {
     public:
+
         template <typename T = Icovariance, typename U = Icovariance>
         static Iestimator<T,U> create(LearningConfig config);
     };

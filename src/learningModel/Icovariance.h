@@ -14,26 +14,21 @@ namespace learningModel{
     //------------------ Icovariance ------------------------ //
     class Icovariance{};
 
-    vec operator + (const Icovariance &x, const vec &y);
-
 
     //----------------- DiagCovariance ---------------------- //
     class DiagCovariance : public Icovariance{
 
+        friend mat operator + (const mat &y, const DiagCovariance &x);
+        friend mat operator + (const DiagCovariance &x, const mat &y);
+        friend mat operator * (const mat &y, const DiagCovariance &x);
+        friend mat operator * (const DiagCovariance &x, const mat &y);
+
     public:
-        explicit DiagCovariance(const vec &covariance){
-            this->covariance = covariance;
-        }
+        explicit DiagCovariance(const vec &covariance);
+        DiagCovariance()= default;
 
-        DiagCovariance()= default;;
-
-        vec get_covariance() const{
-            return covariance;
-        }
-
-        DiagCovariance &operator = (const DiagCovariance &cov){
-            covariance = cov.get_covariance();
-        }
+        DiagCovariance &operator = (const DiagCovariance &cov);
+        DiagCovariance &operator = (const mat &cov);
 
     private:
         vec covariance;
@@ -41,31 +36,23 @@ namespace learningModel{
     };
 
 
-    vec operator + (const DiagCovariance &x, const vec &y){
-        return y + x.get_covariance();
-    }
 
     //----------------- FullCovariance ---------------------- //
     class FullCovariance : public Icovariance{
 
+        friend mat operator + (const mat &y, const FullCovariance &x);
+        friend mat operator + (const FullCovariance &x, const mat &y);
+        friend mat operator * (const mat &y, const FullCovariance &x);
+        friend mat operator * (const FullCovariance &x, const mat &y);
+
     public:
-        explicit FullCovariance(const mat &covariance){
-            this->covariance = covariance;
-        }
-
-        FullCovariance()= default;;
-
-        mat get_covariance() const{
-            return covariance;
-        }
-
-        FullCovariance &operator = (const DiagCovariance &cov){
-            covariance = cov.get_covariance();
-        }
+        FullCovariance(const mat &covariance);
+        FullCovariance()= default;
+        FullCovariance &operator = (const FullCovariance &cov);
+        FullCovariance &operator = (const mat &cov);
 
     private:
         mat covariance;
-
     };
 
     //----------------- FullCovariance ---------------------- //

@@ -7,9 +7,10 @@
 
 namespace learningModel{
 
-    struct LearningConfig{};
+    class LearningConfig{};
 
-    struct EMLearningConfig : LearningConfig{
+    class EMLearningConfig : public LearningConfig{
+    public:
         int max_iteration;
         double ratio_ll;
 
@@ -19,7 +20,8 @@ namespace learningModel{
         }
     };
 
-    struct GMMLearningConfig : LearningConfig{
+    class GMMLearningConfig : public LearningConfig{
+    public:
         int kmeans_iteration;
         int em_iteration;
 

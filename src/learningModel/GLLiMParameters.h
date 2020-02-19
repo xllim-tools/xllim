@@ -12,33 +12,37 @@ using namespace arma;
 
 namespace learningModel{
 
-    template <typename T = Icovariance, typename U = Icovariance>
+    template <typename T, typename U>
     class GLLiMParameters {
 
     public:
         GLLiMParameters(
-                const vec& Pi_k,
-                const vec& Ci_k,
-                const Col<T>& Gamma_k,
-                const Col<vec>& A_k,
-                const mat& B_k,
-                const Col<U>& Sigma_k){
+                const vec& Pi,
+                const mat &C,
+                const std::vector<T>& Gamma,
+                const cube &A,
+                const mat& B,
+                const std::vector<U>& Sigma){
 
-            this->Pi_k = Pi_k;
-            this->Ci_k = Ci_k;
-            this->Gamma_k = Gamma_k;
-            this->A_k = A_k;
-            this->B_k = B_k;
-            this->Sigma_k = Sigma_k;
+            this->Pi = Pi;
+            this->C = C;
+            this->Gamma = Gamma;
+            this->A = A;
+            this->B = B;
+            this->Sigma = Sigma;
         }
 
-        vec Pi_k;
-        vec Ci_k;
-        Col<T> Gamma_k;
-        Col<vec> A_k;
-        mat B_k;
-        Col<U> Sigma_k;
+        GLLiMParameters() = default;
+
+        vec Pi;
+        mat C;
+        std::vector<T> Gamma;
+        cube A;
+        mat B;
+        std::vector<U> Sigma;
     };
+
+
 }
 
 
