@@ -49,5 +49,17 @@ mat learningModel::operator*(const DiagCovariance &x, const mat &y) {
     return result;
 }
 
+DiagCovariance DiagCovariance::inv() {
+    vec inv = vec(covariance.n_rows);
+    for(unsigned i=0; i<covariance.n_rows; i++){
+        inv(i) = 1/covariance(i);
+    }
+    return DiagCovariance(inv);
+}
+
+double DiagCovariance::det() {
+    return prod(covariance);
+}
+
 
 

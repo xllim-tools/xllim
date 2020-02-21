@@ -26,9 +26,10 @@ namespace learningModel{
     public:
         explicit DiagCovariance(const vec &covariance);
         DiagCovariance()= default;
-
         DiagCovariance &operator = (const DiagCovariance &cov);
         DiagCovariance &operator = (const mat &cov);
+        DiagCovariance inv();
+        double det();
 
     private:
         vec covariance;
@@ -44,18 +45,27 @@ namespace learningModel{
         friend mat operator + (const FullCovariance &x, const mat &y);
         friend mat operator * (const mat &y, const FullCovariance &x);
         friend mat operator * (const FullCovariance &x, const mat &y);
+        friend vec operator * (const FullCovariance &x, const vec &y);
+        friend rowvec operator * (const rowvec &y, const FullCovariance &x);
+
 
     public:
-        FullCovariance(const mat &covariance);
+        explicit FullCovariance(const mat &covariance);
         FullCovariance()= default;
         FullCovariance &operator = (const FullCovariance &cov);
         FullCovariance &operator = (const mat &cov);
+        FullCovariance &operator = (double scalar);
+        FullCovariance &operator += (const mat &cov);
+        FullCovariance &operator += (double scalar);
+        FullCovariance inv(bool print);
+        void print();
+        double det();
 
     private:
         mat covariance;
     };
 
-    //----------------- FullCovariance ---------------------- //
+    //----------------- IsoCovariance ---------------------- //
     class IsoCovariance : public Icovariance{
 
     public:
