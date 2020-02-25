@@ -114,17 +114,17 @@ using namespace arma;
     //for(unsigned t=0; t<10; t++){
 
 
-        y += (mat(y.n_rows, y.n_cols, fill::randu) * 1/100);
+        y += (mat(y.n_rows, y.n_cols, fill::randn) * 1/100);
         //y = y.submat(0,0,y.n_rows-1,4);
-        //photometries = mat(100, 2, fill::randu);
+        //photometries = mat(100, 2, fill::randn);
 
         arma_rng::set_seed_random();
-        mat T_L = trimatl(mat(photometries.n_cols, photometries.n_cols, fill::randu));
+        mat T_L = trimatl(mat(photometries.n_cols, photometries.n_cols, fill::randn));
         mat S_L = T_L * T_L.t();
         S_L.diag() += 1;
         arma_rng::set_seed_random();
 
-        mat T_D = trimatl(mat(y.n_cols, y.n_cols, fill::randu));
+        mat T_D = trimatl(mat(y.n_cols, y.n_cols, fill::randn));
         mat S_D = T_D * T_D.t();
         S_D.diag() += 1;
         arma_rng::set_seed_random();
@@ -136,7 +136,7 @@ using namespace arma;
         myParams.A = cube(y.n_cols, photometries.n_cols, K);
         myParams.B = mat(y.n_cols, K);
         myParams.C = mat(photometries.n_cols, K);
-        myParams.Pi = normalise(vec(K, fill::randu), 1);
+        myParams.Pi = normalise(vec(K, fill::randn), 1);
         myParams.Sigma = std::vector<FullCovariance>(K);
         myParams.Gamma = std::vector<FullCovariance>(K);
 
@@ -148,11 +148,11 @@ using namespace arma;
             myParams.Sigma[p] = FullCovariance(S_D);
             myParams.Gamma[p] = FullCovariance(S_L);
 
-            myParams.A.slice(p) = mat(y.n_cols, photometries.n_cols, fill::randu);
+            myParams.A.slice(p) = mat(y.n_cols, photometries.n_cols, fill::randn);
             arma_rng::set_seed_random();
-            myParams.B.col(p) = vec(y.n_cols, fill::randu);
+            myParams.B.col(p) = vec(y.n_cols, fill::randn);
             arma_rng::set_seed_random();
-            myParams.C.col(p) = vec(photometries.n_cols, fill::randu);
+            myParams.C.col(p) = vec(photometries.n_cols, fill::randn);
             arma_rng::set_seed_random();
         }
 
@@ -200,8 +200,8 @@ int main(){
     vec B(D, fill::randu);
 
     // Fixer sigma
-    vec sigma(D, fill::randu);
-    sigma *= sqrt(0.1);
+    mat sigma(N,D, fill::randn);
+    sigma *= sqrt(0.01);
 
     // Fixer C, Gamma et Pi
     arma_rng::set_seed(11100);
@@ -234,20 +234,26 @@ int main(){
     mat X = model.generate(N);
 
     // Calculer Y
-    mat Y = A * X;
+    mat Y = mat(A * X);
     for(unsigned n=0; n<N; n++){
         for(unsigned d=0; d<D; d++){
-            Y(n,d) += B(d) + sigma(d);
+            Y(d,n) += B(d) + sigma(n,d);
         }
 
     }
 
-    /*A.print("A");
-    B.t().print("B");
-    C.print("C");
-    Gamma.print("Gamma");
-    sigma.t().print("sigma");
-    Pi.print("pi");*/
+
+
+    /*mat u(D,D,fill::zeros);
+    for(unsigned n=0; n<N; n++){
+        mat temp = mat(Y.col(n) - A * X.col(n) - B);
+
+        u = u + temp * temp.t();
+    }
+
+    u /= N;
+    //std::cout << sum(u) << std::endl;
+    u.print();*/
 
     arma_rng::set_seed_random();
     T_L = trimatl(mat(L, L, fill::randu));
@@ -269,12 +275,22 @@ int main(){
     myParams.Sigma = std::vector<FullCovariance>(K);
     myParams.Gamma = std::vector<FullCovariance>(K);
 
+    mat sig(D,D, fill::zeros);
+    sig.diag() += 0.01;
+    //sig.print();
 
     for(unsigned p=0; p < K ; p++ ){
+
+       /* myParams.Sigma[p] = FullCovariance(sig);
+        myParams.Gamma[p] = FullCovariance(Gamma.slice(p));
+        myParams.A.slice(p) = A;
+        myParams.B.col(p) = B;
+        myParams.C.col(p) = C.col(p);*/
+
         myParams.Sigma[p] = FullCovariance(S_D);
         myParams.Gamma[p] = FullCovariance(S_L);
 
-        myParams.A.slice(p) = mat(D, D, fill::randu);
+        myParams.A.slice(p) = mat(D,L, fill::randu);
         arma_rng::set_seed_random();
         myParams.B.col(p) = vec(D, fill::randu);
         arma_rng::set_seed_random();
@@ -282,12 +298,107 @@ int main(){
         arma_rng::set_seed_random();
     }
 
+    myParams.A.print("Init A");
+    myParams.B.t().print("Init B");
+    myParams.C.print("Init C");
+    S_D.print("init Sigma");
+    S_L.print("init Gamma");
+    myParams.Pi.print("Init Pi");
+
+
+    auto *geometries = new double[50*3];
+    unsigned i = 0;
+
+
+    pt::ptree root;
+    pt::read_json("../test_hapke.json", root);  // Load the json file in this ptree
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("eme"))
+    {
+        geometries[i*3+0] = stod(v.second.data());
+        i++;
+    }
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("inc"))
+    {
+        geometries[i*3+1] = stod(v.second.data());
+
+        i++;
+    }
+    i = 0;
+
+
+
+    for (pt::ptree::value_type& v : root.get_child("phi"))
+    {
+        geometries[i*3+2] = stod(v.second.data());
+        i+=1;
+    }
+
+
+
+    mat photometries = mat(10000,6);
+
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("omega"))
+    {
+        photometries(i,0) = stod(v.second.data());
+        i++;
+    }
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("b"))
+    {
+        photometries(i,2) = stod(v.second.data());
+        i++;
+    }
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("c"))
+    {
+        photometries(i,3) = stod(v.second.data());
+        i++;
+    }
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("hh"))
+    {
+        photometries(i,5) = stod(v.second.data());
+        i++;
+    }
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("b0"))
+    {
+        photometries(i,4) = stod(v.second.data());
+        i++;
+    }
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("theta0"))
+    {
+        photometries(i,1) = stod(v.second.data()) / 30.0;
+        i++;
+    }
+
+
+    mat y = mat(10000,50);
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("y"))
+    {
+        int j = 0;
+        for(pt::ptree::value_type& elem : v.second){
+            y(i,j) = elem.second.get_value<double>();
+            j++;
+        }
+        i++;
+    }
+
+    /*std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,10));
+    GmmEstimator estimator (myLearningconfig);*/
+
+    y += (mat(y.n_rows, y.n_cols, fill::randn) * 1/100);
 
     std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(10,1));
     EmEstimator<FullCovariance, FullCovariance> estimator(myLearningconfig);
 
 
-    estimator.estimate(X.t(), Y, myParams);
+    estimator.estimate(photometries, y, make_shared<GLLiMParameters<FullCovariance,FullCovariance>>(myParams));
 
 
 

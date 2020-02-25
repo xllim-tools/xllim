@@ -23,18 +23,21 @@ FullCovariance &FullCovariance::operator=(const mat &cov){
 FullCovariance &FullCovariance::operator=(double scalar) {
     for(unsigned i=0; i<covariance.n_rows; i++)
         for(unsigned j=0; j<covariance.n_rows; j++)
-            covariance(i,j) = 0.0;
+            covariance(i,j) = scalar;
 }
 
 double FullCovariance::det() {
-    return arma::det(covariance);
+    double result = arma::det(covariance);
+    if(result < 0)
+        result = 0;
+    return result;
 }
 
 FullCovariance FullCovariance::inv(bool print) {
     mat inv = arma::inv(covariance);
     if(print)
         inv.print();
-    return FullCovariance((arma::inv(covariance)));
+    return FullCovariance(inv);
 }
 
 mat learningModel::operator+(const mat &y, const FullCovariance &x) {
