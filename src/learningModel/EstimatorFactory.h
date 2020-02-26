@@ -5,7 +5,7 @@
 #ifndef KERNELO_ESTIMATORFACTORY_H
 #define KERNELO_ESTIMATORFACTORY_H
 
-#include "Estimators.h"
+#include "estimators/Estimators.h"
 
 namespace learningModel{
 

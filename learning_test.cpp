@@ -9,7 +9,8 @@
 
 #include "src/learningModel/GLLiMParameters.h"
 #include "src/learningModel/LearningConfig.h"
-#include "src/learningModel/Estimators.h"
+#include "src/learningModel/estimators/GmmEstimator.h"
+#include "src/learningModel/estimators/EmEstimator.h"
 #include "src/learningModel/Icovariance.h"
 
 
@@ -191,7 +192,7 @@ int main(){
     int L = 6;
     int D = 50;
     int N = 10000;
-    int K = 3;
+    int K = 5;
 
     // Fixer A et B
     arma_rng::set_seed(10000);
@@ -211,20 +212,15 @@ int main(){
     mat C(L,K, fill::randu);
 
     cube Gamma(L,L,K);
-    arma_rng::set_seed(11111);
-    mat T_L = trimatl(mat(L, L, fill::randu));
-    Gamma.slice(0) = T_L * T_L.t();
-    Gamma.slice(0).diag() += 1;
 
-    arma_rng::set_seed(22222);
-    T_L = trimatl(mat(L, L, fill::randu));
-    Gamma.slice(1) = T_L * T_L.t();
-    Gamma.slice(1).diag() += 1;
 
-    arma_rng::set_seed(33333);
-    T_L = trimatl(mat(L, L, fill::randu));
-    Gamma.slice(2) = T_L * T_L.t();
-    Gamma.slice(2).diag() += 1;
+    for(unsigned p=0; p < K ; p++ ){
+        arma_rng::set_seed_random();
+        mat T_L = trimatl(mat(L, L, fill::randu));
+        Gamma.slice(p) = T_L * T_L.t();
+        Gamma.slice(p).diag() += 1;
+    }
+
 
     // init gmm
     gmm_full model;
@@ -256,7 +252,7 @@ int main(){
     u.print();*/
 
     arma_rng::set_seed_random();
-    T_L = trimatl(mat(L, L, fill::randu));
+    mat T_L = trimatl(mat(L, L, fill::randu));
     mat S_L = T_L * T_L.t();
     S_L.diag() += 1;
     arma_rng::set_seed_random();
@@ -397,14 +393,13 @@ int main(){
     std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(10,1));
     EmEstimator<FullCovariance, FullCovariance> estimator(myLearningconfig);
 
+    auto start = chrono::high_resolution_clock::now();
 
     estimator.estimate(photometries, y, make_shared<GLLiMParameters<FullCovariance,FullCovariance>>(myParams));
 
-
-
-
-
-
+    auto end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::seconds>(end - start);
+    cout << duration.count() << endl;
 
 }
 
