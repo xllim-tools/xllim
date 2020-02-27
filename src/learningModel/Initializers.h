@@ -6,7 +6,7 @@
 #define KERNELO_INITIALIZERS_H
 
 #include <armadillo>
-#include "Icovariance.h"
+#include "covariances/Icovariance.h"
 #include "GLLiMParameters.h"
 
 namespace learningModel{

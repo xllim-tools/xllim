@@ -11,7 +11,7 @@
 #include "src/learningModel/LearningConfig.h"
 #include "src/learningModel/estimators/GmmEstimator.h"
 #include "src/learningModel/estimators/EmEstimator.h"
-#include "src/learningModel/Icovariance.h"
+#include "src/learningModel/covariances/Icovariance.h"
 
 
 #include <iostream>
@@ -189,10 +189,12 @@ using namespace arma;
 
 int main(){
 
+
+
     int L = 6;
     int D = 50;
     int N = 10000;
-    int K = 5;
+    int K = 50;
 
     // Fixer A et B
     arma_rng::set_seed(10000);
@@ -294,12 +296,12 @@ int main(){
         arma_rng::set_seed_random();
     }
 
-    myParams.A.print("Init A");
+    /*myParams.A.print("Init A");
     myParams.B.t().print("Init B");
     myParams.C.print("Init C");
     S_D.print("init Sigma");
     S_L.print("init Gamma");
-    myParams.Pi.print("Init Pi");
+    myParams.Pi.print("Init Pi");*/
 
 
     auto *geometries = new double[50*3];
@@ -393,6 +395,8 @@ int main(){
     std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(10,1));
     EmEstimator<FullCovariance, FullCovariance> estimator(myLearningconfig);
 
+    //omp_set_num_threads(4);
+
     auto start = chrono::high_resolution_clock::now();
 
     estimator.estimate(photometries, y, make_shared<GLLiMParameters<FullCovariance,FullCovariance>>(myParams));
@@ -400,6 +404,37 @@ int main(){
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::seconds>(end - start);
     cout << duration.count() << endl;
+
+
+    //vec test1(D, fill::ones);
+    //mat test2(D,50);
+
+
+/*    double d = 5;
+    double l = 5;
+
+
+
+
+    auto start = chrono::high_resolution_clock::now();
+
+#pragma omp parallel for schedule(dynamic)
+
+        for(unsigned u=0; u<50000; u++){
+            for(unsigned v=0; v<1000000; v++){
+                l += d * 0.5 + d;
+            }
+        }
+
+    auto end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
+    cout << duration.count() << " " << l << endl;*/
+
+
+
+
+
+
 
 }
 

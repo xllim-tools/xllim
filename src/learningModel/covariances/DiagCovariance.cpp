@@ -5,9 +5,6 @@
 #include "Icovariance.h"
 
 using namespace learningModel;
-using namespace arma;
-
-
 
 DiagCovariance::DiagCovariance(const vec &covariance){
     this->covariance = covariance;

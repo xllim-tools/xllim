@@ -58,6 +58,7 @@ namespace learningModel{
         FullCovariance &operator += (const mat &cov);
         FullCovariance &operator += (double scalar);
         FullCovariance inv(bool print);
+        void rankOneUpdate(const vec &v, double alpha);
         void print();
         double det();
 

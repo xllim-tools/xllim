@@ -6,7 +6,7 @@
 #define KERNELO_GLLIMPARAMETERS_H
 
 #include <armadillo>
-#include "Icovariance.h"
+#include "covariances/Icovariance.h"
 
 using namespace arma;
 

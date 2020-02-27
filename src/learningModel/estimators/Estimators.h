@@ -6,7 +6,7 @@
 #define KERNELO_ESTIMATORS_H
 
 #include <armadillo>
-#include "../Icovariance.h"
+#include "../covariances/Icovariance.h"
 #include "../GLLiMParameters.h"
 #include "../LearningConfig.h"
 #include <memory>

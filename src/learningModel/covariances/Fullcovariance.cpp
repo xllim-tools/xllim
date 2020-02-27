@@ -5,7 +5,6 @@
 #include "Icovariance.h"
 
 using namespace learningModel;
-using namespace arma;
 
 
 FullCovariance::FullCovariance(const mat &covariance){
@@ -21,9 +20,7 @@ FullCovariance &FullCovariance::operator=(const mat &cov){
 }
 
 FullCovariance &FullCovariance::operator=(double scalar) {
-    for(unsigned i=0; i<covariance.n_rows; i++)
-        for(unsigned j=0; j<covariance.n_rows; j++)
-            covariance(i,j) = scalar;
+    covariance.fill(scalar);
 }
 
 double FullCovariance::det() {
@@ -74,6 +71,12 @@ rowvec learningModel::operator*(const rowvec &y, const FullCovariance &x) {
 
 void FullCovariance::print() {
     covariance.print("covariance");
+}
+
+void FullCovariance::rankOneUpdate(const vec &v, double alpha) {
+    for(unsigned c=0; c < v.n_rows; c++){
+        covariance.col(c) += v * v(c) * alpha;
+    }
 }
 
 

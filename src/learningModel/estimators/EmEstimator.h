@@ -26,6 +26,8 @@ namespace learningModel{
 
     private:
         std::shared_ptr<EMLearningConfig> config;
+
+
     };
 
 }
