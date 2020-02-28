@@ -61,8 +61,11 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
     double log_Pi_K = 0;
     double max_rnk_row = 0;
 
-    FullCovariance sigma_inv;
-    FullCovariance gamma_inv;
+    T sigma_inv;
+    U gamma_inv;
+
+    double det_sigma;
+    double det_gamma;
 
     mat y_u(D, N, fill::zeros);
     vec x_u(L, fill::zeros);
@@ -74,32 +77,60 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
 //#pragma omp parallel for shared(N,K,L,D,x,y,theta,D_log_2_pi, L_log_2_pi,temp_density_y,temp_density_x,log_Pi_K,next_rnk)
     for(unsigned k=0; k<K; k++){
 
-        if(theta->Pi(k) != 0){
+        det_sigma = theta->Sigma[k].det();
+        det_gamma = theta->Gamma[k].det();
+        if(det_sigma != 0 && det_gamma != 0){
+            if(theta->Pi(k) != 0){
+                y_u = y - theta->A.slice(k) * x;
+                y_u.each_col() -= theta->B.col(k);
 
-            y_u = y - theta->A.slice(k) * x;
-            y_u.each_col() -= theta->B.col(k);
+                x_u = x;
+                x_u.each_col() -= theta->C.col(k);
 
-            x_u = x;
-            x_u.each_col() -= theta->C.col(k);
+                temp_density_y = D_log_2_pi + log(det_sigma);
+                temp_density_x = L_log_2_pi + log(det_gamma);
+                sigma_inv = theta->Sigma[k].inv();
+                gamma_inv = theta->Gamma[k].inv();
+                log_Pi_K = log(theta->Pi(k));
 
-            temp_density_y = D_log_2_pi + log(theta->Sigma[k].det());
-            temp_density_x = L_log_2_pi + log(theta->Gamma[k].det());
-            sigma_inv = theta->Sigma[k].inv(false);
-            gamma_inv = theta->Gamma[k].inv(false);
-            log_Pi_K = log(theta->Pi(k));
+                //sigma_inv.print();
+                //gamma_inv.print();
 
-            for(unsigned n=0; n<N; n++ ){
+                //std::cout << (temp_density_y ) << std::endl;
 
-                next_rnk(n,k) = log_Pi_K -
-                                0.5 * (temp_density_y +  dot((rowvec(y_u.col(n).t()) * sigma_inv).t() , y_u.col(n))) -
-                                0.5 * (temp_density_x +  dot((rowvec(x_u.col(n).t()) * gamma_inv).t() , x_u.col(n)));
+                for(unsigned n=0; n<N; n++ ){
 
-                if(next_rnk(n,k) == (datum::inf)){
-                    next_rnk(n,k) = -datum::inf;
+                    next_rnk(n,k) = log_Pi_K -
+                                    0.5 * (temp_density_y +  dot((rowvec(y_u.col(n).t()) * sigma_inv).t() , y_u.col(n))) -
+                                    0.5 * (temp_density_x +  dot((rowvec(x_u.col(n).t()) * gamma_inv).t() , x_u.col(n)));
+
+                    if(next_rnk(n,k) == (datum::inf)){
+                        next_rnk(n,k) = -datum::inf;
+                    }
+                    if(n==0){
+                        theta->Sigma[k].print();
+                        sigma_inv.print();
+                        std::cout << "nan1 : " << log_Pi_K << std::endl;
+                        std::cout << "nan2 : " << theta->Sigma[k].det() << std::endl;
+                        std::cout << "nan3 : " << theta->Gamma[k].det() << std::endl;
+                        std::cout << "nan4 : " << y_u(11,n) << std::endl;
+                        rowvec(y_u.col(n).t()).print("nan5");
+
+
+                    }
                 }
+
+                //std::cout << "max rnk 0 : " <<next_rnk.row(0).max() << std::endl;
             }
+        }else{
+            next_rnk.col(k).fill(-datum::inf);
         }
+
+
     }
+
+
+    next_rnk.t().print("rnk");
 
     // OPTIM : Open MP map reduce
 
@@ -126,10 +157,19 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
         if(max_rnk_row != (-datum::inf)){
             for(unsigned k=0; k<K; k++){
                 sum += exp(next_rnk(n,k) - max_rnk_row);
+                if(n==0){
+                    std::cout << "sum " << sum << std::endl;
+                }
             }
+            //std::cout << "deno " << (log(sum) + max_rnk_row) << std::endl;
             next_rnk.row(n) -= (log(sum) + max_rnk_row);
         }
     }
+
+    next_rnk.t().print("rnk");
+
+
+    //next_rnk.row(0).print("norm_log_rnk");
 
 }
 
@@ -175,6 +215,7 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
 
 
 
+
 //#pragma omp parallel for shared(x, y, r_nk, next_theta, N, K, D, L) schedule(dynamic)
     for(unsigned k=0; k<K; k++){
 
@@ -186,11 +227,21 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
 
         max_rnk_col = r_nk.col(k).max();
 
-        for(unsigned n=0; n<N; n++ ){
-            r_k += exp(r_nk(n,k) - max_rnk_col);
+        if(max_rnk_col != (-datum::inf)){
+            for(unsigned n=0; n<N; n++ ){
+                r_k += exp(r_nk(n,k) - max_rnk_col);
+            }
+            r_k = (log(r_k) + max_rnk_col);
+            exp_avg_rnk = exp(r_nk.col(k) - r_k);
+        }else{
+            r_k = -datum::inf;
         }
-        r_k = (log(r_k) + max_rnk_col);
-        exp_avg_rnk = exp(r_nk.col(k) - r_k);
+
+
+
+        //std:cout << "r_k : " << r_k << std::endl;
+
+        //exp_avg_rnk.print("exp_avg_rnk");
 
         // Update Pi
         next_theta->Pi(k) = exp(r_k)/N;
@@ -208,6 +259,9 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
                 next_theta->C.col(k) += x.col(n) * exp_avg_rnk(n);
             }
 
+
+            //next_theta->C.col(k).t().print("C");
+
             /*end1 = std::chrono::high_resolution_clock::now();
             duration1 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/
 
@@ -221,6 +275,9 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
                 temp_Gamma = x.col(n) - next_theta->C.col(k);
                 next_theta->Gamma[k].rankOneUpdate(temp_Gamma, exp_avg_rnk(n));
             }
+            next_theta->Gamma[k] += eye(L,L) * 1e-8;
+
+            //next_theta->Gamma[k].print();
 
 
 
@@ -239,17 +296,24 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
             for(unsigned n=0; n<N; n++){
                 y_k += y.col(n) * exp_avg_rnk(n);
             }
+            //y_k.print("y_k");
+            //y.print("y");
 
             for(unsigned n=0; n<N; n++){
                 X_k.col(n) = sqrt(exp_avg_rnk(n)) * (x.col(n)- next_theta->C.col(k));
                 Y_k.col(n) = sqrt(exp_avg_rnk(n)) * (y.col(n)- y_k);
             }
 
+            //Y_k.row(0).print("Y_k");
+            (exp_avg_rnk.t()).print("Y_k");
+            /*pinv(X_k * X_k.t()).print("pinv");
+            std::cout << "nan : " << Y_k(0,0) << std::endl;*/
 
+            if( accu(Y_k) != 0 && accu(X_k) != 0){
+                next_theta->A.slice(k) = Y_k * X_k.t() * pinv(X_k * X_k.t());
+            }
 
-            next_theta->A.slice(k) = Y_k * X_k.t() * pinv(X_k * X_k.t());
-
-
+            next_theta->A.slice(k).print("A");
 
 
 
@@ -261,6 +325,8 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
             //start1 = std::chrono::high_resolution_clock::now();
 
             Y_AX = y - next_theta->A.slice(k) * x;
+
+            //Y_AX.print("Y_AX");
 
 
             /*end1 = std::chrono::high_resolution_clock::now();
@@ -275,6 +341,8 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
                 next_theta->B.col(k) += Y_AX.col(n) * exp_avg_rnk(n);
             }
 
+            //next_theta->B.col(k).t().print("B");
+
             /*end1 = std::chrono::high_resolution_clock::now();
             duration5 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/
             //cout << "K : " << k << " Update B: " <<duration1.count() << endl;
@@ -284,6 +352,7 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
 
 
             next_theta->Sigma[k] = 0.0;
+            //std::cout << (Y_AX(0,0) - next_theta->B(0,k)) << std::endl;
             for(unsigned n=0; n<N; n++){
                 temp_sigma = Y_AX.col(n) - next_theta->B.col(k);
                 next_theta->Sigma[k].rankOneUpdate(temp_sigma, exp_avg_rnk(n));
@@ -293,7 +362,7 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
             next_theta->Sigma[k] += eye(D,D) * 1e-8;
 
 
-            //next_theta->Sigma[k].print();
+            next_theta->Sigma[k].print();
 
             /*end1 = std::chrono::high_resolution_clock::now();
             duration6 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/

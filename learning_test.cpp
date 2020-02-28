@@ -194,7 +194,7 @@ int main(){
     int L = 6;
     int D = 50;
     int N = 10000;
-    int K = 50;
+    int K = 3;
 
     // Fixer A et B
     arma_rng::set_seed(10000);
@@ -265,13 +265,13 @@ int main(){
     arma_rng::set_seed_random();
 
 
-    GLLiMParameters<FullCovariance,FullCovariance> myParams = GLLiMParameters<FullCovariance,FullCovariance>();
+    GLLiMParameters<IsoCovariance,IsoCovariance> myParams = GLLiMParameters<IsoCovariance,IsoCovariance>();
     myParams.A = cube(D, L, K);
     myParams.B = mat(D, K);
     myParams.C = mat(L, K);
     myParams.Pi = normalise(vec(K, fill::randu), 1);
-    myParams.Sigma = std::vector<FullCovariance>(K);
-    myParams.Gamma = std::vector<FullCovariance>(K);
+    myParams.Sigma = std::vector<IsoCovariance>(K);
+    myParams.Gamma = std::vector<IsoCovariance>(K);
 
     mat sig(D,D, fill::zeros);
     sig.diag() += 0.01;
@@ -285,8 +285,10 @@ int main(){
         myParams.B.col(p) = B;
         myParams.C.col(p) = C.col(p);*/
 
-        myParams.Sigma[p] = FullCovariance(S_D);
-        myParams.Gamma[p] = FullCovariance(S_L);
+        myParams.Sigma[p] = IsoCovariance(0.5, D);
+        myParams.Sigma[p].print();
+        myParams.Gamma[p] = IsoCovariance(0.5, L);
+        myParams.Gamma[p].print();
 
         myParams.A.slice(p) = mat(D,L, fill::randu);
         arma_rng::set_seed_random();
@@ -296,11 +298,10 @@ int main(){
         arma_rng::set_seed_random();
     }
 
-    /*myParams.A.print("Init A");
+   /* myParams.A.print("Init A");
     myParams.B.t().print("Init B");
     myParams.C.print("Init C");
-    S_D.print("init Sigma");
-    S_L.print("init Gamma");
+
     myParams.Pi.print("Init Pi");*/
 
 
@@ -392,43 +393,21 @@ int main(){
 
     y += (mat(y.n_rows, y.n_cols, fill::randn) * 1/100);
 
-    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(10,1));
-    EmEstimator<FullCovariance, FullCovariance> estimator(myLearningconfig);
+    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(3,1));
+    EmEstimator<IsoCovariance, IsoCovariance> estimator(myLearningconfig);
 
     //omp_set_num_threads(4);
 
     auto start = chrono::high_resolution_clock::now();
 
-    estimator.estimate(photometries, y, make_shared<GLLiMParameters<FullCovariance,FullCovariance>>(myParams));
+    estimator.estimate(photometries.submat(0,0,1000,L-1), y.submat(0,0,1000,D-1), make_shared<GLLiMParameters<IsoCovariance,IsoCovariance>>(myParams));
 
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::seconds>(end - start);
     cout << duration.count() << endl;
 
 
-    //vec test1(D, fill::ones);
-    //mat test2(D,50);
 
-
-/*    double d = 5;
-    double l = 5;
-
-
-
-
-    auto start = chrono::high_resolution_clock::now();
-
-#pragma omp parallel for schedule(dynamic)
-
-        for(unsigned u=0; u<50000; u++){
-            for(unsigned v=0; v<1000000; v++){
-                l += d * 0.5 + d;
-            }
-        }
-
-    auto end = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
-    cout << duration.count() << " " << l << endl;*/
 
 
 

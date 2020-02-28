@@ -30,10 +30,8 @@ double FullCovariance::det() {
     return result;
 }
 
-FullCovariance FullCovariance::inv(bool print) {
+FullCovariance FullCovariance::inv() {
     mat inv = arma::inv(covariance);
-    if(print)
-        inv.print();
     return FullCovariance(inv);
 }
 
