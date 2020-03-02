@@ -4,6 +4,7 @@
 
 
 #include <armadillo>
+#include "openblas/openblas_config.h"
 #include <utility>
 #include "omp.h"
 
@@ -192,9 +193,9 @@ int main(){
 
 
     int L = 6;
-    int D = 50;
+    int D = 47;
     int N = 10000;
-    int K = 3;
+    int K = 50;
 
     // Fixer A et B
     arma_rng::set_seed(10000);
@@ -285,10 +286,8 @@ int main(){
         myParams.B.col(p) = B;
         myParams.C.col(p) = C.col(p);*/
 
-        myParams.Sigma[p] = IsoCovariance(0.5, D);
-        myParams.Sigma[p].print();
-        myParams.Gamma[p] = IsoCovariance(0.5, L);
-        myParams.Gamma[p].print();
+        myParams.Sigma[p] = IsoCovariance(0.001, D);
+        myParams.Gamma[p] = IsoCovariance(0.001, L);
 
         myParams.A.slice(p) = mat(D,L, fill::randu);
         arma_rng::set_seed_random();
@@ -393,18 +392,22 @@ int main(){
 
     y += (mat(y.n_rows, y.n_cols, fill::randn) * 1/100);
 
-    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(3,1));
+    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(10,1));
     EmEstimator<IsoCovariance, IsoCovariance> estimator(myLearningconfig);
-
-    //omp_set_num_threads(4);
 
     auto start = chrono::high_resolution_clock::now();
 
-    estimator.estimate(photometries.submat(0,0,1000,L-1), y.submat(0,0,1000,D-1), make_shared<GLLiMParameters<IsoCovariance,IsoCovariance>>(myParams));
+    estimator.estimate(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,D-1), make_shared<GLLiMParameters<IsoCovariance,IsoCovariance>>(myParams));
 
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::seconds>(end - start);
     cout << duration.count() << endl;
+
+
+
+
+
+
 
 
 

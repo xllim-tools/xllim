@@ -3,6 +3,8 @@
 //
 
 #include "omp.h"
+#include "EmEstimator.h"
+
 #define LOG_2_PI log(2* datum::pi)
 
 using namespace learningModel;
@@ -59,31 +61,29 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
     double temp_density_y = 0;
     double temp_density_x = 0;
     double log_Pi_K = 0;
-    double max_rnk_row = 0;
-
-    T sigma_inv;
-    U gamma_inv;
-
     double det_sigma;
     double det_gamma;
 
+    T sigma_inv;
+    U gamma_inv;
     mat y_u(D, N, fill::zeros);
-    vec x_u(L, fill::zeros);
-
-
-    // OPTIM : compute matrix version of y_u and x_u
+    mat x_u(L, N, fill::zeros);
 
 
 //#pragma omp parallel for shared(N,K,L,D,x,y,theta,D_log_2_pi, L_log_2_pi,temp_density_y,temp_density_x,log_Pi_K,next_rnk)
     for(unsigned k=0; k<K; k++){
-
         det_sigma = theta->Sigma[k].det();
         det_gamma = theta->Gamma[k].det();
+
+        // compute rnk only if both the covariances have non zero determinants
         if(det_sigma != 0 && det_gamma != 0){
+            // compute rnk only if the the weight of the k_th gaussian in the mixture is not zero
             if(theta->Pi(k) != 0){
+                // compute the vector (Y - A.X - B)
                 y_u = y - theta->A.slice(k) * x;
                 y_u.each_col() -= theta->B.col(k);
 
+                // compute the vector (X - C)
                 x_u = x;
                 x_u.each_col() -= theta->C.col(k);
 
@@ -93,83 +93,42 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
                 gamma_inv = theta->Gamma[k].inv();
                 log_Pi_K = log(theta->Pi(k));
 
-                //sigma_inv.print();
-                //gamma_inv.print();
-
-                //std::cout << (temp_density_y ) << std::endl;
-
+                // compute log(Pi_k * gaussianDensity(Y_n; A_k * X_n + B_k, Sigma_k) * gaussianDensity(X_n; C_k, Gamma_k))
                 for(unsigned n=0; n<N; n++ ){
-
                     next_rnk(n,k) = log_Pi_K -
                                     0.5 * (temp_density_y +  dot((rowvec(y_u.col(n).t()) * sigma_inv).t() , y_u.col(n))) -
                                     0.5 * (temp_density_x +  dot((rowvec(x_u.col(n).t()) * gamma_inv).t() , x_u.col(n)));
 
+                    //need to test if this condition is impossible !!
                     if(next_rnk(n,k) == (datum::inf)){
                         next_rnk(n,k) = -datum::inf;
                     }
-                    if(n==0){
-                        theta->Sigma[k].print();
-                        sigma_inv.print();
-                        std::cout << "nan1 : " << log_Pi_K << std::endl;
-                        std::cout << "nan2 : " << theta->Sigma[k].det() << std::endl;
-                        std::cout << "nan3 : " << theta->Gamma[k].det() << std::endl;
-                        std::cout << "nan4 : " << y_u(11,n) << std::endl;
-                        rowvec(y_u.col(n).t()).print("nan5");
-
-
-                    }
                 }
-
-                //std::cout << "max rnk 0 : " <<next_rnk.row(0).max() << std::endl;
             }
         }else{
+            // set rnk = -inf if the determinent of the covariance is equal to zero which makes the log density
+            // to tend toward +infinity
             next_rnk.col(k).fill(-datum::inf);
         }
-
-
     }
 
-
-    next_rnk.t().print("rnk");
-
-    // OPTIM : Open MP map reduce
 
     double log_l = 0;
-
 //#pragma omp parallel for shared(N,K,next_rnk) private(max_rnk_row) schedule(dynamic) reduction(+:log_l)
     for(unsigned n=0; n<N; n++ ){
-        double result = 0;
-        max_rnk_row = next_rnk.row(n).max();
-        for(unsigned k=0; k<K; k++){
-            result += exp(next_rnk(n,k) - max_rnk_row);
-        }
-        log_l += (log(result) + max_rnk_row);
+        log_l += logSumExp(next_rnk.row(n).t());
     }
-
     std::cout << "log_vraissamblance " << log_l/N << std::endl;
 
-    // OPTIM : Open MP map reduce
-    double sum = 0;
 
+    // compute log_norm_rnk
+    double sum = 0;
     for(unsigned n=0; n<N; n++ ){
-        sum = 0;
-        max_rnk_row = next_rnk.row(n).max();
-        if(max_rnk_row != (-datum::inf)){
-            for(unsigned k=0; k<K; k++){
-                sum += exp(next_rnk(n,k) - max_rnk_row);
-                if(n==0){
-                    std::cout << "sum " << sum << std::endl;
-                }
-            }
-            //std::cout << "deno " << (log(sum) + max_rnk_row) << std::endl;
-            next_rnk.row(n) -= (log(sum) + max_rnk_row);
+        sum = logSumExp(next_rnk.row(n).t());
+        if(sum != (-datum::inf)){
+            next_rnk.row(n) -= sum;
         }
     }
-
-    next_rnk.t().print("rnk");
-
-
-    //next_rnk.row(0).print("norm_log_rnk");
 
 }
 
@@ -181,204 +140,123 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
     int K = r_nk.n_cols;
     int L = x.n_rows;
     int D = y.n_rows;
-
-
-    mat X_k(L,N);
-    mat Y_k(D,N);
     mat Y_AX(D,N);
-    vec temp_sigma(D);
-    vec temp_Gamma(L);
     vec exp_avg_rnk(N);
-    vec y_k(D);
-    double max_rnk_col = 0;
     double r_k = 0;
 
-    //auto start1 = std::chrono::high_resolution_clock::now();
-
-
-
-    /*auto end1 = std::chrono::high_resolution_clock::now();
-    auto duration0 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-    //cout << " update C: " <<duration0.count() << endl;
-
-    start1 = std::chrono::high_resolution_clock::now();
-    end1 = std::chrono::high_resolution_clock::now()*/;
-
-
-    /*auto duration7 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-    auto duration1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-    auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-    auto duration3 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-    auto duration4 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-    auto duration5 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-    auto duration6 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/
-
-
-
-
-//#pragma omp parallel for shared(x, y, r_nk, next_theta, N, K, D, L) schedule(dynamic)
+//#pragma omp parallel for shared(x, y, r_nk, next_theta, N, K, D, L) schedule(static) num_threads(2)
     for(unsigned k=0; k<K; k++){
-
-        r_k = 0;
-
-        //start1 = std::chrono::high_resolution_clock::now();
-
-
-
-        max_rnk_col = r_nk.col(k).max();
-
-        if(max_rnk_col != (-datum::inf)){
-            for(unsigned n=0; n<N; n++ ){
-                r_k += exp(r_nk(n,k) - max_rnk_col);
-            }
-            r_k = (log(r_k) + max_rnk_col);
+        r_k = logSumExp(r_nk.col(k));
+        if(r_k != (-datum::inf)){
             exp_avg_rnk = exp(r_nk.col(k) - r_k);
-        }else{
-            r_k = -datum::inf;
         }
 
-
-
-        //std:cout << "r_k : " << r_k << std::endl;
-
-        //exp_avg_rnk.print("exp_avg_rnk");
-
         // Update Pi
-        next_theta->Pi(k) = exp(r_k)/N;
+        update_Pi_k(next_theta, k, N, r_k);
 
-
-        /*end1 = std::chrono::high_resolution_clock::now();
-        duration7 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/
-
-        if(exp(r_k) != 0){
+        if(next_theta->Pi(k) != 0){
             // Update C
-            //start1 = std::chrono::high_resolution_clock::now();
-
-            next_theta->C.col(k).fill(0.0);
-            for(unsigned n=0; n<N; n++) {
-                next_theta->C.col(k) += x.col(n) * exp_avg_rnk(n);
-            }
-
-
-            //next_theta->C.col(k).t().print("C");
-
-            /*end1 = std::chrono::high_resolution_clock::now();
-            duration1 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/
-
+            update_C_k(next_theta,k,x,exp_avg_rnk);
 
             // Update Gamma
-            //start1 = std::chrono::high_resolution_clock::now();
-
-
-            next_theta->Gamma[k] = 0.0;
-            for(unsigned n=0; n<N; n++){
-                temp_Gamma = x.col(n) - next_theta->C.col(k);
-                next_theta->Gamma[k].rankOneUpdate(temp_Gamma, exp_avg_rnk(n));
-            }
-            next_theta->Gamma[k] += eye(L,L) * 1e-8;
-
-            //next_theta->Gamma[k].print();
-
-
-
-
-
-            /*end1 = std::chrono::high_resolution_clock::now();
-            duration2 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/
-            //cout << "K : " << k << " update Gamma: " <<duration1.count() << endl;
-
+            update_Gamma_k(next_theta,k,x,exp_avg_rnk);
+            covStabilityImprov(next_theta->Gamma[k], L, 1e-8);
 
             // Update A
-            //start1 = std::chrono::high_resolution_clock::now();
-
-
-            y_k.fill(0);
-            for(unsigned n=0; n<N; n++){
-                y_k += y.col(n) * exp_avg_rnk(n);
-            }
-            //y_k.print("y_k");
-            //y.print("y");
-
-            for(unsigned n=0; n<N; n++){
-                X_k.col(n) = sqrt(exp_avg_rnk(n)) * (x.col(n)- next_theta->C.col(k));
-                Y_k.col(n) = sqrt(exp_avg_rnk(n)) * (y.col(n)- y_k);
-            }
-
-            //Y_k.row(0).print("Y_k");
-            (exp_avg_rnk.t()).print("Y_k");
-            /*pinv(X_k * X_k.t()).print("pinv");
-            std::cout << "nan : " << Y_k(0,0) << std::endl;*/
-
-            if( accu(Y_k) != 0 && accu(X_k) != 0){
-                next_theta->A.slice(k) = Y_k * X_k.t() * pinv(X_k * X_k.t());
-            }
-
-            next_theta->A.slice(k).print("A");
-
-
-
-
-            /*end1 = std::chrono::high_resolution_clock::now();
-            duration3 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/
-            //cout << "K : " << k << " update A: " <<duration1.count() << endl;
-
-            //start1 = std::chrono::high_resolution_clock::now();
-
+            update_A_k(next_theta,k,x,y,exp_avg_rnk);
             Y_AX = y - next_theta->A.slice(k) * x;
 
-            //Y_AX.print("Y_AX");
-
-
-            /*end1 = std::chrono::high_resolution_clock::now();
-            duration4 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/
-            //cout << "K : " << k << " Y_AX: " <<duration1.count() << endl;
-
             //update B
-            //start1 = std::chrono::high_resolution_clock::now();
+            update_B_k(next_theta, k, Y_AX, exp_avg_rnk);
 
-            next_theta->B.col(k).fill(0.0);
-            for(unsigned n=0; n<N; n++){
-                next_theta->B.col(k) += Y_AX.col(n) * exp_avg_rnk(n);
-            }
-
-            //next_theta->B.col(k).t().print("B");
-
-            /*end1 = std::chrono::high_resolution_clock::now();
-            duration5 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/
-            //cout << "K : " << k << " Update B: " <<duration1.count() << endl;
-
-            // Update Sigma
-            //start1 = std::chrono::high_resolution_clock::now();
-
-
-            next_theta->Sigma[k] = 0.0;
-            //std::cout << (Y_AX(0,0) - next_theta->B(0,k)) << std::endl;
-            for(unsigned n=0; n<N; n++){
-                temp_sigma = Y_AX.col(n) - next_theta->B.col(k);
-                next_theta->Sigma[k].rankOneUpdate(temp_sigma, exp_avg_rnk(n));
-            }
-
-            // Add noise to Sigma for computing stability
-            next_theta->Sigma[k] += eye(D,D) * 1e-8;
-
-
-            next_theta->Sigma[k].print();
-
-            /*end1 = std::chrono::high_resolution_clock::now();
-            duration6 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);*/
-            //cout << "K : " << k << " update Sigma : " <<duration1.count() << endl;
-
-            //std::cout << omp_get_thread_num() << "k : " << k << std::endl;
-
+            //update Sigma
+            update_Sigma_k(next_theta, k, Y_AX, exp_avg_rnk);
+            covStabilityImprov(next_theta->Sigma[k], D, 1e-8);
         }
     }
 
-    /*cout << " update C: " <<duration1.count() << endl;
-    cout << " update Gamma: " <<duration2.count() << endl;
-    cout << " update A: " <<duration3.count() << endl;
-    cout << " Y_AX: " <<duration4.count() << endl;
-    cout << " update B: " <<duration5.count() << endl;
-    cout << " update Sigma: " <<duration6.count() << endl;
-    cout << " Rk and Pi: " <<duration7.count() << endl;*/
-
 }
+
+template <typename T , typename U>
+double EmEstimator<T,U>::logSumExp(const vec &elements) {
+    double result = 0;
+    double max = elements.max();
+
+    if(max == -datum::inf){
+        return max;
+    }else{
+        for(unsigned i=0; i<elements.n_rows; i++){
+            result += exp(elements(i) - max);
+        }
+        result = log(result) + max;
+        return result;
+    }
+}
+
+template <typename T , typename U>
+void EmEstimator<T,U>::update_Pi_k(std::shared_ptr<GLLiMParameters<T, U>> &next_theta, unsigned k, unsigned N, double r_k) {
+    next_theta->Pi(k) = exp(r_k)/N;
+}
+
+template <typename T , typename U>
+void EmEstimator<T,U>::update_A_k(std::shared_ptr<GLLiMParameters<T, U>> &next_theta, unsigned k, const mat &x, const mat &y, const vec &exp_avg_rnk) {
+    mat X_k(x.n_rows, x.n_cols);
+    mat Y_k(y.n_rows, y.n_cols);
+    vec y_k(y.n_rows);
+
+    y_k.fill(0);
+    for(unsigned n=0; n<x.n_cols; n++){
+        y_k = y_k + y.col(n) * exp_avg_rnk(n);
+    }
+
+    for(unsigned n=0; n<x.n_cols; n++){
+        X_k.col(n) = sqrt(exp_avg_rnk(n)) * (x.col(n)- next_theta->C.col(k));
+        Y_k.col(n) = sqrt(exp_avg_rnk(n)) * (y.col(n)- y_k);
+    }
+
+    if( accu(Y_k) != 0 && accu(X_k) != 0){
+        next_theta->A.slice(k) = Y_k * X_k.t() * pinv(X_k * X_k.t());
+    }
+}
+
+template <typename T , typename U>
+void EmEstimator<T,U>::update_B_k(std::shared_ptr<GLLiMParameters<T, U>> &next_theta, unsigned k, const mat &Y_AX, const vec &exp_avg_rnk) {
+    next_theta->B.col(k).fill(0.0);
+    for(unsigned n=0; n<exp_avg_rnk.n_rows ; n++){
+        next_theta->B.col(k) += Y_AX.col(n) * exp_avg_rnk(n);
+    }
+}
+
+template <typename T , typename U>
+void EmEstimator<T,U>::update_C_k(std::shared_ptr<GLLiMParameters<T, U>> &next_theta, unsigned k, const mat &x, const vec &exp_avg_rnk) {
+    next_theta->C.col(k).fill(0.0);
+    for(unsigned n=0; n<x.n_cols; n++) {
+        next_theta->C.col(k) += x.col(n) * exp_avg_rnk(n);
+    }
+}
+
+template <typename T , typename U>
+void EmEstimator<T,U>::update_Sigma_k(std::shared_ptr<GLLiMParameters<T, U>> &next_theta, unsigned k, const mat &Y_AX, const vec &exp_avg_rnk) {
+    next_theta->Sigma[k] = 0.0;
+    for(unsigned n=0; n<exp_avg_rnk.n_rows ; n++){
+        next_theta->Sigma[k].rankOneUpdate(Y_AX.col(n) - next_theta->B.col(k), exp_avg_rnk(n));
+    }
+}
+
+template <typename T , typename U>
+void EmEstimator<T,U>::update_Gamma_k(std::shared_ptr<GLLiMParameters<T, U>> &next_theta, unsigned k, const mat &x, const vec &exp_avg_rnk) {
+    next_theta->Gamma[k] = 0.0;
+    for(unsigned n=0; n<x.n_cols; n++){
+        next_theta->Gamma[k].rankOneUpdate(x.col(n) - next_theta->C.col(k), exp_avg_rnk(n));
+    }
+}
+
+template<typename T, typename U>
+template<typename V>
+void EmEstimator<T, U>::covStabilityImprov(V &covariance, unsigned dimension, double floor) {
+    static_assert(std::is_base_of<Icovariance, V>(), "Type V must be Icovariance specialization");
+    covariance += eye(dimension ,dimension ) * floor;
+}
+
+
+
