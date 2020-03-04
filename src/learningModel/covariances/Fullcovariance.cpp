@@ -77,6 +77,10 @@ void FullCovariance::rankOneUpdate(const vec &v, double alpha) {
     }
 }
 
+FullCovariance::FullCovariance(unsigned dimension) {
+    covariance = mat(dimension,dimension,fill::zeros);
+}
+
 
 
 

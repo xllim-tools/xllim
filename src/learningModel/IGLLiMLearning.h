@@ -6,6 +6,7 @@
 #define KERNELO_IGLLIMLEARNING_H
 
 #include <armadillo>
+#include "GLLiM.h"
 
 using namespace arma;
 
@@ -26,9 +27,10 @@ namespace learningModel{
             initialize(x_arma, y_arma);
         }
 
-        virtual void train(mat x, mat y) = 0;
-        virtual void initialize(mat x, mat y) = 0;
-        //GLLiM getModel();
+        virtual void train(const mat &x, const mat &y) = 0;
+        virtual void initialize(const mat &x, const mat &y) = 0;
+        virtual GLLiM getModel() = 0;
+
     };
 
 }

@@ -28,7 +28,8 @@ namespace learningModel{
     public:
         explicit DiagCovariance(const vec &covariance);
         explicit DiagCovariance(const mat &covariance);
-        DiagCovariance()= default;
+        DiagCovariance(unsigned dimension);
+        DiagCovariance() = default;
         DiagCovariance &operator = (const DiagCovariance &cov);
         DiagCovariance &operator = (const mat &cov);
         DiagCovariance &operator = (double scalar);
@@ -57,7 +58,8 @@ namespace learningModel{
 
     public:
         explicit FullCovariance(const mat &covariance);
-        FullCovariance()= default;
+        FullCovariance(unsigned dimension);
+        FullCovariance() = default;
         FullCovariance &operator = (const FullCovariance &cov);
         FullCovariance &operator = (const mat &cov);
         FullCovariance &operator = (double scalar);
@@ -85,8 +87,8 @@ namespace learningModel{
     public:
         explicit IsoCovariance(double covariance, unsigned size);
         explicit IsoCovariance(const mat &covariance);
-        IsoCovariance();
-
+        IsoCovariance(unsigned dimension);
+        IsoCovariance() = default;
         IsoCovariance &operator = (const IsoCovariance &cov);
         IsoCovariance &operator = (const mat &cov);
         IsoCovariance &operator = (double scalar);

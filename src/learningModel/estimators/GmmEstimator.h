@@ -13,14 +13,20 @@ namespace learningModel{
 
     public:
         explicit GmmEstimator(const std::shared_ptr<GMMLearningConfig>& config);
-        GmmEstimator() = default;
+        GmmEstimator();
 
-        void estimate(
+        void execute(
                 const mat& x,
                 const mat& y,
                 std::shared_ptr<GLLiMParameters<FullCovariance, FullCovariance>> initial_theta) override ;
+
         mat getPosterior();
-        void train(mat x, int nb_iteration);
+
+        void train(
+                const mat &data,
+                const vec& weights,
+                const mat &means,
+                const cube &covariances);
 
     private:
         vec Rou;
@@ -30,7 +36,7 @@ namespace learningModel{
         std::shared_ptr<GMMLearningConfig> config;
 
         GLLiMParameters<FullCovariance, FullCovariance> fromGMM(int K, int D, int L);
-        void toGMM(std::shared_ptr<GLLiMParameters<FullCovariance, FullCovariance>> theta);
+        void toGMM(const std::shared_ptr<GLLiMParameters<FullCovariance, FullCovariance>>& theta);
     };
 }
 

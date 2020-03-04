@@ -16,9 +16,9 @@ IsoCovariance::IsoCovariance(const mat &covariance){
     this->size = covariance.n_cols;
 }
 
-IsoCovariance::IsoCovariance() {
+IsoCovariance::IsoCovariance(unsigned dimension) {
     covariance = 0;
-    size = 1;
+    size = dimension;
 }
 
 IsoCovariance &IsoCovariance::operator=(const IsoCovariance &cov) {

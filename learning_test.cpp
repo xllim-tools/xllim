@@ -8,11 +8,16 @@
 #include <utility>
 #include "omp.h"
 
+#include "src/learningModel/configs/InitConfig.h"
+#include "src/learningModel/initializers/FixedInitializer.h"
+#include "src/learningModel/initializers/MultInitializer.h"
 #include "src/learningModel/GLLiMParameters.h"
-#include "src/learningModel/LearningConfig.h"
+#include "src/learningModel/configs/LearningConfig.h"
 #include "src/learningModel/estimators/GmmEstimator.h"
 #include "src/learningModel/estimators/EmEstimator.h"
 #include "src/learningModel/covariances/Icovariance.h"
+#include "src/dataGeneration/SobolGenerator.h"
+#include "src/dataGeneration/RandomGenerator.h"
 
 
 #include <iostream>
@@ -266,13 +271,8 @@ int main(){
     arma_rng::set_seed_random();
 
 
-    GLLiMParameters<IsoCovariance,IsoCovariance> myParams = GLLiMParameters<IsoCovariance,IsoCovariance>();
-    myParams.A = cube(D, L, K);
-    myParams.B = mat(D, K);
-    myParams.C = mat(L, K);
+    GLLiMParameters<FullCovariance,FullCovariance> myParams = GLLiMParameters<FullCovariance,FullCovariance>(D,L,K);
     myParams.Pi = normalise(vec(K, fill::randu), 1);
-    myParams.Sigma = std::vector<IsoCovariance>(K);
-    myParams.Gamma = std::vector<IsoCovariance>(K);
 
     mat sig(D,D, fill::zeros);
     sig.diag() += 0.01;
@@ -286,8 +286,8 @@ int main(){
         myParams.B.col(p) = B;
         myParams.C.col(p) = C.col(p);*/
 
-        myParams.Sigma[p] = IsoCovariance(0.001, D);
-        myParams.Gamma[p] = IsoCovariance(0.001, L);
+        myParams.Sigma[p] = FullCovariance(S_D);
+        myParams.Gamma[p] = FullCovariance(S_L);
 
         myParams.A.slice(p) = mat(D,L, fill::randu);
         arma_rng::set_seed_random();
@@ -297,6 +297,8 @@ int main(){
         arma_rng::set_seed_random();
     }
 
+
+    myParams.Sigma[0].print();
    /* myParams.A.print("Init A");
     myParams.B.t().print("Init B");
     myParams.C.print("Init C");
@@ -392,30 +394,36 @@ int main(){
 
     y += (mat(y.n_rows, y.n_cols, fill::randn) * 1/100);
 
-    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(10,1));
-    EmEstimator<IsoCovariance, IsoCovariance> estimator(myLearningconfig);
+    /*std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(10,0.0,1e-08));
+    EmEstimator<FullCovariance, FullCovariance> estimator(myLearningconfig);
 
     auto start = chrono::high_resolution_clock::now();
 
-    estimator.estimate(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,D-1), make_shared<GLLiMParameters<IsoCovariance,IsoCovariance>>(myParams));
+    estimator.execute(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49), make_shared<GLLiMParameters<FullCovariance,FullCovariance>>(myParams));
 
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::seconds>(end - start);
-    cout << duration.count() << endl;
+    cout << duration.count() << endl;*/
 
 
+    // testing initialization
+    std::shared_ptr<MultInitConfig> myConfig (
+            new MultInitConfig(
+                    123456789,
+                    5,
+                    10,
+                    GMMLearningConfig(0,5,1e-10),
+                    EMLearningConfig(0,0,1e-08),
+                    std::shared_ptr<DataGeneration::GeneratorStrategy> (new DataGeneration::RandomGenerator())));
 
-
-
-
-
-
-
-
-
-
-
-
+    MultInitializer<DiagCovariance,DiagCovariance> initializer(myConfig);
+    std::shared_ptr<GLLiMParameters <DiagCovariance, DiagCovariance>> gllim_initialized = initializer.execute(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49),K);
+    /*gllim_initialized->Pi.t().print("Pi");
+    gllim_initialized->C.print("C");
+    gllim_initialized->Gamma[0].print();
+    gllim_initialized->Sigma[0].print();
+    gllim_initialized->B.print("B");*/
+    //gllim_initialized->A.print("A");
 
 
 }

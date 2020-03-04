@@ -16,10 +16,13 @@ namespace learningModel{
 
     public:
         explicit EmEstimator(const std::shared_ptr<EMLearningConfig>& config);
+        EmEstimator();
         void next_rnk(const mat& x, const mat& y, std::shared_ptr<GLLiMParameters<T, U>> theta, mat &next_rnk);
-        void next_theta(const mat& x, const mat& y, const mat& r_nk, std::shared_ptr<GLLiMParameters<T, U>> &next_theta);
+        void next_theta(const mat& x, const mat& y, const mat& r_nk, std::shared_ptr<GLLiMParameters<T, U>> next_theta);
+        mat norm_log_rnk(const mat &r_nk);
+        double log_likelihood(const mat& r_nk);
 
-        void estimate(
+        void execute(
                 const mat& x,
                 const mat& y,
                 std::shared_ptr<GLLiMParameters<T, U>> initial_theta) override;

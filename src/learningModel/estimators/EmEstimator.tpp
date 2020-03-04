@@ -3,7 +3,7 @@
 //
 
 #include "omp.h"
-#include "EmEstimator.h"
+
 
 #define LOG_2_PI log(2* datum::pi)
 
@@ -14,8 +14,13 @@ EmEstimator<T,U>::EmEstimator(const std::shared_ptr<EMLearningConfig> &config) {
     this->config = config;
 }
 
+template<typename T, typename U>
+EmEstimator<T, U>::EmEstimator() {
+    this->config = std::make_shared<EMLearningConfig>();
+}
+
 template <typename T , typename U >
-void EmEstimator<T,U>::estimate(const mat &x, const mat &y, std::shared_ptr<GLLiMParameters<T, U>> initial_theta) {
+void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiMParameters<T, U>> initial_theta) {
     mat r_nk(x.n_rows, initial_theta->Pi.n_rows, fill::zeros);
 
     mat x_t = x.t();
@@ -36,6 +41,8 @@ void EmEstimator<T,U>::estimate(const mat &x, const mat &y, std::shared_ptr<GLLi
         next_rnk(x_t,y_t,initial_theta, r_nk);
         end1 = std::chrono::high_resolution_clock::now();
         duration1 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
+
+        std::cout << "log_likelihood " << log_likelihood(r_nk)/r_nk.n_rows << std::endl;
 
         start2 = std::chrono::high_resolution_clock::now();
         next_theta(x_t,y_t,r_nk,initial_theta);
@@ -91,6 +98,7 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
                 temp_density_x = L_log_2_pi + log(det_gamma);
                 sigma_inv = theta->Sigma[k].inv();
                 gamma_inv = theta->Gamma[k].inv();
+
                 log_Pi_K = log(theta->Pi(k));
 
                 // compute log(Pi_k * gaussianDensity(Y_n; A_k * X_n + B_k, Sigma_k) * gaussianDensity(X_n; C_k, Gamma_k))
@@ -105,36 +113,18 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
                     }
                 }
             }
-        }else{
+        }
+        else{
             // set rnk = -inf if the determinent of the covariance is equal to zero which makes the log density
             // to tend toward +infinity
             next_rnk.col(k).fill(-datum::inf);
         }
     }
-
-
-    double log_l = 0;
-//#pragma omp parallel for shared(N,K,next_rnk) private(max_rnk_row) schedule(dynamic) reduction(+:log_l)
-    for(unsigned n=0; n<N; n++ ){
-        log_l += logSumExp(next_rnk.row(n).t());
-    }
-    std::cout << "log_vraissamblance " << log_l/N << std::endl;
-
-
-    // compute log_norm_rnk
-    double sum = 0;
-    for(unsigned n=0; n<N; n++ ){
-        sum = logSumExp(next_rnk.row(n).t());
-        if(sum != (-datum::inf)){
-            next_rnk.row(n) -= sum;
-        }
-    }
-
 }
 
 template <typename T , typename U >
 void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
-                             std::shared_ptr <GLLiMParameters<T, U>> &next_theta) {
+                             std::shared_ptr <GLLiMParameters<T, U>> next_theta) {
 
     int N = r_nk.n_rows;
     int K = r_nk.n_cols;
@@ -144,11 +134,14 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
     vec exp_avg_rnk(N);
     double r_k = 0;
 
+    // normalize log_rnk
+    mat log_rnk_norm = norm_log_rnk(r_nk);
+
 //#pragma omp parallel for shared(x, y, r_nk, next_theta, N, K, D, L) schedule(static) num_threads(2)
     for(unsigned k=0; k<K; k++){
-        r_k = logSumExp(r_nk.col(k));
+        r_k = logSumExp(log_rnk_norm.col(k));
         if(r_k != (-datum::inf)){
-            exp_avg_rnk = exp(r_nk.col(k) - r_k);
+            exp_avg_rnk = exp(log_rnk_norm.col(k) - r_k);
         }
 
         // Update Pi
@@ -160,7 +153,7 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
 
             // Update Gamma
             update_Gamma_k(next_theta,k,x,exp_avg_rnk);
-            covStabilityImprov(next_theta->Gamma[k], L, 1e-8);
+            covStabilityImprov(next_theta->Gamma[k], L, config->floor);
 
             // Update A
             update_A_k(next_theta,k,x,y,exp_avg_rnk);
@@ -171,10 +164,9 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
 
             //update Sigma
             update_Sigma_k(next_theta, k, Y_AX, exp_avg_rnk);
-            covStabilityImprov(next_theta->Sigma[k], D, 1e-8);
+            covStabilityImprov(next_theta->Sigma[k], D, config->floor);
         }
     }
-
 }
 
 template <typename T , typename U>
@@ -257,6 +249,30 @@ void EmEstimator<T, U>::covStabilityImprov(V &covariance, unsigned dimension, do
     static_assert(std::is_base_of<Icovariance, V>(), "Type V must be Icovariance specialization");
     covariance += eye(dimension ,dimension ) * floor;
 }
+
+template<typename T, typename U>
+mat EmEstimator<T, U>::norm_log_rnk(const mat &r_nk) {
+    mat norl_log_rnk = r_nk;
+    double sum = 0;
+    for(unsigned n=0; n<r_nk.n_rows ; n++ ){
+        sum = logSumExp(norl_log_rnk.row(n).t());
+        if(sum != (-datum::inf)){
+            norl_log_rnk.row(n) -= sum;
+        }
+    }
+    return norl_log_rnk;
+}
+
+template<typename T, typename U>
+double EmEstimator<T, U>::log_likelihood(const mat& r_nk) {
+    double log_l = 0;
+    for(unsigned n=0; n<r_nk.n_rows; n++ ){
+        log_l += logSumExp(r_nk.row(n).t());
+    }
+    return log_l;
+}
+
+
 
 
 

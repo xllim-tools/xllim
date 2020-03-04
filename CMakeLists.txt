@@ -49,7 +49,7 @@ add_library(functionalModel STATIC
         src/physicalModel/Hapke02Model.h src/physicalModel/ThreeParamsModel.cpp src/physicalModel/ThreeParamsModel.h src/physicalModel/HapkeAdapter.h src/physicalModel/HapkeAdapterFactory.cpp src/physicalModel/HapkeAdapterFactory.h src/physicalModel/SixParamsModel.cpp src/physicalModel/SixParamsModel.h src/physicalModel/FourParamsModel.cpp src/physicalModel/FourParamsModel.h src/physicalModel/creators.h)
 
 add_library(learningModel STATIC
-        src/learningModel/LearningConfig.h
+        src/learningModel/configs/LearningConfig.h
         src/learningModel/estimators/Estimators.h
         src/learningModel/GLLiMParameters.cpp
         src/learningModel/GLLiMParameters.h
@@ -59,11 +59,17 @@ add_library(learningModel STATIC
         src/learningModel/IGLLiMLearning.h
         src/learningModel/GLLiMLearning.cpp
         src/learningModel/GLLiMLearning.h
-        src/learningModel/Initializers.h
+        src/learningModel/initializers/Initializers.h
         src/learningModel/covariances/DiagCovariance.cpp
         src/learningModel/covariances/Fullcovariance.cpp
         src/learningModel/estimators/GmmEstimator.h
-        src/learningModel/estimators/EmEstimator.h src/learningModel/covariances/IsoCovariance.cpp)
+        src/learningModel/estimators/EmEstimator.h
+        src/learningModel/covariances/IsoCovariance.cpp
+        src/learningModel/initializers/FixedInitializer.h
+        src/learningModel/initializers/FixedInitializer.tpp
+        src/learningModel/initializers/MultInitializer.h
+        src/learningModel/initializers/MultInitializer.tpp
+        src/learningModel/configs/InitConfig.h src/learningModel/GLLiM.h)
 
 target_include_directories(functionalModel PUBLIC include)
 
@@ -75,7 +81,7 @@ add_executable(TestGeneration dataGenerationTest.cpp)
 
 add_executable(TestLearning learning_test.cpp)
 
-target_link_libraries(TestLearning PUBLIC learningModel ${ARMADILLO_LIBRARIES})
+target_link_libraries(TestLearning PUBLIC learningModel dataGeneration ${ARMADILLO_LIBRARIES})
 
 target_link_libraries(TestGeneration PUBLIC dataGeneration)
 

@@ -8,16 +8,30 @@ GmmEstimator::GmmEstimator(const std::shared_ptr<GMMLearningConfig> &config) {
     this->config = config;
 }
 
+GmmEstimator::GmmEstimator() {
+    this->config = std::make_shared<GMMLearningConfig>(GMMLearningConfig());
+}
+
 
 mat GmmEstimator::getPosterior() {
     return posterior;
 }
 
-void GmmEstimator::train(mat x, int nb_iteration) {
-
+void GmmEstimator::train(const mat &data, const vec& weights, const mat &means, const cube &covariances){
+    gmm_full model;
+    int n_gaus = weights.n_rows;
+    posterior = mat(data.n_cols, n_gaus);
+    model.set_params(means, covariances, weights.t());
+    if(model.learn(data, n_gaus, maha_dist, keep_existing, config->kmeans_iteration, config->em_iteration,config->floor ,true)){
+        for(unsigned k=0; k<n_gaus; k++){
+            posterior.col(k) = model.log_p(data,k).t();
+        }
+    }
+    //else
+    //    throw std::string("GMM learning failed");
 }
 
-void GmmEstimator::estimate(const arma::mat & x, const arma::mat & y,
+void GmmEstimator::execute(const arma::mat & x, const arma::mat & y,
         std::shared_ptr<GLLiMParameters<FullCovariance, FullCovariance> > initial_theta) {
     // transform GLLiM parameters to GMM parameters
     this->toGMM(initial_theta);
@@ -26,23 +40,10 @@ void GmmEstimator::estimate(const arma::mat & x, const arma::mat & y,
     mat training_data = join_cols(x.t(),y.t());
 
     // train the GMM with the training data set
-    gmm_full model;
-    int n_gaus = M.n_cols;
-    model.set_params(M, V, Rou.t());
-    auto start = std::chrono::high_resolution_clock::now();
-
-    if(model.learn(training_data, n_gaus, maha_dist, keep_existing, 0, config->em_iteration,1e-10 ,true)){
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-        cout << duration.count() << endl;
-        //return this->fromGMM(x.n_cols, y.n_cols, n_gaus);
-    }
-
-    //else
-    //    throw std::string("GMM learning failed");
+    train(x,Rou,M,V);
 }
 
-void GmmEstimator::toGMM(std::shared_ptr<GLLiMParameters<FullCovariance, FullCovariance>> theta) {
+void GmmEstimator::toGMM(const std::shared_ptr<GLLiMParameters<FullCovariance, FullCovariance>>& theta) {
     int K = theta->Pi.n_rows;
     int L = theta->C.n_rows;
     int D = theta->B.n_rows;
@@ -69,14 +70,7 @@ void GmmEstimator::toGMM(std::shared_ptr<GLLiMParameters<FullCovariance, FullCov
 }
 
 GLLiMParameters<FullCovariance, FullCovariance> GmmEstimator::fromGMM(int K, int D, int L) {
-    GLLiMParameters<FullCovariance, FullCovariance> gLLiMParameters;
-
-    gLLiMParameters.A = cube(D, L, K);
-    gLLiMParameters.B = mat(D, K);
-    gLLiMParameters.C = mat(L, K);
-    gLLiMParameters.Pi = normalise(vec(K, fill::randu), 1);
-    gLLiMParameters.Sigma = std::vector<FullCovariance>(K);
-    gLLiMParameters.Gamma = std::vector<FullCovariance>(K);
+    GLLiMParameters<FullCovariance, FullCovariance> gLLiMParameters(D,L,K);
 
     mat m_x = M.submat(0, 0, L-1, K-1);
     mat m_y = M.submat(L, 0, L+D-1, K-1);
@@ -99,3 +93,5 @@ GLLiMParameters<FullCovariance, FullCovariance> GmmEstimator::fromGMM(int K, int
     }
     return gLLiMParameters;
 }
+
+

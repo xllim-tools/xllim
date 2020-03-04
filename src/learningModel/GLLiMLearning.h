@@ -6,7 +6,7 @@
 #define KERNELO_GLLIMLEARNING_H
 
 #include "IGLLiMLearning.h"
-#include "Initializers.h"
+#include "initializers/Initializers.h"
 #include "estimators/Estimators.h"
 #include <memory>
 
@@ -14,9 +14,9 @@ namespace learningModel{
     template <typename T, typename U >
     class GLLiMLearning : public IGLLiMLearning {
     public:
-        GLLiMLearning(std::shared_ptr<Iinitilizer<T,U>> initializer, std::shared_ptr<Iestimator<T,U>> estimator);
-        void train(mat x, mat y);
-        void initialize(mat x, mat y);
+        GLLiMLearning(std::shared_ptr<Iinitilizer<T,U>> initializer, std::shared_ptr<Iestimator<T,U>> estimator, unsigned gaussians);
+        void train(const mat &x, const mat &y) override;
+        void initialize(const mat &x, const mat &y) override;
         //GLLiM getModel();
 
         static_assert(std::is_base_of<Icovariance, T>(), "Type T must be Icovariance specialization");
@@ -26,6 +26,7 @@ namespace learningModel{
         std::shared_ptr<Iinitilizer<T,U>> initializer;
         std::shared_ptr<Iestimator<T,U>> estimator;
         std::shared_ptr<GLLiMParameters<T,U>> gllim_parameters;
+        unsigned K;
     };
 }
 

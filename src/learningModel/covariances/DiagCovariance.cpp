@@ -14,6 +14,10 @@ DiagCovariance::DiagCovariance(const mat &covariance){
     this->covariance = covariance.diag();
 }
 
+DiagCovariance::DiagCovariance(unsigned dimension) {
+    this->covariance = vec(dimension, fill::zeros);
+}
+
 DiagCovariance &DiagCovariance::operator=(const DiagCovariance &cov) {
     covariance = cov.covariance;
 }

@@ -15,24 +15,28 @@ namespace learningModel{
     template <typename T, typename U>
     class GLLiMParameters {
 
+        static_assert(std::is_base_of<Icovariance, T>(), "Type T must be Icovariance specialization");
+        static_assert(std::is_base_of<Icovariance, U>(), "Type U must be Icovariance specialization");
+
     public:
-        GLLiMParameters(
-                const vec& Pi,
-                const mat &C,
-                const std::vector<T>& Gamma,
-                const cube &A,
-                const mat& B,
-                const std::vector<U>& Sigma){
 
-            this->Pi = Pi;
-            this->C = C;
-            this->Gamma = Gamma;
-            this->A = A;
-            this->B = B;
-            this->Sigma = Sigma;
+        GLLiMParameters(unsigned D, unsigned L, unsigned K){
+            this->D = D;
+            this->L = L;
+            this->K = K;
+            this->Pi = vec(K, fill::zeros);
+            this->Gamma = std::vector<U>(K);
+            this->Sigma = std::vector<T>(K);
+
+            for(unsigned k=0; k<K; k++){
+                this->Gamma[k] = U(L);
+                this->Sigma[k] = T(D);
+            }
+
+            this->C = mat(L, K,fill::zeros);
+            this->B = mat(D, K, fill::zeros);
+            this->A = cube(D,L,K,fill::zeros);
         }
-
-        GLLiMParameters() = default;
 
         vec Pi;
         mat C;
@@ -40,6 +44,9 @@ namespace learningModel{
         cube A;
         mat B;
         std::vector<U> Sigma;
+        unsigned K;
+        unsigned L;
+        unsigned D;
     };
 
 
