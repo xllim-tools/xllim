@@ -7,7 +7,7 @@
 
 #include <armadillo>
 #include "../covariances/Icovariance.h"
-#include "../GLLiMParameters.h"
+#include "../gllim/GLLiMParameters.h"
 #include <memory>
 
 namespace learningModel{

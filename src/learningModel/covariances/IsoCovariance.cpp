@@ -83,6 +83,12 @@ void IsoCovariance::print() {
     std::cout << "IsoCovariance : " << covariance << " size : " << size << std::endl;
 }
 
+mat IsoCovariance::getFull() {
+    mat full(size, size, fill::zeros);
+    full.diag() += covariance;
+    return full;
+}
+
 
 
 

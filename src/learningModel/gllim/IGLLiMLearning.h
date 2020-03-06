@@ -6,7 +6,10 @@
 #define KERNELO_IGLLIMLEARNING_H
 
 #include <armadillo>
+#include <bits/shared_ptr.h>
 #include "GLLiM.h"
+#include "../covariances/Icovariance.h"
+#include "GLLiMParameters.h"
 
 using namespace arma;
 
@@ -29,7 +32,9 @@ namespace learningModel{
 
         virtual void train(const mat &x, const mat &y) = 0;
         virtual void initialize(const mat &x, const mat &y) = 0;
-        virtual GLLiM getModel() = 0;
+        virtual void exportModel(GLLiM &gllim) = 0;
+        virtual void importModel(GLLiM &gllim) = 0;
+        virtual arma::gmm_full computeGMM(const vec &y_obs, const vec &cov_obs) = 0;
 
     };
 

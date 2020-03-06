@@ -39,6 +39,7 @@ namespace learningModel{
         void rankOneUpdate(const vec &v, double alpha);
         void print();
         double det();
+        mat getFull();
 
     private:
         vec covariance;
@@ -69,6 +70,7 @@ namespace learningModel{
         void rankOneUpdate(const vec &v, double alpha);
         void print();
         double det();
+        mat getFull();
 
     private:
         mat covariance;
@@ -98,6 +100,7 @@ namespace learningModel{
         void rankOneUpdate(const vec &v, double alpha);
         void print();
         double det();
+        mat getFull();
 
     private:
         double covariance;

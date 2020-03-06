@@ -11,7 +11,7 @@
 #include "src/learningModel/configs/InitConfig.h"
 #include "src/learningModel/initializers/FixedInitializer.h"
 #include "src/learningModel/initializers/MultInitializer.h"
-#include "src/learningModel/GLLiMParameters.h"
+#include "src/learningModel/gllim/GLLiMParameters.h"
 #include "src/learningModel/configs/LearningConfig.h"
 #include "src/learningModel/estimators/GmmEstimator.h"
 #include "src/learningModel/estimators/EmEstimator.h"

@@ -6,7 +6,7 @@
 #define KERNELO_GLLIMPARAMETERS_H
 
 #include <armadillo>
-#include "covariances/Icovariance.h"
+#include "../covariances/Icovariance.h"
 
 using namespace arma;
 
@@ -38,6 +38,18 @@ namespace learningModel{
             this->A = cube(D,L,K,fill::zeros);
         }
 
+        GLLiMParameters(const GLLiMParameters &gllimParams){
+            this->D = gllimParams.D;
+            this->L = gllimParams.L;
+            this->K = gllimParams.K;
+            this->Pi = gllimParams.Pi;
+            this->Gamma = gllimParams.Gamma;
+            this->Sigma = gllimParams.Sigma;
+            this->C = gllimParams.C;
+            this->B = gllimParams.B;
+            this->A = gllimParams.A;
+        }
+
         vec Pi;
         mat C;
         std::vector<T> Gamma;
@@ -47,6 +59,8 @@ namespace learningModel{
         unsigned K;
         unsigned L;
         unsigned D;
+
+
     };
 
 

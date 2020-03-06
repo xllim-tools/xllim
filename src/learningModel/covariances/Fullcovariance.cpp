@@ -81,6 +81,10 @@ FullCovariance::FullCovariance(unsigned dimension) {
     covariance = mat(dimension,dimension,fill::zeros);
 }
 
+mat FullCovariance::getFull() {
+    return covariance;
+}
+
 
 
 
