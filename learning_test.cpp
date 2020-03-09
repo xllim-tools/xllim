@@ -9,6 +9,7 @@
 #include "omp.h"
 
 #include "src/learningModel/configs/InitConfig.h"
+#include "src/learningModel/gllim//GLLiMLearning.h"
 #include "src/learningModel/initializers/FixedInitializer.h"
 #include "src/learningModel/initializers/MultInitializer.h"
 #include "src/learningModel/gllim/GLLiMParameters.h"
@@ -389,21 +390,11 @@ int main(){
         i++;
     }
 
-    /*std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,10));
-    GmmEstimator estimator (myLearningconfig);*/
+
 
     y += (mat(y.n_rows, y.n_cols, fill::randn) * 1/100);
 
-    /*std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(10,0.0,1e-08));
-    EmEstimator<FullCovariance, FullCovariance> estimator(myLearningconfig);
 
-    auto start = chrono::high_resolution_clock::now();
-
-    estimator.execute(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49), make_shared<GLLiMParameters<FullCovariance,FullCovariance>>(myParams));
-
-    auto end = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::seconds>(end - start);
-    cout << duration.count() << endl;*/
 
 
     // testing initialization
@@ -411,13 +402,53 @@ int main(){
             new MultInitConfig(
                     123456789,
                     5,
-                    10,
+                    1,
                     GMMLearningConfig(0,5,1e-10),
                     EMLearningConfig(0,0,1e-08),
                     std::shared_ptr<DataGeneration::GeneratorStrategy> (new DataGeneration::RandomGenerator())));
 
-    MultInitializer<DiagCovariance,DiagCovariance> initializer(myConfig);
-    std::shared_ptr<GLLiMParameters <DiagCovariance, DiagCovariance>> gllim_initialized = initializer.execute(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49),K);
+    MultInitializer<FullCovariance,DiagCovariance> initializer(myConfig);
+    //std::shared_ptr<GLLiMParameters <FullCovariance, FullCovariance>> gllim_initialized = initializer.execute(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49),K);
+
+    /*std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,10));
+    GmmEstimator estimator (myLearningconfig);*/
+
+    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(5,0.0,1e-08));
+    EmEstimator<FullCovariance, DiagCovariance> estimator(myLearningconfig);
+
+    /*auto start = chrono::high_resolution_clock::now();
+
+    estimator.execute(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49), gllim_initialized);
+
+    auto end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::seconds>(end - start);
+    cout << duration.count() << endl;*/
+
+    std::shared_ptr<IGLLiMLearning> gllim (
+            new GLLiMLearning<FullCovariance,DiagCovariance>(
+                    make_shared<MultInitializer<FullCovariance,DiagCovariance>>(initializer),
+                    make_shared<EmEstimator<FullCovariance, DiagCovariance>>(estimator),50));
+
+    gllim->initialize(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49));
+    gllim->train(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49));
+    vec cov_obs(47, fill::randu);
+    vec y_obs = y.row(5).subvec(3,49).t();
+
+    /*std::vector<arma::gmm_full> gmms = vector<arma::gmm_full>(N);
+    auto start = chrono::high_resolution_clock::now();
+    for(unsigned n=0; n<N; n++){
+        gmms[n] = gllim->computeGMM(y_obs,cov_obs);
+    }
+    auto end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::seconds>(end - start);
+    cout << duration.count() << endl;*/
+
+
+
+    //gmm.hefts.print("weights");
+    //gmm.means.print("means");
+    //gmm.fcovs.slice(0).print("covs_0");
+
     /*gllim_initialized->Pi.t().print("Pi");
     gllim_initialized->C.print("C");
     gllim_initialized->Gamma[0].print();

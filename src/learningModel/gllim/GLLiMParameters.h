@@ -25,12 +25,12 @@ namespace learningModel{
             this->L = L;
             this->K = K;
             this->Pi = vec(K, fill::zeros);
-            this->Gamma = std::vector<U>(K);
-            this->Sigma = std::vector<T>(K);
+            this->Gamma = std::vector<T>(K);
+            this->Sigma = std::vector<U>(K);
 
             for(unsigned k=0; k<K; k++){
-                this->Gamma[k] = U(L);
-                this->Sigma[k] = T(D);
+                this->Gamma[k] = T(L);
+                this->Sigma[k] = U(D);
             }
 
             this->C = mat(L, K,fill::zeros);

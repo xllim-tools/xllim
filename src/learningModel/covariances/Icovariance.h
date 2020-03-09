@@ -20,6 +20,8 @@ namespace learningModel{
 
         friend mat operator + (const mat &y, const DiagCovariance &x);
         friend mat operator + (const DiagCovariance &x, const mat &y);
+        friend mat operator - (const mat &y, const DiagCovariance &x);
+        friend mat operator - (const DiagCovariance &x, const mat &y);
         friend mat operator * (const mat &y, const DiagCovariance &x);
         friend mat operator * (const DiagCovariance &x, const mat &y);
         friend vec operator * (const DiagCovariance &x, const vec &y);
@@ -39,7 +41,7 @@ namespace learningModel{
         void rankOneUpdate(const vec &v, double alpha);
         void print();
         double det();
-        mat getFull();
+        mat getFull() const;
 
     private:
         vec covariance;
@@ -52,6 +54,8 @@ namespace learningModel{
     class FullCovariance : public Icovariance{
         friend mat operator + (const mat &y, const FullCovariance &x);
         friend mat operator + (const FullCovariance &x, const mat &y);
+        friend mat operator - (const mat &y, const FullCovariance &x);
+        friend mat operator - (const FullCovariance &x, const mat &y);
         friend mat operator * (const mat &y, const FullCovariance &x);
         friend mat operator * (const FullCovariance &x, const mat &y);
         friend vec operator * (const FullCovariance &x, const vec &y);
@@ -70,7 +74,7 @@ namespace learningModel{
         void rankOneUpdate(const vec &v, double alpha);
         void print();
         double det();
-        mat getFull();
+        mat getFull() const;
 
     private:
         mat covariance;
@@ -81,6 +85,8 @@ namespace learningModel{
 
         friend mat operator + (const mat &y, const IsoCovariance &x);
         friend mat operator + (const IsoCovariance &x, const mat &y);
+        friend mat operator - (const mat &y, const IsoCovariance &x);
+        friend mat operator - (const IsoCovariance &x, const mat &y);
         friend mat operator * (const mat &y, const IsoCovariance &x);
         friend mat operator * (const IsoCovariance &x, const mat &y);
         friend vec operator * (const IsoCovariance &x, const vec &y);
@@ -100,7 +106,7 @@ namespace learningModel{
         void rankOneUpdate(const vec &v, double alpha);
         void print();
         double det();
-        mat getFull();
+        mat getFull() const;
 
     private:
         double covariance;

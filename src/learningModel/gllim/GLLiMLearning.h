@@ -29,9 +29,11 @@ namespace learningModel{
         std::shared_ptr<Iinitilizer<T,U>> initializer;
         std::shared_ptr<Iestimator<T,U>> estimator;
         std::shared_ptr<GLLiMParameters<T,U>> gllim_parameters;
-        unsigned nb_gaussians;
+        unsigned nb_gaussians{};
     };
 }
+
+#include "GLLiMLearning.tpp"
 
 
 

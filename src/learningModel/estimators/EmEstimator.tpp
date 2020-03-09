@@ -42,7 +42,7 @@ void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiM
         end1 = std::chrono::high_resolution_clock::now();
         duration1 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
 
-        std::cout << "log_likelihood " << log_likelihood(r_nk)/r_nk.n_rows << std::endl;
+        std::cout << "log_likelihood " << log_likelihood(r_nk) << std::endl;
 
         start2 = std::chrono::high_resolution_clock::now();
         next_theta(x_t,y_t,r_nk,initial_theta);
@@ -71,8 +71,8 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
     double det_sigma;
     double det_gamma;
 
-    T sigma_inv;
-    U gamma_inv;
+    U sigma_inv;
+    T gamma_inv;
     mat y_u(D, N, fill::zeros);
     mat x_u(L, N, fill::zeros);
 
@@ -269,7 +269,7 @@ double EmEstimator<T, U>::log_likelihood(const mat& r_nk) {
     for(unsigned n=0; n<r_nk.n_rows; n++ ){
         log_l += logSumExp(r_nk.row(n).t());
     }
-    return log_l;
+    return log_l/r_nk.n_rows;
 }
 
 

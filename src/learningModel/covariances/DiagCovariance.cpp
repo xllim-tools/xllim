@@ -92,10 +92,22 @@ rowvec learningModel::operator*(const rowvec &y, const DiagCovariance &x) {
     return y % x.covariance.t();
 }
 
-mat DiagCovariance::getFull() {
+mat DiagCovariance::getFull() const {
     mat full(covariance.n_rows, covariance.n_rows, fill::zeros);
     full.diag() += covariance;
     return full;
+}
+
+mat learningModel::operator-(const mat &y, const DiagCovariance &x) {
+    mat result = y;
+    result.diag() -= x.covariance;
+    return result;
+}
+
+mat learningModel::operator-(const DiagCovariance &x, const mat &y) {
+    mat result = x.getFull();
+    result -= y;
+    return result;
 }
 
 

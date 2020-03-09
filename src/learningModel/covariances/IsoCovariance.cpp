@@ -44,11 +44,13 @@ IsoCovariance &IsoCovariance::operator+=(const arma::mat & cov) {
 }
 
 mat learningModel::operator+(const mat &y, const IsoCovariance &x) {
-    return y + x.covariance;
+    mat result = y;
+    result.diag() += x.covariance;
+    return result;
 }
 
 mat learningModel::operator+(const IsoCovariance &x, const mat &y) {
-    return y + x.covariance;
+    return y + x;
 }
 
 mat learningModel::operator*(const mat &y, const IsoCovariance &x) {
@@ -83,10 +85,22 @@ void IsoCovariance::print() {
     std::cout << "IsoCovariance : " << covariance << " size : " << size << std::endl;
 }
 
-mat IsoCovariance::getFull() {
+mat IsoCovariance::getFull() const {
     mat full(size, size, fill::zeros);
     full.diag() += covariance;
     return full;
+}
+
+mat learningModel::operator-(const mat &y, const IsoCovariance &x) {
+    mat result = y;
+    result.diag() -= x.covariance;
+    return result;
+}
+
+mat learningModel::operator-(const IsoCovariance &x, const mat &y) {
+    mat result = x.getFull();
+    result -= y;
+    return result;
 }
 
 

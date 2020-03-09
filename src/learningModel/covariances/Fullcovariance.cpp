@@ -81,8 +81,16 @@ FullCovariance::FullCovariance(unsigned dimension) {
     covariance = mat(dimension,dimension,fill::zeros);
 }
 
-mat FullCovariance::getFull() {
+mat FullCovariance::getFull() const{
     return covariance;
+}
+
+mat learningModel::operator-(const mat &y, const FullCovariance &x) {
+    return y - x.covariance;
+}
+
+mat learningModel::operator-(const FullCovariance &x, const mat &y) {
+    return x.covariance - y;
 }
 
 

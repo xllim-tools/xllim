@@ -6,7 +6,7 @@
 #define KERNELO_IGLLIMLEARNING_H
 
 #include <armadillo>
-#include <bits/shared_ptr.h>
+#include <memory>
 #include "GLLiM.h"
 #include "../covariances/Icovariance.h"
 #include "GLLiMParameters.h"
@@ -16,6 +16,7 @@ using namespace arma;
 namespace learningModel{
 
     class IGLLiMLearning{
+    public:
         void train(double *x, int x_rows, int x_cols, double *y, int y_rows, int y_cols){
             mat x_arma = mat(&x[0], x_rows, x_cols);
             mat y_arma = mat(&y[0], y_rows, y_cols);
