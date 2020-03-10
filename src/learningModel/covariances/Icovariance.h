@@ -12,7 +12,8 @@ using namespace arma;
 namespace learningModel{
 
     //------------------ Icovariance ------------------------ //
-    class Icovariance{};
+    class Icovariance{
+    };
 
 
     //----------------- DiagCovariance ---------------------- //
@@ -28,6 +29,8 @@ namespace learningModel{
         friend rowvec operator * (const rowvec &y, const DiagCovariance &x);
 
     public:
+
+
         explicit DiagCovariance(const vec &covariance);
         explicit DiagCovariance(const mat &covariance);
         DiagCovariance(unsigned dimension);
@@ -62,6 +65,8 @@ namespace learningModel{
         friend rowvec operator * (const rowvec &y, const FullCovariance &x);
 
     public:
+
+
         explicit FullCovariance(const mat &covariance);
         FullCovariance(unsigned dimension);
         FullCovariance() = default;
@@ -93,6 +98,7 @@ namespace learningModel{
         friend rowvec operator * (const rowvec &y, const IsoCovariance &x);
 
     public:
+
         explicit IsoCovariance(double covariance, unsigned size);
         explicit IsoCovariance(const mat &covariance);
         IsoCovariance(unsigned dimension);

@@ -98,4 +98,3 @@ mat learningModel::operator-(const FullCovariance &x, const mat &y) {
 
 
 
-

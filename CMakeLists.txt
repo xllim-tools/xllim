@@ -84,9 +84,8 @@ add_executable(TestLearning learning_test.cpp)
 
 target_link_libraries(TestLearning PUBLIC learningModel dataGeneration ${ARMADILLO_LIBRARIES})
 
-target_link_libraries(TestGeneration PUBLIC dataGeneration)
+target_link_libraries(TestGeneration PUBLIC functionalModel dataGeneration)
 
-target_link_libraries(TestGeneration PUBLIC functionalModel)
 
 target_link_libraries(Test PUBLIC functionalModel)
 
@@ -94,3 +93,5 @@ target_link_libraries(Test PUBLIC functionalModel)
 add_subdirectory(cpptest/functionalModel_tests)
 
 add_subdirectory(valgrind)
+
+add_subdirectory(cpptest/learningModelTests)

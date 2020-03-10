@@ -116,3 +116,4 @@ mat learningModel::operator-(const DiagCovariance &x, const mat &y) {
 
 
 
+
