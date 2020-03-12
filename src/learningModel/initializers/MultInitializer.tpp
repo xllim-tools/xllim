@@ -11,8 +11,7 @@ MultInitializer<T, U>::MultInitializer(const std::shared_ptr<MultInitConfig> &co
 }
 
 template<typename T, typename U>
-std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat &x, const mat &y, unsigned nb_gaussians) {
-    unsigned K = nb_gaussians;
+std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat &x, const mat &y, unsigned K) {
     unsigned L = x.n_cols;
     unsigned D = y.n_cols;
     unsigned N = x.n_rows;

@@ -19,7 +19,7 @@ namespace learningModel{
         static_assert(std::is_base_of<Icovariance, U>(), "Type U must be Icovariance specialization");
 
     public:
-        virtual std::shared_ptr<GLLiMParameters<T, U>> execute(const mat &x, const mat &y, unsigned nb_gaussians) = 0;
+        virtual std::shared_ptr<GLLiMParameters<T, U>> execute(const mat &x, const mat &y, unsigned K) = 0;
     };
 }
 

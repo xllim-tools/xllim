@@ -16,7 +16,7 @@ namespace learningModel{
 
     public:
         explicit MultInitializer(const std::shared_ptr<MultInitConfig>& config);
-        std::shared_ptr<GLLiMParameters <T, U>> execute(const mat &x, const mat &y, unsigned nb_gaussians) override;
+        std::shared_ptr<GLLiMParameters <T, U>> execute(const mat &x, const mat &y, unsigned K) override;
 
     private:
         std::shared_ptr<MultInitConfig> config;
