@@ -10,10 +10,10 @@
 #define KERNELO_HAPKEMODEL_H
 
 
-#include <gtest/gtest_prod.h>
+#include "../../../cpptest/functionalModel_tests/lib/googletest/include/gtest/gtest_prod.h"
 #include "HapkeAdapter.h"
-#include "FunctionalModel.h"
-#include "Enumeration.h"
+#include "../FunctionalModel.h"
+#include "../Enumeration.h"
 #include <utility>
 #include <memory>
 

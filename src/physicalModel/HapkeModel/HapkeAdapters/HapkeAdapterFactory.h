@@ -6,7 +6,7 @@
 #define KERNELO_HAPKEADAPTERFACTORY_H
 
 #include <memory>
-#include "HapkeAdapter.h"
+#include "../HapkeAdapter.h"
 
 using namespace Functional;
 

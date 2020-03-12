@@ -6,9 +6,9 @@
  * @date 18/12/2019
  */
 
-#include "HapkeModel.h"
+#include "../HapkeModel.h"
 #include <utility>
-#include "HapkeAdapterFactory.h"
+#include "../HapkeAdapters/HapkeAdapterFactory.h"
 
 #define DEGREE_180 180
 

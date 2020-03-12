@@ -7,10 +7,10 @@
 #include <armadillo>
 #include "src/physicalModel/FunctionalModel.h"
 #include "src/physicalModel/FunctionnalModelFactory.h"
-#include "src/physicalModel/Hapke02Model.h"
-#include "src/physicalModel/FourParamsModel.h"
-#include "src/physicalModel/ThreeParamsModel.h"
-#include "src/physicalModel/SixParamsModel.h"
+#include "src/physicalModel/HapkeModel/HapkeVersions/Hapke02Model.h"
+#include "src/physicalModel/HapkeModel/HapkeAdapters/FourParamsModel.h"
+#include "src/physicalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h"
+#include "src/physicalModel/HapkeModel/HapkeAdapters/SixParamsModel.h"
 #include <utility>
 
 #include <iostream>

@@ -39,10 +39,23 @@ namespace Functional {
     }
 
 /**
- * @namespace ShkutarovEnumeration
+ * @namespace ShkuratovEnumeration
  * Enumerations used in the Shkutarov model
  */
-    namespace ShkutarovEnumeration {
+    namespace ShkuratovEnumeration {
+        enum photometry{
+            AN = 0,
+            MU_1 = 1,
+            NU = 2,
+            M = 3,
+            MU_2 = 4
+        };
+
+        enum geometry{
+            ALPHA = 0,
+            BETA = 1,
+            GAMMA = 2
+        };
 
     }
 }
