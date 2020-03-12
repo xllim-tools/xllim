@@ -58,7 +58,7 @@ mat learningModel::operator*(const mat &y, const IsoCovariance &x) {
 }
 
 mat learningModel::operator*(const IsoCovariance &x, const mat &y) {
-    return y + x.covariance;
+    return y * x.covariance;
 }
 
 vec learningModel::operator*(const IsoCovariance &x, const vec &y){
