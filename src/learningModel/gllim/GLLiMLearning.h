@@ -14,7 +14,7 @@ namespace learningModel{
     template <typename T, typename U >
     class GLLiMLearning : public IGLLiMLearning {
     public:
-        GLLiMLearning(std::shared_ptr<Iinitilizer<T,U>> initializer, std::shared_ptr<Iestimator<T,U>> estimator, unsigned gaussians);
+        GLLiMLearning(std::shared_ptr<Iinitilizer<T,U>> initializer, std::shared_ptr<Iestimator<T,U>> estimator, unsigned K);
         void train(const mat &x, const mat &y) override;
         void initialize(const mat &x, const mat &y) override;
         void exportModel(GLLiM &gllim) override ;
@@ -29,7 +29,7 @@ namespace learningModel{
         std::shared_ptr<Iinitilizer<T,U>> initializer;
         std::shared_ptr<Iestimator<T,U>> estimator;
         std::shared_ptr<GLLiMParameters<T,U>> gllim_parameters;
-        unsigned nb_gaussians{};
+        unsigned K;
     };
 }
 

@@ -17,7 +17,7 @@ namespace learningModel{
 
     public:
         explicit FixedInitializer(const std::shared_ptr<FixedInitConfig>& config);
-        std::shared_ptr<GLLiMParameters<T, U>> execute(const mat &x, const mat &y, unsigned nb_gaussians) override ;
+        std::shared_ptr<GLLiMParameters<T, U>> execute(const mat &x, const mat &y, unsigned K) override ;
 
 
     private:

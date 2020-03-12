@@ -7,28 +7,20 @@ using namespace learningModel;
 
 template<typename T, typename U>
 GLLiMLearning<T, U>::GLLiMLearning(std::shared_ptr<Iinitilizer<T, U>> initializer,
-                                   std::shared_ptr<Iestimator<T, U>> estimator, unsigned gaussians) {
+                                   std::shared_ptr<Iestimator<T, U>> estimator, unsigned K) {
     this->initializer = initializer;
     this->estimator = estimator;
-    nb_gaussians = gaussians;
+    this->K = K;
 }
 
 template<typename T, typename U>
 void GLLiMLearning<T, U>::initialize(const mat &x, const mat &y) {
-    this->gllim_parameters = this->initializer->execute(x, y, this->nb_gaussians);
+    this->gllim_parameters = this->initializer->execute(x, y, this->K);
 }
 
 template<typename T, typename U>
 void GLLiMLearning<T, U>::train(const mat &x, const mat &y) {
     this->estimator->execute(x,y,this->gllim_parameters);
-
-    this->gllim_parameters->Pi.print("Pi");
-    this->gllim_parameters->B.print("B");
-    this->gllim_parameters->C.print("C");
-    this->gllim_parameters->A.print("A");
-    this->gllim_parameters->Gamma[0].print();
-    this->gllim_parameters->Sigma[0].print();
-
 }
 
 template<typename T, typename U>
@@ -73,7 +65,6 @@ void GLLiMLearning<T, U>::importModel(GLLiM &gllim) {
     for(unsigned k=0; k<gllim.K; k++){
         gllim_parameters->Pi(k) = gllim.Pi[k];
 
-        ;
         for(unsigned l=0; l<gllim.L; l++){
             gllim_parameters->C(l,k) = gllim.C[l + k*gllim.L];
             for(unsigned l2=0; l2<gllim.L; l2++){
