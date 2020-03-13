@@ -35,7 +35,7 @@ HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size,
                        double theta_bar_scaling) {
     // Transform the geometry structure from double * to armadillo::mat
     mat geomsMat = mat(row_size,col_size);
-
+    this->theta_bar_scaling = theta_bar_scaling;
     this->adapter = adapter;
 
     for(unsigned i=0; i<row_size; i++){
@@ -74,7 +74,6 @@ void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
             % define_different_part(photometry,mue, mu0e)
             % calculate_S(photometry(THETA_BAR), mue, mu0e, mue_0, mu0e_0);
 
-    reflectances.print();
 }
 
 int HapkeModel::get_D_dimension() {

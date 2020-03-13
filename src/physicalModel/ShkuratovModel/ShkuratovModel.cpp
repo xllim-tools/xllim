@@ -3,7 +3,6 @@
 //
 
 #include "ShkuratovModel.h"
-#include "../Enumeration.h"
 
 #define DEGREE_180 180
 
@@ -26,7 +25,7 @@ ShkuratovModel::ShkuratovModel(const double *geometries, int row_size, int col_s
 }
 
 void ShkuratovModel::F(rowvec photometry, rowvec &reflectances) {
-    //to_physic(photometry);
+    to_physic(photometry);
 
     vec cos_i = cos(configuredGeometries.col(BETA)) % cos(configuredGeometries.col(ALPHA) - configuredGeometries.col(GAMMA));
     vec f = (exp(- photometry(MU_1) * configuredGeometries.col(ALPHA)) + photometry(M) * exp(- photometry(MU_2) * configuredGeometries.col(ALPHA))) / (1 + photometry(M));
@@ -54,7 +53,7 @@ void ShkuratovModel::to_physic(rowvec &x) {
 
 void ShkuratovModel::from_physic(double *x, int size) {
     for(unsigned l=0; l<size; l++){
-        x[l] = x[l] - offset(l) / scalingCoeffs(l) ;
+        x[l] = (x[l] - offset(l)) / scalingCoeffs(l) ;
     }
 }
 

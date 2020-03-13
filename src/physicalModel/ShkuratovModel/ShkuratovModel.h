@@ -6,6 +6,7 @@
 #define KERNELO_SHKURATOVMODEL_H
 
 #include "../FunctionalModel.h"
+#include "../Enumeration.h"
 
 namespace Functional {
     class ShkuratovModel : public FunctionalModel {
