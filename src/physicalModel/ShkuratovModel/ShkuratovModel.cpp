@@ -13,8 +13,8 @@ using namespace ShkuratovEnumeration;
 ShkuratovModel::ShkuratovModel(const double *geometries, int row_size, int col_size,
                                            const double *scalingCoeffs, const double *offset) {
 
-    this->scalingCoeffs = vec(scalingCoeffs, col_size);
-    this->offset = vec(offset, col_size);
+    this->scalingCoeffs = vec(scalingCoeffs, 5);
+    this->offset = vec(offset, 5);
 
     mat geomsMat = mat(row_size,col_size);
     for(unsigned i=0; i<row_size; i++){
@@ -26,13 +26,16 @@ ShkuratovModel::ShkuratovModel(const double *geometries, int row_size, int col_s
 }
 
 void ShkuratovModel::F(rowvec photometry, rowvec &reflectances) {
-    vec cos_i = cos(configuredGeometries.col(BETA)) * cos(configuredGeometries.col(ALPHA) - configuredGeometries.col(GAMMA));
+    //to_physic(photometry);
+
+    vec cos_i = cos(configuredGeometries.col(BETA)) % cos(configuredGeometries.col(ALPHA) - configuredGeometries.col(GAMMA));
     vec f = (exp(- photometry(MU_1) * configuredGeometries.col(ALPHA)) + photometry(M) * exp(- photometry(MU_2) * configuredGeometries.col(ALPHA))) / (1 + photometry(M));
-    vec d = cos(configuredGeometries.col(ALPHA) / 2.0) % cos(datum::pi * (configuredGeometries.col(GAMMA) - configuredGeometries.col(ALPHA / 2.0)) / (datum::pi - configuredGeometries.col(ALPHA))) / cos(configuredGeometries.col(GAMMA));
+    vec d = cos(configuredGeometries.col(ALPHA) / 2.0) % cos(datum::pi * (configuredGeometries.col(GAMMA) - configuredGeometries.col(ALPHA) / 2.0) / (datum::pi - configuredGeometries.col(ALPHA))) / cos(configuredGeometries.col(GAMMA));
     for(unsigned i=0; i<d.n_rows; i++){
         d(i) *= pow(cos(configuredGeometries(i,BETA)), photometry(NU) * configuredGeometries(i,ALPHA) * (datum::pi - configuredGeometries(i,ALPHA)));
     }
-    reflectances = photometry.col(AN) % d % f / cos_i;
+    reflectances = photometry(AN) * d.t() % f.t() / cos_i.t();
+
 }
 
 int ShkuratovModel::get_D_dimension() {
@@ -44,8 +47,8 @@ int ShkuratovModel::get_L_dimension() {
 }
 
 void ShkuratovModel::to_physic(rowvec &x) {
-    for(unsigned l=0; l<x.n_rows; l++){
-        x[l] = x[l] * scalingCoeffs(l) + offset(l);
+    for(unsigned l=0; l<x.n_cols; l++){
+        x(l) = x(l) * scalingCoeffs(l) + offset(l);
     }
 }
 
@@ -63,7 +66,7 @@ void ShkuratovModel::setupGeometries(const mat &geometries) {
     });
 
     //compute Alpha
-    configuredGeometries.col(ALPHA) = cos(geomsGrad.col(0)) % cos(geomsGrad.col(1)) + sin(geomsGrad.col(0)) % sin(geomsGrad.col(1)) % cos(geomsGrad.col(2));
+    configuredGeometries.col(ALPHA) = acos(cos(geomsGrad.col(0)) % cos(geomsGrad.col(1)) + sin(geomsGrad.col(0)) % sin(geomsGrad.col(1)) % cos(geomsGrad.col(2)));
 
     //compute Beta
     vec sin_i_e_2 = pow(sin(geomsGrad.col(0) + geomsGrad.col(1)),2);

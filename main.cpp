@@ -7,6 +7,7 @@
 #include <armadillo>
 #include "src/physicalModel/FunctionalModel.h"
 #include "src/physicalModel/FunctionnalModelFactory.h"
+#include "src/physicalModel/ShkuratovModel/ShkuratovModel.h"
 #include "src/physicalModel/HapkeModel/HapkeVersions/Hapke02Model.h"
 #include "src/physicalModel/HapkeModel/HapkeAdapters/FourParamsModel.h"
 #include "src/physicalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h"
@@ -35,17 +36,17 @@ int main(){
 
 
     pt::ptree root;
-    pt::read_json("../test_hapke.json", root);  // Load the json file in this ptree
+    pt::read_json("../test_shkuratov.json", root);  // Load the json file in this ptree
     i = 0;
     for (pt::ptree::value_type& v : root.get_child("eme"))
     {
-        geometries[i*3+0] = stod(v.second.data());
+        geometries[i*3+1] = stod(v.second.data());
         i++;
     }
     i = 0;
     for (pt::ptree::value_type& v : root.get_child("inc"))
     {
-        geometries[i*3+1] = stod(v.second.data());
+        geometries[i*3+0] = stod(v.second.data());
 
         i++;
     }
@@ -59,8 +60,43 @@ int main(){
         i+=1;
     }
 
+    mat photometries = mat(10000,5);
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("an"))
+    {
+        photometries(i,0) = stod(v.second.data());
+        i++;
+    }
 
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("mu1"))
+    {
+        photometries(i,1) = stod(v.second.data());
+        i++;
+    }
 
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("nu"))
+    {
+        photometries(i,2) = stod(v.second.data());
+        i++;
+    }
+
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("m"))
+    {
+        photometries(i,3) = stod(v.second.data());
+        i++;
+    }
+
+    i = 0;
+    for (pt::ptree::value_type& v : root.get_child("mu2"))
+    {
+        photometries(i,4) = stod(v.second.data());
+        i++;
+    }
+
+    /*
     mat photometries = mat(10000,6);
 
     i = 0;
@@ -98,29 +134,30 @@ int main(){
     {
         photometries(i,1) = stod(v.second.data()) / 30;
         i++;
-    }
+    }*/
 
+    double scaling[5] = {1.0,1.5,0.8,1.5,1.5};
+    double offset[5] = {0,0,0.2,0,0};
 
+    std::shared_ptr<FunctionalModel> myModel (new ShkuratovModel(geometries, 50, 3, scaling, offset));
 
-    std::shared_ptr<FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3,
-                                                               std::shared_ptr<HapkeAdapter>(new SixParamsModel()), 30));
-
-    auto *x = new double[6*10000];
+    auto *x = new double[5*10000];
     for(unsigned k=0; k<10000; k++){
-        for(unsigned j=0; j<6; j++){
-            x[k*6+j] = photometries(i,j);
+        for(unsigned j=0; j<5; j++){
+            x[k*5+j] = photometries(i,j);
         }
     }
 
 
     rowvec y(50);
     auto start = chrono::high_resolution_clock::now();
-    for(unsigned k=0; k<10; k++){
+    for(unsigned k=0; k<1; k++){
         myModel->F(photometries.row(k),y);
     }
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
     cout << duration.count() << endl;
+    y.print();
 
     delete [] x;
     delete [] geometries;
