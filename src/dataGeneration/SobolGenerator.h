@@ -29,7 +29,7 @@ namespace DataGeneration{
      */
     class SobolGenerator : public GeneratorStrategy {
     public:
-        void execute(mat &x, unsigned seed) final ;
+        void execute(mat &x) final ;
     };
 }
 

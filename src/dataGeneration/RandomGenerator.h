@@ -24,7 +24,11 @@ namespace DataGeneration{
      */
     class RandomGenerator : public GeneratorStrategy {
     public:
-        void execute(mat &x, unsigned seed) final;
+        void execute(mat &x) final;
+        explicit RandomGenerator(unsigned seed);
+
+    private:
+        unsigned seed;
     };
 }
 
