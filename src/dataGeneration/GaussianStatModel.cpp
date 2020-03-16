@@ -19,7 +19,7 @@ GaussianStatModel::GaussianStatModel(
         const double *covariance,
         int cov_size,
         unsigned seed) {
-    this->generator = GeneratorFactory::create(generatorType);
+    this->generator = GeneratorFactory::create(generatorType, seed);
     this->functionalModel = std::move(functionalModel);
 
     //Transform cov from double* to arma::rowvec
@@ -41,7 +41,7 @@ std::tuple<mat, mat> GaussianStatModel::gen_data(int n) {
     mat y_arma = mat(n,dimension_D);
 
     // generate X
-    generator->execute(x_arma, seed);
+    generator->execute(x_arma);
 
     // create a vector of random values under a normal distribution with 0 mean and 1 variance
     std::normal_distribution<double> normalDistribution(0, 1);

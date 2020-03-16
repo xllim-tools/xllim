@@ -16,7 +16,7 @@ using namespace boost::random;
 
 typedef sobol_engine< boost::uint_least64_t, 64u, default_sobol_table > Sobol;
 
-void SobolGenerator::execute(mat &x, unsigned seed) {
+void SobolGenerator::execute(mat &x) {
 
     // Initialize the engine to draw randomness out of thin air
     Sobol engine(x.n_cols);
