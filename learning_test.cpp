@@ -401,9 +401,9 @@ int main(){
     std::shared_ptr<MultInitConfig> myConfig (
             new MultInitConfig(
                     123456789,
-                    5,
                     1,
-                    GMMLearningConfig(0,5,1e-10),
+                    1,
+                    GMMLearningConfig(0,1,1e-10),
                     EMLearningConfig(0,0,1e-08),
                     std::shared_ptr<DataGeneration::GeneratorStrategy> (new DataGeneration::RandomGenerator())));
 
@@ -413,7 +413,7 @@ int main(){
     /*std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,10));
     GmmEstimator estimator (myLearningconfig);*/
 
-    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(5,0.0,1e-08));
+    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(2,0.0,1e-08));
     EmEstimator<FullCovariance, DiagCovariance> estimator(myLearningconfig);
 
     /*auto start = chrono::high_resolution_clock::now();
@@ -434,14 +434,14 @@ int main(){
     vec cov_obs(47, fill::randu);
     vec y_obs = y.row(5).subvec(3,49).t();
 
-    /*std::vector<arma::gmm_full> gmms = vector<arma::gmm_full>(N);
+    std::vector<arma::gmm_full> gmms = vector<arma::gmm_full>(N);
     auto start = chrono::high_resolution_clock::now();
-    for(unsigned n=0; n<N; n++){
+    for(unsigned n=0; n<1; n++){
         gmms[n] = gllim->computeGMM(y_obs,cov_obs);
     }
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::seconds>(end - start);
-    cout << duration.count() << endl;*/
+    cout << duration.count() << endl;
 
 
 

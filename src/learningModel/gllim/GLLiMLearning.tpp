@@ -3,6 +3,8 @@
 //
 
 
+#include "GLLiMLearning.h"
+
 using namespace learningModel;
 
 template<typename T, typename U>
@@ -89,25 +91,19 @@ void GLLiMLearning<T, U>::importModel(GLLiM &gllim) {
 
 template<typename T, typename U>
 GLLiMParameters<FullCovariance,FullCovariance> GLLiMLearning<T, U>::inverse(GLLiMParameters<T,U> &gllim_direct) {
-    unsigned non_null_weights = 0;
-    for(unsigned k=0; k<gllim_direct.K; k++)
-        if(gllim_direct.Pi(k) != 0)
-            non_null_weights++;
 
-    GLLiMParameters<FullCovariance, FullCovariance> gllim_inv(gllim_direct.L, gllim_direct.D, non_null_weights);
+    GLLiMParameters<FullCovariance, FullCovariance> gllim_inv(gllim_direct.L, gllim_direct.D, gllim_direct.K);
 
-    unsigned i =0;
     for(unsigned k=0; k<gllim_direct.K; k++){
         if(gllim_direct.Pi(k) != 0){
-            gllim_inv.Pi(i) = gllim_direct.Pi(i);
-            FullCovariance sigma_inv = FullCovariance(gllim_direct.Sigma[i].inv().getFull());
-            FullCovariance gamma_inv = FullCovariance(gllim_direct.Gamma[i].inv().getFull());
-            gllim_inv.C.col(i) = gllim_direct.A.slice(i) * gllim_direct.C.col(i) + gllim_direct.B.col(i);
-            gllim_inv.Gamma[i] = FullCovariance(gllim_direct.Sigma[i] + gllim_direct.A.slice(i) * gllim_direct.Gamma[i] * gllim_direct.A.slice(i).t());
-            gllim_inv.Sigma[i] = FullCovariance(gamma_inv + mat(gllim_direct.A.slice(i).t()) * sigma_inv * mat(gllim_direct.A.slice(i))).inv();
-            gllim_inv.A.slice(i) = gllim_inv.Sigma[i] * mat(gllim_direct.A.slice(i).t()) * sigma_inv;
-            gllim_inv.B.col(i) = gllim_inv.Sigma[i] * vec(gamma_inv * vec(gllim_direct.C.col(i)) - mat(gllim_direct.A.slice(i).t()) * sigma_inv * gllim_direct.B.col(i));
-            i++;
+            gllim_inv.Pi(k) = gllim_direct.Pi(k);
+            FullCovariance sigma_inv = FullCovariance(gllim_direct.Sigma[k].inv().getFull());
+            FullCovariance gamma_inv = FullCovariance(gllim_direct.Gamma[k].inv().getFull());
+            gllim_inv.C.col(k) = gllim_direct.A.slice(k) * gllim_direct.C.col(k) + gllim_direct.B.col(k);
+            gllim_inv.Gamma[k] = FullCovariance(gllim_direct.Sigma[k] + gllim_direct.A.slice(k) * gllim_direct.Gamma[k] * gllim_direct.A.slice(k).t());
+            gllim_inv.Sigma[k] = FullCovariance(gamma_inv + mat(gllim_direct.A.slice(k).t()) * sigma_inv * mat(gllim_direct.A.slice(k))).inv();
+            gllim_inv.A.slice(k) = gllim_inv.Sigma[k] * mat(gllim_direct.A.slice(k).t()) * sigma_inv;
+            gllim_inv.B.col(k) = gllim_inv.Sigma[k] * vec(gamma_inv * vec(gllim_direct.C.col(k)) - mat(gllim_direct.A.slice(k).t()) * sigma_inv * gllim_direct.B.col(k));
         }
     }
     return gllim_inv;
@@ -120,31 +116,36 @@ arma::gmm_full GLLiMLearning<T, U>::computeGMM(const vec &y_obs, const vec &cov_
 
     // 1 - alter sigma covariance
     GLLiMParameters<T, U> temp_gllim = *gllim_parameters;
-    mat cov(temp_gllim.D, temp_gllim.K , fill::zeros);
-    cov.diag() += cov_obs;
-    for(unsigned k=0; k<temp_gllim.K; k++){
-        temp_gllim.Sigma[k] += cov;
-    }
+    this->alterCovariance(temp_gllim, cov_obs);
 
     // 2 - inverse theta_obs
     GLLiMParameters<FullCovariance, FullCovariance> gllim_inv = inverse(temp_gllim);
 
     // 3 - construct the GMM
+    return this->logDensity(gllim_inv, y_obs);
+}
 
-    // weights
-    vec weights(gllim_inv.K,fill::zeros);
-    for(unsigned k=0; k<gllim_inv.K; k++){
-        double det_gamma = gllim_inv.Gamma[k].det();
-        vec y_u = y_obs - gllim_inv.C.col(k);
+template<typename T, typename U>
+template <typename V, typename W>
+arma::gmm_full GLLiMLearning<T, U>::logDensity(GLLiMParameters<V,W> &gllim, const vec &x) {
+    static_assert(std::is_base_of<Icovariance, V>(), "Type V must be Icovariance specialization");
+    static_assert(std::is_base_of<Icovariance, W>(), "Type W must be Icovariance specialization");
+
+    gmm_full model;
+
+    vec weights(gllim.K,fill::zeros);
+    for(unsigned k=0; k<gllim.K; k++){
+        double det_gamma = gllim.Gamma[k].det();
+        vec x_u = x - gllim.C.col(k);
         if(det_gamma != 0){
-            weights(k) = log(gllim_inv.Pi(k)) - 0.5 * (gllim_inv.L * log(2* datum::pi) + log(det_gamma) + dot((rowvec(y_u.t()) * gllim_inv.Gamma[k].inv()).t(), y_u));
+            weights(k) = log(gllim.Pi(k)) - 0.5 * (gllim.L * log(2* datum::pi) + log(det_gamma) + dot((rowvec(x_u.t()) * gllim.Gamma[k].inv()).t(), x_u));
         }
     }
 
     double result = 0;
     double max = weights.max();
     if(max != -datum::inf){
-        for(unsigned k=0; k<gllim_inv.K; k++){
+        for(unsigned k=0; k<gllim.K; k++){
             result += exp(weights(k) - max);
         }
         result = log(result) + max;
@@ -154,21 +155,29 @@ arma::gmm_full GLLiMLearning<T, U>::computeGMM(const vec &y_obs, const vec &cov_
     }
 
     // means
-    mat means(gllim_inv.D,gllim_inv.K);
-    for(unsigned k=0; k<gllim_inv.K; k++){
-        means.col(k) = gllim_inv.A.slice(k) * y_obs + gllim_inv.B.col(k);
+    mat means(gllim.D,gllim.K);
+    for(unsigned k=0; k<gllim.K; k++){
+        means.col(k) = gllim.A.slice(k) * x + gllim.B.col(k);
     }
 
     // covariances
-    cube covariances(gllim_inv.D,gllim_inv.D,gllim_inv.K);
-    for(unsigned k=0; k<gllim_inv.K; k++){
-        covariances.slice(k) = gllim_inv.Sigma[k].getFull();
+    cube covariances(gllim.D,gllim.D,gllim.K);
+    for(unsigned k=0; k<gllim.K; k++){
+        covariances.slice(k) = gllim.Sigma[k].getFull();
     }
 
-    gmm_full model;
-    model.set_params(means,covariances,weights.t());
 
+    model.set_params(means,covariances,weights.t());
     return model;
+}
+
+template<typename T, typename U>
+void GLLiMLearning<T,U>::alterCovariance(GLLiMParameters<T, U> &gllim, const vec &cov_obs){
+    mat cov(gllim.D, gllim.K , fill::zeros);
+    cov.diag() += cov_obs;
+    for(unsigned k=0; k<gllim.K; k++){
+        gllim.Sigma[k] += cov;
+    }
 }
 
 

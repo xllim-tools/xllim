@@ -22,6 +22,7 @@ namespace learningModel{
         GLLiMParameters<FullCovariance, FullCovariance> inverse(GLLiMParameters<T,U> &gllim_direct);
         arma::gmm_full computeGMM(const vec &y_obs, const vec &cov_obs) override ;
 
+
         static_assert(std::is_base_of<Icovariance, T>(), "Type T must be Icovariance specialization");
         static_assert(std::is_base_of<Icovariance, T>(), "Type U must be Icovariance specialization");
 
@@ -30,7 +31,14 @@ namespace learningModel{
         std::shared_ptr<Iestimator<T,U>> estimator;
         std::shared_ptr<GLLiMParameters<T,U>> gllim_parameters;
         unsigned K;
+
+    protected:
+        void alterCovariance(GLLiMParameters<T, U> &gllim, const vec &cov_obs);
+
+        template <typename V, typename W>
+        arma::gmm_full logDensity(GLLiMParameters<V,W> &gllim, const vec &x);
     };
+
 }
 
 #include "GLLiMLearning.tpp"

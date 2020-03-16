@@ -70,7 +70,7 @@ add_library(learningModel STATIC
         src/learningModel/initializers/MultInitializer.h
         src/learningModel/initializers/MultInitializer.tpp
         src/learningModel/configs/InitConfig.h
-        src/learningModel/gllim/GLLiM.h)
+        src/learningModel/gllim/GLLiM.h src/helpersFunctions/Helpers.h src/helpersFunctions/Helpers.cpp)
 
 target_include_directories(functionalModel PUBLIC include)
 

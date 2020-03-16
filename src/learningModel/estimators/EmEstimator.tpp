@@ -3,6 +3,7 @@
 //
 
 #include "omp.h"
+#include "../../helpersFunctions/Helpers.h"
 
 
 #define LOG_2_PI log(2* datum::pi)
@@ -139,7 +140,7 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
 
 //#pragma omp parallel for shared(x, y, r_nk, next_theta, N, K, D, L) schedule(static) num_threads(2)
     for(unsigned k=0; k<K; k++){
-        r_k = logSumExp(log_rnk_norm.col(k));
+        r_k = Helpers::logSumExp(log_rnk_norm.col(k));
         if(r_k != (-datum::inf)){
             exp_avg_rnk = exp(log_rnk_norm.col(k) - r_k);
         }
@@ -166,22 +167,6 @@ void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
             update_Sigma_k(next_theta, k, Y_AX, exp_avg_rnk);
             covStabilityImprov(next_theta->Sigma[k], D, config->floor);
         }
-    }
-}
-
-template <typename T , typename U>
-double EmEstimator<T,U>::logSumExp(const vec &elements) {
-    double result = 0;
-    double max = elements.max();
-
-    if(max == -datum::inf){
-        return max;
-    }else{
-        for(unsigned i=0; i<elements.n_rows; i++){
-            result += exp(elements(i) - max);
-        }
-        result = log(result) + max;
-        return result;
     }
 }
 
@@ -255,7 +240,7 @@ mat EmEstimator<T, U>::norm_log_rnk(const mat &r_nk) {
     mat norl_log_rnk = r_nk;
     double sum = 0;
     for(unsigned n=0; n<r_nk.n_rows ; n++ ){
-        sum = logSumExp(norl_log_rnk.row(n).t());
+        sum = Helpers::logSumExp(norl_log_rnk.row(n).t());
         if(sum != (-datum::inf)){
             norl_log_rnk.row(n) -= sum;
         }
@@ -267,7 +252,7 @@ template<typename T, typename U>
 double EmEstimator<T, U>::log_likelihood(const mat& r_nk) {
     double log_l = 0;
     for(unsigned n=0; n<r_nk.n_rows; n++ ){
-        log_l += logSumExp(r_nk.row(n).t());
+        log_l += Helpers::logSumExp(r_nk.row(n).t());
     }
     return log_l/r_nk.n_rows;
 }
