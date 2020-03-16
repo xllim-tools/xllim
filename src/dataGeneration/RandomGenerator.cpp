@@ -29,5 +29,6 @@ void DataGeneration::RandomGenerator::execute(mat &x) {
     x.for_each([ptr_tp_engine,ptr_to_unif](mat::elem_type& val){
         val = ptr_to_unif->operator()(ptr_tp_engine.operator*());
     });
+    seed = engine();
 }
 
