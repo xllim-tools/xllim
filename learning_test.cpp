@@ -401,11 +401,11 @@ int main(){
     std::shared_ptr<MultInitConfig> myConfig (
             new MultInitConfig(
                     123456789,
-                    1,
-                    1,
-                    GMMLearningConfig(0,1,1e-10),
-                    EMLearningConfig(0,0,1e-08),
-                    std::shared_ptr<DataGeneration::GeneratorStrategy> (new DataGeneration::RandomGenerator())));
+                    3,
+                    3,
+                    GMMLearningConfig(0,3,1e-10),
+                    EMLearningConfig(3,0,1e-08),
+                    std::shared_ptr<DataGeneration::GeneratorStrategy> (new DataGeneration::RandomGenerator(123456789))));
 
     MultInitializer<FullCovariance,DiagCovariance> initializer(myConfig);
     //std::shared_ptr<GLLiMParameters <FullCovariance, FullCovariance>> gllim_initialized = initializer.execute(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49),K);
@@ -413,7 +413,7 @@ int main(){
     /*std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,10));
     GmmEstimator estimator (myLearningconfig);*/
 
-    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(2,0.0,1e-08));
+    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(3,0.0,1e-08));
     EmEstimator<FullCovariance, DiagCovariance> estimator(myLearningconfig);
 
     /*auto start = chrono::high_resolution_clock::now();

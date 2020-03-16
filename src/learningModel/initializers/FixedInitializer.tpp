@@ -20,7 +20,7 @@ std::shared_ptr <GLLiMParameters<T, U>> FixedInitializer<T, U>::execute(const ma
 
     // generate a mean for the GMM using a data generator strategy
     mat m(L,K);
-    config->generator->execute(m, config->seed);
+    config->generator->execute(m);
 
     // use the same weight for all the clusters
     vec rho = ones(K)/K;

@@ -28,7 +28,7 @@ std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat
     for(unsigned exp=0; exp<config->nb_experiences; exp++){
         // generate a mean for the GMM using a data generator strategy
         mat m(L,K);
-        config->generator->execute(m, seeds(exp) );
+        config->generator->execute(m);
 
         // use the same weight for all the clusters
         vec rho = ones(K)/K;
