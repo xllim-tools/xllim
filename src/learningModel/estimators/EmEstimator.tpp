@@ -22,7 +22,8 @@ EmEstimator<T, U>::EmEstimator() {
 
 template <typename T , typename U >
 void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiMParameters<T, U>> initial_theta) {
-    mat r_nk(x.n_rows, initial_theta->Pi.n_rows, fill::zeros);
+    mat r_nk(x.n_rows, initial_theta->Pi.n_rows, fill::ones);
+    r_nk *= -datum::inf;
 
     mat x_t = x.t();
     mat y_t = y.t();
