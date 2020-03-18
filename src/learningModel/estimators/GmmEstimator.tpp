@@ -41,6 +41,9 @@ void GmmEstimator::execute(const arma::mat & x, const arma::mat & y,
 
     // train the GMM with the training data set
     train(x,Rou,M,V);
+
+    // return the GLLiM from the GMM
+    initial_theta->operator=(fromGMM(Rou.n_rows, y.n_cols, x.n_cols));
 }
 
 void GmmEstimator::toGMM(const std::shared_ptr<GLLiMParameters<FullCovariance, FullCovariance>>& theta) {
@@ -62,7 +65,7 @@ void GmmEstimator::toGMM(const std::shared_ptr<GLLiMParameters<FullCovariance, F
     V = cube(D+L, D+L, K);
     for(unsigned j = 0; j < K; j++){
         V.slice(j) =join_cols(
-                join_rows(theta->Gamma[j] * mat(Rou.n_cols, Rou.n_cols, fill::eye),
+                join_rows(theta->Gamma[j] * mat(L, L, fill::eye),
                           theta->Gamma[j] * mat(theta->A.slice(j).t())),
                 join_rows(theta->A.slice(j) * theta->Gamma[j],
                           theta->Sigma[j] + theta->A.slice(j) * theta->Gamma[j] * theta->A.slice(j).t()));
@@ -77,7 +80,7 @@ GLLiMParameters<FullCovariance, FullCovariance> GmmEstimator::fromGMM(int K, int
 
     cube v_xx = V.subcube(0, 0, 0, L-1, L-1, K-1);
     cube v_xx_inv = v_xx;
-    v_xx_inv.each_slice( [](mat& X){ X = inv(X); } );
+    v_xx_inv.each_slice( [](mat& X){X = inv(X); } );
     cube v_xy = V.subcube(0, L, 0, L-1, L+D-1, K-1);
     cube v_xy_t = V.subcube(L, 0, 0, L+D-1, L-1, K-1);
     cube v_yy = V.subcube(L, L, 0, L+D-1, L+D-1, K-1);
