@@ -20,7 +20,7 @@ DependentGaussianStatModel::DependentGaussianStatModel(
         std::shared_ptr<FunctionalModel> functionalModel,
         int r,
         unsigned seed) {
-    this->generator = GeneratorFactory::create(generatorType);
+    this->generator = GeneratorFactory::create(generatorType, seed);
     this->functionalModel = std::move(functionalModel);
     this->r = r;
     this->seed = seed;
@@ -35,7 +35,7 @@ std::tuple<mat, mat> DependentGaussianStatModel::gen_data(int n) {
 
 
     // generate X
-    generator->execute(x_arma, seed);
+    generator->execute(x_arma);
 
     // create a vector of random values under a normal distribution with 0 mean and 1 variance
     std::normal_distribution<double> normalDistribution(0, 1);

@@ -16,8 +16,12 @@
 using namespace std;
 using namespace DataGeneration;
 
+LatinCubeGenerator::LatinCubeGenerator(unsigned seed) {
+    this->seed = seed;
+}
 
-void LatinCubeGenerator::execute(mat &x, unsigned seed) {
+
+void LatinCubeGenerator::execute(mat &x) {
 
     double *generated_x;
 

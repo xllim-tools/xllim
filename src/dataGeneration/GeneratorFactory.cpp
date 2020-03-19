@@ -13,13 +13,13 @@
 
 using namespace DataGeneration;
 
-std::shared_ptr<GeneratorStrategy> GeneratorFactory::create(const std::string& generatorType) {
+std::shared_ptr<GeneratorStrategy> GeneratorFactory::create(const std::string& generatorType, unsigned seed) {
     if(generatorType == "sobol"){
         return std::shared_ptr<GeneratorStrategy> (new SobolGenerator());
     }else if (generatorType == "latin_cube") {
-        return std::shared_ptr<GeneratorStrategy> (new LatinCubeGenerator());
+        return std::shared_ptr<GeneratorStrategy> (new LatinCubeGenerator(seed));
     }else {
-        return std::shared_ptr<GeneratorStrategy> (new RandomGenerator());
+        return std::shared_ptr<GeneratorStrategy> (new RandomGenerator(seed));
     }
 }
 

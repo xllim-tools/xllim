@@ -9,7 +9,11 @@
 #include <memory>
 #include "RandomGenerator.h"
 
-void DataGeneration::RandomGenerator::execute(mat &x, unsigned seed) {
+DataGeneration::RandomGenerator::RandomGenerator(unsigned seed) {
+    this->seed = seed;
+}
+
+void DataGeneration::RandomGenerator::execute(mat &x) {
 
     // mt19937 is a standard mersenne_twister_engine
     std::mt19937_64 engine;
@@ -25,5 +29,6 @@ void DataGeneration::RandomGenerator::execute(mat &x, unsigned seed) {
     x.for_each([ptr_tp_engine,ptr_to_unif](mat::elem_type& val){
         val = ptr_to_unif->operator()(ptr_tp_engine.operator*());
     });
+    seed = engine();
 }
 
