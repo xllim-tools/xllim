@@ -51,7 +51,6 @@ add_library(functionalModel STATIC
 add_library(learningModel STATIC
         src/learningModel/configs/LearningConfig.h
         src/learningModel/estimators/Estimators.h
-        src/learningModel/gllim/GLLiMParameters.cpp
         src/learningModel/gllim/GLLiMParameters.h
         src/learningModel/covariances/Icovariance.h
         src/learningModel/EstimatorFactory.cpp
