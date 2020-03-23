@@ -7,13 +7,13 @@
 
 #include <string>
 #include <memory>
-#include "HapkeAdapter.h"
-#include "HapkeAdapterFactory.h"
-#include "Hapke02Model.h"
-#include "SixParamsModel.h"
-#include "FourParamsModel.h"
-#include "ThreeParamsModel.h"
-#include "Hapke93Model.h"
+#include "HapkeModel/HapkeAdapter.h"
+#include "HapkeModel/HapkeAdapters/HapkeAdapterFactory.h"
+#include "HapkeModel/HapkeVersions/Hapke02Model.h"
+#include "HapkeModel/HapkeAdapters/SixParamsModel.h"
+#include "HapkeModel/HapkeAdapters/FourParamsModel.h"
+#include "HapkeModel/HapkeAdapters/ThreeParamsModel.h"
+#include "HapkeModel/HapkeVersions/Hapke93Model.h"
 
 namespace Functional{
     struct HapkeAdapterConfig{

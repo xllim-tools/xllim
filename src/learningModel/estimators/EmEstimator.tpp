@@ -28,6 +28,8 @@ void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiM
     mat x_t = x.t();
     mat y_t = y.t();
 
+
+
     auto start1 = std::chrono::high_resolution_clock::now();
     auto start2 = std::chrono::high_resolution_clock::now();
     auto end1 = std::chrono::high_resolution_clock::now();

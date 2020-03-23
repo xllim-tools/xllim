@@ -7,30 +7,33 @@
 
 #include "LearningConfig.h"
 #include "../../dataGeneration/GeneratorStrategy.h"
+#include "../../dataGeneration/RandomGenerator.h"
 #include <memory>
 #include <utility>
 
 namespace learningModel{
 
-    class InitConfig{};
+    class InitConfig{
+    protected:
+        virtual ~InitConfig() = default;
+    };
 
     class FixedInitConfig: public InitConfig{
     public:
         unsigned seed;
-        GMMLearningConfig gmmLearningConfig;
-        EMLearningConfig emLearningConfig;
+        std::shared_ptr<GMMLearningConfig> gmmLearningConfig;
+        std::shared_ptr<EMLearningConfig> emLearningConfig;
         std::shared_ptr<DataGeneration::GeneratorStrategy> generator;
 
         FixedInitConfig(
                 unsigned seed,
-                const GMMLearningConfig& gmmLearningConfig,
-                const EMLearningConfig& emLearningConfig,
-                const std::shared_ptr<DataGeneration::GeneratorStrategy>& generator){
+                const std::shared_ptr<LearningConfig>& gmmLearningConfig,
+                const std::shared_ptr<LearningConfig>& emLearningConfig){
 
             this->seed = seed;
-            this->emLearningConfig = emLearningConfig;
-            this->gmmLearningConfig = gmmLearningConfig;
-            this->generator = generator;
+            this->emLearningConfig = std::dynamic_pointer_cast<EMLearningConfig>(emLearningConfig);
+            this->gmmLearningConfig = std::dynamic_pointer_cast<GMMLearningConfig>(gmmLearningConfig);
+            this->generator = std::shared_ptr<DataGeneration::GeneratorStrategy> (new DataGeneration::RandomGenerator(seed));
         }
     };
 
@@ -39,23 +42,22 @@ namespace learningModel{
         unsigned seed;
         unsigned nb_iter_EM;
         unsigned nb_experiences;
-        GMMLearningConfig gmmLearningConfig;
-        EMLearningConfig emLearningConfig;
+        std::shared_ptr<GMMLearningConfig> gmmLearningConfig;
+        std::shared_ptr<EMLearningConfig> emLearningConfig;
         std::shared_ptr<DataGeneration::GeneratorStrategy> generator;
 
         MultInitConfig(
                 unsigned seed,
                 unsigned nb_iter_EM,
                 unsigned nb_experiences,
-                const GMMLearningConfig& gmmLearningConfig,
-                const EMLearningConfig& emLearningConfig,
-                const std::shared_ptr<DataGeneration::GeneratorStrategy>& generator){
+                const std::shared_ptr<LearningConfig>& gmmLearningConfig,
+                const std::shared_ptr<LearningConfig>& emLearningConfig){
             this->seed = seed;
             this->nb_iter_EM = nb_iter_EM;
             this->nb_experiences = nb_experiences;
-            this->emLearningConfig = emLearningConfig;
-            this->gmmLearningConfig = gmmLearningConfig;
-            this->generator = generator;
+            this->emLearningConfig = std::dynamic_pointer_cast<EMLearningConfig>(emLearningConfig);
+            this->gmmLearningConfig = std::dynamic_pointer_cast<GMMLearningConfig>(gmmLearningConfig);
+            this->generator = std::shared_ptr<DataGeneration::GeneratorStrategy> (new DataGeneration::RandomGenerator(seed));
         }
     };
 }

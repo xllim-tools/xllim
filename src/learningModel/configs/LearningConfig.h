@@ -7,7 +7,10 @@
 
 namespace learningModel{
 
-    class LearningConfig{};
+    class LearningConfig{
+    protected:
+        virtual ~LearningConfig() = default;
+    };
 
     class EMLearningConfig : public LearningConfig{
     public:

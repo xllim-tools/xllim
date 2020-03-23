@@ -32,7 +32,7 @@ std::shared_ptr <GLLiMParameters<T, U>> FixedInitializer<T, U>::execute(const ma
     v.each_slice() = cov;
 
     // train a GMM over one iteration
-    GmmEstimator gmmEstimator = GmmEstimator(std::make_shared<GMMLearningConfig>(config->gmmLearningConfig));
+    GmmEstimator gmmEstimator = GmmEstimator(config->gmmLearningConfig);
     gmmEstimator.train(x.t(),rho,m,v);
 
     // compute log_rnk using the posterior of the GMM after the training
@@ -40,7 +40,7 @@ std::shared_ptr <GLLiMParameters<T, U>> FixedInitializer<T, U>::execute(const ma
     log_rnk = gmmEstimator.getPosterior();
 
     // Compute theta of the GLLiM using the log_posterior of the GMM
-    EmEstimator<T,U> emEstimator = EmEstimator<T,U>(std::make_shared<EMLearningConfig>(config->emLearningConfig));
+    EmEstimator<T,U> emEstimator = EmEstimator<T,U>(config->emLearningConfig);
     emEstimator.next_theta(x.t(),y.t(),log_rnk,theta);
 
     return theta;

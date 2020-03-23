@@ -13,7 +13,6 @@
 #include "../../../cpptest/functionalModel_tests/lib/googletest/include/gtest/gtest_prod.h"
 #include "HapkeAdapter.h"
 #include "../FunctionalModel.h"
-#include "../Enumeration.h"
 #include <utility>
 #include <memory>
 

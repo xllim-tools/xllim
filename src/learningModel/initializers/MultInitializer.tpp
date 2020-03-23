@@ -44,14 +44,14 @@ std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat
         v.each_slice() = cov;
 
         // train a GMM over nb_iter iteration
-        gmmEstimator = GmmEstimator(std::make_shared<GMMLearningConfig>(config->gmmLearningConfig));
+        gmmEstimator = GmmEstimator(config->gmmLearningConfig);
         gmmEstimator.train(x.t(),rho,m,v);
 
         // compute log_rnk using the posterior of the GMM after the training
         log_rnk = gmmEstimator.getPosterior();
 
         // Compute theta of the GLLiM using the log_posterior of the GMM
-        emEstimator = EmEstimator<T,U>(std::make_shared<EMLearningConfig>(config->emLearningConfig));
+        emEstimator = EmEstimator<T,U>(config->emLearningConfig);
         emEstimator.next_theta(x.t(),y.t(),log_rnk,local_theta);
 
         for(unsigned iter=0; iter<config->nb_iter_EM; iter++){

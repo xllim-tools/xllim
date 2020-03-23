@@ -119,6 +119,12 @@ namespace learningModel{
         unsigned size;
     };
 
+    enum CovarianceType{
+        FULL,
+        DIAG,
+        ISO
+    };
+
 
 }
 

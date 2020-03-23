@@ -12,6 +12,7 @@
 #include <armadillo>
 #include <utility>
 #include <memory>
+#include "Enumeration.h"
 
 using namespace arma;
 

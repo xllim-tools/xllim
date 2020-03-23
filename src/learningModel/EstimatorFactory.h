@@ -12,11 +12,13 @@ namespace learningModel{
     class EstimatorFactory {
     public:
 
-        template <typename T = Icovariance, typename U = Icovariance>
-        static Iestimator<T,U> create(LearningConfig config);
+        template <typename T , typename U>
+        static std::shared_ptr<Iestimator<T,U>> create(const std::shared_ptr<LearningConfig>& learningConfig);
     };
 
 }
+
+#include "EstimatorFactory.tpp"
 
 
 

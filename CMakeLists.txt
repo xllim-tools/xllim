@@ -53,7 +53,7 @@ add_library(learningModel STATIC
         src/learningModel/estimators/Estimators.h
         src/learningModel/gllim/GLLiMParameters.h
         src/learningModel/covariances/Icovariance.h
-        src/learningModel/EstimatorFactory.cpp
+        src/learningModel/EstimatorFactory.tpp
         src/learningModel/EstimatorFactory.h
         src/learningModel/gllim/IGLLiMLearning.h
         src/learningModel/gllim/GLLiMLearning.tpp
@@ -69,7 +69,7 @@ add_library(learningModel STATIC
         src/learningModel/initializers/MultInitializer.h
         src/learningModel/initializers/MultInitializer.tpp
         src/learningModel/configs/InitConfig.h
-        src/learningModel/gllim/GLLiM.h src/helpersFunctions/Helpers.h src/helpersFunctions/Helpers.cpp)
+        src/learningModel/gllim/GLLiM.h src/helpersFunctions/Helpers.h src/helpersFunctions/Helpers.cpp src/learningModel/LearningModelFactory.tpp src/learningModel/LearningModelFactory.h src/learningModel/InitializerFactory.h)
 
 target_include_directories(functionalModel PUBLIC include)
 

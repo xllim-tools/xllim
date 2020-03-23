@@ -19,6 +19,7 @@
 #include "src/learningModel/covariances/Icovariance.h"
 #include "src/dataGeneration/SobolGenerator.h"
 #include "src/dataGeneration/RandomGenerator.h"
+#include "src/learningModel/LearningModelFactory.h"
 
 
 #include <iostream>
@@ -299,7 +300,6 @@ int main(){
     }
 
 
-    myParams.Sigma[0].print();
    /* myParams.A.print("Init A");
     myParams.B.t().print("Init B");
     myParams.C.print("Init C");
@@ -403,18 +403,18 @@ int main(){
                     123456789,
                     3,
                     3,
-                    GMMLearningConfig(0,3,1e-10),
-                    EMLearningConfig(3,0,1e-08),
-                    std::shared_ptr<DataGeneration::GeneratorStrategy> (new DataGeneration::RandomGenerator(123456789))));
+                    make_shared<GMMLearningConfig>(GMMLearningConfig(0,3,1e-10)),
+                    make_shared<EMLearningConfig>(EMLearningConfig(3,0,1e-08))));
+
 
     MultInitializer<FullCovariance,DiagCovariance> initializer(myConfig);
     //std::shared_ptr<GLLiMParameters <FullCovariance, FullCovariance>> gllim_initialized = initializer.execute(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49),K);
 
-    /*std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,10));
-    GmmEstimator estimator (myLearningconfig);*/
+    std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,3,1e-08));
+    /*GmmEstimator estimator (myLearningconfig);*/
 
-    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(3,0.0,1e-08));
-    EmEstimator<FullCovariance, DiagCovariance> estimator(myLearningconfig);
+    //std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(3,0.0,1e-08));
+    //EmEstimator<FullCovariance, DiagCovariance> estimator(myLearningconfig);
 
     /*auto start = chrono::high_resolution_clock::now();
 
@@ -423,11 +423,12 @@ int main(){
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::seconds>(end - start);
     cout << duration.count() << endl;*/
+    std::shared_ptr<IGLLiMLearning> gllim = LearningModelFactory::create(50, "Full", "Full", myConfig, myLearningconfig);
 
-    std::shared_ptr<IGLLiMLearning> gllim (
-            new GLLiMLearning<FullCovariance,DiagCovariance>(
-                    make_shared<MultInitializer<FullCovariance,DiagCovariance>>(initializer),
-                    make_shared<EmEstimator<FullCovariance, DiagCovariance>>(estimator),50));
+//    std::shared_ptr<IGLLiMLearning> gllim (
+//            new GLLiMLearning<FullCovariance,DiagCovariance>(
+//                    make_shared<MultInitializer<FullCovariance,DiagCovariance>>(initializer),
+//                    make_shared<EmEstimator<FullCovariance, DiagCovariance>>(estimator),50));
 
     gllim->initialize(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49));
     gllim->train(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49));
