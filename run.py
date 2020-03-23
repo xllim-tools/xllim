@@ -19,7 +19,7 @@ noise = [[random.random() for i in range(47)] for j in range(10000)]
 y = y + noise
 y = y / 100
 learningConfig = ker.GMMLearningConfig(0,5,0.00000001)
-initconfig = ker.FixedInitConfig(1234, ker.GMMLearningConfig(0,3,0.00000001))
+initconfig = ker.MultInitConfig(1234, 3, 3, ker.GMMLearningConfig(0,3,0.00000001))
 gllimParameters = Obj.GLLiMParameters()
 gllim = ker.GLLiM(47,6,50,"Full", "Full", initconfig, learningConfig, gllimParameters)
 gllim.initialize(photom, y)
