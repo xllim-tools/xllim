@@ -413,7 +413,7 @@ int main(){
     /*std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,10));
     GmmEstimator estimator (myLearningconfig);*/
 
-    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(3,0.0,1e-08));
+    std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(20,5.0,1e-08));
     EmEstimator<FullCovariance, DiagCovariance> estimator(myLearningconfig);
 
     /*auto start = chrono::high_resolution_clock::now();
@@ -441,7 +441,7 @@ int main(){
     }
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::seconds>(end - start);
-    cout << duration.count() << endl;
+    //cout << duration.count() << endl;
 
 
 

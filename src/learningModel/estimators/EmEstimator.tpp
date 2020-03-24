@@ -4,6 +4,7 @@
 
 #include "omp.h"
 #include "../../helpersFunctions/Helpers.h"
+#include "EmEstimator.h"
 
 
 #define LOG_2_PI log(2* datum::pi)
@@ -28,33 +29,18 @@ void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiM
     mat x_t = x.t();
     mat y_t = y.t();
 
-    auto start1 = std::chrono::high_resolution_clock::now();
-    auto start2 = std::chrono::high_resolution_clock::now();
-    auto end1 = std::chrono::high_resolution_clock::now();
-    auto end2 = std::chrono::high_resolution_clock::now();
-    auto duration1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-    auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end2 - start2);
+    double old_log_likelihood;
+    double new_log_likelihood = -datum::inf;
+    unsigned iteration = 0;
 
-
-    for(unsigned iter=0; iter<(config->max_iteration); iter++){
-        std::cout << "iteration "<< iter << " : " << std::endl;
-
-        start1 = std::chrono::high_resolution_clock::now();
+    do{
+        old_log_likelihood = new_log_likelihood;
         next_rnk(x_t,y_t,initial_theta, r_nk);
-        end1 = std::chrono::high_resolution_clock::now();
-        duration1 += std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-
-        std::cout << "log_likelihood " << log_likelihood(r_nk) << std::endl;
-
-        start2 = std::chrono::high_resolution_clock::now();
         next_theta(x_t,y_t,r_nk,initial_theta);
-        end2 = std::chrono::high_resolution_clock::now();
-        duration2 += std::chrono::duration_cast<std::chrono::microseconds>(end2 - start2);
-    }
+        new_log_likelihood = log_likelihood(r_nk);
+        iteration++;
 
-    cout << duration1.count() << endl;
-    cout << duration2.count() << endl;
-    std::cout << "done " << std::endl;
+    }while(!hasConverged(old_log_likelihood, new_log_likelihood, iteration));
 }
 
 template <typename T , typename U >
@@ -256,6 +242,14 @@ double EmEstimator<T, U>::log_likelihood(const mat& r_nk) {
         log_l += Helpers::logSumExp(r_nk.row(n).t());
     }
     return log_l/r_nk.n_rows;
+}
+
+template<typename T, typename U>
+bool EmEstimator<T, U>::hasConverged(double old_log_likelihood, double new_log_likelihood, unsigned current_iter) {
+    double ratio_increase_likelihood = (exp(new_log_likelihood) - exp(old_log_likelihood))/exp(old_log_likelihood);
+    std::cout << ratio_increase_likelihood << std::endl;
+    return current_iter == config->max_iteration || ratio_increase_likelihood <= config->ratio_ll/100;
+
 }
 
 
