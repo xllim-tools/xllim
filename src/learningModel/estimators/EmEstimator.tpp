@@ -247,9 +247,7 @@ double EmEstimator<T, U>::log_likelihood(const mat& r_nk) {
 template<typename T, typename U>
 bool EmEstimator<T, U>::hasConverged(double old_log_likelihood, double new_log_likelihood, unsigned current_iter) {
     double ratio_increase_likelihood = (exp(new_log_likelihood) - exp(old_log_likelihood))/exp(old_log_likelihood);
-    std::cout << ratio_increase_likelihood << std::endl;
     return current_iter == config->max_iteration || ratio_increase_likelihood <= config->ratio_ll/100;
-
 }
 
 
