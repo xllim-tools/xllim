@@ -217,7 +217,7 @@ cdef class ShkuratovModelConfig:
         1D array containing 5 values used to normalize the photometric variables of the model, where normalized_x = (x - offset)/scalingCoeff
     ndarray offset
         1D array containing 5 values used to normalize the photometric variables of the model, where normalized_x = (x - offset)/scalingCoeff
-    
+
     """
     cdef CppShkuratovModelConfig config
 
