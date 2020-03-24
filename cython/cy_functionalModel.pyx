@@ -11,6 +11,7 @@ from libc.stdio cimport printf
 from functionalModelWrapper cimport FunctionalModel as CppFunctionalModel
 from functionalModelWrapper cimport HapkeAdapterConfig as CppHapkeAdapterConfig
 from functionalModelWrapper cimport HapkeModelConfig as CppHapkeModelConfig
+from functionalModelWrapper cimport ShkuratovModelConfig as CppShkuratovModelConfig
 
 cimport numpy as np
 import numpy as np
@@ -172,6 +173,7 @@ cdef class HapkeModelConfig:
     Constructor
     -----------
     HapkeModelConfig(version, adapter, geometries, theta_bar_scalling)
+
     string version
         The version of the hapke model must be one of the following keywords : {"2002","1993"}.
     HapkeAdapterConfig adapter
@@ -197,6 +199,37 @@ cdef class HapkeModelConfig:
         self.config.version = <string>version.encode('utf-8')
         self.config.theta_bar_scalling = theta_bar_scalling
         self.config.adapterConfig = (<HapkeAdapterConfig>adapter).getInstance()
+
+    def create(self):
+        return FunctionalModel.create(self.config.create())
+
+cdef class ShkuratovModelConfig:
+    """
+    This class wraps the parameters that configure the Shkuratov model
+
+    Constructor
+    -----------
+    ShkuratovModel(geometries, scalingCoeffs, offset)
+
+    ndarray geometries
+        2D array containing N geometries with D dimensions.
+    ndarray scalingCoeffs
+        1D array containing 5 values used to normalize the photometric variables of the model, where normalized_x = (x - offset)/scalingCoeff
+    ndarray offset
+        1D array containing 5 values used to normalize the photometric variables of the model, where normalized_x = (x - offset)/scalingCoeff
+    
+    """
+    cdef CppShkuratovModelConfig config
+
+    def __cinit__(self, geometries, scalingCoeffs, offset):
+        cdef double[:,::1] geometries_memview = np.ascontiguousarray(geometries)
+        self.config.geometries = &geometries_memview[0,0]
+
+        cdef double[::1] scalingCoeffs_memview = np.ascontiguousarray(scalingCoeffs)
+        self.config.scalingCoeffs = &scalingCoeffs_memview[0]
+
+        cdef double[::1] offset_memview = np.ascontiguousarray(offset)
+        self.config.offset = &offset_memview[0]
 
     def create(self):
         return FunctionalModel.create(self.config.create())

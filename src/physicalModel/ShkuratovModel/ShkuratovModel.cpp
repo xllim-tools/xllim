@@ -27,11 +27,11 @@ ShkuratovModel::ShkuratovModel(const double *geometries, int row_size, int col_s
 void ShkuratovModel::F(rowvec photometry, rowvec &reflectances) {
     to_physic(photometry);
 
-    vec cos_i = cos(configuredGeometries.col(BETA)) % cos(configuredGeometries.col(ALPHA) - configuredGeometries.col(GAMMA));
-    vec f = (exp(- photometry(MU_1) * configuredGeometries.col(ALPHA)) + photometry(M) * exp(- photometry(MU_2) * configuredGeometries.col(ALPHA))) / (1 + photometry(M));
-    vec d = cos(configuredGeometries.col(ALPHA) / 2.0) % cos(datum::pi * (configuredGeometries.col(GAMMA) - configuredGeometries.col(ALPHA) / 2.0) / (datum::pi - configuredGeometries.col(ALPHA))) / cos(configuredGeometries.col(GAMMA));
+    vec cos_i = cos(configuredGeometries.col(BETA)) % cos(configuredGeometries.col(ShkuratovEnumeration::ALPHA) - configuredGeometries.col(GAMMA));
+    vec f = (exp(- photometry(MU_1) * configuredGeometries.col(ShkuratovEnumeration::ALPHA)) + photometry(M) * exp(- photometry(MU_2) * configuredGeometries.col(ShkuratovEnumeration::ALPHA))) / (1 + photometry(M));
+    vec d = cos(configuredGeometries.col(ShkuratovEnumeration::ALPHA) / 2.0) % cos(datum::pi * (configuredGeometries.col(GAMMA) - configuredGeometries.col(ShkuratovEnumeration::ALPHA) / 2.0) / (datum::pi - configuredGeometries.col(ShkuratovEnumeration::ALPHA))) / cos(configuredGeometries.col(GAMMA));
     for(unsigned i=0; i<d.n_rows; i++){
-        d(i) *= pow(cos(configuredGeometries(i,BETA)), photometry(NU) * configuredGeometries(i,ALPHA) * (datum::pi - configuredGeometries(i,ALPHA)));
+        d(i) *= pow(cos(configuredGeometries(i,BETA)), photometry(NU) * configuredGeometries(i,ShkuratovEnumeration::ALPHA) * (datum::pi - configuredGeometries(i,ShkuratovEnumeration::ALPHA)));
     }
     reflectances = photometry(AN) * d.t() % f.t() / cos_i.t();
 
@@ -65,7 +65,7 @@ void ShkuratovModel::setupGeometries(const mat &geometries) {
     });
 
     //compute Alpha
-    configuredGeometries.col(ALPHA) = acos(cos(geomsGrad.col(0)) % cos(geomsGrad.col(1)) + sin(geomsGrad.col(0)) % sin(geomsGrad.col(1)) % cos(geomsGrad.col(2)));
+    configuredGeometries.col(ShkuratovEnumeration::ALPHA) = acos(cos(geomsGrad.col(0)) % cos(geomsGrad.col(1)) + sin(geomsGrad.col(0)) % sin(geomsGrad.col(1)) % cos(geomsGrad.col(2)));
 
     //compute Beta
     vec sin_i_e_2 = pow(sin(geomsGrad.col(0) + geomsGrad.col(1)),2);

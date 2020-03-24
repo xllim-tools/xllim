@@ -31,6 +31,15 @@ cdef extern from "../src/physicalModel/creators.h" namespace "Functional":
 
         shared_ptr[FunctionalModel] create()
 
+    cdef struct ShkuratovModelConfig:
+        double *geometries
+        int row_size
+        int col_size
+        double *scalingCoeffs
+        double *offset
+
+        shared_ptr[FunctionalModel] create()
+
 
 
 
@@ -53,5 +62,8 @@ cdef extern from "../src/physicalModel/HapkeModel/HapkeAdapters/SixParamsModel.c
     pass
 
 cdef extern from "../src/physicalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.cpp":
+    pass
+
+cdef extern from "../src/physicalModel/ShkuratovModel/ShkuratovModel.cpp":
     pass
 
