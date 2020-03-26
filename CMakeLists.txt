@@ -21,6 +21,8 @@ include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 include(CTest)
 
+add_library(prediction STATIC src/prediction/IPredictor.h src/prediction/PredictorByMean.cpp src/prediction/PredictorByMean.h src/prediction/PredictorByCenters.cpp src/prediction/PredictorByCenters.h src/prediction/MultivariateGaussian.h)
+
 add_library(dataGeneration STATIC
         src/dataGeneration/StatModel.h
         src/dataGeneration/GaussianStatModel.cpp
@@ -35,7 +37,7 @@ add_library(dataGeneration STATIC
         src/dataGeneration/SobolGenerator.cpp
         src/dataGeneration/SobolGenerator.h
         src/dataGeneration/DependentGaussianStatModel.cpp
-        src/dataGeneration/DependentGaussianStatModel.h src/dataGeneration/creators.h)
+        src/dataGeneration/DependentGaussianStatModel.h src/dataGeneration/creators.h src/prediction/IPredictor.h)
 
 add_library(functionalModel STATIC
         src/physicalModel/HapkeModel/HapkeVersions/HapkeModel.cpp
