@@ -7,20 +7,20 @@ stages:
     - deploy
 
 build:
-    stage: build
     #only:
     #    refs:
     #      - merge_requests
     #    variables:
     #      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "staging" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "production"
 
+    stage: build
     script:
         - echo "building kernel"
-        - mkdir -p build/library
-        - python3.7 setup.py build_ext --build-lib=build/library -vvv
+        - python3.7 setup.py build_ext --inplace -vvv
     artifacts:
         paths:
-            - build/library/*.so
+            - ./*.so
+
  
             
 staging:
