@@ -15,13 +15,14 @@ namespace prediction{
     class PredictorByMean {
     public:
         PredictorByMean(const std::shared_ptr<learningModel::IGLLiMLearning>& learningModel);
-        vec predict(const vec &y_obs, const vec& cov_obs);
+        void predict(const vec &y_obs, const vec& cov_obs);
 
 
     private:
         std::shared_ptr<learningModel::IGLLiMLearning> learningModel;
 
-        vec computeMeansBarycenter(const vec &weights, const mat &means);
+        vec computeMixtureMean(const vec &weights, const mat &means);
+        mat computeMixtureCov(const vec &weights, const mat &means, const cube &covs);
     };
 }
 

@@ -17,10 +17,11 @@ PredictorByCenters::PredictorByCenters(
     this->threshold = threshold;
 }
 
-std::vector<vec> PredictorByCenters::predict(const vec &y_obs, const vec &cov_obs) {
+void PredictorByCenters::predict(const vec &y_obs, const vec &cov_obs) {
     // compute GMM of the observation
     arma::gmm_full gmm_obs = learningModel->computeGMM(y_obs, cov_obs);
     unsigned K = gmm_obs.hefts.n_cols;
+    unsigned L = gmm_obs.means.n_rows;
 
     // move gmms to vector<MultivariateGaussians, bool> structure
     std::vector<std::pair<MultivariateGaussian, bool>> gaussians(K);
@@ -39,10 +40,28 @@ std::vector<vec> PredictorByCenters::predict(const vec &y_obs, const vec &cov_ob
         K -= 1;
     }
 
+    //keep only not deleted gaussians
+    std::vector<MultivariateGaussian> merged_gaussians;
+    for(const auto& element : gaussians){
+        if(!element.second){
+            merged_gaussians.push_back(element.first);
+        }
+    }
 
-    // To be continued ...
+    // Compute the mean of the means in the mixture
+    vec mean_mean_mixture(L, fill::zeros);
+    for(const auto &element : merged_gaussians){
+        mean_mean_mixture += element.weight * element.mean;
+    }
 
-    return std::vector<vec>();
+    // Compute the mean of covariances in the mixture
+    mat mean_cov_mixture(L,L,fill::zeros);
+    for(const auto &element : merged_gaussians){
+        mean_cov_mixture += element.covariance + element.mean * element.mean.t() * element.weight;
+    }
+    mean_cov_mixture -= mean_mean_mixture * mean_mean_mixture.t();
+
+    //return std::vector<vec>();
 }
 
 MultivariateGaussian PredictorByCenters::mergeTwoGaussians(const MultivariateGaussian &g1, const MultivariateGaussian &g2) {

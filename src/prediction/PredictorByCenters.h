@@ -23,7 +23,7 @@ namespace prediction {
                 const std::shared_ptr<learningModel::IGLLiMLearning>& learningModel,
                 unsigned k_merged,
                 double threshold);
-        std::vector<vec> predict(const vec &y_obs, const vec& cov_obs);
+        void predict(const vec &y_obs, const vec& cov_obs);
 
     private:
         std::shared_ptr<learningModel::IGLLiMLearning> learningModel;

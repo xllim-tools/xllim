@@ -21,7 +21,7 @@ include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 include(CTest)
 
-add_library(prediction STATIC src/prediction/IPredictor.h src/prediction/PredictorByMean.cpp src/prediction/PredictorByMean.h src/prediction/PredictorByCenters.cpp src/prediction/PredictorByCenters.h src/prediction/MultivariateGaussian.h)
+add_library(prediction STATIC src/prediction/IPredictor.h src/prediction/PredictorByMean.cpp src/prediction/PredictorByMean.h src/prediction/PredictorByCenters.cpp src/prediction/PredictorByCenters.h src/prediction/MultivariateGaussian.h src/importanceSampling/IimportanceSampler.h src/importanceSampling/ImportanceSampler.cpp src/importanceSampling/ImportanceSampler.h src/importanceSampling/ISProposition.h src/importanceSampling/GaussianMixtureProposition.cpp src/importanceSampling/GaussianMixtureProposition.h src/importanceSampling/GaussianRegularizedProposition.cpp src/importanceSampling/GaussianRegularizedProposition.h src/importanceSampling/UniformProposition.cpp src/importanceSampling/UniformProposition.h)
 
 add_library(dataGeneration STATIC
         src/dataGeneration/StatModel.h
@@ -37,7 +37,7 @@ add_library(dataGeneration STATIC
         src/dataGeneration/SobolGenerator.cpp
         src/dataGeneration/SobolGenerator.h
         src/dataGeneration/DependentGaussianStatModel.cpp
-        src/dataGeneration/DependentGaussianStatModel.h src/dataGeneration/creators.h src/prediction/IPredictor.h)
+        src/dataGeneration/DependentGaussianStatModel.h src/dataGeneration/creators.h src/prediction/IPredictor.h src/importanceSampling/IimportanceSampler.h)
 
 add_library(functionalModel STATIC
         src/physicalModel/HapkeModel/HapkeVersions/HapkeModel.cpp
