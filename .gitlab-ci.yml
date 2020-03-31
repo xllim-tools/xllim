@@ -7,69 +7,86 @@ stages:
     - deploy
 
 build:
-    stage: build
-    only:
-        refs:
-          - merge_requests
-        variables:
-          - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "staging" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "production"
+    #only:
+    #    refs:
+    #      - merge_requests
+    #    variables:
+    #      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "staging" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "production"
 
+    stage: build
     script:
         - echo "building kernel"
-        - mkdir -p build/library
-        - python3.7 setup.py build_ext --build-lib=build/library -vvv
+        - python3.7 setup.py build_ext --inplace -vvv
     artifacts:
         paths:
-            - build/library/*.so
-            
+            - ./*.so
+
+
+
 staging:
-    before_script: 
-        - cd test_env
-    stage: deploy
-    image: ruby:latest
-    script:
-        - apt-get update -qy
-        - apt-get install -y ruby-dev
-        - gem install dpl
-        - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
-        
-production:
-    before_script: 
-        - cd test_env
-    stage: deploy
-    image: ruby:latest
-    script:
-        - apt-get update -qy
-        - apt-get install -y ruby-dev
-        - gem install dpl
-        - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
-
-        
-cppcheck:
-    image : ubuntu:bionic
-    stage : test
-    before_script: 
-        - apt update
-        - apt install -y --no-install-recommends cppcheck=1.82-1
-        - cppcheck --version
-    script:
-        - cppcheck src --verbose --enable=all --language=c++
-        
-doxygen:
-    image: alpine:3.7
-    stage : test
     before_script:
-        - apk update
-        - apk add --no-cache -t .required_apks doxygen=1.8.13-r1 gra
-        - mkdir -p build/docs/cpp_doc
-    scripts:
-        - doxygen docs/Doxyfile
-    artifacts:
-        paths:
-            - build/docs/cpp_doc/html/
+        - cp kernelo.cpython-37m-x86_64-linux-gnu.so test_env/kernelo.cpython-37m-x86_64-linux-gnu.so
+        - cd test_env
+    stage: deploy
+    #    image: docker:latest
+    image: ruby:latest
+    script:
+        #- docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+        #- docker build -t registry.gitlab.com/mistis/kernelo:v1.0 .
+        #- docker login -u _ -p $HEROKU_TOKEN registry.heroku.com
+        #- docker tag registry.gitlab.com/mistis/kernelo:v1.0 registry.heroku.com/$HEROKU_APP_STAGING/web
+        #- docker push registry.heroku.com/$HEROKU_APP_STAGING/web
+
+        - apt-get update -qy
+        - apt-get install -y ruby-dev
+        - gem install dpl
+        - echo "the project directory is - $CI_PROJECT_DIR"
+        - cat $CI_PROJECT_DIR/README.md ; echo
+        - echo "and where am I? - $PWD"
+        - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
+        - ls
+
+        #    before_script:
+        #        - cd test_env
+        #    stage: deploy
+        #    image: ruby:latest
+        #    script:
+        #        - apt-get update -qy
+        #        - apt-get install -y ruby-dev
+        #        - gem install dpl
+        #        - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
+
+        #production:
+        #    before_script:
+        #        - cd test_env
+        #    stage: deploy
+        #    image: ruby:latest
+        #    script:
+        #        - apt-get update -qy
+        #        - apt-get install -y ruby-dev
+        #        - gem install dpl
+        #        - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
 
 
-    
-        
-    
-    
+        #cppcheck:
+        #    image : ubuntu:bionic
+        #    stage : test
+        #    before_script:
+        #        - apt update
+        #        - apt install -y --no-install-recommends cppcheck=1.82-1
+        #        - cppcheck --version
+        #    script:
+        #        - cppcheck src --verbose --enable=all --language=c++
+
+#doxygen:
+#    image: alpine:3.7
+#    stage : test
+#    before_script:
+#        - apk update
+#        - apk add --no-cache -t .required_apks doxygen=1.8.13-r1 gra
+#        - mkdir -p build/docs/cpp_doc
+#    scripts:
+#        - doxygen docs/Doxyfile
+#    artifacts:
+#        paths:
+#            - build/docs/cpp_doc/html/
