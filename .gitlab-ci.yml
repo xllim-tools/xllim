@@ -26,6 +26,7 @@ build:
 staging:
     before_script:
         - cp kernelo.cpython-37m-x86_64-linux-gnu.so test_env/kernelo.cpython-37m-x86_64-linux-gnu.so
+        - cp cython/my_python_objects.py test_env/my_python_objects.py
         - cd test_env
     stage: deploy
     #    image: docker:latest
