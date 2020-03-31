@@ -5,8 +5,8 @@
 #include "FunctionnalModelFactory.h"
 
 #include <utility>
-#include "Hapke02Model.h"
-#include "Hapke93Model.h"
+#include "HapkeModel/HapkeVersions/Hapke02Model.h"
+#include "HapkeModel/HapkeVersions/Hapke93Model.h"
 
 
 std::shared_ptr<FunctionalModel> FunctionnalModelFactory::getModel(std::string type, const double *data, int row_size, int col_size) {

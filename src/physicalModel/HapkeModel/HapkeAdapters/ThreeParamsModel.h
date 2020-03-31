@@ -12,7 +12,7 @@
 #ifndef KERNELO_THREEPARAMSMODEL_H
 #define KERNELO_THREEPARAMSMODEL_H
 
-#include "HapkeAdapter.h"
+#include "../HapkeAdapter.h"
 
 namespace Functional {
 /**

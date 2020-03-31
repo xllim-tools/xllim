@@ -7,13 +7,14 @@
 
 #include <string>
 #include <memory>
-#include "HapkeAdapter.h"
-#include "HapkeAdapterFactory.h"
-#include "Hapke02Model.h"
-#include "SixParamsModel.h"
-#include "FourParamsModel.h"
-#include "ThreeParamsModel.h"
-#include "Hapke93Model.h"
+#include "HapkeModel/HapkeAdapter.h"
+#include "HapkeModel/HapkeAdapters/HapkeAdapterFactory.h"
+#include "HapkeModel/HapkeVersions/Hapke02Model.h"
+#include "HapkeModel/HapkeAdapters/SixParamsModel.h"
+#include "HapkeModel/HapkeAdapters/FourParamsModel.h"
+#include "HapkeModel/HapkeAdapters/ThreeParamsModel.h"
+#include "HapkeModel/HapkeVersions/Hapke93Model.h"
+#include "ShkuratovModel/ShkuratovModel.h"
 
 namespace Functional{
     struct HapkeAdapterConfig{
@@ -62,6 +63,25 @@ namespace Functional{
                                 theta_bar_scalling)
                                 );
             }
+        }
+    };
+
+    struct ShkuratovModelConfig{
+        const double *geometries;
+        int row_size;
+        int col_size;
+        const double *scalingCoeffs;
+        const double *offset;
+
+        std::shared_ptr<FunctionalModel> create(){
+            return std::shared_ptr<FunctionalModel>(
+                    new ShkuratovModel(
+                            geometries,
+                            row_size,
+                            col_size,
+                            scalingCoeffs,
+                            offset)
+                    );
         }
     };
 }

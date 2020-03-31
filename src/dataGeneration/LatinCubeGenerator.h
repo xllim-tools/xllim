@@ -27,8 +27,10 @@ namespace DataGeneration{
      */
     class LatinCubeGenerator : public GeneratorStrategy{
     public:
-        void execute(mat &x, unsigned seed) final;
+        void execute(mat &x) final;
+        explicit LatinCubeGenerator(unsigned seed);
     private:
+        unsigned seed;
         static int i4_uniform_ab ( int ilo, int ihi, int &seed );
         static double *latin_random_new ( int dim_num, int point_num, int &seed );
         static int *perm_uniform_new ( int n, int &seed );

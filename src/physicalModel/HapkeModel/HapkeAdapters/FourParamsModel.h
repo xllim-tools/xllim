@@ -9,7 +9,7 @@
 #ifndef KERNELO_FOURPARAMSMODEL_H
 #define KERNELO_FOURPARAMSMODEL_H
 
-#include "HapkeAdapter.h"
+#include "../HapkeAdapter.h"
 
 namespace Functional{
     /**

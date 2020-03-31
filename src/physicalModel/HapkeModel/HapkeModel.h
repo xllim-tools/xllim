@@ -9,9 +9,10 @@
 #ifndef KERNELO_HAPKEMODEL_H
 #define KERNELO_HAPKEMODEL_H
 
-#include <gtest/gtest_prod.h>
+
+#include "../../../cpptest/functionalModel_tests/lib/googletest/include/gtest/gtest_prod.h"
 #include "HapkeAdapter.h"
-#include "FunctionalModel.h"
+#include "../FunctionalModel.h"
 #include <utility>
 #include <memory>
 
