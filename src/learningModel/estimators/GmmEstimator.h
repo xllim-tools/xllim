@@ -6,7 +6,7 @@
 #define KERNELO_GMMESTIMATOR_H
 
 #include "Estimators.h"
-#include <gtest/gtest_prod.h>
+//#include <gtest/gtest_prod.h>
 
 namespace learningModel{
 
@@ -36,8 +36,8 @@ namespace learningModel{
         mat posterior;
         std::shared_ptr<GMMLearningConfig> config;
 
-        FRIEND_TEST(GmmEstimatorTest, toGMM);
-        FRIEND_TEST(GmmEstimatorTest, fromGMM);
+        //FRIEND_TEST(GmmEstimatorTest, toGMM);
+        //FRIEND_TEST(GmmEstimatorTest, fromGMM);
 
         GLLiMParameters<FullCovariance, FullCovariance> fromGMM(int K, int D, int L);
         void toGMM(const std::shared_ptr<GLLiMParameters<FullCovariance, FullCovariance>>& theta);
