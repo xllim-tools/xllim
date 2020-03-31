@@ -5,26 +5,38 @@ import json
 import time
 import my_python_objects as Obj
 
-# Read geometries and photometries from file 'test_hapke.json'
-with open('test_hapke.json') as json_file:
+# Read geometries and photometries from Shkuratov test file
+with open('test_shkuratov.json') as json_file:
     data = json.load(json_file)
-    y = np.array(data['y'])
-    geom = np.array([data['eme'], data['inc'], data['phi']]).transpose()
-    photom = np.array([data['omega'], [x / 30 for x in data['theta0']], data['b'], data['c'], data['b0'], data['hh']]).transpose()
 
-print(y.shape[0])
-print(y.shape[1])
-y = y[:,3:]
-noise = [[random.random() for i in range(47)] for j in range(10000)]
-y = y + noise
-y = y / 100
-learningConfig = ker.GMMLearningConfig(0,5,0.00000001)
-initconfig = ker.MultInitConfig(1234, 3, 3, ker.GMMLearningConfig(0,3,0.00000001))
-gllimParameters = Obj.GLLiMParameters()
-gllim = ker.GLLiM(47,6,50,"Full", "Full", initconfig, learningConfig, gllimParameters)
-gllim.initialize(photom, y)
-gllim.train(photom, y)
+    geom = np.array([data['inc'],
+                     data['eme'],
+                     data['phi']]).transpose() # column indexing
 
+    photom = np.array([
+        data['an'],
+        data['mu1'],
+        data['nu'],
+        data['m'],
+        data['mu2']]).transpose() # column indexing
+
+scalling = [1.0,1.5,0.8,1.5,1.5]
+offset = [0,0,0.2,0,0]
+shkuratovModel = ker.ShkuratovModelConfig(geom, scalling, offset).create()
+
+start_time = time.time()
+
+# Calculate reflectances
+Y = []
+
+Y.append(shkuratovModel.F((photom[0] - offset)/scalling))
+
+elapsed_time = (time.time() - start_time)
+print("Execution time for Y = F(X) where D = 50, L= 5 and n = 10000 : " , elapsed_time)
+
+
+y_test = np.array(data['y'])
+print(Y)
 
 
 # Create Hapke2002 Model

@@ -220,16 +220,22 @@ cdef class ShkuratovModelConfig:
 
     """
     cdef CppShkuratovModelConfig config
+    cdef double[:,::1] geometries_memview
+    cdef double[::1] scalingCoeffs_memview
+    cdef double[::1] offset_memview
 
     def __cinit__(self, geometries, scalingCoeffs, offset):
-        cdef double[:,::1] geometries_memview = np.ascontiguousarray(geometries)
-        self.config.geometries = &geometries_memview[0,0]
+        self.geometries_memview = np.ascontiguousarray(geometries)
+        self.config.geometries = &self.geometries_memview[0,0]
 
-        cdef double[::1] scalingCoeffs_memview = np.ascontiguousarray(scalingCoeffs)
-        self.config.scalingCoeffs = &scalingCoeffs_memview[0]
+        self.config.row_size = self.geometries_memview.shape[0]
+        self.config.col_size = self.geometries_memview.shape[1]
 
-        cdef double[::1] offset_memview = np.ascontiguousarray(offset)
-        self.config.offset = &offset_memview[0]
+        self.scalingCoeffs_memview = np.ascontiguousarray(scalingCoeffs)
+        self.config.scalingCoeffs = &self.scalingCoeffs_memview[0]
+
+        self.offset_memview = np.ascontiguousarray(offset)
+        self.config.offset = &self.offset_memview[0]
 
     def create(self):
         return FunctionalModel.create(self.config.create())
