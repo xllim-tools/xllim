@@ -42,7 +42,7 @@ staging:
     script:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
         #- docker build -t registry.gitlab.com/mistis/kernelo:v1.0 .
-        - docker login -u _ -p $HEROKU_TOKEN registry.heroku.com
+        - docker login -u _ -p $HEROKU_APP_STAGING registry.heroku.com
         - docker pull jentkh/armadillo
         #- docker tag registry.gitlab.com/mistis/kernelo:v1.0 registry.heroku.com/$HEROKU_APP_STAGING/web
         - docker tag jentkh/armadillo registry.heroku.com/$HEROKU_APP_STAGING/web
