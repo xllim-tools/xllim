@@ -39,8 +39,10 @@ namespace DataGeneration{
                 std::shared_ptr<FunctionalModel> functionalModel,
                 int r,
                 unsigned seed);
+
         std::tuple<mat, mat> gen_data(int n) final;
-        double density_X_Y(mat x, mat y) final;
+
+        double density_X_Y(const vec &x, const vec &y, const vec &y_cov) final;
 
     private:
         std::shared_ptr<FunctionalModel> functionalModel;
