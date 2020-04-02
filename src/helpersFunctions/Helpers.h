@@ -12,6 +12,8 @@ using namespace arma;
 namespace Helpers{
 
     double logSumExp(const vec &elements);
+    double computeDeterminant(const mat& matrix);
+    mat inverseMatrix(const mat& matrix);
 
 }
 
