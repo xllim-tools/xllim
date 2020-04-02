@@ -64,7 +64,7 @@ ISDiagnostic ImportanceSampler::diagnostic(
         samples.col(n) = isProposition->sample(L_samples);
 
         // compute target density
-        //target_log_densities = this->statModel->density_X_Y()
+        target_log_densities = isTarget->target_log_density(samples.col(n), y_obs, y_cov);
 
         // we save the number of effective samples that their weight is not null
         if(target_log_densities(n) != -datum::inf){
