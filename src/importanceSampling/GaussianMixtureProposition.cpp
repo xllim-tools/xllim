@@ -4,6 +4,7 @@
 
 #include "GaussianMixtureProposition.h"
 #include "../helpersFunctions/Helpers.h"
+#include "../helpersFunctions/Helpers.h"
 
 #define LOG_2_PI log(2* datum::pi)
 
@@ -43,7 +44,7 @@ double GaussianMixtureProposition::proposition_log_density(vec x_sample) {
 
     for(unsigned k=0; k<K; k++){
         vec x_u = x_sample - gmm.means.col(k);
-        double density_k = -0.5 * (L * LOG_2_PI + log(det(gmm.fcovs.slice(k))) + dot((rowvec(x_u.t()) * inv(gmm.fcovs.slice(k))).t() , x_u));
+        double density_k = -0.5 * (L * LOG_2_PI + log(Helpers::computeDeterminant(gmm.fcovs.slice(k))) + dot((rowvec(x_u.t()) * Helpers::inverseMatrix(gmm.fcovs.slice(k))).t() , x_u));
         densities(k) = density_k + log(gmm.hefts(k));
     }
 
