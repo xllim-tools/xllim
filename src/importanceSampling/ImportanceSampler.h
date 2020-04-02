@@ -5,16 +5,31 @@
 #ifndef KERNELO_IMPORTANCESAMPLER_H
 #define KERNELO_IMPORTANCESAMPLER_H
 
-#include "IimportanceSampler.h"
+#include "ISProposition.h"
+#include "ISResult.h"
+#include "ISTarget.h"
+#include <memory>
+#include <utility>
 
 namespace importanceSampling {
-    class ImportanceSampler : public IimportanceSampler{
+    class ImportanceSampler{
     public:
-        ImportanceSampler(std::shared_ptr<DataGeneration::StatModel> statModel,
-                          std::shared_ptr<ISProposition> isProposition);
+        static ISResult importanceSampling(
+                const std::shared_ptr<ISTarget>& isTarget,
+                const std::shared_ptr<ISProposition>& isProposition,
+                const vec &y_obs,
+                const vec &y_cov,
+                unsigned L,
+                unsigned N_samples);
 
-        void importanceSampling() override;
-        void diagnostic(mat &samples, vec &weights) override;
+    private:
+        static ISDiagnostic diagnostic(
+                mat &samples,
+                vec &weights,
+                const vec &y_obs,
+                const vec &y_cov,
+                const std::shared_ptr<ISProposition>& isProposition,
+                const std::shared_ptr<ISTarget>& isTarget);
     };
 }
 
