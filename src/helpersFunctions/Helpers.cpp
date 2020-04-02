@@ -20,3 +20,14 @@ double Helpers::logSumExp(const arma::vec & elements) {
         return result;
     }
 }
+
+
+double Helpers::computeDeterminant(const mat& matrix){
+    mat R = chol(matrix);
+    return pow(prod(R.diag()), 2);
+}
+
+mat Helpers::inverseMatrix(const mat& matrix){
+    mat R_inv = inv(chol(matrix));
+    return R_inv * R_inv.t();
+}

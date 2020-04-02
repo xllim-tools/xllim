@@ -36,6 +36,8 @@ namespace learningModel{
         void update_C_k(std::shared_ptr<GLLiMParameters<T, U>> &next_theta, unsigned k, const mat &x, const vec &exp_avg_rnk);
         void update_Pi_k(std::shared_ptr<GLLiMParameters<T, U>> &next_theta, unsigned k, unsigned N, double r_k);
 
+        bool hasConverged(double old_log_likelihood, double new_log_likelihood, unsigned current_iter);
+
         template <typename V>
         void covStabilityImprov(V &covariance, unsigned dimension, double floor);
 

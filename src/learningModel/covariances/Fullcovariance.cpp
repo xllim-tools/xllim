@@ -24,14 +24,14 @@ FullCovariance &FullCovariance::operator=(double scalar) {
 }
 
 double FullCovariance::det() {
-    double result = arma::det(covariance);
+    double result = Helpers::computeDeterminant(covariance);
     if(result < 0)
         result = 0;
     return result;
 }
 
 FullCovariance FullCovariance::inv() {
-    mat inv = arma::inv(covariance);
+    mat inv = Helpers::inverseMatrix(covariance);
     return FullCovariance(inv);
 }
 

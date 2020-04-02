@@ -6,6 +6,7 @@
 #define KERNELO_ICOVARIANCE_H
 
 #include <armadillo>
+#include "../../helpersFunctions/Helpers.h"
 
 using namespace arma;
 
