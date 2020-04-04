@@ -14,7 +14,7 @@ namespace importanceSampling{
     private:
         std::shared_ptr<DataGeneration::StatModel> target;
     public:
-        double target_log_density(const vec &x, const vec &y, const vec &y_cov){
+        virtual double target_log_density(const vec &x, const vec &y, const vec &y_cov){
             return target->density_X_Y(x, y, y_cov);
         }
 
