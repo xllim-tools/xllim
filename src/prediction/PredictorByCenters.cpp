@@ -176,6 +176,63 @@ void PredictorByCenters::reduceGaussians(std::vector<std::pair<MultivariateGauss
     }
 }
 
+unsigned factorial(unsigned n){
+    return (n==0 || n==1) ? 1 : factorial(n-1)*n;
+}
+
+mat PredictorByCenters::generatePermutations(unsigned N) {
+    mat permutations(factorial(N), N);
+    unsigned currentPerm = 0;
+
+    // Generate an 1D array of N elements from 0 to N-1
+    unsigned elements[N];
+    for(unsigned n=0; n<N; n++)
+        elements[n] = n;
+
+    do{
+        // save the current permutation
+        for(unsigned n=0; n<N; n++)
+            permutations(currentPerm, n) = elements[n];
+
+        currentPerm++;
+    }while (std::next_permutation(elements, elements+ N));
+
+    return permutations;
+}
+
+mat PredictorByCenters::regularize(const cube &series) {
+    unsigned N = series.n_slices, L = series.n_rows, K = series.n_cols;
+    mat permutations = generatePermutations(K);
+    mat chosenPermutations(K,N);
+
+    for(unsigned k=0; k<K; k++)
+        chosenPermutations(k,0) = k;
+
+    mat currentChoice = series.slice(0);
+    mat proposition(L,K);
+    vec diff(permutations.n_rows);
+
+    uword bestPermutationIndex;
+
+    for(unsigned n=0; n<N-1; n++){
+        for(unsigned p=0; p<permutations.n_rows; p++){
+           for(unsigned k=0; k<K; k++){
+               proposition.col(k) = series.slice(n+1).col(permutations(p,k));
+           }
+
+           diff(p) = sum(sqrt(sum(pow(currentChoice - proposition, 2), 0)));
+        }
+        bestPermutationIndex = diff.index_min();
+        chosenPermutations.col(n+1) = permutations.row(bestPermutationIndex).t();
+
+        for(unsigned k=0; k<K; k++){
+            currentChoice.col(k) = series.slice(n+1).col(permutations(bestPermutationIndex,k));
+        }
+    }
+
+    return chosenPermutations;
+}
+
 
 
 

@@ -49,6 +49,10 @@ namespace prediction {
 
         static double safeCovDet(mat &covariance);
 
+        mat generatePermutations(unsigned N);
+        
+        mat regularize(const cube &series);
+
     };
 }
 
