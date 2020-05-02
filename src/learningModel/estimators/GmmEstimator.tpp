@@ -22,13 +22,21 @@ void GmmEstimator::train(const mat &data, const vec& weights, const mat &means, 
     int n_gaus = weights.n_rows;
     posterior = mat(data.n_cols, n_gaus);
     model.set_params(means, covariances, weights.t());
-    if(model.learn(data, n_gaus, maha_dist, keep_existing, config->kmeans_iteration, config->em_iteration,config->floor ,true)){
+    if(config->em_iteration == 0){
         for(unsigned k=0; k<n_gaus; k++){
             posterior.col(k) = model.log_p(data,k).t();
         }
+    }else{
+        if(model.learn(data, n_gaus, maha_dist, keep_existing, config->kmeans_iteration, config->em_iteration,config->floor ,false)){
+            for(unsigned k=0; k<n_gaus; k++){
+                posterior.col(k) = model.log_p(data,k).t();
+            }
+        }
+        //else
+        //    throw std::string("GMM learning failed");
     }
-    //else
-    //    throw std::string("GMM learning failed");
+
+
 }
 
 void GmmEstimator::execute(const arma::mat & x, const arma::mat & y,

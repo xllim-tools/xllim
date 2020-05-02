@@ -39,8 +39,9 @@ void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiM
         next_theta(x_t,y_t,r_nk,initial_theta);
         new_log_likelihood = log_likelihood(r_nk);
         iteration++;
-
+        //std::cout << "ll : " << new_log_likelihood << std::endl;
     }while(!hasConverged(old_log_likelihood, new_log_likelihood, iteration));
+
 }
 
 template <typename T , typename U >
