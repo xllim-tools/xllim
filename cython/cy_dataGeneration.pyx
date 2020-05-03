@@ -36,6 +36,9 @@ cdef class StatModel:
         obj.functionalModel = functionalModel
         return obj
 
+    cdef shared_ptr[CppStatModel] getInstance(self):
+        return self.c_statModel
+
     def gen_data(self, n):
         """
         gen_data(self, n)
@@ -74,13 +77,16 @@ cdef class GaussianStatModelConfig:
     -----------
     GaussianStatModelConfig(generatorType, functionalModel , covariance, seed)
 
-    string generatorType
+    generatorType : string
         The type of the generator used by the model to generate data must be one of the following keywords :{"sobol","latin_cube","random"}
-    FunctionalModel functionalModel
+
+    functionalModel : FunctionalModel
         The functional model that computes Y = F(X) where Y(N,D) and X(N,L)
-    ndarray covariance
+
+    covariance : ndarray
         1D array containing the D covariances used to add noise to F(X)
-    int seed
+
+    seed : int
         The seed used to initialize the random generator.
 
     """
@@ -110,13 +116,16 @@ cdef class DependentGaussianStatModelConfig:
     -----------
     DependentGaussianStatModelConfig(generatorType, functionalModel , r, seed)
 
-    string generatorType
+    string : generatorType
         The type of the generator used by the model to generate data must be one of the following keywords :{"sobol","latin_cube","random"}
-    FunctionalModel functionalModel
+
+    functionalModel : FunctionalModel
         The functional model that computes Y = F(X) where Y(N,D) and X(N,L)
-    double r
+
+    r : double
         This percentage value is used to control the effect of the noise on the computed F(X)
-    int seed
+
+    seed : int
         The seed used to initialize the random generator.
 
     """

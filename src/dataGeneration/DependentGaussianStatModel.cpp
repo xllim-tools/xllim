@@ -13,6 +13,8 @@
 #include <utility>
 
 
+#define LOG_2_PI log(2* datum::pi)
+
 using namespace DataGeneration;
 
 DependentGaussianStatModel::DependentGaussianStatModel(
@@ -32,7 +34,6 @@ std::tuple<mat, mat> DependentGaussianStatModel::gen_data(int n) {
 
     mat x_arma = mat(n,dimension_L);
     mat y_arma = mat(n,dimension_D);
-
 
     // generate X
     generator->execute(x_arma);
@@ -62,6 +63,14 @@ std::tuple<mat, mat> DependentGaussianStatModel::gen_data(int n) {
     return std::tuple<mat, mat>(x_arma,y_arma);
 }
 
-double DependentGaussianStatModel::density_X_Y(mat x, mat y) {
-    return 0;
+double DependentGaussianStatModel::density_X_Y(const vec &x, const vec &y, const vec &y_cov) {
+    for(auto x_i: x){
+        if(x_i > 1 || x_i < 0){
+            return -datum::inf;
+        }
+    }
+    rowvec y_u(y.n_rows);
+    this->functionalModel->F(x.t(), y_u);
+    y_u = y.t() - y_u;
+    return -0.5 * (y_cov.n_rows * LOG_2_PI + log(prod(y_cov + y/r)) + dot(y_u % (1 / (y_cov + y/r)), y_u.t()));
 }

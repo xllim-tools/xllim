@@ -19,8 +19,11 @@ cdef extern from "../src/learningModel/gllim/IGLLiMLearning.h" namespace "learni
     cdef cppclass IGLLiMLearning:
         void train(double *x, int x_rows, int x_cols, double *y, int y_rows, int y_cols)
         void initialize(double *x, int x_rows, int x_cols, double *y, int y_rows, int y_cols)
-        void exportModel(GLLiM &gllim);
-        void importModel(GLLiM &gllim);
+        void getModel(GLLiM &gllim);
+        void setModel(GLLiM &gllim);
+        void getInverse(GLLiM &gllim);
+        void directLogDensity(double *x, double *weights, double *means, double *covs);
+        void inverseLogDensity(double *y, double *weights, double *means, double *covs);
 
 cdef extern from "../src/learningModel/configs/LearningConfig.h" namespace "learningModel":
     cdef cppclass LearningConfig:

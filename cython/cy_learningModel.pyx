@@ -3,6 +3,7 @@ from libcpp.memory cimport unique_ptr
 from libcpp.memory cimport shared_ptr
 from libcpp.string cimport string
 from libcpp.vector cimport vector
+from cython cimport view
 
 from learningModelWrapper cimport GLLiM as CppGLLiM
 from learningModelWrapper cimport IGLLiMLearning as CppIGLLiMLearning
@@ -17,9 +18,40 @@ from learningModelWrapper cimport LearningModelFactory as CppLearningModelFactor
 cimport numpy as np
 import numpy as np
 
-import my_python_objects as Obj
-
 # ---------------------------------- python classes definition ------------------------------------------- #
+
+class GLLiMParameters:
+    """
+    This class wraps the parameters of the GLLiM model
+
+    Attributes
+    ----------
+    Pi : ndarray
+        1D array (K)
+
+    C : ndarray
+        2D array (L * K)
+
+    Gamma : ndarray
+        3D array (L * L * K)
+
+    B : ndarray
+        2D array (D * K)
+
+    A : ndarray
+        3D array (D * L * K)
+
+    Sigma : ndarray
+        3D array (D * D * K)
+
+    """
+    def __init__(self):
+        self.Pi = 0
+        self.C = 0
+        self.B = 0
+        self.A = 0
+        self.Gamma = 0
+        self.Sigma = 0
 
 cdef class LearningConfig:
     """
@@ -36,11 +68,13 @@ cdef class EMLearningConfig(LearningConfig):
 
     Constructor
     -----------
-    int max_iteration
+    intmax_iteration : int
         Maximum number of iterations the algorithm may execute.
-    double ratio_ll
-        If the algorithm likelihood increase goes under this ratio it will immediately stop.
-    double floor
+
+    ratio_ll : double
+        If the increase of the algorithm's likelihood goes under this ratio it will immediately stop. (example 5%)
+
+    floor : double
         The minimum values tolerated in the covariances of the GLLiM model. If smaller values are computed, it will be replaced by floor.
 
     """
@@ -55,11 +89,13 @@ cdef class GMMLearningConfig(LearningConfig):
 
     Constructor
     -----------
-    int kmeans_iteration
+    kmeans_iteration : int
         The number of kmeans algorithm iteration that the GMM will use to initialize the clusters of the model.
-    int em_iteration
+
+    em_iteration : int
         The number of iterations of the GMM-EM training algorithm.
-    double floor
+
+    floor : double
         The minimum values tolerated in the covariances of the GLLiM model. If smaller values are computed, it will be replaced by floor.
 
     """
@@ -85,9 +121,10 @@ cdef class FixedInitConfig(InitConfig):
         -----------
         FixedInitConfig(seed, gmmLearningConfig)
 
-        int seed
+        seed : int
             Used by a random generator to generate the means of the GMM.
-        GMMLearningConfig gmmLearningConfig
+
+        gmmLearningConfig : GMMLearningConfig
             Used to configure the estimator that trains the GMM.
 
     """
@@ -102,13 +139,16 @@ cdef class MultInitConfig(InitConfig):
 
         Constructor
         -----------
-        int seed
+        seed : int
             Used by a random generator to generate the means of the GMM.
-        int nb_iter_EM
+
+        nb_iter_EM : int
             The number of iteration the GLLiM-EM algorithm will execute.
-        int nb_experiences
+
+        nb_experiences : int
             The number of time the initialization algorithm will be repeated.
-        GMMLearningConfig gmmLearningConfig
+
+        gmmLearningConfig : GMMLearningConfig
             Used to configure the estimator that trains the GMM.
 
     """
@@ -126,30 +166,39 @@ cdef class GLLiM:
     -----------
     GLLiM(D, L, K, GammaType, SigmaType, initConfig, learningConfig)
 
-    int D
+    D : int
         The dimension of a tuple of low dimensionality data
-    int L
+
+    L : int
         The dimension of a tuple of high dimensionality data
-    int K
+
+    K : int
         Number of Gaussians
-    string GammaType
+
+    GammaType : string
         Type of gamma covariances, it must be one of the following keywords : {Full, Diag, Iso}
-    string SigmaType
+
+    SigmaType : string
         Type of sigma covariances, it must be one of the following keywords : {Full, Diag, Iso}
-    InitConfig initConfig
+
+    initConfig : InitConfig
         This object wraps the parameters that configure the initialization step of the model. It should be either FixedInitConfig or MultInitConfig object.
-    LearningConfig learningConfig
+
+    learningConfig : LearningConfig
         This object wraps the parameters that configure the training step of the model. It should be either GMMLearningConfig or EMLearningConfig object.
 
-        
+
     Methods
     -------
     initialize(self, x, y)
         Initializes theta parameters. Must be called before starting the learning step of GLLiM
+
     train(self, x, y)
         Trains GLLiM model by updating its theta's parameters
+
     exportModel(self)
         Returns a GLLiMParameters object containing the parameters of theta in ndarray format
+
     importModel(self, gllimParameters)
         Sets the values of theta parameters in the C++ internal structure
 
@@ -161,7 +210,7 @@ cdef class GLLiM:
 
 
     def __cinit__(self, D, L, K, GammaType, SigmaType, initConfig, learningConfig):
-        self.__py_GLLiMParameters = Obj.GLLiMParameters()
+        self.__py_GLLiMParameters = GLLiMParameters()
         self.__c_gllimParameters.K = K
         self.__c_gllimParameters.L = L
         self.__c_gllimParameters.D = D
@@ -178,16 +227,16 @@ cdef class GLLiM:
         cdef double[:,::1] B_memview = self.__py_GLLiMParameters.B
         self.__c_gllimParameters.B = &B_memview[0,0]
 
-        self.__py_GLLiMParameters.A = np.arange(D * L * K, dtype=np.double).reshape(D, L, K)
+        self.__py_GLLiMParameters.A = np.arange(D * L * K, dtype=np.double).reshape(K, D, L)
         cdef double[:,:,:] A_memview = self.__py_GLLiMParameters.A
         self.__c_gllimParameters.A = &A_memview[0,0,0]
 
-        self.__py_GLLiMParameters.Gamma = np.arange(L * L * K, dtype=np.double).reshape(L, L, K)
+        self.__py_GLLiMParameters.Gamma = np.arange(L * L * K, dtype=np.double).reshape(K, L, L)
         cdef double[:,:,:] Gamma_memview = self.__py_GLLiMParameters.Gamma
         self.__c_gllimParameters.Gamma = &Gamma_memview[0,0,0]
 
 
-        self.__py_GLLiMParameters.Sigma = np.arange(D * D * K, dtype=np.double).reshape(D, D, K)
+        self.__py_GLLiMParameters.Sigma = np.arange(D * D * K, dtype=np.double).reshape(K, D, D)
         cdef double[:,:,:] Sigma_memview = self.__py_GLLiMParameters.Sigma
         self.__c_gllimParameters.Sigma = &Sigma_memview[0,0,0]
 
@@ -199,7 +248,6 @@ cdef class GLLiM:
             (<LearningConfig>learningConfig).getInstance()
         )
 
-
     def initialize(self, x, y):
         """
         initialize(self, x, y)
@@ -209,37 +257,39 @@ cdef class GLLiM:
         Parameters
         ----------
         x : ndarray
-            2D array (N x L) containing the low dimensional data 
+            2D array (N x L) containing the low dimensional data
+
         y : ndarray
             2D array (N x D) containing the high dimensional data
 
         """
-        
+
         x_countiguous = np.ascontiguousarray(x)
         y_countiguous = np.ascontiguousarray(y)
         cdef double[:,::1] x_memview = x_countiguous
         cdef double[:,::1] y_memview = y_countiguous
 
         deref(self.__c_gllimLearning).initialize(
-            &x_memview[0,0], x_memview.shape[0], self.__c_gllimParameters.L,
-            &y_memview[0,0], y_memview.shape[0], self.__c_gllimParameters.D
+            &x_memview[0,0], x.shape[0], self.__c_gllimParameters.L,
+            &y_memview[0,0], y.shape[0], self.__c_gllimParameters.D
         )
 
     def train(self, x, y):
         """
         train(self, x, y)
-            
+
         Trains GLLiM's theta parameters
 
         Parameters
         ----------
         x : ndarray
             2D array (N x L) containing the low dimensional data
+
         y : ndarray
             2D array (N x D) containing the high dimensional data
 
         """
-        
+
         x_countiguous = np.ascontiguousarray(x)
         y_countiguous = np.ascontiguousarray(y)
         cdef double[:,::1] x_memview = x_countiguous
@@ -254,36 +304,36 @@ cdef class GLLiM:
     def exportModel(self):
         """
         exportModel(self)
-        
+
         Exports the parameters of theta from the C++ structure as ndarrays encapsulated in an GLLiMParameters object.
-        
+
         Returns
         -------
-        GLLiMParameters
+        GLLiMParameters : GLLiMParameters
             An object containing the parameters of theta in ndarray format
-        
+
         """
-        
-        deref(self.__c_gllimLearning).exportModel(self.__c_gllimParameters)
+
+        deref(self.__c_gllimLearning).getModel(self.__c_gllimParameters)
         return self.__py_GLLiMParameters
-        
+
 
     def importModel(self, gllimParameters):
         """
         importModel(self, gllimParameters)
-        
+
         Copies the parameters from the GLLiMParameters objects to the internal C++ structure theta.
-        
+
         Parameters
         ----------
-        gllimParameters :
+        gllimParameters : GLLiMParameters
             A GLLiMParameters object containing theta parameters
-        
+
         """
-        
+
         K = gllimParameters.Pi.shape[0]
-        D = gllimParameters.Sigma.shape[0]
-        L = gllimParameters.Gamma.shape[0]
+        D = gllimParameters.Sigma.shape[1]
+        L = gllimParameters.Gamma.shape[1]
 
         self.__c_gllimParameters.K = K
         self.__c_gllimParameters.L = L
@@ -301,18 +351,165 @@ cdef class GLLiM:
         cdef double[:,::1] B_memview = self.__py_GLLiMParameters.B
         self.__c_gllimParameters.B = &B_memview[0,0]
 
-        self.__py_GLLiMParameters.A = gllimParameters.A.reshape(D, L, K)
+        self.__py_GLLiMParameters.A = gllimParameters.A.reshape(K, D, L)
         cdef double[:,:,:] A_memview = self.__py_GLLiMParameters.A
         self.__c_gllimParameters.A = &A_memview[0,0,0]
 
-        self.__py_GLLiMParameters.Gamma = gllimParameters.Gamma.reshape(L, L, K)
+        self.__py_GLLiMParameters.Gamma = gllimParameters.Gamma.reshape(K, L, L)
         cdef double[:,:,:] Gamma_memview = self.__py_GLLiMParameters.Gamma
         self.__c_gllimParameters.Gamma = &Gamma_memview[0,0,0]
 
-        self.__py_GLLiMParameters.Sigma = gllimParameters.Sigma.reshape(D, D, K)
+        self.__py_GLLiMParameters.Sigma = gllimParameters.Sigma.reshape(K, D, D)
         cdef double[:,:,:] Sigma_memview = self.__py_GLLiMParameters.Sigma
         self.__c_gllimParameters.Sigma = &Sigma_memview[0,0,0]
 
-        deref(self.__c_gllimLearning).importModel(self.__c_gllimParameters)
+        deref(self.__c_gllimLearning).setModel(self.__c_gllimParameters)
 
+    def getInverse(self):
+        """
+        getInverse(self)
 
+        Exports the parameters of theta* (inverse) from the C++ structure as ndarrays encapsulated in an GLLiMParameters object.
+
+        Returns
+        -------
+        GLLiMParameters : GLLiMParameters
+            An object containing the parameters of theta* (inverse) in ndarray format
+
+        """
+
+        cdef CppGLLiM c_inverseGllimParameters
+        inverseGllimParameters = GLLiMParameters()
+
+        K = self.__c_gllimParameters.K
+        L = self.__c_gllimParameters.D
+        D = self.__c_gllimParameters.L
+
+        inverseGllimParameters.K = K
+        inverseGllimParameters.D = D
+        inverseGllimParameters.L = L
+
+        c_inverseGllimParameters.K = K
+        c_inverseGllimParameters.L = L
+        c_inverseGllimParameters.D = D
+
+        inverseGllimParameters.Pi = np.ascontiguousarray(np.arange(K),dtype=np.double)
+        cdef double[::1] Pi_memview = inverseGllimParameters.Pi
+        c_inverseGllimParameters.Pi = &Pi_memview[0]
+
+        inverseGllimParameters.C = np.ascontiguousarray(np.arange(L * K).reshape(L, K), dtype=np.double)
+        cdef double[:,::1] C_memview =  inverseGllimParameters.C
+        c_inverseGllimParameters.C = &C_memview[0,0]
+
+        inverseGllimParameters.B = np.ascontiguousarray(np.arange(D * K).reshape(D, K), dtype=np.double)
+        cdef double[:,::1] B_memview = inverseGllimParameters.B
+        c_inverseGllimParameters.B = &B_memview[0,0]
+
+        inverseGllimParameters.A = np.arange(D * L * K, dtype=np.double).reshape(K, D, L)
+        cdef double[:,:,:] A_memview = inverseGllimParameters.A
+        c_inverseGllimParameters.A = &A_memview[0,0,0]
+
+        inverseGllimParameters.Gamma = np.arange(L * L * K, dtype=np.double).reshape(K, L, L)
+        cdef double[:,:,:] Gamma_memview = inverseGllimParameters.Gamma
+        c_inverseGllimParameters.Gamma = &Gamma_memview[0,0,0]
+
+        inverseGllimParameters.Sigma = np.arange(D * D * K, dtype=np.double).reshape(K, D, D)
+        cdef double[:,:,:] Sigma_memview = inverseGllimParameters.Sigma
+        c_inverseGllimParameters.Sigma = &Sigma_memview[0,0,0]
+
+        deref(self.__c_gllimLearning).getInverse(c_inverseGllimParameters)
+
+        return inverseGllimParameters
+
+    def directLogDensity(self, x):
+        """
+        directLogDensity(self, x)
+
+        Computes log density of P(Y|X=x) as a GMM with weights , means and covariances deduced from the GLLiM's parameters in theta.
+
+        Parameters
+        ----------
+        x : ndarray
+            1D array (L)
+
+        Returns
+        -------
+        weights : ndarray
+            1D array (K) containing the weights of the components of the GMM.
+
+        means : ndarray
+            2D array (D,K) containing the means of the components of the GMM.
+
+        covariances : ndarray
+            3D array (K,D,D) containing the covariances of the components of the GMM.
+
+        """
+        K = self.__c_gllimParameters.K
+        L = self.__c_gllimParameters.L
+        D = self.__c_gllimParameters.D
+
+        x_countiguous = np.ascontiguousarray(x)
+        cdef double[::1] x_memview = x_countiguous
+
+        weights = np.ascontiguousarray(np.arange(K),dtype=np.double)
+        cdef double[::1] weights_memview = weights
+
+        means = np.ascontiguousarray(np.arange(D * K).reshape(D, K), dtype=np.double)
+        cdef double[:,::1] means_memview = means
+
+        covs = np.arange(D * D * K, dtype=np.double).reshape(K, D, D)
+        cdef double[:,:,:] covs_memview = covs
+
+        deref(self.__c_gllimLearning).directLogDensity(&x_memview[0], &weights_memview[0], &means_memview[0,0], &covs_memview[0,0,0])
+
+        return weights, means, covs
+
+    def inverseLogDensity(self, y):
+
+        """
+        inverseLogDensity(self, x)
+
+        Computes log density of P(X|Y=y) as a GMM with weights , means and covariances deduced from the GLLiM's parameters in theta.
+
+        Parameters
+        ----------
+        y : ndarray
+            1D array (D)
+
+        Returns
+        -------
+        weights : ndarray
+            1D array (K) containing the weights of the components of the GMM.
+
+        means : ndarray
+            2D array (L,K) containing the means of the components of the GMM.
+
+        covariances : ndarray
+            3D array (K,L,L) containing the covariances of the components of the GMM.
+
+        """
+        K = self.__c_gllimParameters.K
+        L = self.__c_gllimParameters.D
+        D = self.__c_gllimParameters.L
+
+        y_countiguous = np.ascontiguousarray(y)
+        cdef double[::1] y_memview = y_countiguous
+
+        weights = np.ascontiguousarray(np.arange(K),dtype=np.double)
+        cdef double[::1] weights_memview = weights
+
+        means = np.ascontiguousarray(np.arange(D * K).reshape(D, K), dtype=np.double)
+        cdef double[:,::1] means_memview = means
+
+        covs = np.arange(D * D * K, dtype=np.double).reshape(K, D, D)
+        cdef double[:,:,:] covs_memview = covs
+
+        deref(self.__c_gllimLearning).inverseLogDensity(&y_memview[0], &weights_memview[0], &means_memview[0,0], &covs_memview[0,0,0])
+
+        return weights, means, covs
+
+    def get_L_dimension(self):
+        return self.__c_gllimParameters.L
+
+    cdef shared_ptr[CppIGLLiMLearning] getInstance(self):
+        return self.__c_gllimLearning

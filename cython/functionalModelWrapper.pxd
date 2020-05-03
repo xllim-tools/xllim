@@ -40,6 +40,13 @@ cdef extern from "../src/physicalModel/creators.h" namespace "Functional":
 
         shared_ptr[FunctionalModel] create()
 
+    cdef struct ExternalModelConfig:
+        string className
+        string fileName
+        string filePath
+
+        shared_ptr[FunctionalModel] create()
+
 
 
 
@@ -67,3 +74,5 @@ cdef extern from "../src/physicalModel/HapkeModel/HapkeAdapters/ThreeParamsModel
 cdef extern from "../src/physicalModel/ShkuratovModel/ShkuratovModel.cpp":
     pass
 
+cdef extern from "../src/physicalModel/ExternalModel/ExternalFunctionalModel.cpp":
+    pass

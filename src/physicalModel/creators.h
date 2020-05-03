@@ -15,6 +15,7 @@
 #include "HapkeModel/HapkeAdapters/ThreeParamsModel.h"
 #include "HapkeModel/HapkeVersions/Hapke93Model.h"
 #include "ShkuratovModel/ShkuratovModel.h"
+#include "ExternalModel/ExternalFunctionalModel.h"
 
 namespace Functional{
     struct HapkeAdapterConfig{
@@ -81,6 +82,21 @@ namespace Functional{
                             col_size,
                             scalingCoeffs,
                             offset)
+                    );
+        }
+    };
+
+    struct ExternalModelConfig{
+        std::string className;
+        std::string fileName;
+        std::string filePath;
+
+        std::shared_ptr<FunctionalModel> create(){
+            return std::shared_ptr<FunctionalModel>(
+                    new ExternalFunctionalModel(
+                            className,
+                            fileName,
+                            filePath)
                     );
         }
     };

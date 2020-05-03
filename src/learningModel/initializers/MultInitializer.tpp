@@ -32,7 +32,6 @@ std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat
         // generate a mean for the GMM using a data generator strategy
 
         config->generator->execute(m);
-        m.print();
 
         // use the same weight for all the clusters
         rho = ones(K)/K;
@@ -50,6 +49,7 @@ std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat
         // compute log_rnk using the posterior of the GMM after the training
         log_rnk = gmmEstimator.getPosterior();
 
+
         // Compute theta of the GLLiM using the log_posterior of the GMM
         emEstimator = EmEstimator<T,U>(config->emLearningConfig);
         emEstimator.next_theta(x.t(),y.t(),log_rnk,local_theta);
@@ -57,12 +57,11 @@ std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat
         for(unsigned iter=0; iter<config->nb_iter_EM; iter++){
             emEstimator.next_rnk(x.t(),y.t(),local_theta,log_rnk);
             emEstimator.next_theta(x.t(),y.t(),log_rnk,local_theta);
-            //std::cout << emEstimator.log_likelihood(log_rnk) << std::endl;
         }
 
         log_likelihood = emEstimator.log_likelihood(log_rnk);
 
-        //std::cout << log_likelihood << std::endl;
+
 
         if(log_likelihood > best_log_likelihood){
             best_theta = local_theta;

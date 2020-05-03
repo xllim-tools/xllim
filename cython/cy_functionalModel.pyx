@@ -12,9 +12,11 @@ from functionalModelWrapper cimport FunctionalModel as CppFunctionalModel
 from functionalModelWrapper cimport HapkeAdapterConfig as CppHapkeAdapterConfig
 from functionalModelWrapper cimport HapkeModelConfig as CppHapkeModelConfig
 from functionalModelWrapper cimport ShkuratovModelConfig as CppShkuratovModelConfig
+from functionalModelWrapper cimport ExternalModelConfig as CppExternalModelConfig
 
 cimport numpy as np
 import numpy as np
+import ExternalFunctionalModel
 
 # ---------------------------------- python classes definition ------------------------------------------- #
 
@@ -236,6 +238,17 @@ cdef class ShkuratovModelConfig:
 
         self.offset_memview = np.ascontiguousarray(offset)
         self.config.offset = &self.offset_memview[0]
+
+    def create(self):
+        return FunctionalModel.create(self.config.create())
+
+cdef class ExternalModelConfig:
+    cdef CppExternalModelConfig config
+
+    def __cinit__(self, className, fileName, filePath):
+        self.config.className = <string>className.encode('utf-8')
+        self.config.fileName = <string>fileName.encode('utf-8')
+        self.config.filePath = <string>filePath.encode('utf-8')
 
     def create(self):
         return FunctionalModel.create(self.config.create())

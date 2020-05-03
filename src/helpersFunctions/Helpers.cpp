@@ -20,3 +20,32 @@ double Helpers::logSumExp(const arma::vec & elements) {
         return result;
     }
 }
+
+
+double Helpers::computeDeterminant(const mat& matrix){
+    if(matrix.n_rows <= 3){
+        return det(matrix);
+    }else{
+        mat R;
+        if(chol(R,matrix)){
+            return pow(prod(R.diag()), 2);
+        }else{
+            return det(matrix);
+        }
+    }
+
+}
+
+mat Helpers::inverseMatrix(const mat& matrix){
+    if(matrix.n_rows <= 3){
+        return inv(matrix);
+    }else {
+        mat R;
+        if(chol(R,matrix)){
+            mat R_inv = inv(chol(matrix));
+            return R_inv * R_inv.t();
+        }else{
+            return inv(matrix);
+        }
+    }
+}

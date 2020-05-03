@@ -19,7 +19,15 @@
 #include "src/learningModel/covariances/Icovariance.h"
 #include "src/dataGeneration/SobolGenerator.h"
 #include "src/dataGeneration/RandomGenerator.h"
-#include "src/learningModel/LearningModelFactory.h"
+#include "src/prediction/Predictor.h"
+#include "src/physicalModel/FunctionalModel.h"
+#include "src/physicalModel/FunctionnalModelFactory.h"
+#include "src/physicalModel/HapkeModel/HapkeVersions/Hapke02Model.h"
+#include "src/physicalModel/HapkeModel/HapkeAdapters/FourParamsModel.h"
+#include "src/physicalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h"
+#include "src/physicalModel/HapkeModel/HapkeAdapters/SixParamsModel.h"
+#include "src/dataGeneration/LatinCubeGenerator.h"
+#include "src/dataGeneration/creators.h"
 
 
 #include <iostream>
@@ -300,6 +308,7 @@ int main(){
     }
 
 
+    myParams.Sigma[0].print();
    /* myParams.A.print("Init A");
     myParams.B.t().print("Init B");
     myParams.C.print("Init C");
@@ -402,18 +411,18 @@ int main(){
             new MultInitConfig(
                     123456789,
                     3,
-                    3,
-                    make_shared<GMMLearningConfig>(GMMLearningConfig(0,3,1e-10)),
+                    1,
+                    make_shared<GMMLearningConfig>(GMMLearningConfig(0,4,1e-10)),
                     make_shared<EMLearningConfig>(EMLearningConfig(3,0,1e-08))));
 
-
-    MultInitializer<FullCovariance,DiagCovariance> initializer(myConfig);
+    MultInitializer<FullCovariance,FullCovariance> initializer(myConfig);
     //std::shared_ptr<GLLiMParameters <FullCovariance, FullCovariance>> gllim_initialized = initializer.execute(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49),K);
 
-    std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,3,1e-08));
-    /*GmmEstimator estimator (myLearningconfig);*/
+    /*std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,10));
+    GmmEstimator estimator (myLearningconfig);*/
 
-    //std::shared_ptr<EMLearningConfig> myLearningconfig (new EMLearningConfig(3,0.0,1e-08));
+    std::shared_ptr<GMMLearningConfig> myLearningconfig (new GMMLearningConfig(0,5,0.00000001));
+    GmmEstimator estimator (myLearningconfig);
     //EmEstimator<FullCovariance, DiagCovariance> estimator(myLearningconfig);
 
     /*auto start = chrono::high_resolution_clock::now();
@@ -423,39 +432,55 @@ int main(){
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::seconds>(end - start);
     cout << duration.count() << endl;*/
-    std::shared_ptr<IGLLiMLearning> gllim = LearningModelFactory::create(50, "Full", "Full", myConfig, myLearningconfig);
 
-//    std::shared_ptr<IGLLiMLearning> gllim (
-//            new GLLiMLearning<FullCovariance,DiagCovariance>(
-//                    make_shared<MultInitializer<FullCovariance,DiagCovariance>>(initializer),
-//                    make_shared<EmEstimator<FullCovariance, DiagCovariance>>(estimator),50));
+    /*std::shared_ptr<IGLLiMLearning> gllim (
+            new GLLiMLearning<FullCovariance,FullCovariance>(
+                    make_shared<MultInitializer<FullCovariance,FullCovariance>>(initializer),
+                    make_shared<GmmEstimator>(estimator),50));
 
-    gllim->initialize(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49));
-    gllim->train(photometries.submat(0,0,N-1,L-1), y.submat(0,3,N-1,49));
-    vec cov_obs(47, fill::randu);
+    std::shared_ptr<Functional::FunctionalModel> myModel (new Hapke02Model(geometries, 50, 3, std::shared_ptr<HapkeAdapter>(new SixParamsModel()), 30.0));
+    std::shared_ptr<DataGeneration::StatModel> statModel = DataGeneration::DependentGaussianStatModelConfig("sobol", myModel,20, 123456789).create();
+
+    std::tuple<mat, mat> gen = statModel->gen_data(10000);
+
+    std::cout << std::get<1>(gen).max() << std::endl;
+
+    gllim->initialize(std::get<0>(gen), std::get<1>(gen));
+    gllim->train(std::get<0>(gen),std::get<1>(gen));*/
+    /*vec cov_obs(47, fill::randu);
     vec y_obs = y.row(5).subvec(3,49).t();
 
-    std::vector<arma::gmm_full> gmms = vector<arma::gmm_full>(N);
+    prediction::Predictor predictor(gllim, 2, 1e-10);
+
+    std::vector<std::pair<vec,vec>> centers;
+
     auto start = chrono::high_resolution_clock::now();
     for(unsigned n=0; n<1; n++){
-        gmms[n] = gllim->computeGMM(y_obs,cov_obs);
+        centers = predictor.predict(y_obs, cov_obs);
+        for(const auto center : centers){
+            photometries.row(5).print();
+            center.first.t().print();
+            std::cout << max(arma::abs(center.first.t() - photometries.row(5))) << std::endl;
+        }
     }
     auto end = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::seconds>(end - start);
-    cout << duration.count() << endl;
+    auto duration = chrono::duration_cast<chrono::seconds>(end - start);*/
+    //cout << duration.count() << endl;
 
 
+    auto *test = new double[5*3*2];
+    vec a(&test[0], 15, false, true);
+    mat b(&test[0], 5, 3, false, true);
+    cube c(&test[0], 5,3,2, false, true);
 
-    //gmm.hefts.print("weights");
-    //gmm.means.print("means");
-    //gmm.fcovs.slice(0).print("covs_0");
+    for(unsigned i=0; i<30; i++){
+        test[i] = i*1.0;
+    }
 
-    /*gllim_initialized->Pi.t().print("Pi");
-    gllim_initialized->C.print("C");
-    gllim_initialized->Gamma[0].print();
-    gllim_initialized->Sigma[0].print();
-    gllim_initialized->B.print("B");*/
-    //gllim_initialized->A.print("A");
+    a.print();
+    b.print();
+    c.print();
+
 
 
 }

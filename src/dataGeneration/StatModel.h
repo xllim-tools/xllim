@@ -61,7 +61,8 @@ namespace DataGeneration{
          * @return A pair of X (generated data) and Y (calculated data using the functional model)
          */
         virtual std::tuple<mat, mat> gen_data(int n) = 0;
-        virtual double density_X_Y(mat x, mat y) = 0;
+
+        virtual double density_X_Y(const vec &x, const vec &y, const vec &y_cov) = 0;
     };
 }
 
