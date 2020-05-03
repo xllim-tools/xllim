@@ -19,9 +19,15 @@ set(CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -larmadillo")
 find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
+find_package(PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories("/usr/lib/python3/dist-packages/numpy/core/include/")
+include_directories("extern/lib")
+
+
 include(CTest)
 
-add_library(prediction STATIC src/prediction/IPredictor.h src/prediction/PredictorByMean.cpp src/prediction/PredictorByMean.h src/prediction/PredictorByCenters.cpp src/prediction/PredictorByCenters.h src/prediction/MultivariateGaussian.h src/importanceSampling/ImportanceSampler.cpp src/importanceSampling/ImportanceSampler.h src/importanceSampling/ISProposition.h src/importanceSampling/GaussianMixtureProposition.cpp src/importanceSampling/GaussianMixtureProposition.h src/importanceSampling/GaussianRegularizedProposition.cpp src/importanceSampling/GaussianRegularizedProposition.h src/importanceSampling/UniformProposition.cpp src/importanceSampling/UniformProposition.h src/importanceSampling/ISResult.h src/importanceSampling/ISDiagnostic.h src/importanceSampling/ISConfig.h src/importanceSampling/ISTarget.h src/importanceSampling/ISTargetDependent.cpp src/importanceSampling/ISTargetDependent.h)
+add_library(prediction STATIC src/prediction/IPredictor.h src/prediction/Predictor.cpp src/prediction/Predictor.h src/prediction/MultivariateGaussian.h src/importanceSampling/ImportanceSampler.cpp src/importanceSampling/ImportanceSampler.h src/importanceSampling/proposition/ISProposition.h src/importanceSampling/proposition/GaussianMixtureProposition.cpp src/importanceSampling/proposition/GaussianMixtureProposition.h src/importanceSampling/proposition/GaussianRegularizedProposition.cpp src/importanceSampling/proposition/GaussianRegularizedProposition.h src/importanceSampling/proposition/UniformProposition.cpp src/importanceSampling/proposition/UniformProposition.h src/importanceSampling/ISResult.h src/importanceSampling/ISDiagnostic.h src/importanceSampling/target/ISTarget.h src/importanceSampling/target/ISTargetDependent.cpp src/importanceSampling/target/ISTargetDependent.h src/prediction/PredictionResult.h src/prediction/creators.h src/importanceSampling/creators.h src/prediction/PredictionResultExport.h src/importanceSampling/ImportanceSamplingDiagnostic.h src/importanceSampling/ImportanceSamplingResult.h)
 
 add_library(dataGeneration STATIC
         src/dataGeneration/StatModel.h
@@ -79,11 +85,15 @@ target_compile_features(functionalModel PUBLIC cxx_std_11)
 
 add_executable(Test main.cpp)
 
+add_executable(testEmbed embedingPython/test.cpp src/physicalModel/ExternalModel/pyhelper.hpp src/physicalModel/ExternalModel/ExternalFunctionalModel.cpp src/physicalModel/ExternalModel/ExternalFunctionalModel.h)
+
+target_link_libraries(testEmbed ${PYTHON_LIBRARIES})
+
 add_executable(TestGeneration dataGenerationTest.cpp)
 
 add_executable(TestLearning learning_test.cpp)
 
-target_link_libraries(TestLearning PUBLIC learningModel dataGeneration ${ARMADILLO_LIBRARIES})
+target_link_libraries(TestLearning PUBLIC functionalModel learningModel dataGeneration prediction ${ARMADILLO_LIBRARIES})
 
 target_link_libraries(TestGeneration PUBLIC functionalModel dataGeneration)
 
@@ -96,3 +106,5 @@ add_subdirectory(cpptest/functionalModel_tests)
 add_subdirectory(valgrind)
 
 add_subdirectory(cpptest/learningModelTests)
+
+add_subdirectory(cpptest/predictionTests)

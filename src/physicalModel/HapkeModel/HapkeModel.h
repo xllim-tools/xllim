@@ -10,7 +10,7 @@
 #define KERNELO_HAPKEMODEL_H
 
 
-#include "../../../cpptest/functionalModel_tests/lib/googletest/include/gtest/gtest_prod.h"
+#include "../../../extern/lib/googletest/include/gtest/gtest_prod.h"
 #include "HapkeAdapter.h"
 #include "../FunctionalModel.h"
 #include <utility>
