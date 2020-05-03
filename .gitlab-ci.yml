@@ -6,48 +6,48 @@ stages:
     - build
     - deploy
 
-#build:
+build:
     #only:
     #    refs:
     #      - merge_requests
     #    variables:
     #      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "staging" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "production"
 
-#    stage: build
-#    script:
-#        - echo "building kernel"
-#        - python3.7 setup.py build_ext --inplace -vvv
-#    artifacts:
-#        paths:
-#            - ./*.so
-
-services:
-    - name: docker:dind
-      entrypoint: ["env", "-u", "DOCKER_HOST"]
-      command: ["dockerd-entrypoint.sh"]
-
-variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-
-staging:
-#    before_script:
-#        - cp kernelo.cpython-37m-x86_64-linux-gnu.so test_env/kernelo.cpython-37m-x86_64-linux-gnu.so
-#        - cp cython/my_python_objects.py test_env/my_python_objects.py
-#        - cd test_env
-    stage: deploy
-    image: docker:latest
-    #image: ruby:latest
+    stage: build
     script:
-        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-        #- docker build -t registry.gitlab.com/mistis/kernelo:v1.0 .
-        - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
-        - docker pull jentkh/armadillo
-        #- docker tag registry.gitlab.com/mistis/kernelo:v1.0 registry.heroku.com/$HEROKU_APP_STAGING/web
-        - docker tag jentkh/armadillo registry.heroku.com/$HEROKU_APP_STAGING/web
-        - docker push registry.heroku.com/$HEROKU_APP_STAGING/web
-        - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app $HEROKU_APP_STAGING
+        - echo "building kernel"
+        - python3.7 setup.py build_ext --inplace -vvv
+    artifacts:
+        paths:
+            - ./*.so
+
+#services:
+#    - name: docker:dind
+#      entrypoint: ["env", "-u", "DOCKER_HOST"]
+#      command: ["dockerd-entrypoint.sh"]
+#
+#variables:
+#    DOCKER_HOST: tcp://docker:2375/
+#    DOCKER_DRIVER: overlay2
+#    DOCKER_TLS_CERTDIR: ""
+
+#staging:
+##    before_script:
+##        - cp kernelo.cpython-37m-x86_64-linux-gnu.so test_env/kernelo.cpython-37m-x86_64-linux-gnu.so
+##        - cp cython/my_python_objects.py test_env/my_python_objects.py
+##        - cd test_env
+#    stage: deploy
+#    image: docker:latest
+#    #image: ruby:latest
+#    script:
+#        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+#        #- docker build -t registry.gitlab.com/mistis/kernelo:v1.0 .
+#        - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
+#        - docker pull jentkh/armadillo
+#        #- docker tag registry.gitlab.com/mistis/kernelo:v1.0 registry.heroku.com/$HEROKU_APP_STAGING/web
+#        - docker tag jentkh/armadillo registry.heroku.com/$HEROKU_APP_STAGING/web
+#        - docker push registry.heroku.com/$HEROKU_APP_STAGING/web
+#        - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app $HEROKU_APP_STAGING
 
         #- apt-get update -qy
         #- apt-get install -y ruby-dev
