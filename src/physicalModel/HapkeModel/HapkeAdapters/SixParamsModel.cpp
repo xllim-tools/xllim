@@ -7,6 +7,7 @@
  */
 
 #include "SixParamsModel.h"
+//#include "../../Enumeration.h"
 
 using namespace Functional;
 using namespace HapkeEnumeration;
