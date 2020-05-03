@@ -32,10 +32,15 @@ GaussianStatModel::GaussianStatModel(
 
 
 double GaussianStatModel::density_X_Y(const vec &x, const vec &y, const vec &y_cov) {
+    for(auto x_i: x){
+        if(x_i > 1 || x_i < 0){
+            return -datum::inf;
+        }
+    }
     rowvec y_u(y.n_rows);
     this->functionalModel->F(x.t(), y_u);
     y_u = y.t() - y_u;
-    return -0.5 * (y_cov.n_rows * LOG_2_PI + log(prod(y_cov)) + dot(y_u % (1 / y_cov), y_u.t()));
+    return -0.5 * (y_cov.n_rows * LOG_2_PI + log(prod(y_cov + covariance.t())) + dot(y_u % (1 / (y_cov + covariance.t())), y_u.t()));
 }
 
 
