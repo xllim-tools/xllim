@@ -19,10 +19,6 @@ namespace prediction{
             return weight < g.weight;
         }*/
     };
-
-    bool compareByWeight(const MultivariateGaussian &g1, const MultivariateGaussian &g2){
-        return g1.weight > g2.weight;
-    }
 }
 
 #endif //KERNELO_MULTIVARIATEGAUSSIAN_H

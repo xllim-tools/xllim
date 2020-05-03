@@ -2,33 +2,45 @@
 // Created by reverse-proxy on 26‏/3‏/2020.
 //
 
-#ifndef KERNELO_PREDICTORBYCENTERS_H
-#define KERNELO_PREDICTORBYCENTERS_H
+#ifndef KERNELO_PREDICTOR_H
+#define KERNELO_PREDICTOR_H
 
 #include "../learningModel/gllim/IGLLiMLearning.h"
 #include "MultivariateGaussian.h"
 #include <memory>
 #include "armadillo"
+#include <gtest/gtest_prod.h>
+#include "PredictionResult.h"
+#include "IPredictor.h"
 
 #define K_MERGED 2
+#define K_PRED_MEAN 10
 #define THRESHOLD 1e-10
 
 
 using namespace arma;
 
 namespace prediction {
-    class PredictorByCenters {
+    class Predictor : public IPredictor {
     public:
-        PredictorByCenters(
+        Predictor(
                 const std::shared_ptr<learningModel::IGLLiMLearning>& learningModel,
                 unsigned k_merged,
+                unsigned k_pred_mean,
                 double threshold);
-        void predict(const vec &y_obs, const vec& cov_obs);
+
+        PredictionResult predict(const vec &y_obs, const vec &cov_obs) override ;
+        Mat<unsigned> regularize(const cube &series) override;
+
 
     private:
         std::shared_ptr<learningModel::IGLLiMLearning> learningModel;
         unsigned k_merged = K_MERGED;
         double threshold = THRESHOLD;
+        unsigned k_pred_mean = K_PRED_MEAN;
+
+        FRIEND_TEST(PredictionByCentersTests, generatePermutations);
+        FRIEND_TEST(PredictionByCentersTests, regularize);
 
         // compute the dissimilarity criterion of a merge and compute also that merge
         static void computeDissimilarityCriterion(
@@ -45,16 +57,18 @@ namespace prediction {
         static MultivariateGaussian mergeTwoGaussians(const MultivariateGaussian &g1, const MultivariateGaussian &g2);
 
         // reduce the number of gaussians before starting the merging algorithm
-        void reduceGaussians(std::vector<std::pair<MultivariateGaussian, bool>> &gaussians);
+        void reduceGaussians(std::vector<std::pair<MultivariateGaussian, bool>> &gaussians, unsigned &K);
 
         static double safeCovDet(mat &covariance);
 
-        mat generatePermutations(unsigned N);
-        
-        mat regularize(const cube &series);
+        static Mat<unsigned> generatePermutations(unsigned N);
+
+        vec computeMixtureMean(const vec &weights, const mat &means);
+
+        mat computeMixtureCov(const vec &weights, const mat &means, const cube &covs);
 
     };
 }
 
 
-#endif //KERNELO_PREDICTORBYCENTERS_H
+#endif //KERNELO_PREDICTOR_H
