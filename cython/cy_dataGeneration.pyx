@@ -17,6 +17,15 @@ import numpy as np
 # ---------------------------------- python classes definition ------------------------------------------- #
 
 cdef class StatModel:
+    """
+    This interface defines the functions of a statistical model.
+
+    Methods
+    -------
+    gen_data(self, n)
+        Generates and returns a data set of low dimensional data X(n,L) and high dimensional data Y(n,D) using a functional model and a random data generator.
+
+    """
     cdef shared_ptr[CppStatModel] c_statModel
     cdef FunctionalModel functionalModel
 
@@ -27,7 +36,21 @@ cdef class StatModel:
         obj.functionalModel = functionalModel
         return obj
 
+    cdef shared_ptr[CppStatModel] getInstance(self):
+        return self.c_statModel
+
     def gen_data(self, n):
+        """
+        gen_data(self, n)
+
+        Generates and returns a data set of low dimensional data X(n,L) and high dimensional data Y(n,D) using a functional model and a random data generator. Y = F(X) + NOISE
+
+        Parameters
+        ----------
+        int n
+            Number of tuples to generate.
+
+        """
         cdef int dimension_D = (<FunctionalModel>self.functionalModel).get_D_dimension()
         cdef int dimension_L = (<FunctionalModel>self.functionalModel).get_L_dimension()
 
@@ -47,6 +70,26 @@ cdef class StatModel:
 
 
 cdef class GaussianStatModelConfig:
+    """
+    This class wraps the parameters that configure a statistical model based on a normal distribution
+
+    Constructor
+    -----------
+    GaussianStatModelConfig(generatorType, functionalModel , covariance, seed)
+
+    generatorType : string
+        The type of the generator used by the model to generate data must be one of the following keywords :{"sobol","latin_cube","random"}
+
+    functionalModel : FunctionalModel
+        The functional model that computes Y = F(X) where Y(N,D) and X(N,L)
+
+    covariance : ndarray
+        1D array containing the D covariances used to add noise to F(X)
+
+    seed : int
+        The seed used to initialize the random generator.
+
+    """
     cdef CppGaussianStatModelConfig config
     cdef FunctionalModel functionalModel
 
@@ -66,6 +109,27 @@ cdef class GaussianStatModelConfig:
 
 
 cdef class DependentGaussianStatModelConfig:
+    """
+    This class wraps the parameters that configure a statistical model that is dependent on Y.
+
+    Constructor
+    -----------
+    DependentGaussianStatModelConfig(generatorType, functionalModel , r, seed)
+
+    string : generatorType
+        The type of the generator used by the model to generate data must be one of the following keywords :{"sobol","latin_cube","random"}
+
+    functionalModel : FunctionalModel
+        The functional model that computes Y = F(X) where Y(N,D) and X(N,L)
+
+    r : double
+        This percentage value is used to control the effect of the noise on the computed F(X)
+
+    seed : int
+        The seed used to initialize the random generator.
+
+    """
+
     cdef CppDependentGaussianStatModelConfig config
     cdef FunctionalModel functionalModel
 
