@@ -12,9 +12,15 @@ using namespace arma;
 namespace importanceSampling{
     class ISProposition{
     public:
-        virtual vec sample(unsigned L) = 0; // return a sample using the proposition law
+        virtual vec sample() = 0; // return a sample using the proposition law
         virtual double proposition_log_density(vec x_sample) = 0;
         virtual mat proposition_covariance() = 0;
+        unsigned getDimension(){
+            return L;
+        }
+
+    protected :
+        unsigned L;
     };
 }
 

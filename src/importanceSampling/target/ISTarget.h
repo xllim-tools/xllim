@@ -7,7 +7,7 @@
 
 #include <memory>
 #include <utility>
-#include "../dataGeneration/StatModel.h"
+#include "../../dataGeneration/StatModel.h"
 
 namespace importanceSampling{
     struct ISTarget{
@@ -18,8 +18,8 @@ namespace importanceSampling{
             return target->density_X_Y(x, y, y_cov);
         }
 
-        void setTarget(const std::shared_ptr<DataGeneration::StatModel>& targetDistribution){
-            target = targetDistribution;
+        void setTarget(std::shared_ptr<DataGeneration::StatModel> targetDistribution){
+            target = std::move(targetDistribution);
         };
     };
 }

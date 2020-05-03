@@ -9,7 +9,17 @@
 
 namespace importanceSampling {
     class GaussianRegularizedProposition : public ISProposition{
+    public:
 
+        GaussianRegularizedProposition(vec &mean, mat &cov);
+
+        vec sample() override ; // return a sample using the proposition law
+        double proposition_log_density(vec x_sample) override;
+        mat proposition_covariance() override;
+
+    private:
+        vec mean;
+        mat cov;
     };
 }
 

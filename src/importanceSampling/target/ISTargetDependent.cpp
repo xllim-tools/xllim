@@ -12,5 +12,5 @@ ISTargetDependent::ISTargetDependent(std::shared_ptr<ISProposition> proposition)
 }
 
 double ISTargetDependent::target_log_density(const vec &x, const vec &y, const vec &y_cov) {
-    return ISTarget::target_log_density(x, y, y_cov) + this->proposition->proposition_log_density(x);
+    return ISTarget::target_log_density(x, y, y_cov); //+ this->proposition->proposition_log_density(x);
 }

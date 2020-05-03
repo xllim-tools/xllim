@@ -13,7 +13,7 @@ namespace importanceSampling {
     public:
         GaussianMixtureProposition(vec &weights, mat &means, cube &covariances);
 
-        vec sample(unsigned L) override ; // return a sample using the proposition law
+        vec sample() override ; // return a sample using the proposition law
         double proposition_log_density(vec x_sample) override;
         mat proposition_covariance() override;
 

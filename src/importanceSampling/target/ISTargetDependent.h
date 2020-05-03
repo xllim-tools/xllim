@@ -6,7 +6,7 @@
 #define KERNELO_ISTARGETDEPENDENT_H
 
 #include "ISTarget.h"
-#include "ISProposition.h"
+#include "../proposition/ISProposition.h"
 
 namespace importanceSampling{
     class ISTargetDependent : public ISTarget{
