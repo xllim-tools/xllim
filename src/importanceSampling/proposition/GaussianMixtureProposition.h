@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 29‏/3‏/2020.
-//
+/**
+ * @file GaussianMixtureProposition.h
+ * @brief GaussianMixtureProposition class definition
+ * @author Sami DJOUADI
+ * @version 1.2
+ * @date 29/03/2020
+ */
 
 #ifndef KERNELO_GAUSSIANMIXTUREPROPOSITION_H
 #define KERNELO_GAUSSIANMIXTUREPROPOSITION_H
@@ -9,6 +13,9 @@
 
 
 namespace importanceSampling {
+    /**
+     * @class GaussianMixtureProposition
+     */
     class GaussianMixtureProposition : public ISProposition{
     public:
         GaussianMixtureProposition(vec &weights, mat &means, cube &covariances);

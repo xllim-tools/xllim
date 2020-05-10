@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 26‏/3‏/2020.
-//
+/**
+ * @file IPredictor.h
+ * @brief IPredictor class definition
+ * @author Sami DJOUADI
+ * @version 1.2
+ * @date 26/03/2019
+ */
 
 #ifndef KERNELO_IPREDICTOR_H
 #define KERNELO_IPREDICTOR_H
@@ -10,8 +14,25 @@
 
 namespace prediction{
 
+    /**
+     * @class IPredictor
+     *
+     * @details This is the interface of the prediction module. It offers prediction and regularization methods in two format.
+     * One using pointer to represent data structures like vectors, matrices and cube. This format is used for integration purposes
+     * with third party language API. The second format uses data structure of the library Armadillo , and it is used for internal calls
+     * within the modules of the library.
+     */
     class IPredictor{
     public:
+
+        /**
+         * @details This method can be used by third party language API to compute a prediction of the given observation and using
+         * a trained GLLiM model. It calls the internal prediction method based on data structures of the library Armadillo.
+         * @param y_obs : a vector of low dimension data
+         * @param var_obs : the errors in the measure of the observation
+         * @param size : number of variables of the observation
+         * @param resultExport : @see PredictionResultExport PredictionResultExport
+         */
         void predict(double *y_obs, double *var_obs, unsigned size, const std::shared_ptr<PredictionResultExport>& resultExport){
             vec y_obs_arma(&y_obs[0], size,  false, true);
             vec var_obs_arma(&var_obs[0], size, false, true);
@@ -58,6 +79,15 @@ namespace prediction{
             }
         }
 
+        /**
+         * @details This method can be used by third party language API to get a regularized series pf predictions if the context
+         * of the study requires it. The method calls the internal regularization method based on data structures of the library Armadillo.
+         * @param series : The centers computed by the prediction algorithm for all the observations.
+         * @param rows : The number of variables in a prediction
+         * @param cols : The number of centers per prediction.
+         * @param slices : the number of tuples to predict
+         * @param permutations : A pointer to a matrix(K,N) containing the permutations between the centers of each prediction.
+         */
         void regularize(const double *series , unsigned rows, unsigned cols, unsigned slices, double *permutations){
             cube series_arma(rows, cols, slices);
 
@@ -77,9 +107,23 @@ namespace prediction{
                 }
             }
         }
-        virtual PredictionResult predict(const vec &y_obs, const vec &cov_obs) = 0;
-        virtual Mat<unsigned> regularize(const cube &series) = 0;
 
+        /**
+         * @details This methods computes the predictions that correspond to the given observation using data structures of the library
+         * Armadillo. Should be used for internal calls within the library
+         * @param y_obs : a vector of low dimension data
+         * @param cov_obs : the errors in the measure of the observation
+         * @return @see PredictionResult PredictionResult
+         */
+        virtual PredictionResult predict(const vec &y_obs, const vec &cov_obs) = 0;
+
+        /**
+         * @details This method returns permutations of the predictions of all the observations given in parameter. These permutations
+         * make the predictions more adapter to a context where regularity is required.
+         * @param series : A cube (L,K,N) of centers computed by the prediction algorithm for all the observations.
+         * @return arma::Mat<unsigned>
+         */
+        virtual Mat<unsigned> regularize(const cube &series) = 0;
     };
 
 }

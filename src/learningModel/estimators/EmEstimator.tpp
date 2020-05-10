@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 19‏/2‏/2020.
-//
+/**
+ * @file EmEstimator.tpp
+ * @brief EmEstimator class implementation
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 26/02/2020
+ */
 
 #include "omp.h"
 #include "../../helpersFunctions/Helpers.h"

@@ -1,11 +1,19 @@
-//
-// Created by reverse-proxy on 26‏/4‏/2020.
-//
+/**
+ * @file ImportanceSamplingDiagnostic.h
+ * @author Sami DJOUADI
+ * @version 1.2
+ * @date 26/04/2020
+ */
 
 #ifndef KERNELO_IMPORTANCESAMPLINGDIAGNOSTIC_H
 #define KERNELO_IMPORTANCESAMPLINGDIAGNOSTIC_H
 
 namespace importanceSampling{
+    /**
+     * @struct ImportanceSamplingDiagnostic
+     * @details This struct wraps the results of the diagnostic of the importance sampling. The struct is meant for integration purposes
+     * with a third language API.
+     */
     struct ImportanceSamplingDiagnostic{
         unsigned nb_effective_sample;
         double effective_sample_size;

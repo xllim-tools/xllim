@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 29‏/3‏/2020.
-//
+/**
+ * @file GaussianRegularizedProposition.cpp
+ * @brief GaussianRegularizedProposition class implementation
+ * @author Sami DJOUADI
+ * @version 1.2
+ * @date 29/03/2020
+ */
 
 #include "GaussianRegularizedProposition.h"
 #include "../../helpersFunctions/Helpers.h"

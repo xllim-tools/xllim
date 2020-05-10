@@ -16,7 +16,6 @@ from functionalModelWrapper cimport ExternalModelConfig as CppExternalModelConfi
 
 cimport numpy as np
 import numpy as np
-import ExternalFunctionalModel
 
 # ---------------------------------- python classes definition ------------------------------------------- #
 

@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 13‏/2‏/2020.
-//
+/**
+ * @file GmmEstimator.cpp
+ * @brief GmmEstimator class implementation
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 13/02/2020
+ */
 
 using namespace learningModel;
 

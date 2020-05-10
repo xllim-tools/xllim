@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 29‏/3‏/2020.
-//
+/**
+ * @file ImportanceSampler.cpp
+ * @brief ImportanceSampler calss implementation
+ * @author Sami DJOUADI
+ * @version 1.2
+ * @date 29/03/2020
+ */
 
 #include "ImportanceSampler.h"
 #include "../helpersFunctions/Helpers.h"

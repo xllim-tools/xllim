@@ -1,3 +1,10 @@
+/**
+ * @file InitializerFactory.tpp
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 19/03/2020
+ */
+
 #include "configs/InitConfig.h"
 #include "initializers/FixedInitializer.h"
 #include "initializers/MultInitializer.h"

@@ -1,3 +1,11 @@
+/**
+ * @file MultInitializer.tpp
+ * @brief MultInitializer class implementation
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 03/03/2020
+ */
+
 #include "../estimators/GmmEstimator.h"
 #include "../estimators/EmEstimator.h"
 

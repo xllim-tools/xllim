@@ -154,7 +154,7 @@ cdef class MultInitConfig(InitConfig):
     """
     def __cinit__(self, seed, nb_iter_EM, nb_experiences, gmmLearningConfig):
         self.config = shared_ptr[CppInitConfig](
-            new CppMultInitConfig(seed, nb_iter_EM, nb_experiences, (<GMMLearningConfig>gmmLearningConfig).getInstance(), EMLearningConfig(0,0,0).getInstance())
+            new CppMultInitConfig(seed, nb_iter_EM, nb_experiences, (<GMMLearningConfig>gmmLearningConfig).getInstance(), EMLearningConfig(0,0,1e-8).getInstance())
         )
 
 
