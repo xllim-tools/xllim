@@ -20,7 +20,7 @@ build:
             - ./*.so
 
 staging:
-    image : docker:latest
+    image : gitlab/dind
     services:
         - name: docker:dind
           entrypoint: ["env", "-u", "DOCKER_HOST"]
