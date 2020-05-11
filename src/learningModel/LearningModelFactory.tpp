@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 19‏/3‏/2020.
-//
+/**
+ * @file LearningModelFactory.tpp
+ * @brief Factory class of the learning model
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 19/03/2020
+ */
 
 #include "gllim/GLLiMLearning.h"
 #include "EstimatorFactory.h"

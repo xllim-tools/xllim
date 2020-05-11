@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 29‏/3‏/2020.
-//
+/**
+ * @file GaussianMixtureProposition.cpp
+ * @brief GaussianMixtureProposition class implementation
+ * @author Sami DJOUADI
+ * @version 1.2
+ * @date 29/03/2020
+ */
 
 #include "GaussianMixtureProposition.h"
 #include "../../helpersFunctions/Helpers.h"

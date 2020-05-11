@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 13‏/2‏/2020.
-//
+/**
+ * @file GLLiMLearning.tpp
+ * @brief GLLiMLearning class implementation
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 13/02/2020
+ */
 
 
 #include "GLLiMLearning.h"

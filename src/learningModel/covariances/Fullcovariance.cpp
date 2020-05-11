@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 17‏/2‏/2020.
-//
+/**
+ * @file FullCovariance.cpp
+ * @brief FullCovairance class implementation
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 17/02/2020
+ */
 
 #include "Icovariance.h"
 

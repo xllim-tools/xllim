@@ -1,38 +1,42 @@
-//
-// Created by reverse-proxy on 17‏/2‏/2020.
-//
+/**
+ * @file DiagCovariance.cpp
+ * @brief DiagCovairance class implementation
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 17/02/2020
+ */
 
 #include "Icovariance.h"
 
 using namespace learningModel;
 
 DiagCovariance::DiagCovariance(const vec &covariance){
-    this->covariance = covariance;
+    this->variances = covariance;
 }
 
 DiagCovariance::DiagCovariance(const mat &covariance){
-    this->covariance = covariance.diag();
+    this->variances = covariance.diag();
 }
 
 DiagCovariance::DiagCovariance(unsigned dimension) {
-    this->covariance = vec(dimension, fill::zeros);
+    this->variances = vec(dimension, fill::zeros);
 }
 
 DiagCovariance &DiagCovariance::operator=(const DiagCovariance &cov) {
-    covariance = cov.covariance;
+    variances = cov.variances;
 }
 
 DiagCovariance &DiagCovariance::operator=(const mat &cov){
-    covariance = cov.diag();
+    variances = cov.diag();
 }
 
 DiagCovariance &DiagCovariance::operator=(double scalar) {
-    covariance.fill(scalar);
+    variances.fill(scalar);
 }
 
 mat learningModel::operator+(const mat &y, const DiagCovariance &x) {
     mat result = y;
-    result.diag() += x.covariance;
+    result.diag() += x.variances;
     return result;
 }
 
@@ -42,8 +46,8 @@ mat learningModel::operator+(const DiagCovariance &x, const mat &y) {
 
 mat learningModel::operator*(const mat &y, const DiagCovariance &x) {
     mat result = mat(y.n_rows,y.n_cols);
-    for(unsigned i=0; i<x.covariance.n_rows; i++){
-        result.col(i) = y.col(i) * x.covariance.row(i);
+    for(unsigned i=0; i<x.variances.n_rows; i++){
+        result.col(i) = y.col(i) * x.variances.row(i);
     }
     return result;
 }
@@ -51,56 +55,56 @@ mat learningModel::operator*(const mat &y, const DiagCovariance &x) {
 mat learningModel::operator*(const DiagCovariance &x, const mat &y) {
     mat result = mat(y.n_rows,y.n_cols);
     for(unsigned i=0; i<y.n_cols; i++){
-        result.col(i) = y.col(i) % x.covariance;
+        result.col(i) = y.col(i) % x.variances;
     }
     return result;
 }
 
 DiagCovariance DiagCovariance::inv() {
-    vec inv = 1.0/covariance;
+    vec inv = 1.0 / variances;
     return DiagCovariance(inv);
 }
 
 double DiagCovariance::det() {
-    double det = prod(covariance);
+    double det = prod(variances);
     if(det < 0)
         return 0;
     return det;
 }
 
 DiagCovariance &DiagCovariance::operator+=(double scalar) {
-    covariance += scalar;
+    variances += scalar;
 }
 
 DiagCovariance &DiagCovariance::operator+=(const mat &cov) {
-    covariance += cov.diag();
+    variances += cov.diag();
 }
 
 void DiagCovariance::rankOneUpdate(const vec &v, double alpha) {
-    covariance += pow(v,2) * alpha;
+    variances += pow(v, 2) * alpha;
 }
 
 void DiagCovariance::print() {
-    covariance.t().print();
+    variances.t().print();
 }
 
 vec learningModel::operator*(const DiagCovariance &x, const vec &y) {
-    return x.covariance % y;
+    return x.variances % y;
 }
 
 rowvec learningModel::operator*(const rowvec &y, const DiagCovariance &x) {
-    return y % x.covariance.t();
+    return y % x.variances.t();
 }
 
 mat DiagCovariance::getFull() const {
-    mat full(covariance.n_rows, covariance.n_rows, fill::zeros);
-    full.diag() += covariance;
+    mat full(variances.n_rows, variances.n_rows, fill::zeros);
+    full.diag() += variances;
     return full;
 }
 
 mat learningModel::operator-(const mat &y, const DiagCovariance &x) {
     mat result = y;
-    result.diag() -= x.covariance;
+    result.diag() -= x.variances;
     return result;
 }
 

@@ -46,15 +46,15 @@ add_library(dataGeneration STATIC
         src/dataGeneration/DependentGaussianStatModel.h src/dataGeneration/creators.h src/prediction/IPredictor.h)
 
 add_library(functionalModel STATIC
-        src/physicalModel/HapkeModel/HapkeVersions/HapkeModel.cpp
-        src/physicalModel/HapkeModel/HapkeVersions/Hapke93Model.cpp
-        src/physicalModel/HapkeModel/HapkeVersions/Hapke02Model.cpp
-        src/physicalModel/FunctionnalModelFactory.cpp
-        src/physicalModel/Enumeration.h
-        src/physicalModel/HapkeModel/HapkeModel.h
-        src/physicalModel/FunctionalModel.h
-        src/physicalModel/HapkeModel/HapkeVersions/Hapke93Model.h
-        src/physicalModel/HapkeModel/HapkeVersions/Hapke02Model.h src/physicalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.cpp src/physicalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h src/physicalModel/HapkeModel/HapkeAdapter.h src/physicalModel/HapkeModel/HapkeAdapters/HapkeAdapterFactory.cpp src/physicalModel/HapkeModel/HapkeAdapters/HapkeAdapterFactory.h src/physicalModel/HapkeModel/HapkeAdapters/SixParamsModel.cpp src/physicalModel/HapkeModel/HapkeAdapters/SixParamsModel.h src/physicalModel/HapkeModel/HapkeAdapters/FourParamsModel.cpp src/physicalModel/HapkeModel/HapkeAdapters/FourParamsModel.h src/physicalModel/ShkuratovModel/ShkuratovModel.cpp src/physicalModel/ShkuratovModel/ShkuratovModel.h)
+        src/functionalModel/HapkeModel/HapkeVersions/HapkeModel.cpp
+        src/functionalModel/HapkeModel/HapkeVersions/Hapke93Model.cpp
+        src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.cpp
+        src/functionalModel/FunctionnalModelFactory.cpp
+        src/functionalModel/Enumeration.h
+        src/functionalModel/HapkeModel/HapkeModel.h
+        src/functionalModel/FunctionalModel.h
+        src/functionalModel/HapkeModel/HapkeVersions/Hapke93Model.h
+        src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.h src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h src/functionalModel/HapkeModel/HapkeAdapter.h src/functionalModel/HapkeModel/HapkeAdapters/HapkeAdapterFactory.cpp src/functionalModel/HapkeModel/HapkeAdapters/HapkeAdapterFactory.h src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.h src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.h src/functionalModel/ShkuratovModel/ShkuratovModel.cpp src/functionalModel/ShkuratovModel/ShkuratovModel.h)
 
 add_library(learningModel STATIC
         src/learningModel/configs/LearningConfig.h
@@ -85,7 +85,7 @@ target_compile_features(functionalModel PUBLIC cxx_std_11)
 
 add_executable(Test main.cpp)
 
-add_executable(testEmbed embedingPython/test.cpp src/physicalModel/ExternalModel/pyhelper.hpp src/physicalModel/ExternalModel/ExternalFunctionalModel.cpp src/physicalModel/ExternalModel/ExternalFunctionalModel.h)
+add_executable(testEmbed embedingPython/test.cpp src/functionalModel/ExternalModel/pyhelper.hpp src/functionalModel/ExternalModel/ExternalFunctionalModel.cpp src/functionalModel/ExternalModel/ExternalFunctionalModel.h)
 
 target_link_libraries(testEmbed ${PYTHON_LIBRARIES})
 

@@ -4,18 +4,18 @@ from libcpp.string cimport string
 
 # ---------------------------------- header files declaration -------------------------------------------- #
 
-cdef extern from "../src/physicalModel/FunctionalModel.h" namespace "Functional":
+cdef extern from "../src/functionalModel/FunctionalModel.h" namespace "Functional":
     cdef cppclass FunctionalModel:
         void F(double *x, int size_x, double *y, int size_y)
         int get_D_dimension()
         int get_L_dimension()
         void from_physic(double *x, int size)
 
-cdef extern from "../src/physicalModel/HapkeModel/HapkeAdapter.h" namespace "Functional":
+cdef extern from "../src/functionalModel/HapkeModel/HapkeAdapter.h" namespace "Functional":
     cdef cppclass HapkeAdapter:
         pass
 
-cdef extern from "../src/physicalModel/creators.h" namespace "Functional":
+cdef extern from "../src/functionalModel/creators.h" namespace "Functional":
     cdef struct HapkeAdapterConfig:
         string version
         double b0
@@ -53,26 +53,26 @@ cdef extern from "../src/physicalModel/creators.h" namespace "Functional":
 
 # ---------------------------------- cpp files declaration -------------------------------------------- #
 
-cdef extern from "../src/physicalModel/HapkeModel/HapkeVersions/Hapke02Model.cpp":
+cdef extern from "../src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.cpp":
     pass
 
-cdef extern from "../src/physicalModel/HapkeModel/HapkeVersions/Hapke93Model.cpp":
+cdef extern from "../src/functionalModel/HapkeModel/HapkeVersions/Hapke93Model.cpp":
     pass
 
-cdef extern from "../src/physicalModel/HapkeModel/HapkeVersions/HapkeModel.cpp":
+cdef extern from "../src/functionalModel/HapkeModel/HapkeVersions/HapkeModel.cpp":
     pass
 
-cdef extern from "../src/physicalModel/HapkeModel/HapkeAdapters/FourParamsModel.cpp":
+cdef extern from "../src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.cpp":
     pass
 
-cdef extern from "../src/physicalModel/HapkeModel/HapkeAdapters/SixParamsModel.cpp":
+cdef extern from "../src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.cpp":
     pass
 
-cdef extern from "../src/physicalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.cpp":
+cdef extern from "../src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.cpp":
     pass
 
-cdef extern from "../src/physicalModel/ShkuratovModel/ShkuratovModel.cpp":
+cdef extern from "../src/functionalModel/ShkuratovModel/ShkuratovModel.cpp":
     pass
 
-cdef extern from "../src/physicalModel/ExternalModel/ExternalFunctionalModel.cpp":
+cdef extern from "../src/functionalModel/ExternalModel/ExternalFunctionalModel.cpp":
     pass

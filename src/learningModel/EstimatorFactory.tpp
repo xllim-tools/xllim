@@ -1,6 +1,9 @@
-//
-// Created by reverse-proxy on 12‏/2‏/2020.
-//
+/**
+ * @file EstimatorFactory.tpp
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 12/02/2020
+ */
 
 #include "configs/LearningConfig.h"
 #include "estimators/GmmEstimator.h"

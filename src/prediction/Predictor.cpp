@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 26‏/3‏/2020.
-//
+/**
+ * @file Predictor.cpp
+ * @brief Predictor class implementation
+ * @author Sami DJOUADI
+ * @version 1.2
+ * @date 26/03/2019
+ */
 
 #include "Predictor.h"
 

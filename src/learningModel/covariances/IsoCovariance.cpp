@@ -1,51 +1,55 @@
-//
-// Created by reverse-proxy on 26‏/2‏/2020.
-//
+/**
+ * @file IsoCovariance.cpp
+ * @brief IsoCovairance class implementation
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 26/02/2020
+ */
 
 #include "Icovariance.h"
 
 using namespace learningModel;
 
-IsoCovariance::IsoCovariance(double covariance, unsigned size){
-    this->covariance = covariance;
+IsoCovariance::IsoCovariance(double scalar, unsigned size){
+    this->scalar = scalar;
     this->size = size;
 }
 
 IsoCovariance::IsoCovariance(const mat &covariance){
-    this->covariance = accu(covariance.diag())/covariance.n_cols;
+    this->scalar = accu(covariance.diag()) / covariance.n_cols;
     this->size = covariance.n_cols;
 }
 
 IsoCovariance::IsoCovariance(unsigned dimension) {
-    covariance = 0;
+    scalar = 0;
     size = dimension;
 }
 
 IsoCovariance &IsoCovariance::operator=(const IsoCovariance &cov) {
-    covariance = cov.covariance;
+    scalar = cov.scalar;
     size = cov.size;
 }
 
 IsoCovariance &IsoCovariance::operator=(const arma::mat & cov) {
-    this->covariance = accu(cov.diag())/cov.n_cols;
+    this->scalar = accu(cov.diag()) / cov.n_cols;
     this->size = cov.n_cols;
 }
 
 IsoCovariance &IsoCovariance::operator=(double scalar) {
-    covariance = scalar;
+    scalar = scalar;
 }
 
 IsoCovariance &IsoCovariance::operator+=(double scalar) {
-    covariance += scalar;
+    scalar += scalar;
 }
 
 IsoCovariance &IsoCovariance::operator+=(const arma::mat & cov) {
-    covariance += accu(cov.diag())/cov.n_cols;
+    scalar += accu(cov.diag()) / cov.n_cols;
 }
 
 mat learningModel::operator+(const mat &y, const IsoCovariance &x) {
     mat result = y;
-    result.diag() += x.covariance;
+    result.diag() += x.scalar;
     return result;
 }
 
@@ -54,46 +58,46 @@ mat learningModel::operator+(const IsoCovariance &x, const mat &y) {
 }
 
 mat learningModel::operator*(const mat &y, const IsoCovariance &x) {
-    return y * x.covariance;
+    return y * x.scalar;
 }
 
 mat learningModel::operator*(const IsoCovariance &x, const mat &y) {
-    return y * x.covariance;
+    return y * x.scalar;
 }
 
 vec learningModel::operator*(const IsoCovariance &x, const vec &y){
-    return y * x.covariance;
+    return y * x.scalar;
 }
 
 rowvec learningModel::operator*(const rowvec &y, const IsoCovariance &x){
-    return y * x.covariance;
+    return y * x.scalar;
 }
 
 IsoCovariance IsoCovariance::inv(){
-    return IsoCovariance(1.0/covariance, size);
+    return IsoCovariance(1.0 / scalar, size);
 }
 
 double IsoCovariance::det() {
-    return pow(covariance, size);
+    return pow(scalar, size);
 }
 
 void IsoCovariance::rankOneUpdate(const arma::vec & v, double alpha) {
-    covariance += accu(pow(v,2) * alpha)/size;
+    scalar += accu(pow(v, 2) * alpha) / size;
 }
 
 void IsoCovariance::print() {
-    std::cout << "IsoCovariance : " << covariance << " size : " << size << std::endl;
+    std::cout << "IsoCovariance : " << scalar << " size : " << size << std::endl;
 }
 
 mat IsoCovariance::getFull() const {
     mat full(size, size, fill::zeros);
-    full.diag() += covariance;
+    full.diag() += scalar;
     return full;
 }
 
 mat learningModel::operator-(const mat &y, const IsoCovariance &x) {
     mat result = y;
-    result.diag() -= x.covariance;
+    result.diag() -= x.scalar;
     return result;
 }
 

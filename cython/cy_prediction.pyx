@@ -34,7 +34,7 @@ class MeanPredictionResultExport:
         2D array (L * K) is the means of each component in the GMM
 
     gmm_covs : ndarray
-        3D array (L * L * K) s the covariance matrices of each component in the GMM
+        3D array (L * L * K) is the covariance matrices of each component in the GMM
 
     """
     def __init__(self):

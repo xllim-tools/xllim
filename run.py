@@ -5,13 +5,13 @@ import json
 import time
 import my_python_objects as Obj
 
-# obj = ker.ExternalModelConfig("ExternalFunctionalModelExample", "MyFunctional","/home/reverse-proxy/CLionProjects/untitled").create()
-# x = np.arange(3, dtype=np.double)
-# print(obj.get_D_dimension())
-# print(obj.get_L_dimension())
-# y = obj.F(x)
-# print(x)
-# print(y)
+obj = ker.ExternalModelConfig("ExternalFunctionalModelExample", "MyFunctional","/home/reverse-proxy/CLionProjects/untitled").create()
+x = np.arange(3, dtype=np.double)
+print(obj.get_D_dimension())
+print(obj.get_L_dimension())
+y = obj.F(x)
+print(x)
+print(y)
 
 #Read geometries and photometries from file 'test_hapke.json'
 with open('test_hapke.json') as json_file:

@@ -1,3 +1,11 @@
+/**
+ * @file FixedInitializer.tpp
+ * @brief FixedInitializer class implementation
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 23/03/2020
+ */
+
 #include "../estimators/GmmEstimator.h"
 #include "../estimators/EmEstimator.h"
 

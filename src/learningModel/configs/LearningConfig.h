@@ -1,12 +1,21 @@
-//
-// Created by reverse-proxy on 12‏/2‏/2020.
-//
+/**
+ * @file InitConfig.h
+ * @brief The definition of the classes used to configure the initializer of the learning model.
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 12/02/2020
+ */
 
 #ifndef KERNELO_LEARNINGCONFIG_H
 #define KERNELO_LEARNINGCONFIG_H
 
 namespace learningModel{
 
+    /**
+     * @class InitConfig
+     *
+     * @brief Common interface of the configuration classes.
+     */
     class LearningConfig{
     protected:
         virtual ~LearningConfig() = default;

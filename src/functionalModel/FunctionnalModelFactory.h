@@ -16,7 +16,7 @@ using namespace Functional;
 /**
  * @class FunctionnalModelFactory
  *
- * This class is a factory responsible of creating in instance of a functional model depending on the "type" chosen
+ * This class is a factory responsible of creating an instance of a functional model depending on the "type" chosen
  *
  */
 class FunctionnalModelFactory {

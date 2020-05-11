@@ -1,6 +1,9 @@
-//
-// Created by reverse-proxy on 22‏/4‏/2020.
-//
+/**
+ * @file ExternalFunctionalModel.cpp
+ * @author Sami DJOUADI
+ * @version 1.2
+ * @date 22/04/2020
+ */
 
 #include "ExternalFunctionalModel.h"
 #include <cstdio>

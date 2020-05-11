@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 29‏/3‏/2020.
-//
+/**
+ * @file GaussianRegularizedProposition.h
+ * @brief GaussianRegularizedProposition class definition
+ * @author Sami DJOUADI
+ * @version 1.2
+ * @date 29/03/2020
+ */
 
 #ifndef KERNELO_GAUSSIANREGULARIZEDPROPOSITION_H
 #define KERNELO_GAUSSIANREGULARIZEDPROPOSITION_H
@@ -8,6 +12,9 @@
 #include "ISProposition.h"
 
 namespace importanceSampling {
+    /**
+     * @class GaussianRegularizedProposition
+     */
     class GaussianRegularizedProposition : public ISProposition{
     public:
 

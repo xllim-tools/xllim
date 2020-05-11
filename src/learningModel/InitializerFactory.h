@@ -1,6 +1,10 @@
-//
-// Created by reverse-proxy on 19‏/3‏/2020.
-//
+/**
+ * @file InitializerFactory.h
+ * @brief Factory class of the GLLiM initializer
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 19/03/2020
+ */
 
 #ifndef KERNELO_INITIALIZERFACTORY_H
 #define KERNELO_INITIALIZERFACTORY_H
@@ -10,6 +14,14 @@
 
 namespace learningModel{
 
+    /**
+     * @class InitializerFactory
+     *
+     * This class is a factory responsible of creating an initializer for the learning model. The type of the created
+     * initializer depends on the configuration object in the parameters of the method "create".
+     * It may be @see FixedInitializer "FixedInitializer" or @see MultInitializer "MultInitializer".
+     *
+     */
     class InitializerFactory {
     public:
 

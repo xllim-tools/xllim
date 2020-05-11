@@ -1,10 +1,18 @@
-//
-// Created by reverse-proxy on 12‏/3‏/2020.
-//
+/**
+ * @file ShkuratovModel.cpp
+ * @brief Shkuratov model class implementation
+ * @author Sami DJOUADI
+ * @version 1.1
+ * @date 12/03/2020
+ */
 
 #include "ShkuratovModel.h"
 
 #define DEGREE_180 180
+#define L 5
+#define INC 0
+#define EME 1
+#define PHI 2
 
 using namespace Functional;
 using namespace ShkuratovEnumeration;
@@ -12,8 +20,8 @@ using namespace ShkuratovEnumeration;
 ShkuratovModel::ShkuratovModel(const double *geometries, int row_size, int col_size,
                                            const double *scalingCoeffs, const double *offset) {
 
-    this->scalingCoeffs = vec(scalingCoeffs, 5);
-    this->offset = vec(offset, 5);
+    this->scalingCoeffs = vec(&scalingCoeffs[0], L);
+    this->offset = vec(&offset[0], L);
 
     mat geomsMat = mat(row_size,col_size);
     for(unsigned i=0; i<row_size; i++){
@@ -42,7 +50,7 @@ int ShkuratovModel::get_D_dimension() {
 }
 
 int ShkuratovModel::get_L_dimension() {
-    return 5;
+    return L;
 }
 
 void ShkuratovModel::to_physic(rowvec &x) {
@@ -65,20 +73,20 @@ void ShkuratovModel::setupGeometries(const mat &geometries) {
     });
 
     //compute Alpha
-    configuredGeometries.col(ShkuratovEnumeration::ALPHA) = acos(cos(geomsGrad.col(0)) % cos(geomsGrad.col(1)) + sin(geomsGrad.col(0)) % sin(geomsGrad.col(1)) % cos(geomsGrad.col(2)));
+    configuredGeometries.col(ShkuratovEnumeration::ALPHA) = acos(cos(geomsGrad.col(INC)) % cos(geomsGrad.col(EME)) + sin(geomsGrad.col(INC)) % sin(geomsGrad.col(EME)) % cos(geomsGrad.col(PHI)));
 
     //compute Beta
-    vec sin_i_e_2 = pow(sin(geomsGrad.col(0) + geomsGrad.col(1)),2);
-    vec cos_phiDiv2_2 = pow(cos(geomsGrad.col(2)/2.0),2);
-    vec sin_2_i = sin(geomsGrad.col(0) * 2);
-    vec sin_2_e = sin(geomsGrad.col(1) * 2);
+    vec sin_i_e_2 = pow(sin(geomsGrad.col(INC) + geomsGrad.col(EME)),2);
+    vec cos_phiDiv2_2 = pow(cos(geomsGrad.col(PHI)/2.0),2);
+    vec sin_2_i = sin(geomsGrad.col(INC) * 2);
+    vec sin_2_e = sin(geomsGrad.col(EME) * 2);
     vec cos_beta = sqrt(
             (sin_i_e_2 - cos_phiDiv2_2 % sin_2_i % sin_2_e) /
-            (sin_i_e_2 - cos_phiDiv2_2 % sin_2_i % sin_2_e + pow(sin(geomsGrad.col(1)),2) % pow(sin(geomsGrad.col(0)),2) % pow(sin(geomsGrad.col(2)),2)));
+            (sin_i_e_2 - cos_phiDiv2_2 % sin_2_i % sin_2_e + pow(sin(geomsGrad.col(EME)),2) % pow(sin(geomsGrad.col(INC)),2) % pow(sin(geomsGrad.col(PHI)),2)));
     configuredGeometries.col(BETA) = acos(cos_beta);
 
     //compute Gamma
-    configuredGeometries.col(GAMMA) = acos(cos(geomsGrad.col(1)) / cos_beta);
+    configuredGeometries.col(GAMMA) = acos(cos(geomsGrad.col(EME)) / cos_beta);
 }
 
 double ShkuratovModel::degToGrad(double degree) {
