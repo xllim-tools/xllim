@@ -9,7 +9,7 @@
 #include "ShkuratovModel.h"
 
 #define DEGREE_180 180
-#define L 5
+#define L_dimension 5
 #define INC 0
 #define EME 1
 #define PHI 2
@@ -20,8 +20,8 @@ using namespace ShkuratovEnumeration;
 ShkuratovModel::ShkuratovModel(const double *geometries, int row_size, int col_size,
                                            const double *scalingCoeffs, const double *offset) {
 
-    this->scalingCoeffs = vec(&scalingCoeffs[0], L);
-    this->offset = vec(&offset[0], L);
+    this->scalingCoeffs = vec(&scalingCoeffs[0], L_dimension);
+    this->offset = vec(&offset[0], L_dimension);
 
     mat geomsMat = mat(row_size,col_size);
     for(unsigned i=0; i<row_size; i++){
@@ -50,7 +50,7 @@ int ShkuratovModel::get_D_dimension() {
 }
 
 int ShkuratovModel::get_L_dimension() {
-    return L;
+    return L_dimension;
 }
 
 void ShkuratovModel::to_physic(rowvec &x) {

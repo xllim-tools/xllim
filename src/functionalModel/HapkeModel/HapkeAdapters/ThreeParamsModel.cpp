@@ -7,7 +7,7 @@
  */
 
 #include "ThreeParamsModel.h"
-#include "../../Enumeration.h"
+//#include "../../Enumeration.h"
 
 using namespace Functional;
 using namespace HapkeEnumeration;
