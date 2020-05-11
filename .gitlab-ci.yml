@@ -21,11 +21,17 @@ build:
 
 staging:
     image : docker:latest
-    services :
-        - docker:dind
+    services:
+        - name: docker:dind
+          entrypoint: ["env", "-u", "DOCKER_HOST"]
+          command: ["dockerd-entrypoint.sh"]
+
+    variables:
+        DOCKER_HOST: tcp://docker:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
     stage : deploy
     script:
-        - ls
         - echo "Building run environement"
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.inria.fr
         - docker build -t registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is:test .
