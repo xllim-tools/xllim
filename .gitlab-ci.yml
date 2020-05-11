@@ -25,6 +25,7 @@ staging:
         - docker:dind
     stage : deploy
     script:
+        - ls
         - echo "Building run environement"
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.inria.fr
         - docker build -t registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is:test .
