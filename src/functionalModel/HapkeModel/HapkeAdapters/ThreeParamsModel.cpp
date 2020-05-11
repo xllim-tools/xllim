@@ -10,7 +10,7 @@
 //#include "../../Enumeration.h"
 
 using namespace Functional;
-//using namespace HapkeEnumeration;
+using namespace HapkeEnumeration;
 
 void ThreeParamsModel::adaptModel(rowvec &photometry) {
     this->c = 3.29 * exp(-17.4 * pow(photometry(B), 2) + 0.092) / 2;

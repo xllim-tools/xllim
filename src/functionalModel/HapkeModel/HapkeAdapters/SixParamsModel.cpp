@@ -10,7 +10,7 @@
 //#include "../../Enumeration.h"
 
 using namespace Functional;
-//using namespace HapkeEnumeration;
+using namespace HapkeEnumeration;
 
 void SixParamsModel::adaptModel(rowvec &photometry) {
     this->b0 = photometry(B0);

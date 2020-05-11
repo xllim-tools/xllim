@@ -10,7 +10,7 @@
 //#include "../../Enumeration.h"
 
 using namespace Functional;
-//using namespace HapkeEnumeration;
+using namespace HapkeEnumeration;
 
 FourParamsModel::FourParamsModel(double b0, double h) {
     this->b0 = b0;
