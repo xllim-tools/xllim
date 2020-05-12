@@ -20,16 +20,10 @@ build:
             - ./*.so
 
 staging:
-    image : docker:18-git
+    image : docker:stable
     services:
-        - name: docker:18-dind
-          entrypoint: ["env", "-u", "DOCKER_HOST"]
-          command: ["dockerd-entrypoint.sh"]
-
-    variables:
-        DOCKER_HOST: tcp://docker:2375/
-        DOCKER_DRIVER: overlay2
-        DOCKER_TLS_CERTDIR: ""
+        - docker:dind
+          
     stage : deploy
     script:
         - echo "Building run environement"
