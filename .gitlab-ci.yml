@@ -23,7 +23,7 @@ staging:
     image : docker:stable
     services:
         - docker:dind
-          
+
     stage : deploy
     script:
         - echo "Building run environement"
