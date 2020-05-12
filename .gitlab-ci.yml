@@ -20,9 +20,9 @@ build:
             - ./*.so
 
 staging:
-    image : gitlab/dind
+    image : docker:18-git
     services:
-        - name: docker:dind
+        - name: docker:18-dind
           entrypoint: ["env", "-u", "DOCKER_HOST"]
           command: ["dockerd-entrypoint.sh"]
 
