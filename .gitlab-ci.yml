@@ -20,11 +20,9 @@ build:
             - ./*.so
 
 staging:
-    image : docker:18.09
-    services:
-        - docker:18.09-dind
-
     stage : deploy
+    before_script:
+        - docker info
     script:
         - echo "Building run environement"
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.inria.fr
