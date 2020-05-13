@@ -17,14 +17,17 @@ FullCovariance::FullCovariance(const mat &covariance){
 
 FullCovariance &FullCovariance::operator=(const FullCovariance &cov) {
     covariance = cov.covariance;
+    return *this;
 }
 
 FullCovariance &FullCovariance::operator=(const mat &cov){
     covariance = cov;
+    return *this
 }
 
 FullCovariance &FullCovariance::operator=(double scalar) {
     covariance.fill(scalar);
+    return *this;
 }
 
 double FullCovariance::det() {

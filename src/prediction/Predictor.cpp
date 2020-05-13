@@ -202,7 +202,7 @@ mat computeMixtureCov(const vec &weights, const mat &means, const cube &covs) {
 
 void Predictor::reduceGaussians(std::vector<std::pair<MultivariateGaussian, bool>> &gaussians, unsigned &K) {
     unsigned L = gaussians[0].first.mean.n_rows;
-    unsigned reduced_K = K;
+    unsigned reduced_K = k_merged;
 
     // sort gaussians by weight in reverse direction
     //std::sort(gaussians.begin(), gaussians.end(), compareByWeight);
@@ -212,7 +212,6 @@ void Predictor::reduceGaussians(std::vector<std::pair<MultivariateGaussian, bool
     for(unsigned k=0; k<k_merged; k++){
         gaussians[k].second = !DELETED;
     }
-    reduced_K = k_merged;
 
     for(unsigned k=k_merged; k<K; k++){
         if(gaussians[k].first.weight < threshold){

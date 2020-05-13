@@ -12,7 +12,6 @@
 #include <string>
 #include <memory>
 #include "HapkeModel/HapkeAdapter.h"
-#include "HapkeModel/HapkeAdapters/HapkeAdapterFactory.h"
 #include "HapkeModel/HapkeVersions/Hapke02Model.h"
 #include "HapkeModel/HapkeAdapters/SixParamsModel.h"
 #include "HapkeModel/HapkeAdapters/FourParamsModel.h"

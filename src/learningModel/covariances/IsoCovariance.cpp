@@ -28,19 +28,22 @@ IsoCovariance::IsoCovariance(unsigned dimension) {
 IsoCovariance &IsoCovariance::operator=(const IsoCovariance &cov) {
     scalar = cov.scalar;
     size = cov.size;
+    return *this;
 }
 
 IsoCovariance &IsoCovariance::operator=(const arma::mat & cov) {
     this->scalar = accu(cov.diag()) / cov.n_cols;
     this->size = cov.n_cols;
+    return *this;
 }
 
 IsoCovariance &IsoCovariance::operator=(double scalar) {
-    scalar = scalar;
+    this->scalar = scalar;
+    return *this;
 }
 
 IsoCovariance &IsoCovariance::operator+=(double scalar) {
-    scalar += scalar;
+    this->scalar += scalar;
 }
 
 IsoCovariance &IsoCovariance::operator+=(const arma::mat & cov) {

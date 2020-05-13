@@ -43,9 +43,9 @@ namespace learningModel{
         void getModel(GLLiM &gllim) override ;
         void setModel(GLLiM &gllim) override ;
         arma::gmm_full computeGMM(const vec &y_obs, const vec &cov_obs) override ;
-        void getInverse(GLLiM &gllim);
-        void directLogDensity(double *x, double *weights, double *means, double *covs);
-        void inverseLogDensity(double *y, double *weights, double *means, double *covs);
+        void getInverse(GLLiM &gllim) override ;
+        void directLogDensity(double *x, double *weights, double *means, double *covs) override ;
+        void inverseLogDensity(double *y, double *weights, double *means, double *covs) override ;
 
         GLLiMParameters<FullCovariance, FullCovariance> inverse(GLLiMParameters<T,U> &gllim_direct);
         std::shared_ptr<GLLiMParameters<T,U>> getParameters(){

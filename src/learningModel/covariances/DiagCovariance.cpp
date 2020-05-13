@@ -24,14 +24,17 @@ DiagCovariance::DiagCovariance(unsigned dimension) {
 
 DiagCovariance &DiagCovariance::operator=(const DiagCovariance &cov) {
     variances = cov.variances;
+    return *this;
 }
 
 DiagCovariance &DiagCovariance::operator=(const mat &cov){
     variances = cov.diag();
+    return *this;
 }
 
 DiagCovariance &DiagCovariance::operator=(double scalar) {
     variances.fill(scalar);
+    return *this;
 }
 
 mat learningModel::operator+(const mat &y, const DiagCovariance &x) {

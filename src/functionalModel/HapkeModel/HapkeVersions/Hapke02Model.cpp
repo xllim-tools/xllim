@@ -24,15 +24,12 @@ double Hapke02Model::set_coef() {
 }
 
 rowvec Hapke02Model::define_different_part(const rowvec &photometry, rowvec mue, rowvec mu0e) {
-    rowvec result = rowvec(configuredGeometries.n_rows);
-    result = (1 + calculate_B(adapter->get_b0(),adapter->get_h())) % calculate_P(photometry(B), adapter->get_c()) + (calculate_H(mu0e, photometry(OMEGA)) % calculate_H(mue , photometry(OMEGA))) - 1;
-    //cout<< "diff part " << result(0) <<endl;
+    rowvec result = (1 + calculate_B(adapter->get_b0(),adapter->get_h())) % calculate_P(photometry(B), adapter->get_c()) + (calculate_H(mu0e, photometry(OMEGA)) % calculate_H(mue , photometry(OMEGA))) - 1;
     return result;
 }
 
 rowvec Hapke02Model::calculate_H(const rowvec &x, double omega) {
     double y = sqrt(1 - omega);
     rowvec result = (1 + 2 * x)/(1 + 2 * x * y);
-    //cout<< "H " << result(0) <<endl;
     return result;
 }

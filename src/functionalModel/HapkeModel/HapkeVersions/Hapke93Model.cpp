@@ -27,8 +27,7 @@ double Hapke93Model::set_coef() {
 }
 
 rowvec Hapke93Model::define_different_part(const rowvec &photometry, rowvec mue, rowvec mu0e) {
-    rowvec result = rowvec(configuredGeometries.n_rows);
-    result = (1 + calculate_B(adapter->get_b0(),adapter->get_h())) % calculate_P(photometry(B), adapter->get_c()) + calculate_H(mu0e, photometry(OMEGA)) % calculate_H(mue , photometry(OMEGA)) - 1;
+    rowvec result = (1 + calculate_B(adapter->get_b0(),adapter->get_h())) % calculate_P(photometry(B), adapter->get_c()) + calculate_H(mu0e, photometry(OMEGA)) % calculate_H(mue , photometry(OMEGA)) - 1;
     return result;
 }
 

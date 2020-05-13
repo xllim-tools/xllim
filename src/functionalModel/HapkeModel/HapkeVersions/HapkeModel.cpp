@@ -8,7 +8,6 @@
 
 #include "../HapkeModel.h"
 #include <utility>
-#include "../HapkeAdapters/HapkeAdapterFactory.h"
 
 #define DEGREE_180 180
 
@@ -190,8 +189,7 @@ rowvec HapkeModel::calculate_S(const double theta_bar, const rowvec& mue, const 
 }
 
 rowvec HapkeModel::calculate_B(const double b0, const double h) {
-    rowvec result = rowvec(configuredGeometries.n_rows);
-    result = b0 / (1 + geom_helper_mat.col(TAN_G_DIV_2).t() / h);
+    rowvec result = b0 / (1 + geom_helper_mat.col(TAN_G_DIV_2).t() / h);
     return result;
 }
 
@@ -248,16 +246,14 @@ double HapkeModel::calculate_X(const double theta_bar) {
 }
 
 rowvec HapkeModel::calculate_MuE_0(double theta_bar, rowvec &E1, rowvec &E1_0, rowvec &E2, rowvec &E2_0) {
-    vec result = vec(configuredGeometries.n_rows);
-    result  = calculate_X(theta_bar) *
+    vec result = calculate_X(theta_bar) *
             (geom_helper_mat.col(COS_THETA) +
             (geom_helper_mat.col(SIN_THETA) % E2.t() *tan(theta_bar) /(2 - E1.t())));
     return result.t();
 }
 
 rowvec HapkeModel::calculate_Mu0E_0(double theta_bar, rowvec &E1, rowvec &E1_0, rowvec &E2, rowvec &E2_0) {
-    vec result = vec(configuredGeometries.n_rows);
-    result  = calculate_X(theta_bar) *
+    vec result = calculate_X(theta_bar) *
               (geom_helper_mat.col(COS_THETA_0) +
               (geom_helper_mat.col(SIN_THETA_0) % E2_0.t() * tan(theta_bar) /(2 - E1_0.t()))
               );

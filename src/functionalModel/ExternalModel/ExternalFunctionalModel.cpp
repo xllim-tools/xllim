@@ -47,10 +47,6 @@ void ExternalFunctionalModel::F(rowvec x, rowvec &y) {
             npy_intp x_dims[1]{get_L_dimension()};
             CPyObject x_pArray = PyArray_SimpleNewFromData(1, x_dims, NPY_DOUBLE, x_ptr);
 
-            double *y_ptr = y.memptr();
-            npy_intp y_dims[1]{get_D_dimension()};
-            CPyObject y_pArray = PyArray_SimpleNewFromData(1, y_dims, NPY_DOUBLE, y_ptr);
-
             CPyObject y_pModified = PyObject_CallMethodObjArgs(py_obj, pFunc , x_pArray.getObject(), NULL);
             auto y_arrayModified = reinterpret_cast<PyArrayObject*>(y_pModified.getObject());
 
@@ -132,7 +128,12 @@ void ExternalFunctionalModel::from_physic(double *x, int size) {
             CPyObject x_pModified = PyObject_CallMethodObjArgs(py_obj, pFunc, x_pArray.getObject(), NULL);
             auto x_arrayModified = reinterpret_cast<PyArrayObject *>(x_pModified.getObject());
 
-            x = reinterpret_cast<double *>(PyArray_DATA(x_arrayModified));
+            auto *x_modified = reinterpret_cast<double *>(PyArray_DATA(x_arrayModified));
+
+            for(int i=0; i<size ; i++){
+                x[i] = x_modified[i];
+            }
+
         } else {
             printf("ERROR: function from_physic(x) \n");
         }
