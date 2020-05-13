@@ -4,20 +4,20 @@ stages:
     - build
     - deploy
 
-build:
-    #only:
-    #    refs:
-    #      - merge_requests
-    #    variables:
-    #      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "staging" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "production"
-    stage: build
-    image: samidj/kernelo-builder:v1.0
-    script:
-        - echo "building kernel"
-        - python3.7 setup.py build_ext --inplace -vvv
-    artifacts:
-        paths:
-            - ./*.so
+#build:
+#    #only:
+#    #    refs:
+#    #      - merge_requests
+#    #    variables:
+#    #      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "staging" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "production"
+#    stage: build
+#    image: samidj/kernelo-builder:v1.0
+#    script:
+#        - echo "building kernel"
+#        - python3.7 setup.py build_ext --inplace -vvv
+#    artifacts:
+#        paths:
+#            - ./*.so
 
 staging:
     stage : deploy
