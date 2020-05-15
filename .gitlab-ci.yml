@@ -38,6 +38,8 @@ staging:
 cppcheck:
     image : ubuntu:bionic
     stage : analysis
+    tags:
+        - build
     before_script:
         - apt update
         - apt install -y --no-install-recommends cppcheck=1.82-1
@@ -48,6 +50,8 @@ cppcheck:
 doxygen:
     image : alpine:3.7
     stage : analysis
+    tags:
+        - build
     before_script:
         - apk update
         - apk add --no-cache -t .required_apks doxygen=1.8.13-r1 gra
