@@ -48,13 +48,13 @@ cppcheck:
         - cppcheck src --verbose --enable=all --language=c++
 
 doxygen:
-    image : alpine:3.7
+    image : ubuntu:bionic
     stage : analysis
     tags:
         - build
     before_script:
-        - apk update
-        - apk add --no-cache -t .required_apks doxygen=1.8.13-r1 gra
+        - apt update
+        - apt install -y doxygen
         - mkdir -p docs/cpp_doc
     script:
         - doxygen Doxyfile
