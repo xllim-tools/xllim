@@ -55,7 +55,7 @@ doxygen:
     before_script:
         - apt update
         - apt install -y doxygen
-        - apt-get install -y graphiz
+        - apt install -y graphviz
         - mkdir -p docs/cpp_docs
     script:
         - doxygen Doxyfile
