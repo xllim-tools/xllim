@@ -54,12 +54,11 @@ add_library(functionalModel STATIC
         src/functionalModel/HapkeModel/HapkeVersions/HapkeModel.cpp
         src/functionalModel/HapkeModel/HapkeVersions/Hapke93Model.cpp
         src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.cpp
-        src/functionalModel/FunctionnalModelFactory.cpp
         src/functionalModel/Enumeration.h
         src/functionalModel/HapkeModel/HapkeModel.h
         src/functionalModel/FunctionalModel.h
         src/functionalModel/HapkeModel/HapkeVersions/Hapke93Model.h
-        src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.h src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h src/functionalModel/HapkeModel/HapkeAdapter.h src/functionalModel/HapkeModel/HapkeAdapters/HapkeAdapterFactory.cpp src/functionalModel/HapkeModel/HapkeAdapters/HapkeAdapterFactory.h src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.h src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.h src/functionalModel/ShkuratovModel/ShkuratovModel.cpp src/functionalModel/ShkuratovModel/ShkuratovModel.h)
+        src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.h src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h src/functionalModel/HapkeModel/HapkeAdapter.h src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.h src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.h src/functionalModel/ShkuratovModel/ShkuratovModel.cpp src/functionalModel/ShkuratovModel/ShkuratovModel.h)
 
 add_library(learningModel STATIC
         src/learningModel/configs/LearningConfig.h

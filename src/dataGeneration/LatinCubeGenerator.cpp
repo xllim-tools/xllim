@@ -201,7 +201,6 @@ double *LatinCubeGenerator::latin_random_new ( int dim_num, int point_num, int &
     int i;
     int j;
     int *perm;
-    double r;
     double *x;
 
     x = LatinCubeGenerator::r8mat_uniform_01_new ( dim_num, point_num, seed );

@@ -73,7 +73,7 @@ ISDiagnostic ImportanceSampler::diagnostic(
         const vec &y_cov,
         std::shared_ptr<ISProposition> isProposition) {
 
-    unsigned N_samples = samples.n_cols, L_samples = samples.n_rows;
+    unsigned N_samples = samples.n_cols;
     double max_target_log_density = -datum::inf;
 
     vec target_log_densities(N_samples);

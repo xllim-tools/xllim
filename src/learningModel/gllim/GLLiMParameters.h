@@ -72,7 +72,7 @@ namespace learningModel{
          * Assignement operator redifinition
          * @param gllimParams : GLLiMParameters
          */
-        void operator=(const GLLiMParameters &gllimParams){
+        GLLiMParameters &operator=(const GLLiMParameters &gllimParams){
             this->D = gllimParams.D;
             this->L = gllimParams.L;
             this->K = gllimParams.K;
@@ -82,6 +82,8 @@ namespace learningModel{
             this->C = gllimParams.C;
             this->B = gllimParams.B;
             this->A = gllimParams.A;
+
+            return *this;
         }
 
         vec Pi; /**< A vector of size K containing the weights of the gaussian distributions in the mixture */
