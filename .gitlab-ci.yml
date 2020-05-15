@@ -55,6 +55,7 @@ doxygen:
     before_script:
         - apt update
         - apt install -y doxygen
+        - mkdir -p docs/cpp_docs
     script:
         - doxygen Doxyfile
     artifacts:
