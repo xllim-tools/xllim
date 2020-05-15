@@ -55,9 +55,8 @@ doxygen:
     before_script:
         - apt update
         - apt install -y doxygen
-        - mkdir -p docs/cpp_doc
     script:
         - doxygen Doxyfile
     artifacts:
         paths:
-            - docs/cpp_doc/html/
+            - docs/cpp_docs/html/
