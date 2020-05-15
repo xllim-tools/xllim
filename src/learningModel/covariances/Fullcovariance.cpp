@@ -22,7 +22,7 @@ FullCovariance &FullCovariance::operator=(const FullCovariance &cov) {
 
 FullCovariance &FullCovariance::operator=(const mat &cov){
     covariance = cov;
-    return *this
+    return *this;
 }
 
 FullCovariance &FullCovariance::operator=(double scalar) {
