@@ -7,8 +7,9 @@
  */
 
 #include "../HapkeModel.h"
+
 #include <utility>
-#include "../HapkeAdapters/HapkeAdapterFactory.h"
+
 
 #define DEGREE_180 180
 

@@ -5,13 +5,13 @@
 
 
 #include <armadillo>
-#include "src/physicalModel/FunctionalModel.h"
-#include "src/physicalModel/FunctionnalModelFactory.h"
-#include "src/physicalModel/ShkuratovModel/ShkuratovModel.h"
-#include "src/physicalModel/HapkeModel/HapkeVersions/Hapke02Model.h"
-#include "src/physicalModel/HapkeModel/HapkeAdapters/FourParamsModel.h"
-#include "src/physicalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h"
-#include "src/physicalModel/HapkeModel/HapkeAdapters/SixParamsModel.h"
+#include "src/functionalModel/FunctionalModel.h"
+#include "src/functionalModel/FunctionnalModelFactory.h"
+#include "src/functionalModel/ShkuratovModel/ShkuratovModel.h"
+#include "src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.h"
+#include "src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.h"
+#include "src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h"
+#include "src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.h"
 #include <utility>
 
 #include <iostream>

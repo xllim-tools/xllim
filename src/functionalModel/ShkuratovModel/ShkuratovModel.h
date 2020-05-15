@@ -10,6 +10,7 @@
 #ifndef KERNELO_SHKURATOVMODEL_H
 #define KERNELO_SHKURATOVMODEL_H
 
+#include "../Enumeration.h"
 #include "../FunctionalModel.h"
 
 

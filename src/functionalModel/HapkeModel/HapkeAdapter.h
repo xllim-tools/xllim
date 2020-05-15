@@ -10,7 +10,7 @@
 #define KERNELO_HAPKEADAPTER_H
 
 #include <armadillo>
-
+#include "../Enumeration.h"
 
 using namespace arma;
 namespace Functional {

@@ -10,6 +10,7 @@
 #define KERNELO_SIXPARAMSMODEL_H
 
 #include "../HapkeAdapter.h"
+
 namespace Functional{
     /**
      * @class SixParamsModel

@@ -7,12 +7,12 @@
 #include <boost/random/variate_generator.hpp>
 #include <iostream>
 #include <chrono>
-#include "src/physicalModel/FunctionalModel.h"
-#include "src/physicalModel/FunctionnalModelFactory.h"
-#include "src/physicalModel/Hapke02Model.h"
-#include "src/physicalModel/FourParamsModel.h"
-#include "src/physicalModel/ThreeParamsModel.h"
-#include "src/physicalModel/SixParamsModel.h"
+#include "src/functionalModel/FunctionalModel.h"
+#include "src/functionalModel/FunctionnalModelFactory.h"
+#include "src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.h"
+#include "src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.h"
+#include "src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h"
+#include "src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.h"
 #include "src/dataGeneration//LatinCubeGenerator.h"
 #include "src/dataGeneration/creators.h"
 

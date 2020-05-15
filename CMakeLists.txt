@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CXX_STANDARD 11)
 set(PROJECT_VERSION 1.0)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+    SET(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+    SET(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+endif()
+
 SET(GCC_COVERAGE_COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
 SET(GCC_COVERAGE_LINK_FLAGS "-lgcov -coverage")
 

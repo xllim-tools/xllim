@@ -6,6 +6,9 @@
  * @date 18/12/2019
  */
 
+#ifndef KERNELO_ENUMERATION_H
+#define KERNELO_ENUMERATION_H
+
 namespace Functional {
 /**
  * @namespace HapkeEnumeration
@@ -59,3 +62,5 @@ namespace Functional {
 
     }
 }
+
+#endif //KERNELO_ENUMERATION_H
