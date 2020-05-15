@@ -1,4 +1,5 @@
 stages:
+    - analysis
     - test
     - notify
     - build
@@ -34,84 +35,25 @@ staging:
         - docker push registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is:test
 
 
-      #services:
-#    - name: docker:dind
-#      entrypoint: ["env", "-u", "DOCKER_HOST"]
-#      command: ["dockerd-entrypoint.sh"]
-#
-#variables:
-#    DOCKER_HOST: tcp://docker:2375/
-#    DOCKER_DRIVER: overlay2
-#    DOCKER_TLS_CERTDIR: ""
+cppcheck:
+    image : ubuntu:bionic
+    stage : analysis
+    before_script:
+        - apt update
+        - apt install -y --no-install-recommends cppcheck=1.82-1
+        - cppcheck --version
+    script:
+        - cppcheck src --verbose --enable=all --language=c++
 
-#staging:
-##    before_script:
-##        - cp kernelo.cpython-37m-x86_64-linux-gnu.so test_env/kernelo.cpython-37m-x86_64-linux-gnu.so
-##        - cp cython/my_python_objects.py test_env/my_python_objects.py
-##        - cd test_env
-#    stage: deploy
-#    image: docker:latest
-#    #image: ruby:latest
-#    script:
-#        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-#        #- docker build -t registry.gitlab.com/mistis/kernelo:v1.0 .
-#        - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
-#        - docker pull jentkh/armadillo
-#        #- docker tag registry.gitlab.com/mistis/kernelo:v1.0 registry.heroku.com/$HEROKU_APP_STAGING/web
-#        - docker tag jentkh/armadillo registry.heroku.com/$HEROKU_APP_STAGING/web
-#        - docker push registry.heroku.com/$HEROKU_APP_STAGING/web
-#        - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app $HEROKU_APP_STAGING
-
-        #- apt-get update -qy
-        #- apt-get install -y ruby-dev
-        #- gem install dpl
-        #- echo "the project directory is - $CI_PROJECT_DIR"
-        #- cat $CI_PROJECT_DIR/README.md ; echo
-        #- echo "and where am I? - $PWD"
-        #- dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
-        #- ls
-
-        #    before_script:
-        #        - cd test_env
-        #    stage: deploy
-        #    image: ruby:latest
-        #    script:
-        #        - apt-get update -qy
-        #        - apt-get install -y ruby-dev
-        #        - gem install dpl
-        #        - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
-
-        #production:
-        #    before_script:
-        #        - cd test_env
-        #    stage: deploy
-        #    image: ruby:latest
-        #    script:
-        #        - apt-get update -qy
-        #        - apt-get install -y ruby-dev
-        #        - gem install dpl
-        #        - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
-
-
-        #cppcheck:
-        #    image : ubuntu:bionic
-        #    stage : test
-        #    before_script:
-        #        - apt update
-        #        - apt install -y --no-install-recommends cppcheck=1.82-1
-        #        - cppcheck --version
-        #    script:
-        #        - cppcheck src --verbose --enable=all --language=c++
-
-#doxygen:
-#    image: alpine:3.7
-#    stage : test
-#    before_script:
-#        - apk update
-#        - apk add --no-cache -t .required_apks doxygen=1.8.13-r1 gra
-#        - mkdir -p build/docs/cpp_doc
-#    scripts:
-#        - doxygen docs/Doxyfile
-#    artifacts:
-#        paths:
-#            - build/docs/cpp_doc/html/
+doxygen:
+    image : alpine:3.7
+    stage : analysis
+    before_script:
+        - apk update
+        - apk add --no-cache -t .required_apks doxygen=1.8.13-r1 gra
+        - mkdir -p docs/cpp_doc
+    script:
+        - doxygen Doxyfile
+    artifacts:
+        paths:
+            - docs/cpp_doc/html/
