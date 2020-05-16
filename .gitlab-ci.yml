@@ -62,3 +62,16 @@ doxygen:
     artifacts:
         paths:
             - docs/cpp_docs/html/
+
+pydoc:
+    image : samidj/kernelo-builder:v1.0
+    stage : build
+    tags:
+        - build
+    before_script:
+        - pip install sphinx
+    script :
+        - make html
+    artifacts:
+        paths:
+            - sphinx/
