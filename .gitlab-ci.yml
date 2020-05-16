@@ -69,7 +69,7 @@ pydoc:
     tags:
         - build
     before_script:
-        - pip install sphinx
+        - pip3 install sphinx
     script :
         - make html
     artifacts:
