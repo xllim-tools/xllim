@@ -76,4 +76,4 @@ sphinx:
         - make html
     artifacts:
         paths:
-            - sphinx/
+            - sphinx/_build/html/index.html
