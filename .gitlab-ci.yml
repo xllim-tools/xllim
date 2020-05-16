@@ -47,11 +47,10 @@ sonarqube:
         - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
         - export PATH=$PWD/sonar-scanner-3.3.0.1492-linux/bin:$PATH
         - keytool -import -alias inria -storepass "changeit" -keystore sonar-scanner-3.3.0.1492-linux/jre/lib/security/cacerts -file digicertca.crt
-        #- apt install -y --no-install-recommends cppcheck=1.82-1
-        #- cppcheck --version
     script:
         - sonar-scanner
-        #- cppcheck src --verbose --enable=all --language=c++
+    after_script:
+        - echo "Please visit the followinf link to see the result of sonar-scaner https://sonarqube.inria.fr/sonarqube"
 
 doxygen:
     image : ubuntu:bionic
