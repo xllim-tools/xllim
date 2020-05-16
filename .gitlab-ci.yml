@@ -42,7 +42,7 @@ sonarqube:
         - build
     before_script:
         - apt update
-        - apt-get install -y wget unzip
+        - apt-get install -y wget unzip keytool
         - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
         - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
         - export PATH=$PWD/sonar-scanner-3.3.0.1492-linux/bin:$PATH
