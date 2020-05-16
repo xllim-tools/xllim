@@ -71,6 +71,7 @@ pydoc:
     before_script:
         - pip3 install sphinx
     script :
+        - cd sphinx
         - make html
     artifacts:
         paths:
