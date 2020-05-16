@@ -36,7 +36,7 @@ staging:
 
 
 sonarqube:
-    image : ubuntu:bionic
+    image : samidj/kernelo-builder:v1.0
     stage : analysis
     tags:
         - build
@@ -81,4 +81,4 @@ sphinx:
         - make html
     artifacts:
         paths:
-            - sphinx/_build/html/index.html
+            - sphinx/_build/
