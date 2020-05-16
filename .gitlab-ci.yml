@@ -35,17 +35,22 @@ staging:
         - docker push registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is:test
 
 
-cppcheck:
+sonarqube:
     image : ubuntu:bionic
     stage : analysis
     tags:
         - build
     before_script:
         - apt update
-        - apt install -y --no-install-recommends cppcheck=1.82-1
-        - cppcheck --version
+        - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
+        - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
+        - export PATH=$PWD/sonar-scanner-3.3.0.1492-linux/bin:$PATH
+        - keytool -import -alias inria -storepass "changeit" -keystore sonar-scanner-3.3.0.1492-linux/jre/lib/security/cacerts -file Downloads/digicertca.crt
+        #- apt install -y --no-install-recommends cppcheck=1.82-1
+        #- cppcheck --version
     script:
-        - cppcheck src --verbose --enable=all --language=c++
+        - sonar-scanner
+        #- cppcheck src --verbose --enable=all --language=c++
 
 doxygen:
     image : ubuntu:bionic
