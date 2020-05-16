@@ -36,7 +36,7 @@ staging:
 
 
 sonarqube:
-    image : ubuntu:bionic
+    image : openjdk:8-jdk
     stage : analysis
     tags:
         - build
@@ -46,7 +46,7 @@ sonarqube:
         - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
         - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
         - export PATH=$PWD/sonar-scanner-3.3.0.1492-linux/bin:$PATH
-        - keytool -import -alias inria -storepass "changeit" -keystore sonar-scanner-3.3.0.1492-linux/jre/lib/security/cacerts -file Downloads/digicertca.crt
+        - keytool -import -alias inria -storepass "changeit" -keystore sonar-scanner-3.3.0.1492-linux/jre/lib/security/cacerts -file digicertca.crt
         #- apt install -y --no-install-recommends cppcheck=1.82-1
         #- cppcheck --version
     script:
