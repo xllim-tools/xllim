@@ -36,12 +36,13 @@ staging:
 
 
 sonarqube:
-    image : samidj/kernelo-builder:v1.0
+    image : ubuntu:bionic
     stage : analysis
     tags:
         - build
     before_script:
         - apt update
+        - apt-get install -y wget
         - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
         - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
         - export PATH=$PWD/sonar-scanner-3.3.0.1492-linux/bin:$PATH
