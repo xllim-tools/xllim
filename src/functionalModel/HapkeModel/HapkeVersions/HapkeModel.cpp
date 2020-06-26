@@ -51,21 +51,26 @@ void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
     // transform photometry from mathematical space to physical space
     to_physic(photometry);
 
+    std::cout << "lol1" <<std::endl;
     //Set THETA_BAR to radian
     photometry(THETA_BAR) = degToGrad(photometry(THETA_BAR));
+
 
     //Adapting Hapke model
     adapter->adaptModel(photometry);
 
-    rowvec E1 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR)));
-    rowvec E1_0 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR)));
-    rowvec E2 = exp(-1 / datum::pi * pow(geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR)),2));
-    rowvec E2_0 = exp(-1 / datum::pi * pow(geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR)),2));
+
+
+    rowvec E1 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR))).t();
+    rowvec E1_0 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR))).t();
+    rowvec E2 = exp(-1 / datum::pi * pow(geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR)),2)).t();
+    rowvec E2_0 = exp(-1 / datum::pi * pow(geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR)),2)).t();
 
     rowvec mu0e = calculate_Mu0E(photometry(THETA_BAR), E1, E1_0,E2, E2_0);
     rowvec mue = calculate_MuE(photometry(THETA_BAR), E1, E1_0,E2, E2_0);
     rowvec mue_0 = calculate_MuE_0(photometry(THETA_BAR), E1, E1_0,E2, E2_0);
     rowvec mu0e_0 = calculate_Mu0E_0(photometry(THETA_BAR), E1, E1_0,E2, E2_0);
+
 
     //Caculate reflectances
     reflectances = set_coef()
