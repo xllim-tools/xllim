@@ -27,6 +27,7 @@ GaussianStatModel::GaussianStatModel(
 
     //Transform cov from double* to arma::rowvec
     this->covariance = rowvec(covariance, cov_size);
+    this->covariance.print();
     this->seed = seed;
 }
 
@@ -72,7 +73,7 @@ std::tuple<mat, mat> GaussianStatModel::gen_data(int n) {
         // add noise
         for(unsigned j=0; j<dimension_D;j++){
             noise(j) = normalDistribution(engine);
-            y_arma(i,j) += noise(j) * sqrt(covariance(j));
+            y_arma(i,j) = y_temp(j) + noise(j) * covariance(j);
         }
     }
 

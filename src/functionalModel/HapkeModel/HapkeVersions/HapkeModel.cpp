@@ -51,7 +51,6 @@ void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
     // transform photometry from mathematical space to physical space
     to_physic(photometry);
 
-    std::cout << "lol1" <<std::endl;
     //Set THETA_BAR to radian
     photometry(THETA_BAR) = degToGrad(photometry(THETA_BAR));
 
