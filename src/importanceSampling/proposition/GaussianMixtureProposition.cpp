@@ -33,7 +33,7 @@ mat GaussianMixtureProposition::proposition_covariance() {
 
     for(unsigned k=0; k<K; k++){
         mean_mean_mixture += gmm.hefts(k) * gmm.means.col(k);
-        mean_cov_mixture += gmm.fcovs.slice(k) + gmm.means.col(k) * gmm.means.col(k).t() * gmm.hefts(k);
+        mean_cov_mixture += (gmm.fcovs.slice(k) + gmm.means.col(k) * gmm.means.col(k).t()) * gmm.hefts(k);
     }
     mean_cov_mixture -= mean_mean_mixture * mean_mean_mixture.t();
 

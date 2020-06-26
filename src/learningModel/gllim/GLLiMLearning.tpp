@@ -199,7 +199,7 @@ void GLLiMLearning<T,U>::alterCovariance(GLLiMParameters<T, U> &gllim, const vec
     mat cov(gllim.D, gllim.K , fill::zeros);
     cov.diag() += cov_obs;
     for(unsigned k=0; k<gllim.K; k++){
-        gllim.Sigma[k] += cov;
+        gllim.Sigma[k] += pow(cov, 2);
     }
 }
 

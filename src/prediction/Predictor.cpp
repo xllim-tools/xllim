@@ -96,10 +96,11 @@ PredictionResult Predictor::predict(const vec &y_obs, const vec &cov_obs) {
     // Compute the mean of covariances in the mixture
     mat mean_cov_mixture(L,L,fill::zeros);
     for(const auto &element : gaussians_for_predi_mean){
-        mean_cov_mixture += element.covariance + element.mean * element.mean.t() * element.weight;
+        mean_cov_mixture += (element.covariance + element.mean * element.mean.t()) * element.weight;
     }
     mean_cov_mixture -= result.meanPredResult.mean * result.meanPredResult.mean.t();
     result.meanPredResult.variance = mean_cov_mixture.diag();
+
 
     for(unsigned k=0; k<k_pred_mean; k++){
         result.meanPredResult.gmm_weights(k) = gaussians_for_predi_mean[k].weight;
