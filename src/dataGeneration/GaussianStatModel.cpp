@@ -27,7 +27,6 @@ GaussianStatModel::GaussianStatModel(
 
     //Transform cov from double* to arma::rowvec
     this->covariance = rowvec(covariance, cov_size);
-    this->covariance.print();
     this->seed = seed;
 }
 

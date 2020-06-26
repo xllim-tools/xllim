@@ -51,14 +51,21 @@ PredictionResult Predictor::predict(const vec &y_obs, const vec &cov_obs) {
     std::sort(gaussians.begin(), gaussians.end(), compareByWeight);
     std::vector<MultivariateGaussian> gaussians_for_predi_mean;
 
-    for(unsigned k=0; k<k_pred_mean; k++){
-        gaussians_for_predi_mean.push_back(gaussians[k].first);
-    }
+//    for(unsigned k=0; k<k_pred_mean; k++){
+//        gaussians_for_predi_mean.push_back(gaussians[k].first);
+//    }
 
     // reduce the number of gaussians based on weights threshold and number of K_MERGED
-    reduceGaussians(gaussians, K);
+    //reduceGaussians(gaussians, K);
 
     while(K > k_merged){
+        if (K == k_pred_mean){
+            for(const auto& element : gaussians){
+                if(!element.second){
+                    gaussians_for_predi_mean.push_back(element.first);
+                }
+            }
+        }
         findPairToMerge(gaussians);
         K -= 1;
     }
