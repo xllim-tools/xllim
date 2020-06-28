@@ -51,7 +51,7 @@ namespace prediction{
             for(unsigned i=0 ; i<k_pred_mean ; i++){
                 resultExport->meanPred.gmm_weights[i] = result.meanPredResult.gmm_weights(i);
                 for(unsigned j=0 ; j<L; j++){
-                    resultExport->meanPred.gmm_means[i*L + j] = result.meanPredResult.gmm_means(j,i);
+                    resultExport->meanPred.gmm_means[i + j*k_pred_mean] = result.meanPredResult.gmm_means(j,i);
                 }
             }
 
@@ -66,7 +66,7 @@ namespace prediction{
             for(unsigned i=0 ; i<k_merged ; i++){
                 resultExport->centerPred.weights[i] = result.centerPredResult.weights(i);
                 for(unsigned j=0 ; j<L; j++){
-                    resultExport->centerPred.means[i* L + j] = result.centerPredResult.means(j,i);
+                    resultExport->centerPred.means[i + j*k_merged] = result.centerPredResult.means(j,i);
                 }
             }
 
