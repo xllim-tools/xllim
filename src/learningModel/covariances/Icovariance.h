@@ -195,7 +195,7 @@ namespace learningModel{
          * @details The determinant is the product of the variances.
          * @return double : determinant
          */
-        double det();
+        double log_det();
 
         /**
          * @brief Creates an armadillo matrix with zero covariances and variances from the current DiagCovairance object
@@ -367,7 +367,7 @@ namespace learningModel{
          * @brief The method computes the determinant of the matrix of covariances.
          * @return double : determinant
          */
-        double det();
+        double log_det();
 
         /**
          * @brief Returns the matrix of covariance in armadillo data structure
@@ -552,7 +552,7 @@ namespace learningModel{
          * @details The determinant is equal to variance^dimension.
          * @return double : determinant
          */
-        double det();
+        double log_det();
 
         /**
          * @brief Creates an armadillo matrix with zero covariances and equal variances from the current IsoCovariance object

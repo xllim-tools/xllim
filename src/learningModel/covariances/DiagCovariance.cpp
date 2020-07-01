@@ -68,11 +68,10 @@ DiagCovariance DiagCovariance::inv() {
     return DiagCovariance(inv);
 }
 
-double DiagCovariance::det() {
-    double det = prod(variances);
-    if(det < 0)
-        return 0;
-    return det;
+double DiagCovariance::log_det() {
+    mat full(variances.n_rows, variances.n_rows, fill::zeros);
+    full.diag() += variances;
+    return Helpers::computeDeterminant(full);
 }
 
 DiagCovariance &DiagCovariance::operator+=(double scalar) {

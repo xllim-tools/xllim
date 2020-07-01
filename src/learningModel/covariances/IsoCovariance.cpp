@@ -80,8 +80,10 @@ IsoCovariance IsoCovariance::inv(){
     return IsoCovariance(1.0 / scalar, size);
 }
 
-double IsoCovariance::det() {
-    return pow(scalar, size);
+double IsoCovariance::log_det() {
+    mat full(size, size, fill::zeros);
+    full.diag() += scalar;
+    return Helpers::computeDeterminant(full);
 }
 
 void IsoCovariance::rankOneUpdate(const arma::vec & v, double alpha) {

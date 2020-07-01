@@ -148,7 +148,7 @@ arma::gmm_full GLLiMLearning<T, U>::logDensity(std::shared_ptr<GLLiMParameters<V
     static_assert(std::is_base_of<Icovariance, W>(), "Type W must be Icovariance specialization");
 
     gmm_full model;
-    double det_gamma;
+    double log_det_gamma;
     vec x_u;
 
     vec weights(gllim->K,fill::zeros);
@@ -156,10 +156,10 @@ arma::gmm_full GLLiMLearning<T, U>::logDensity(std::shared_ptr<GLLiMParameters<V
         if(gllim->Pi(k) == 0){
             weights(k) = -datum::inf;
         }else{
-            det_gamma = gllim->Gamma[k].det();
+            log_det_gamma = gllim->Gamma[k].log_det();
             x_u = x - gllim->C.col(k);
             if(det_gamma != 0){
-                weights(k) = log(gllim->Pi(k)) - 0.5 * (gllim->L * log(2* datum::pi) + log(det_gamma) + dot((rowvec(x_u.t()) * gllim->Gamma[k].inv()).t(), x_u));
+                weights(k) = log(gllim->Pi(k)) - 0.5 * (gllim->L * log(2* datum::pi) + log_det_gamma + dot((rowvec(x_u.t()) * gllim->Gamma[k].inv()).t(), x_u));
             }
         }
     }

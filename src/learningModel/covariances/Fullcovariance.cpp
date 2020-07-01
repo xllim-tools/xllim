@@ -30,11 +30,8 @@ FullCovariance &FullCovariance::operator=(double scalar) {
     return *this;
 }
 
-double FullCovariance::det() {
-    double result = Helpers::computeDeterminant(covariance);
-    if(result < 0)
-        result = 0;
-    return result;
+double FullCovariance::log_det() {
+    return Helpers::computeDeterminant(covariance);
 }
 
 FullCovariance FullCovariance::inv() {

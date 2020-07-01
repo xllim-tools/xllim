@@ -61,8 +61,8 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
     double temp_density_y = 0;
     double temp_density_x = 0;
     double log_Pi_K = 0;
-    double det_sigma;
-    double det_gamma;
+    double log_det_sigma;
+    double log_det_gamma;
 
     U sigma_inv;
     T gamma_inv;
@@ -72,11 +72,11 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
 
 //#pragma omp parallel for shared(N,K,L,D,x,y,theta,D_log_2_pi, L_log_2_pi,temp_density_y,temp_density_x,log_Pi_K,next_rnk)
     for(unsigned k=0; k<K; k++){
-        det_sigma = theta->Sigma[k].det();
-        det_gamma = theta->Gamma[k].det();
+        log_det_sigma = theta->Sigma[k].log_det();
+        log_det_gamma = theta->Gamma[k].log_det();
 
         // compute rnk only if both the covariances have non zero determinants
-        if(det_sigma != 0 && det_gamma != 0){
+        if(log_det_sigma != -datum::inf && log_det_gamma != -datum::inf){
             // compute rnk only if the the weight of the k_th gaussian in the mixture is not zero
             if(theta->Pi(k) != 0){
                 // compute the vector (Y - A.X - B)
@@ -87,8 +87,8 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
                 x_u = x;
                 x_u.each_col() -= theta->C.col(k);
 
-                temp_density_y = D_log_2_pi + log(det_sigma);
-                temp_density_x = L_log_2_pi + log(det_gamma);
+                temp_density_y = D_log_2_pi + log_det_sigma;
+                temp_density_x = L_log_2_pi + log_det_gamma;
                 sigma_inv = theta->Sigma[k].inv();
                 gamma_inv = theta->Gamma[k].inv();
 
