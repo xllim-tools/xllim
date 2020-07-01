@@ -158,7 +158,7 @@ arma::gmm_full GLLiMLearning<T, U>::logDensity(std::shared_ptr<GLLiMParameters<V
         }else{
             log_det_gamma = gllim->Gamma[k].log_det();
             x_u = x - gllim->C.col(k);
-            if(det_gamma != 0){
+            if(log_det_gamma != -datum::inf){
                 weights(k) = log(gllim->Pi(k)) - 0.5 * (gllim->L * log(2* datum::pi) + log_det_gamma + dot((rowvec(x_u.t()) * gllim->Gamma[k].inv()).t(), x_u));
             }
         }

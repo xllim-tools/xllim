@@ -28,7 +28,7 @@ double Helpers::computeDeterminant(const mat& matrix){
     }else{
         mat R;
         if(chol(R,matrix)){
-            return 2 * sum(log(R.diag()))
+            return 2 * sum(log(R.diag()));
         }else{
             return det(matrix);
         }
