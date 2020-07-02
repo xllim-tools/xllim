@@ -48,10 +48,6 @@ namespace prediction{
                 resultExport->meanPred.variance[j] = result.meanPredResult.variance(j);
             }
 
-            result.meanPredResult.gmm_means.print("gmm_means : before export");
-            result.meanPredResult.gmm_covs.print("gmm_covs : before export");
-
-
             for(unsigned i=0 ; i<k_pred_mean ; i++){
                 resultExport->meanPred.gmm_weights[i] = result.meanPredResult.gmm_weights(i);
                 for(unsigned j=0 ; j<L; j++){
