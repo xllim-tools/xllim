@@ -40,6 +40,9 @@ namespace importanceSampling{
             mat means_arma(&means[0],L, K, false, true);
             cube covariances_arma(&covariances[0],L,L,K, false, true);
 
+            means_arma.print("gmm_means : after import");
+            covariances_arma.print("gmm_covs : after import");
+
             return std::shared_ptr<ISProposition>(
                     new GaussianMixtureProposition(
                             weights_arma,
