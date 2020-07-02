@@ -37,8 +37,10 @@ namespace importanceSampling{
          */
         std::shared_ptr<ISProposition> create(){
             vec weights_arma(&weights[0], K, false, true);
-            mat means_arma(&means[0],L, K, false, true);
+            mat means_arma(&means[0],K, L, false, true);
             cube covariances_arma(&covariances[0],L,L,K, false, true);
+
+            means_arma = means_arma.t();
 
             means_arma.print("gmm_means : after import");
             covariances_arma.print("gmm_covs : after import");
