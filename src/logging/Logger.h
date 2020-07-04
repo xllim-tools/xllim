@@ -5,8 +5,9 @@
 #ifndef KERNELO_LOGGER_H
 #define KERNELO_LOGGER_H
 
-#include <string>
 #include "../functionalModel/ExternalModel/pyhelper.hpp"
+#include <Python.h>
+#include <memory>
 
 namespace Logging{
 

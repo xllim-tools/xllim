@@ -6,8 +6,9 @@ class Logger:
     def __init__():
         logging.basicConfig(filename="test.log", filemode='w')
 
-    def log(self):
-        logging.warning("msg")
+    def log(self, msg):
+        logging.warning("test before msg")
+        logging.warning(msg)
 
 
 class FunctionalModelInterface(metaclass=abc.ABCMeta):
