@@ -3,7 +3,6 @@
 //
 
 
-#include <iostream>
 #include "Logger.h"
 #include "Python.h"
 
@@ -19,11 +18,10 @@ Logger *Logger::GetInstance() {
 }
 
 void Logger::log(const std::string & msg) {
-    std::cout << msg << std::endl;
     if(pModule){
         CPyObject pFunc = PyUnicode_FromString(std::string("log").c_str());
         if(pFunc){
-            CPyObject pArgs = Py_BuildValue(msg.c_str(), msg.length());
+            CPyObject pArgs = PyUnicode_FromString(msg.c_str());
             PyObject_CallMethodObjArgs(py_obj, pFunc, pArgs.getObject());
         }
         else
