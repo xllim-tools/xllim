@@ -7,6 +7,7 @@
  */
 
 #include "../HapkeModel.h"
+#include "../../../logging/Logger.h"
 #include <utility>
 
 #define DEGREE_180 180
@@ -42,6 +43,8 @@ HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size,
             geomsMat(i,j) = geometries[i*col_size+j];
         }
     }
+
+    Logging::Logger::GetInstance() -> log("test logging Initialize step");
 
     //call setup geometries method
     setupGeometries(geomsMat);
