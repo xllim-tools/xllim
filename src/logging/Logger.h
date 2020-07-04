@@ -7,7 +7,9 @@
 
 #include "../functionalModel/ExternalModel/pyhelper.hpp"
 #include <Python.h>
-#include <memory>
+#include <string>
+
+
 
 namespace Logging{
 

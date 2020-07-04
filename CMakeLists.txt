@@ -12,7 +12,7 @@ SET(GCC_COVERAGE_COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
 SET(GCC_COVERAGE_LINK_FLAGS "-lgcov -coverage")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -larmadillo ${GCC_COVERAGE_COMPILE_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS} -std=c++11 -larmadillo -fopenmp")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS} -std=c++11 -larmadillo -lstdc++ -fopenmp")
 
 include(ExternalProject)
 
