@@ -19,14 +19,14 @@ void Logger::log(const std::string & msg) {
     if(pModule){
         CPyObject pFunc = PyUnicode_FromString("log");
         if(pFunc){
-            CPyObject pArgs = Py_BuildValue(msg.c_str(), msg.length());
-            PyObject_CallMethodObjArgs(py_obj, pFunc, pArgs.getObject());
+            //CPyObject pArgs = Py_BuildValue(msg.c_str(), msg.length());
+            PyObject_CallMethodObjArgs(py_obj, pFunc, NULL);
         }
         else
         {
-            printf("ERROR: function get_D_dimension() \n");
+            printf("ERROR: function log() \n");
         }
     }else{
-        printf("ERROR: Module not imported, Can not call function get_D_dimension()\n");
+        printf("ERROR: Module not imported, Can not call log()\n");
     };
 }
