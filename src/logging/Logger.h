@@ -43,7 +43,7 @@ namespace Logging{
 
         static Logger *GetInstance();
 
-        void log(const std::string &msg);
+        void log(const char* msg, long length);
     };
 
     Logger* Logger::logger_ = nullptr;
