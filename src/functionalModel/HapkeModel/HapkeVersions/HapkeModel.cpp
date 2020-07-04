@@ -43,8 +43,8 @@ HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size,
             geomsMat(i,j) = geometries[i*col_size+j];
         }
     }
-    std::string msg = "test logging Initialize step";
-    Logging::Logger::GetInstance() -> log(msg.c_str(), msg.length());
+
+    Logging::Logger::GetInstance() -> log("test logging Initialize step");
 
     //call setup geometries method
     setupGeometries(geomsMat);

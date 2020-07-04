@@ -80,3 +80,6 @@ cdef extern from "../src/learningModel/covariances/IsoCovariance.cpp":
 cdef extern from "../src/helpersFunctions/Helpers.cpp":
     pass
 
+cdef extern from "../src/logging/Logger.cpp":
+    pass
+
