@@ -16,13 +16,13 @@ namespace Logging{
         CPyObject py_obj;
     protected:
         Logger(){
-            CPyObject pName = PyUnicode_FromString("kernelo");
+            CPyObject pName = PyUnicode_FromString(std::string("kernelo").c_str());
             pModule = PyImport_Import(pName);
             if(!pModule){
                 printf("ERROR: Module not imported\n");
             }else{
                 CPyObject dict = PyModule_GetDict(pModule);
-                CPyObject py_class = PyDict_GetItemString(dict, "Logger");
+                CPyObject py_class = PyDict_GetItemString(dict, std::string("Logger").c_str());
                 if(PyCallable_Check(py_class)){
                     py_obj = PyObject_CallObject(py_class, NULL);
                 }else{
