@@ -48,7 +48,7 @@ add_library(dataGeneration STATIC
         src/dataGeneration/SobolGenerator.cpp
         src/dataGeneration/SobolGenerator.h
         src/dataGeneration/DependentGaussianStatModel.cpp
-        src/dataGeneration/DependentGaussianStatModel.h src/dataGeneration/creators.h src/prediction/IPredictor.h)
+        src/dataGeneration/DependentGaussianStatModel.h src/dataGeneration/creators.h src/prediction/IPredictor.h src/logging/Logger.h src/logging/Logger.cpp)
 
 add_library(functionalModel STATIC
         src/functionalModel/HapkeModel/HapkeVersions/HapkeModel.cpp
