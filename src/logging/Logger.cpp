@@ -3,10 +3,13 @@
 //
 
 
+#include <iostream>
 #include "Logger.h"
 #include "Python.h"
 
 using namespace Logging;
+
+Logger* Logger::logger_ = nullptr;
 
 Logger *Logger::GetInstance() {
     if(logger_ == nullptr){
@@ -16,6 +19,7 @@ Logger *Logger::GetInstance() {
 }
 
 void Logger::log(const std::string & msg) {
+    std::cout << msg << std::endl;
     if(pModule){
         CPyObject pFunc = PyUnicode_FromString(std::string("log").c_str());
         if(pFunc){

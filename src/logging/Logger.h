@@ -46,9 +46,6 @@ namespace Logging{
         void log(const std::string &msg);
     };
 
-    Logger* Logger::logger_ = nullptr;
-
-
 }
 
 #endif //KERNELO_LOGGER_H
