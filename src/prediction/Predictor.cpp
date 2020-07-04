@@ -58,7 +58,7 @@ PredictionResult Predictor::predict(const vec &y_obs, const vec &cov_obs) {
     // reduce the number of gaussians based on weights threshold and number of K_MERGED
     //reduceGaussians(gaussians, K);
 
-    while(K > k_merged){
+    while(K >= k_merged){
         if (K == k_pred_mean){
             for(const auto& element : gaussians){
                 if(!element.second){
@@ -66,7 +66,9 @@ PredictionResult Predictor::predict(const vec &y_obs, const vec &cov_obs) {
                 }
             }
         }
-        findPairToMerge(gaussians);
+        if(K > k_merged){
+            findPairToMerge(gaussians);
+        }
         K -= 1;
     }
 

@@ -9,6 +9,7 @@
 #include "omp.h"
 #include "../../helpersFunctions/Helpers.h"
 #include "EmEstimator.h"
+#include "../../logging/Logger.h"
 
 
 #define LOG_2_PI log(2* datum::pi)
@@ -37,14 +38,21 @@ void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiM
     double new_log_likelihood = -datum::inf;
     unsigned iteration = 0;
 
+    Logging::Logger::GetInstance() -> log("Start GLLiM-EM Training", level(Logging::INFO));
+
     do{
         old_log_likelihood = new_log_likelihood;
         next_rnk(x_t,y_t,initial_theta, r_nk);
         next_theta(x_t,y_t,r_nk,initial_theta);
         new_log_likelihood = log_likelihood(r_nk);
         iteration++;
+        Logging::Logger::GetInstance() -> log("Iteration : " + std::to_string(iteration)
+                                                 + ", log likelihood : " + std::to_string(new_log_likelihood),
+                                                 level(Logging::INFO));
         //std::cout << "ll : " << new_log_likelihood << std::endl;
     }while(!hasConverged(old_log_likelihood, new_log_likelihood, iteration));
+
+    Logging::Logger::GetInstance() -> log("Finish GLLiM-EM Training", level(Logging::INFO));
 
 }
 
@@ -110,6 +118,10 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
         else{
             // set rnk = -inf if the determinent of the covariance is equal to zero which makes the log density
             // to tend toward +infinity
+            Logging::Logger::GetInstance() -> log("\tTheta Component : " + std::to_string(k)
+                                                      +", Sigma log determinant : " + std::to_string(log_det_sigma)
+                                                      +", Gamma log determinant : " + std::to_string(log_det_gamma),
+                                                      level(Logging::WARNING));
             next_rnk.col(k).fill(-datum::inf);
         }
     }
@@ -252,7 +264,19 @@ double EmEstimator<T, U>::log_likelihood(const mat& r_nk) {
 template<typename T, typename U>
 bool EmEstimator<T, U>::hasConverged(double old_log_likelihood, double new_log_likelihood, unsigned current_iter) {
     double ratio_increase_likelihood = (exp(new_log_likelihood) - exp(old_log_likelihood))/exp(old_log_likelihood);
-    return current_iter == config->max_iteration || ratio_increase_likelihood <= config->ratio_ll/100;
+    bool max_iter_condition = current_iter == config->max_iteration;
+
+    if(max_iter_condition){
+        Logging::Logger::GetInstance() -> log("Maximum iteration number reached", level(Logging::INFO));
+    }
+
+    bool ratio_ll_condition = ratio_increase_likelihood <= config->ratio_ll/100;
+
+    if(ratio_ll_condition){
+        Logging::Logger::GetInstance() -> log("Likelihood increase threshold reached : " + std::to_string(config->ratio_ll/100),
+                level(Logging::INFO));
+    }
+    return max_iter_condition || ratio_ll_condition;
 }
 
 

@@ -36,21 +36,26 @@ std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat
     GmmEstimator gmmEstimator;
     EmEstimator<T,U> emEstimator;
 
-    for(unsigned exp=0; exp<config->nb_experiences; exp++){
-        // generate a mean for the GMM using a data generator strategy
+    Logging::Logger::GetInstance() -> log("Start Multi initialization", level(Logging::INFO));
 
+    for(unsigned exp=0; exp<config->nb_experiences; exp++){
+        Logging::Logger::GetInstance() -> log("Initialisation : " + std::to_string(exp), level(Logging::INFO));
+        // generate a mean for the GMM using a data generator strategy
+        Logging::Logger::GetInstance() -> log("\tGenerate GMM means", level(Logging::INFO));
         config->generator->execute(m);
 
         // use the same weight for all the clusters
         rho = ones(K)/K;
 
         // Create a cube of K covariance matrices with a homothety constraint
+        Logging::Logger::GetInstance() -> log("\tGenerate GMM covariance matrices", level(Logging::INFO));
         cov = zeros(L,L);
         cov.diag() += sqrt(1.0/(pow(K, 1.0/L)));
         cube v(L,L,K);
         v.each_slice() = cov;
 
         // train a GMM over nb_iter iteration
+        Logging::Logger::GetInstance() -> log("\tTrain the GMM model", level(Logging::INFO));
         gmmEstimator = GmmEstimator(config->gmmLearningConfig);
         gmmEstimator.train(x.t(),rho,m,v);
 
@@ -59,9 +64,11 @@ std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat
 
 
         // Compute theta of the GLLiM using the log_posterior of the GMM
+        Logging::Logger::GetInstance() -> log("\tCompute Initial theta vector of the GLLiM model", level(Logging::INFO));
         emEstimator = EmEstimator<T,U>(config->emLearningConfig);
         emEstimator.next_theta(x.t(),y.t(),log_rnk,local_theta);
 
+        Logging::Logger::GetInstance() -> log("\tTrain the initial GLLiM model", level(Logging::INFO));
         for(unsigned iter=0; iter<config->nb_iter_EM; iter++){
             emEstimator.next_rnk(x.t(),y.t(),local_theta,log_rnk);
             emEstimator.next_theta(x.t(),y.t(),log_rnk,local_theta);
@@ -69,15 +76,17 @@ std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat
 
         log_likelihood = emEstimator.log_likelihood(log_rnk);
 
-
-
         if(log_likelihood > best_log_likelihood){
             best_theta = local_theta;
             best_log_likelihood = log_likelihood;
             best_log_rnk = log_rnk;
         }
-    }
 
+        Logging::Logger::GetInstance() -> log("\tCurrent log likelihood : " + std::to_string(log_likelihood) +
+                                              ", Best log likelihood : " + std::to_string(best_log_likelihood),
+                                              level(Logging::INFO));
+    }
+    Logging::Logger::GetInstance() -> log("Finish Multi initialization", level(Logging::INFO));
     return best_theta;
 }
 

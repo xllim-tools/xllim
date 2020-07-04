@@ -13,6 +13,26 @@
 
 namespace Logging{
 
+    enum Level {
+        INFO,
+        WARNING,
+        ERROR,
+        CRITICAL
+    };
+
+    std::string level(Level level){
+        switch (level){
+            case INFO:
+                return "INFO";
+            case WARNING:
+                return "WARNING";
+            case ERROR:
+                return "ERROR";
+            case CRITICAL:
+                return "CRITICAL";
+        }
+    }
+
     class Logger{
     private:
         CPyObject pModule;
@@ -45,7 +65,7 @@ namespace Logging{
 
         static Logger *GetInstance();
 
-        void log(const std::string &msg);
+        void log(const std::string &msg, const std::string &level);
     };
 
 }

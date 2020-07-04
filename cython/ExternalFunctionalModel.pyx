@@ -1,14 +1,4 @@
 import abc
-import logging
-
-
-class Logger:
-    def __init__(self):
-        logging.basicConfig(filename="test.log", filemode='w')
-
-    def log(self, msg):
-        logging.warning("test before msg")
-        logging.warning(msg)
 
 
 class FunctionalModelInterface(metaclass=abc.ABCMeta):

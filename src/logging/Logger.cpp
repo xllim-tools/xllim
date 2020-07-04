@@ -17,12 +17,14 @@ Logger *Logger::GetInstance() {
     return logger_;
 }
 
-void Logger::log(const std::string & msg) {
+void Logger::log(const std::string & msg, const std::string &level) {
     if(pModule){
         CPyObject pFunc = PyUnicode_FromString(std::string("log").c_str());
         if(pFunc){
-            CPyObject pArgs = PyUnicode_FromString(msg.c_str());
-            PyObject_CallMethodObjArgs(py_obj, pFunc, pArgs.getObject(), NULL);
+            CPyObject pArgs_msg = PyUnicode_FromString(msg.c_str());
+            CPyObject pArgs_level = PyUnicode_FromString(level.c_str());
+
+            PyObject_CallMethodObjArgs(py_obj, pFunc, pArgs_msg.getObject(), pArgs_level.getObject(), NULL);
         }
         else
         {

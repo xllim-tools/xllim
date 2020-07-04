@@ -14,6 +14,7 @@
 
 using namespace Functional;
 using namespace HapkeEnumeration;
+using namespace Logging;
 
 // this index is used to access the matrix of intermediate results
 enum geom_helper_index{
@@ -44,8 +45,6 @@ HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size,
         }
     }
 
-    Logging::Logger::GetInstance() -> log("test logging Initialize step");
-
     //call setup geometries method
     setupGeometries(geomsMat);
 }
@@ -60,8 +59,6 @@ void HapkeModel::F(rowvec photometry, rowvec &reflectances) {
 
     //Adapting Hapke model
     adapter->adaptModel(photometry);
-
-
 
     rowvec E1 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR))).t();
     rowvec E1_0 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR))).t();
