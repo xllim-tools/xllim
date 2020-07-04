@@ -86,13 +86,13 @@ ISDiagnostic ImportanceSampler::diagnostic(
 
         // sample X_n
         samples.col(n) = isProposition->sample();
-        bool finish = false;
+        /*bool finish = false;
         do{
             samples.col(n) = isProposition->sample();
             if(samples.col(n).max() < 1 && samples.col(n).min() > 0){
                 finish = true;
             }
-        }while(!finish);
+        }while(!finish);*/
 
         // compute target density
         target_log_densities(n) = isTarget->target_log_density(samples.col(n), y_obs, y_cov);
