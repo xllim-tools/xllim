@@ -22,7 +22,7 @@ void Logger::log(const std::string & msg) {
         CPyObject pFunc = PyUnicode_FromString(std::string("log").c_str());
         if(pFunc){
             CPyObject pArgs = PyUnicode_FromString(msg.c_str());
-            PyObject_CallMethodObjArgs(py_obj, pFunc, pArgs.getObject());
+            PyObject_CallMethodObjArgs(py_obj, pFunc, pArgs.getObject(), NULL);
         }
         else
         {

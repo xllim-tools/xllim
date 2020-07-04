@@ -19,6 +19,8 @@ namespace Logging{
         CPyObject py_obj;
     protected:
         Logger(){
+            //CPyObject sys_path = PySys_GetObject("path");
+            //PyList_Append(sys_path, PyUnicode_FromString(std::string("/home/reverse-proxy/CLionProjects/untitled").c_str()));
             CPyObject pName = PyUnicode_FromString(std::string("kernelo").c_str());
             pModule = PyImport_Import(pName);
             if(!pModule){
