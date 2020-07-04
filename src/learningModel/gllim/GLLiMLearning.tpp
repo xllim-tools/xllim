@@ -23,7 +23,7 @@ GLLiMLearning<T, U>::GLLiMLearning(std::shared_ptr<Iinitilizer<T, U>> initialize
 
 template<typename T, typename U>
 void GLLiMLearning<T, U>::initialize(const mat &x, const mat &y) {
-    Logging::Logger::GetInstance() -> log("test logging Initialize step");
+    //Logging::Logger::GetInstance() -> log("test logging Initialize step");
     this->gllim_parameters = this->initializer->execute(x, y, this->K);
 }
 
