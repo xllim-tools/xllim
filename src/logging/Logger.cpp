@@ -10,6 +10,19 @@ using namespace Logging;
 
 Logger* Logger::logger_ = nullptr;
 
+std::string Logger::level(Level level){
+    switch (level){
+        case INFO:
+            return "INFO";
+        case WARNING:
+            return "WARNING";
+        case ERROR:
+            return "ERROR";
+        case CRITICAL:
+            return "CRITICAL";
+    }
+}
+
 Logger *Logger::GetInstance() {
     if(logger_ == nullptr){
         logger_ = new Logger();

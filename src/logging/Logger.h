@@ -20,19 +20,6 @@ namespace Logging{
         CRITICAL
     };
 
-    std::string level(Level level){
-        switch (level){
-            case INFO:
-                return "INFO";
-            case WARNING:
-                return "WARNING";
-            case ERROR:
-                return "ERROR";
-            case CRITICAL:
-                return "CRITICAL";
-        }
-    }
-
     class Logger{
     private:
         CPyObject pModule;
@@ -64,7 +51,7 @@ namespace Logging{
         void operator=(const Logger &) = delete;
 
         static Logger *GetInstance();
-
+        static std::string level(Level level);
         void log(const std::string &msg, const std::string &level);
     };
 

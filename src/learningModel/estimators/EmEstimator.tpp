@@ -38,7 +38,7 @@ void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiM
     double new_log_likelihood = -datum::inf;
     unsigned iteration = 0;
 
-    Logging::Logger::GetInstance() -> log("Start GLLiM-EM Training", level(Logging::INFO));
+    Logging::Logger::GetInstance() -> log("Start GLLiM-EM Training", Logging::Logger::level(Logging::INFO));
 
     do{
         old_log_likelihood = new_log_likelihood;
@@ -48,11 +48,11 @@ void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiM
         iteration++;
         Logging::Logger::GetInstance() -> log("Iteration : " + std::to_string(iteration)
                                                  + ", log likelihood : " + std::to_string(new_log_likelihood),
-                                                 level(Logging::INFO));
+                                              Logging::Logger::level(Logging::INFO));
         //std::cout << "ll : " << new_log_likelihood << std::endl;
     }while(!hasConverged(old_log_likelihood, new_log_likelihood, iteration));
 
-    Logging::Logger::GetInstance() -> log("Finish GLLiM-EM Training", level(Logging::INFO));
+    Logging::Logger::GetInstance() -> log("Finish GLLiM-EM Training", Logging::Logger::level(Logging::INFO));
 
 }
 
@@ -121,7 +121,7 @@ void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLL
             Logging::Logger::GetInstance() -> log("\tTheta Component : " + std::to_string(k)
                                                       +", Sigma log determinant : " + std::to_string(log_det_sigma)
                                                       +", Gamma log determinant : " + std::to_string(log_det_gamma),
-                                                      level(Logging::WARNING));
+                                                  Logging::Logger::level(Logging::WARNING));
             next_rnk.col(k).fill(-datum::inf);
         }
     }
@@ -267,14 +267,14 @@ bool EmEstimator<T, U>::hasConverged(double old_log_likelihood, double new_log_l
     bool max_iter_condition = current_iter == config->max_iteration;
 
     if(max_iter_condition){
-        Logging::Logger::GetInstance() -> log("Maximum iteration number reached", level(Logging::INFO));
+        Logging::Logger::GetInstance() -> log("Maximum iteration number reached", Logging::Logger::level(Logging::INFO));
     }
 
     bool ratio_ll_condition = ratio_increase_likelihood <= config->ratio_ll/100;
 
     if(ratio_ll_condition){
         Logging::Logger::GetInstance() -> log("Likelihood increase threshold reached : " + std::to_string(config->ratio_ll/100),
-                level(Logging::INFO));
+                                              Logging::Logger::level(Logging::INFO));
     }
     return max_iter_condition || ratio_ll_condition;
 }
