@@ -22,7 +22,7 @@ cdef extern from "../src/prediction/PredictionResultExport.h" namespace "predict
 
     cdef cppclass PredictionResultExport:
         shared_ptr[MeanPredictionResultExport] meanPred
-        shared[CenterPredictionResultExport] centerPred
+        shared_ptr[CenterPredictionResultExport] centerPred
         PredictionResultExport() except +
 
 cdef extern from "../src/prediction/IPredictor.h" namespace "prediction":

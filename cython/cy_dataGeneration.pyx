@@ -90,7 +90,7 @@ cdef class GaussianStatModelConfig:
         The seed used to initialize the random generator.
 
     """
-    cdef shared[CppGaussianStatModelConfig] config
+    cdef shared_ptr[CppGaussianStatModelConfig] config
     cdef FunctionalModel functionalModel
 
     def __cinit__(self, generatorType, functionalModel , covariance, seed):
