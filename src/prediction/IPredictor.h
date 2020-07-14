@@ -36,9 +36,8 @@ namespace prediction{
         void predict(double *y_obs, double *var_obs, unsigned size, const std::shared_ptr<PredictionResultExport>& resultExport){
             vec y_obs_arma(&y_obs[0], size,  false, true);
             vec var_obs_arma(&var_obs[0], size, false, true);
-            Logging::Logger::GetInstance() -> log("Step 1", Logging::Logger::level(Logging::INFO));
             PredictionResult result = predict(y_obs_arma, var_obs_arma);
-            Logging::Logger::GetInstance() -> log("Step 2", Logging::Logger::level(Logging::INFO));
+
             unsigned L = result.meanPredResult.mean.n_rows;
             unsigned k_merged = result.centerPredResult.weights.n_rows;
             unsigned k_pred_mean = result.meanPredResult.gmm_weights.n_rows;
@@ -47,14 +46,14 @@ namespace prediction{
                 resultExport->meanPred->mean[j] = result.meanPredResult.mean(j);
                 resultExport->meanPred->variance[j] = result.meanPredResult.variance(j);
             }
-            Logging::Logger::GetInstance() -> log("Step 3", Logging::Logger::level(Logging::INFO));
+
             for(unsigned i=0 ; i<k_pred_mean ; i++){
                 resultExport->meanPred->gmm_weights[i] = result.meanPredResult.gmm_weights(i);
                 for(unsigned j=0 ; j<L; j++){
                     resultExport->meanPred->gmm_means[i + j*k_pred_mean] = result.meanPredResult.gmm_means(j,i);
                 }
             }
-            Logging::Logger::GetInstance() -> log("Step 4", Logging::Logger::level(Logging::INFO));
+
 
             for(unsigned i=0; i<L * L * k_pred_mean; i++){
                 resultExport->meanPred->gmm_covs[i] = result.meanPredResult.gmm_covs(

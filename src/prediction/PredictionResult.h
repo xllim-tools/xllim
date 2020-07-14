@@ -17,7 +17,8 @@ namespace prediction{
     /**
      * @struct MeanPredictionResult
      */
-    struct MeanPredictionResult{
+    class MeanPredictionResult{
+    public:
         vec mean; /**< The mean of the GMM which stands for the prediction*/
         vec variance; /**< The variance of the prediction*/
         vec gmm_weights; /**< The weights of the components of the GMM*/
@@ -28,7 +29,8 @@ namespace prediction{
     /**
      * @struct CenterPredictionResult
      */
-    struct CenterPredictionResult{
+    class CenterPredictionResult{
+    public:
         vec weights; /**< The weights of the centers*/
         mat means; /**< The centers that stands for the predictions*/
         cube covs; /**< The covariance matrices of the centers*/
@@ -38,7 +40,8 @@ namespace prediction{
     /**
      * @struct PredictionResult
      */
-    struct PredictionResult{
+    class PredictionResult{
+    public:
         MeanPredictionResult meanPredResult; /**< @see MeanPredictionResult MeanPredictionResult*/
         CenterPredictionResult centerPredResult; /**< @see CenterPredictionResult CenterPredictionResult*/
     };

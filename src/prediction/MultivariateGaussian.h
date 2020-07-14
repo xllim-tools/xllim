@@ -16,7 +16,8 @@ namespace prediction{
     /**
      * @struct MultivariateGaussian
      */
-    struct MultivariateGaussian{
+    class MultivariateGaussian{
+    public:
         double weight; /**< weight of the gaussian distribution in the GMM where it belongs*/
         vec mean; /**< the mean of the gaussian distribution */
         mat covariance; /** the covariance matrix of gaussian distribution */
