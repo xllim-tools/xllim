@@ -131,7 +131,6 @@ cdef class FourParamsHapkeAdapterConfig(HapkeAdapterConfig):
     def __cinit__(self, b0, h):
         self.config = shared_ptr[CppHapkeAdapterConfig](new CppHapkeAdapterConfig())
         version = "four"
-        self.config.version = <string>version.encode('utf-8')
         deref(self.config).b0 = b0
         deref(self.config).h = h
         deref(self.config).version = <string>version.encode('utf-8')
@@ -153,7 +152,6 @@ cdef class ThreeParamsHapkeAdapterConfig(HapkeAdapterConfig):
     def __cinit__(self, b0, h):
         self.config = shared_ptr[CppHapkeAdapterConfig](new CppHapkeAdapterConfig())
         version = "three"
-        self.config.version = <string>version.encode('utf-8')
         deref(self.config).b0 = b0
         deref(self.config).h = h
         deref(self.config).version = <string>version.encode('utf-8')
