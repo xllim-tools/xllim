@@ -7,6 +7,8 @@ from libcpp.vector cimport vector
 from libc.stdio cimport printf
 
 from predictionWrapper cimport PredictionResultExport as CppPredictionResultExport
+from predictionWrapper cimport MeanPredictionResultExport as CppMeanPredictionResultExport
+from predictionWrapper cimport CenterPredictionResultExport as CppCenterPredictionResultExport
 from predictionWrapper cimport IPredictor as CppIPredictor
 from predictionWrapper cimport PredictionConfig as CppPredictionConfig
 
@@ -170,6 +172,9 @@ cdef class Predictor:
         cdef double[::1] y_obs_memview = np.ascontiguousarray(y_obs)
         cdef double[::1] var_obs_memview = np.ascontiguousarray(var_obs)
         cdef shared_ptr[CppPredictionResultExport] cpp_result = shared_ptr[CppPredictionResultExport](new CppPredictionResultExport())
+        deref(cpp_result).meanPred = shared_ptr[CppMeanPredictionResultExport](new CppMeanPredictionResultExport())
+        deref(cpp_result).centerPred = shared_ptr[CppCenterPredictionResultExport](new CppCenterPredictionResultExport())
+
         py_result = PredictionResultExport()
         L = self.gllim.get_L_dimension()
 

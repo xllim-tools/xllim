@@ -207,7 +207,8 @@ cdef class ImportanceSampler:
 
         cdef double[::1] y_obs_memview = np.ascontiguousarray(y_obs)
         cdef double[::1] var_obs_memview = np.ascontiguousarray(y_var)
-        cdef shared_ptr[CppImportanceSamplingResult] cpp_result
+        cdef shared_ptr[CppImportanceSamplingResult] cpp_result = shared_ptr[CppImportanceSamplingResult](new CppImportanceSamplingResult())
+        deref(cpp_result).diagnostic = shared_ptr[CppImportanceSamplingDiagnostic](new CppImportanceSamplingDiagnostic())
         py_result = ImportanceSamplingResult()
 
         L = proposition.getDimension()
