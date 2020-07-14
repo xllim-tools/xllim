@@ -38,24 +38,23 @@ namespace prediction{
             vec var_obs_arma(&var_obs[0], size, false, true);
 
             PredictionResult result = predict(y_obs_arma, var_obs_arma);
-            std::cout<< "passed predict 1" <<std::endl;
 
             unsigned L = result.meanPredResult.mean.n_rows;
             unsigned k_merged = result.centerPredResult.weights.n_rows;
             unsigned k_pred_mean = result.meanPredResult.gmm_weights.n_rows;
-            std::cout<< "passed predict 2" <<std::endl;
+
             for(unsigned j=0 ; j<L; j++){
                 resultExport->meanPred->mean[j] = result.meanPredResult.mean(j);
                 resultExport->meanPred->variance[j] = result.meanPredResult.variance(j);
             }
-            std::cout<< "passed predict 3" <<std::endl;
+
             for(unsigned i=0 ; i<k_pred_mean ; i++){
                 resultExport->meanPred->gmm_weights[i] = result.meanPredResult.gmm_weights(i);
                 for(unsigned j=0 ; j<L; j++){
                     resultExport->meanPred->gmm_means[i + j*k_pred_mean] = result.meanPredResult.gmm_means(j,i);
                 }
             }
-            std::cout<< "passed predict 4" <<std::endl;
+
 
             for(unsigned i=0; i<L * L * k_pred_mean; i++){
                 resultExport->meanPred->gmm_covs[i] = result.meanPredResult.gmm_covs(
@@ -64,7 +63,7 @@ namespace prediction{
                         i / (L * L)
                 );
             }
-            std::cout<< "passed predict 5" <<std::endl;
+
 
             for(unsigned i=0 ; i<k_merged ; i++){
                 resultExport->centerPred->weights[i] = result.centerPredResult.weights(i);
@@ -72,7 +71,7 @@ namespace prediction{
                     resultExport->centerPred->means[i + j*k_merged] = result.centerPredResult.means(j,i);
                 }
             }
-            std::cout<< "passed predict 6" <<std::endl;
+
 
             for(unsigned i=0; i<L * L * k_merged; i++){
                 resultExport->centerPred->covs[i] = result.centerPredResult.covs(
@@ -81,7 +80,6 @@ namespace prediction{
                         i / (L * L)
                 );
             }
-            std::cout<< "passed predict 7" <<std::endl;
         }
 
         /**

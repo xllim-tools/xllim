@@ -14,6 +14,7 @@ from predictionWrapper cimport PredictionConfig as CppPredictionConfig
 
 cimport numpy as np
 import numpy as np
+import logging
 
 # ---------------------------------- python classes definition ------------------------------------------- #
 class MeanPredictionResultExport:
@@ -174,7 +175,7 @@ cdef class Predictor:
         cdef shared_ptr[CppPredictionResultExport] cpp_result = shared_ptr[CppPredictionResultExport](new CppPredictionResultExport())
         deref(cpp_result).meanPred = shared_ptr[CppMeanPredictionResultExport](new CppMeanPredictionResultExport())
         deref(cpp_result).centerPred = shared_ptr[CppCenterPredictionResultExport](new CppCenterPredictionResultExport())
-
+        logging.ing("passed 1")
         py_result = PredictionResultExport()
         L = self.gllim.get_L_dimension()
 
@@ -183,40 +184,40 @@ cdef class Predictor:
         py_result.meansPred.mean = np.ascontiguousarray(np.arange(L), dtype=np.double)
         cdef double[::1] meansPred_mean_memview = py_result.meansPred.mean
         deref(deref(cpp_result).meanPred).mean = &meansPred_mean_memview[0]
-
+        logging.ing("passed 2")
         py_result.meansPred.variance = np.ascontiguousarray(np.arange(L), dtype=np.double)
         cdef double[::1] meansPred_variance_memview = py_result.meansPred.variance
         deref(deref(cpp_result).meanPred).variance = &meansPred_variance_memview[0]
-
+        logging.ing("passed 2")
         py_result.meansPred.gmm_weights = np.ascontiguousarray(np.arange(self.k_pred_mean), dtype=np.double)
         cdef double[::1] meansPred_gmm_weights_memview = py_result.meansPred.gmm_weights
         deref(deref(cpp_result).meanPred).gmm_weights = &meansPred_gmm_weights_memview[0]
-
+        logging.ing("passed 3")
         py_result.meansPred.gmm_means = np.ascontiguousarray(np.arange(L * self.k_pred_mean).reshape(L, self.k_pred_mean), dtype=np.double)
         cdef double[:,::1] meansPred_gmm_means_memview = py_result.meansPred.gmm_means
         deref(deref(cpp_result).meanPred).gmm_means = &meansPred_gmm_means_memview[0,0]
-
+        logging.ing("passed 4")
         py_result.meansPred.gmm_covs = np.arange(L * L * self.k_pred_mean, dtype=np.double).reshape(self.k_pred_mean, L, L)
         cdef double[:,:,:] meansPred_gmm_covs_memview = py_result.meansPred.gmm_covs
         deref(deref(cpp_result).meanPred).gmm_covs = &meansPred_gmm_covs_memview[0,0,0]
-
+        logging.ing("passed 5")
 
         # Prediction by centers result
 
         py_result.centersPred.weights = np.ascontiguousarray(np.arange(self.k_merged), dtype=np.double)
         cdef double[::1] centersPred_weights_memview = py_result.centersPred.weights
         deref(deref(cpp_result).centerPred).weights = &centersPred_weights_memview[0]
-
+        logging.ing("passed 6")
         py_result.centersPred.means = np.ascontiguousarray(np.arange(L * self.k_merged).reshape(L, self.k_merged), dtype=np.double)
         cdef double[:,::1] centersPred_means_memview = py_result.centersPred.means
         deref(deref(cpp_result).centerPred).means = &centersPred_means_memview[0,0]
-
+        logging.ing("passed 7")
         py_result.centersPred.covs = np.arange(L * L * self.k_merged, dtype=np.double).reshape(self.k_merged, L, L)
         cdef double[:,:,:] centersPred_covs_memview = py_result.centersPred.covs
         deref(deref(cpp_result).centerPred).covs = &centersPred_covs_memview[0,0,0]
-
+        logging.ing("passed 8")
         deref(self.__c_predictor).predict(&y_obs_memview[0], &var_obs_memview[0], y_obs_memview.shape[0], cpp_result)
-
+        logging.ing("passed 9")
         return py_result
 
     def regularize(self, series):
