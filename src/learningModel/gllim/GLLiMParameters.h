@@ -59,17 +59,23 @@ namespace learningModel{
          * @param gllimParams : GLLiMParameters
          */
         GLLiMParameters(const GLLiMParameters &gllimParams){
-            Logging::Logger::GetInstance() -> log("step A1", Logging::Logger::level(Logging::INFO));
+
             this->D = gllimParams.D;
             this->L = gllimParams.L;
             this->K = gllimParams.K;
             this->Pi = gllimParams.Pi;
-            this->Gamma = gllimParams.Gamma;
+            Logging::Logger::GetInstance() -> log("step A1", Logging::Logger::level(Logging::INFO));
+            for(unsigned k=0; k<this->K; k++){
+                this->Gamma[k] = gllimParams.Gamma[k];
+            }
+            Logging::Logger::GetInstance() -> log("step A2", Logging::Logger::level(Logging::INFO));
             this->Sigma = gllimParams.Sigma;
+            Logging::Logger::GetInstance() -> log("step A3", Logging::Logger::level(Logging::INFO));
             this->C = gllimParams.C;
             this->B = gllimParams.B;
             this->A = gllimParams.A;
-            Logging::Logger::GetInstance() -> log("step A2", Logging::Logger::level(Logging::INFO));
+            Logging::Logger::GetInstance() -> log("step A4", Logging::Logger::level(Logging::INFO));
+
         }
         /**
          * Assignement operator redifinition
