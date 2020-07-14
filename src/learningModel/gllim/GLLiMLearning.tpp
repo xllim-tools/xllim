@@ -133,11 +133,15 @@ arma::gmm_full GLLiMLearning<T, U>::computeGMM(const vec &y_obs, const vec &cov_
 
 
     // 1 - alter sigma covariance
+    Logging::Logger::GetInstance() -> log("step A", Logging::Logger::level(Logging::INFO));
     GLLiMParameters<T, U> temp_gllim = *gllim_parameters;
+    Logging::Logger::GetInstance() -> log("step B", Logging::Logger::level(Logging::INFO));
     this->alterCovariance(temp_gllim, cov_obs);
+    Logging::Logger::GetInstance() -> log("step C", Logging::Logger::level(Logging::INFO));
 
     // 2 - inverse theta_obs
     GLLiMParameters<FullCovariance, FullCovariance> gllim_inv = inverse(temp_gllim);
+    Logging::Logger::GetInstance() -> log("step D", Logging::Logger::level(Logging::INFO));
 
     // 3 - construct the GMM
     return this->logDensity(std::make_shared<GLLiMParameters<FullCovariance, FullCovariance>>(gllim_inv), y_obs);
@@ -152,7 +156,7 @@ arma::gmm_full GLLiMLearning<T, U>::logDensity(std::shared_ptr<GLLiMParameters<V
     gmm_full model;
     double log_det_gamma;
     vec x_u;
-
+    Logging::Logger::GetInstance() -> log("step E", Logging::Logger::level(Logging::INFO));
     vec weights(gllim->K,fill::zeros);
     for(unsigned k=0; k<gllim->K; k++){
         if(gllim->Pi(k) == 0){
@@ -165,7 +169,7 @@ arma::gmm_full GLLiMLearning<T, U>::logDensity(std::shared_ptr<GLLiMParameters<V
             }
         }
     }
-
+    Logging::Logger::GetInstance() -> log("step F", Logging::Logger::level(Logging::INFO));
     double result = 0;
     double max = weights.max();
     if(max != -datum::inf){
@@ -191,8 +195,9 @@ arma::gmm_full GLLiMLearning<T, U>::logDensity(std::shared_ptr<GLLiMParameters<V
         covariances.slice(k) = gllim->Sigma[k].getFull();
     }
 
-
+    Logging::Logger::GetInstance() -> log("step G", Logging::Logger::level(Logging::INFO));
     model.set_params(means,covariances,weights.t());
+    Logging::Logger::GetInstance() -> log("step H", Logging::Logger::level(Logging::INFO));
     return model;
 }
 

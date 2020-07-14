@@ -35,6 +35,7 @@ PredictionResult Predictor::predict(const vec &y_obs, const vec &cov_obs) {
     Logging::Logger::GetInstance() -> log("step 1", Logging::Logger::level(Logging::INFO));
     // compute GMM of the observation
     arma::gmm_full gmm_obs = learningModel->computeGMM(y_obs, cov_obs);
+    Logging::Logger::GetInstance() -> log("step 2", Logging::Logger::level(Logging::INFO));
     unsigned K = gmm_obs.means.n_cols;
     unsigned L = gmm_obs.means.n_rows;
     std::vector<std::pair<vec,mat>> predicitons;
