@@ -189,23 +189,22 @@ cdef class HapkeModelConfig:
 
     """
 
-    cdef CppHapkeModelConfig config
+    cdef shared_ptr[CppHapkeModelConfig] config
     cdef double[:,::1] geometries_memview
 
     def __cinit__(self, version, adapter, geometries, theta_bar_scalling):
         self.geometries_memview = np.ascontiguousarray(geometries)
-        cdef CppHapkeAdapterConfig hapkeAdapterConfig
+        self.config = shared_ptr[CppHapkeModelConfig](new CppHapkeModelConfig())
 
-        self.config.geometries = &self.geometries_memview[0,0]
-
-        self.config.row_size = self.geometries_memview.shape[0]
-        self.config.col_size = self.geometries_memview.shape[1]
-        self.config.version = <string>version.encode('utf-8')
-        self.config.theta_bar_scalling = theta_bar_scalling
-        self.config.adapterConfig = (<HapkeAdapterConfig>adapter).getInstance()
+        deref(self.config).geometries = &self.geometries_memview[0,0]
+        deref(self.config).row_size = self.geometries_memview.shape[0]
+        deref(self.config).col_size = self.geometries_memview.shape[1]
+        deref(self.config).version = <string>version.encode('utf-8')
+        deref(self.config).theta_bar_scalling = theta_bar_scalling
+        deref(self.config).adapterConfig = (<HapkeAdapterConfig>adapter).getInstance()
 
     def create(self):
-        return FunctionalModel.create(self.config.create())
+        return FunctionalModel.create(deref(self.config).create())
 
 cdef class ShkuratovModelConfig:
     """
@@ -223,35 +222,38 @@ cdef class ShkuratovModelConfig:
         1D array containing 5 values used to normalize the photometric variables of the model, where normalized_x = (x - offset)/scalingCoeff
 
     """
-    cdef CppShkuratovModelConfig config
+    cdef shared_ptr[CppShkuratovModelConfig] config
     cdef double[:,::1] geometries_memview
     cdef double[::1] scalingCoeffs_memview
     cdef double[::1] offset_memview
 
     def __cinit__(self, geometries, scalingCoeffs, offset):
-        self.geometries_memview = np.ascontiguousarray(geometries)
-        self.config.geometries = &self.geometries_memview[0,0]
+        self.config = shared_ptr[CppShkuratovModelConfig](new CppShkuratovModelConfig())
 
-        self.config.row_size = self.geometries_memview.shape[0]
-        self.config.col_size = self.geometries_memview.shape[1]
+        self.geometries_memview = np.ascontiguousarray(geometries)
+        deref(self.config).geometries = &self.geometries_memview[0,0]
+
+        deref(self.config).row_size = self.geometries_memview.shape[0]
+        deref(self.config).col_size = self.geometries_memview.shape[1]
 
         self.scalingCoeffs_memview = np.ascontiguousarray(scalingCoeffs)
-        self.config.scalingCoeffs = &self.scalingCoeffs_memview[0]
+        deref(self.config).scalingCoeffs = &self.scalingCoeffs_memview[0]
 
         self.offset_memview = np.ascontiguousarray(offset)
-        self.config.offset = &self.offset_memview[0]
+        deref(self.config).offset = &self.offset_memview[0]
 
     def create(self):
-        return FunctionalModel.create(self.config.create())
+        return FunctionalModel.create(deref(self.config).create())
 
 cdef class ExternalModelConfig:
-    cdef CppExternalModelConfig config
+    cdef shared_ptr[CppExternalModelConfig] config
 
     def __cinit__(self, className, fileName, filePath):
-        self.config.className = <string>className.encode('utf-8')
-        self.config.fileName = <string>fileName.encode('utf-8')
-        self.config.filePath = <string>filePath.encode('utf-8')
+        self.config = shared_ptr[CppExternalModelConfig](new CppExternalModelConfig())
+        deref(self.config).className = <string>className.encode('utf-8')
+        deref(self.config).fileName = <string>fileName.encode('utf-8')
+        deref(self.config).filePath = <string>filePath.encode('utf-8')
 
     def create(self):
-        return FunctionalModel.create(self.config.create())
+        return FunctionalModel.create(deref(self.config).create())
 

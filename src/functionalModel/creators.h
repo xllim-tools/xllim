@@ -60,7 +60,8 @@ namespace Functional{
      * This struct wraps the parameters used to configure the Hapke model. It contains the method
      * create that returns a shared pointer to a @ref FunctionalModel "FunctionalModel" object.
      */
-    struct HapkeModelConfig{
+    class HapkeModelConfig{
+    public:
         std::string version; /**< A string that determines which version of the Hapke model is required. It may be
  * 2000 or 1993.*/
         std::shared_ptr<HapkeAdapterConfig> adapterConfig; /**< See documentation of @ref HapkeAdapterConfig "HapkeAdapterConfig" */
@@ -106,7 +107,8 @@ namespace Functional{
      * This struct wraps the parameters used to configure the Shkuratov model. It contains the method
      * create that returns a shared pointer to a @ref FunctionalModel "FunctionalModel" object.
      */
-    struct ShkuratovModelConfig{
+    class ShkuratovModelConfig{
+    public:
         const double *geometries; /**< A pointer to a matrix of geometries required to initialize a Hapke model. */
         int row_size; /**< The number of geometries. */
         int col_size; /**< The dimension of the geometries. */
@@ -139,7 +141,8 @@ namespace Functional{
      * This struct wraps the parameters used to configure a functional model with a source code witten in python.
      * It contains the method create that returns a shared pointer to a @ref FunctionalModel "FunctionalModel" object.
      */
-    struct ExternalModelConfig{
+    class ExternalModelConfig{
+    public:
         std::string className; /**< The name of the concrete class that defines the required external model. */
         std::string fileName; /**< The name of the file where the source code of the external model is written. */
         std::string filePath; /**< The path to the file where the source code of the external model is written.*/

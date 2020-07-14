@@ -22,7 +22,7 @@ cdef extern from "../src/functionalModel/creators.h" namespace "Functional":
         double h
         HapkeAdapterConfig() except +
 
-    cdef struct HapkeModelConfig:
+    cdef cppclass HapkeModelConfig:
         string version
         shared_ptr[HapkeAdapterConfig] adapterConfig
         double *geometries
@@ -30,22 +30,25 @@ cdef extern from "../src/functionalModel/creators.h" namespace "Functional":
         int col_size
         double theta_bar_scalling
 
+        HapkeModelConfig() except +
         shared_ptr[FunctionalModel] create()
 
-    cdef struct ShkuratovModelConfig:
+    cdef cppclass ShkuratovModelConfig:
         double *geometries
         int row_size
         int col_size
         double *scalingCoeffs
         double *offset
 
+        ShkuratovModelConfig() except +
         shared_ptr[FunctionalModel] create()
 
-    cdef struct ExternalModelConfig:
+    cdef cppclass ExternalModelConfig:
         string className
         string fileName
         string filePath
 
+        ExternalModelConfig() except +
         shared_ptr[FunctionalModel] create()
 
 
