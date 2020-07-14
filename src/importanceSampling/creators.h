@@ -24,7 +24,8 @@ namespace importanceSampling{
      * @details This struct wraps the parameters that configure the a proposition law of the importance sampling based on a GMM.
      * See @see GaussianMixtureProposition GaussianMixtureProposition
      */
-    struct GaussianMixturePropositionConfig{
+    class GaussianMixturePropositionConfig{
+    public:
         double *weights; /**< The weights (K) of the centers*/
         double *means; /**< The centers (L,K) that stands for the predictions*/
         double *covariances; /**< The covariance matrices (L,L,K) of the centers*/
@@ -57,7 +58,8 @@ namespace importanceSampling{
      * @details This struct wraps the parameters that configure the a proposition law of the importance sampling based on a regularized
      * gaussian distribution. See @see GaussianRegularizedProposition GaussianRegularizedProposition.
      */
-    struct GaussianRegularizedPropositionConfig{
+    class GaussianRegularizedPropositionConfig{
+    public:
         double *means; /**< The mean of the Gaussian distribution*/
         double *covariances;/**< the covariance matrix of the gaussian distibution*/
         unsigned L; /** The number of variables of the multivariate gaussian distibution*/
@@ -82,7 +84,8 @@ namespace importanceSampling{
      * @struct ImportanceSamplingConfig
      * @details This struct wraps the parameters that configure the importance sampler.
      */
-    struct ImportanceSamplingConfig{
+    class ImportanceSamplingConfig{
+    public:
         unsigned N_Samples; /**< The number of samples to generate*/
         std::shared_ptr<DataGeneration::StatModel> statModel; /**< The stat model is used to construct the target law of the importance sampler*/
 

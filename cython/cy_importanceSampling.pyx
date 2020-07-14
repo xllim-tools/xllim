@@ -74,22 +74,23 @@ cdef class GaussianMixturePropositionConfig:
     covariances : ndarray
         3D array(L, L, K)
     """
-    cdef CppGaussianMixturePropositionConfig config
+    cdef shared_ptr[CppGaussianMixturePropositionConfig] config
 
     def __cinit__(self, weights, means, covariances):
-        self.config.K = weights.shape[0]
-        self.config.L = means.shape[0]
+        self.config = shared_ptr[CppGaussianMixturePropositionConfig](new CppGaussianMixturePropositionConfig())
+        deref(self.config).K = weights.shape[0]
+        deref(self.config).L = means.shape[0]
 
         cdef double[::1] weights_memview = np.ascontiguousarray(weights, dtype=np.double)
-        cdef double[:,::1] means_memview = np.ascontiguousarray(means.reshape(self.config.L,self.config.K),dtype=np.double)
-        cdef double[:,:,:] covariances_memview = covariances.reshape(self.config.K, self.config.L, self.config.L)
+        cdef double[:,::1] means_memview = np.ascontiguousarray(means.reshape(deref(self.config).L,deref(self.config).K),dtype=np.double)
+        cdef double[:,:,:] covariances_memview = covariances.reshape(deref(self.config).K, deref(self.config).L, deref(self.config).L)
 
-        self.config.weights = &weights_memview[0]
-        self.config.means = &means_memview[0,0]
-        self.config.covariances = &covariances_memview[0,0,0]
+        deref(self.config).weights = &weights_memview[0]
+        deref(self.config).means = &means_memview[0,0]
+        deref(self.config).covariances = &covariances_memview[0,0,0]
 
     def create(self):
-        cdef shared_ptr[CppISProposition] proposition = self.config.create()
+        cdef shared_ptr[CppISProposition] proposition = deref(self.config).create()
         return ISProposition.create(proposition)
 
 
@@ -106,19 +107,20 @@ cdef class GaussianRegularizedPropositionConfig:
         2D array(L,L)
 
     """
-    cdef CppGaussianRegularizedPropositionConfig config
+    cdef shared_ptr[CppGaussianRegularizedPropositionConfig] config
 
     def __cinit__(self, means, covariances):
-        self.config.L = means.shape[0]
+        self.config = shared_ptr[CppGaussianRegularizedPropositionConfig](new CppGaussianRegularizedPropositionConfig())
+        deref(self.config).L = means.shape[0]
 
         cdef double[::1] means_memview = np.ascontiguousarray(means, dtype=np.double)
-        cdef double[:,::1] covariances_memview = np.ascontiguousarray(covariances.reshape(self.config.L,self.config.L),dtype=np.double)
+        cdef double[:,::1] covariances_memview = np.ascontiguousarray(covariances.reshape(deref(self.config).L,deref(self.config).L),dtype=np.double)
 
-        self.config.means = &means_memview[0]
-        self.config.covariances = &covariances_memview[0,0]
+        deref(self.config).means = &means_memview[0]
+        deref(self.config).covariances = &covariances_memview[0,0]
 
     def create(self):
-        cdef shared_ptr[CppISProposition] proposition = self.config.create()
+        cdef shared_ptr[CppISProposition] proposition = deref(self.config).create()
         return ISProposition.create(proposition)
 
 
@@ -151,14 +153,14 @@ cdef class ImportanceSamplingConfig:
         The stat model object is used to construct the target law for the importance sampling algorithm
 
     """
-    cdef CppImportanceSamplingConfig config
+    cdef shared_ptr[CppImportanceSamplingConfig] config
 
     def __cinit__(self, N_Samples, statModel):
-        self.config.N_Samples = N_Samples
-        self.config.statModel = (<StatModel>statModel).getInstance()
+        deref(self.config).N_Samples = N_Samples
+        deref(self.config).statModel = (<StatModel>statModel).getInstance()
 
     def create(self):
-        cdef shared_ptr[CppImportanceSampler] sampler = self.config.create()
+        cdef shared_ptr[CppImportanceSampler] sampler = deref(self.config).create()
         return ImportanceSampler.create(sampler)
 
 cdef class ImportanceSampler:
@@ -204,19 +206,19 @@ cdef class ImportanceSampler:
 
         cdef double[::1] y_obs_memview = np.ascontiguousarray(y_obs)
         cdef double[::1] var_obs_memview = np.ascontiguousarray(y_var)
-        cdef CppImportanceSamplingResult cpp_result
+        cdef shared_ptr[CppImportanceSamplingResult] cpp_result
         py_result = ImportanceSamplingResult()
 
         L = proposition.getDimension()
 
         py_result.mean = np.ascontiguousarray(np.arange(L), dtype=np.double)
         cdef double[::1] mean_memview = py_result.mean
-        cpp_result.mean = &mean_memview[0]
+        deref(cpp_result).mean = &mean_memview[0]
 
         py_result.covariance = np.ascontiguousarray(np.arange(L), dtype=np.double)
         cdef double[::1] covariance_memview = py_result.covariance
-        cpp_result.covariance = &covariance_memview[0]
+        deref(cpp_result).covariance = &covariance_memview[0]
 
-        deref(self.__c_sampler).execute((<ISProposition>proposition).getInstance(), &y_obs_memview[0], &var_obs_memview[0], y_obs_memview.shape[0], make_shared[CppImportanceSamplingResult](cpp_result))
+        deref(self.__c_sampler).execute((<ISProposition>proposition).getInstance(), &y_obs_memview[0], &var_obs_memview[0], y_obs_memview.shape[0], cpp_result)
 
         return py_result

@@ -6,21 +6,24 @@ from learningModelWrapper cimport IGLLiMLearning
 # ---------------------------------- header files declaration -------------------------------------------- #
 
 cdef extern from "../src/prediction/PredictionResultExport.h" namespace "prediction":
-    cdef struct MeanPredictionResultExport:
+    cdef cppclass MeanPredictionResultExport:
         double *mean
         double *variance
         double *gmm_weights
         double *gmm_means
         double *gmm_covs
+        MeanPredictionResultExport() except +
 
-    cdef struct CenterPredictionResultExport:
-        double *weights;
-        double *means;
-        double *covs;
+    cdef cppclass CenterPredictionResultExport:
+        double *weights
+        double *means
+        double *covs
+        CenterPredictionResultExport() except +
 
-    cdef struct PredictionResultExport:
-        MeanPredictionResultExport meanPred
-        CenterPredictionResultExport centerPred
+    cdef cppclass PredictionResultExport:
+        shared_ptr[MeanPredictionResultExport] meanPred
+        shared[CenterPredictionResultExport] centerPred
+        PredictionResultExport() except +
 
 cdef extern from "../src/prediction/IPredictor.h" namespace "prediction":
     cdef cppclass IPredictor:
@@ -28,12 +31,13 @@ cdef extern from "../src/prediction/IPredictor.h" namespace "prediction":
         void regularize(const double *series , unsigned rows, unsigned cols, unsigned slices, double *permutations)
 
 cdef extern from "../src/prediction/creators.h" namespace "prediction":
-    cdef struct PredictionConfig:
+    cdef cppclass PredictionConfig:
         unsigned k_merged
         unsigned k_pred_mean
         double threshold
         shared_ptr[IGLLiMLearning] learningModel
 
+        PredictionConfig() except +
         shared_ptr[IPredictor] create()
 
 

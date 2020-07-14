@@ -16,7 +16,8 @@ namespace importanceSampling{
      * @brief This struct wraps the results of the importance sampling algorithm. The struct is meant for integration purposes
      * with a third language API.
      */
-    struct ImportanceSamplingResult{
+    class ImportanceSamplingResult{
+    public:
         ImportanceSamplingDiagnostic diagnostic;
         double *covariance;
         double *mean;

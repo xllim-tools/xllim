@@ -6,42 +6,44 @@ from dataGenerationWrapper cimport StatModel
 # ---------------------------------- header files declaration -------------------------------------------- #
 
 cdef extern from "../src/importanceSampling/ImportanceSamplingDiagnostic.h" namespace "importanceSampling":
-    cdef struct ImportanceSamplingDiagnostic:
+    cdef cppclass ImportanceSamplingDiagnostic:
         unsigned nb_effective_sample
         double effective_sample_size
         double qn
+        ImportanceSamplingDiagnostic() except +
 
 cdef extern from "../src/importanceSampling/ImportanceSamplingResult.h" namespace "importanceSampling":
-    cdef struct ImportanceSamplingResult:
-        ImportanceSamplingDiagnostic diagnostic
+    cdef cppclass ImportanceSamplingResult:
+        shared_ptr[ImportanceSamplingDiagnostic] diagnostic
         double *covariance
         double *mean
+        ImportanceSamplingResult() except +
 
 cdef extern from "../src/importanceSampling/proposition/ISProposition.h" namespace "importanceSampling":
     cdef cppclass ISProposition:
         unsigned getDimension()
 
 cdef extern from "../src/importanceSampling/creators.h" namespace "importanceSampling":
-    cdef struct GaussianMixturePropositionConfig:
+    cdef cppclass GaussianMixturePropositionConfig:
         double *weights
         double *means
         double *covariances
         unsigned K
         unsigned L
-
+        GaussianMixturePropositionConfig() except +
         shared_ptr[ISProposition] create()
 
-    cdef struct GaussianRegularizedPropositionConfig:
+    cdef cppclass GaussianRegularizedPropositionConfig:
         double *means
         double *covariances
         unsigned L
-
+        GaussianRegularizedPropositionConfig() except +
         shared_ptr[ISProposition] create()
 
-    cdef struct ImportanceSamplingConfig:
+    cdef cppclass ImportanceSamplingConfig:
         unsigned N_Samples
         shared_ptr[StatModel] statModel
-
+        ImportanceSamplingConfig() except +
         shared_ptr[ImportanceSampler] create()
 
 cdef extern from "../src/importanceSampling/ImportanceSampler.h" namespace "importanceSampling":

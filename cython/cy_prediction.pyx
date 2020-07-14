@@ -105,19 +105,20 @@ cdef class PredictionConfig:
         The trained GLLiM model
     """
 
-    cdef CppPredictionConfig config
+    cdef shared_ptr[CppPredictionConfig] config
     cdef GLLiM gllim
 
     def __cinit__(self, k_merged, k_pred_mean, threshold, gllim):
-        self.config.k_merged = k_merged
-        self.config.k_pred_mean = k_pred_mean
-        self.config.threshold = threshold
-        self.config.learningModel = (<GLLiM>gllim).getInstance()
+        self.config = shared_ptr[CppPredictionConfig](new CppPredictionConfig())
+        deref(self.config).k_merged = k_merged
+        deref(self.config).k_pred_mean = k_pred_mean
+        deref(self.config).threshold = threshold
+        deref(self.config).learningModel = (<GLLiM>gllim).getInstance()
         self.gllim = gllim
 
     def create(self):
-        cdef shared_ptr[CppIPredictor] predictor = self.config.create()
-        return Predictor.create(predictor, self.gllim, self.config.k_merged, self.config.k_pred_mean)
+        cdef shared_ptr[CppIPredictor] predictor = deref(self.config).create()
+        return Predictor.create(predictor, self.gllim, deref(self.config).k_merged, deref(self.config).k_pred_mean)
 
 cdef class Predictor:
     """
@@ -168,7 +169,7 @@ cdef class Predictor:
         """
         cdef double[::1] y_obs_memview = np.ascontiguousarray(y_obs)
         cdef double[::1] var_obs_memview = np.ascontiguousarray(var_obs)
-        cdef CppPredictionResultExport cpp_result
+        cdef shared_ptr[CppPredictionResultExport] cpp_result = shared_ptr[CppPredictionResultExport](new CppPredictionResultExport())
         py_result = PredictionResultExport()
         L = self.gllim.get_L_dimension()
 
@@ -176,40 +177,40 @@ cdef class Predictor:
 
         py_result.meansPred.mean = np.ascontiguousarray(np.arange(L), dtype=np.double)
         cdef double[::1] meansPred_mean_memview = py_result.meansPred.mean
-        cpp_result.meanPred.mean = &meansPred_mean_memview[0]
+        deref(cpp_result).meanPred.mean = &meansPred_mean_memview[0]
 
         py_result.meansPred.variance = np.ascontiguousarray(np.arange(L), dtype=np.double)
         cdef double[::1] meansPred_variance_memview = py_result.meansPred.variance
-        cpp_result.meanPred.variance = &meansPred_variance_memview[0]
+        deref(cpp_result).meanPred.variance = &meansPred_variance_memview[0]
 
         py_result.meansPred.gmm_weights = np.ascontiguousarray(np.arange(self.k_pred_mean), dtype=np.double)
         cdef double[::1] meansPred_gmm_weights_memview = py_result.meansPred.gmm_weights
-        cpp_result.meanPred.gmm_weights = &meansPred_gmm_weights_memview[0]
+        deref(cpp_result).meanPred.gmm_weights = &meansPred_gmm_weights_memview[0]
 
         py_result.meansPred.gmm_means = np.ascontiguousarray(np.arange(L * self.k_pred_mean).reshape(L, self.k_pred_mean), dtype=np.double)
         cdef double[:,::1] meansPred_gmm_means_memview = py_result.meansPred.gmm_means
-        cpp_result.meanPred.gmm_means = &meansPred_gmm_means_memview[0,0]
+        deref(cpp_result).meanPred.gmm_means = &meansPred_gmm_means_memview[0,0]
 
         py_result.meansPred.gmm_covs = np.arange(L * L * self.k_pred_mean, dtype=np.double).reshape(self.k_pred_mean, L, L)
         cdef double[:,:,:] meansPred_gmm_covs_memview = py_result.meansPred.gmm_covs
-        cpp_result.meanPred.gmm_covs = &meansPred_gmm_covs_memview[0,0,0]
+        deref(cpp_result).meanPred.gmm_covs = &meansPred_gmm_covs_memview[0,0,0]
 
 
         # Prediction by centers result
 
         py_result.centersPred.weights = np.ascontiguousarray(np.arange(self.k_merged), dtype=np.double)
         cdef double[::1] centersPred_weights_memview = py_result.centersPred.weights
-        cpp_result.centerPred.weights = &centersPred_weights_memview[0]
+        deref(cpp_result).centerPred.weights = &centersPred_weights_memview[0]
 
         py_result.centersPred.means = np.ascontiguousarray(np.arange(L * self.k_merged).reshape(L, self.k_merged), dtype=np.double)
         cdef double[:,::1] centersPred_means_memview = py_result.centersPred.means
-        cpp_result.centerPred.means = &centersPred_means_memview[0,0]
+        deref(cpp_result).centerPred.means = &centersPred_means_memview[0,0]
 
         py_result.centersPred.covs = np.arange(L * L * self.k_merged, dtype=np.double).reshape(self.k_merged, L, L)
         cdef double[:,:,:] centersPred_covs_memview = py_result.centersPred.covs
-        cpp_result.centerPred.covs = &centersPred_covs_memview[0,0,0]
+        deref(cpp_result).centerPred.covs = &centersPred_covs_memview[0,0,0]
 
-        deref(self.__c_predictor).predict(&y_obs_memview[0], &var_obs_memview[0], y_obs_memview.shape[0], make_shared[CppPredictionResultExport](cpp_result))
+        deref(self.__c_predictor).predict(&y_obs_memview[0], &var_obs_memview[0], y_obs_memview.shape[0], cpp_result)
 
         return py_result
 

@@ -14,7 +14,8 @@ namespace importanceSampling{
      * @details This struct wraps the results of the diagnostic of the importance sampling. The struct is meant for integration purposes
      * with a third language API.
      */
-    struct ImportanceSamplingDiagnostic{
+    class ImportanceSamplingDiagnostic{
+    public:
         unsigned nb_effective_sample;
         double effective_sample_size;
         double qn;

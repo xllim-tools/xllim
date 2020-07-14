@@ -20,7 +20,8 @@
 
 namespace DataGeneration{
 
-    struct GaussianStatModelConfig{
+    class GaussianStatModelConfig{
+    public:
         std::string generatorType;
         std::shared_ptr<FunctionalModel> functionalModel;
         double *covariance;
@@ -52,7 +53,8 @@ namespace DataGeneration{
         }
     };
 
-    struct DependentGaussianStatModelConfig{
+    class DependentGaussianStatModelConfig{
+    public:
         std::string generatorType;
         std::shared_ptr<FunctionalModel> functionalModel;
         int r;

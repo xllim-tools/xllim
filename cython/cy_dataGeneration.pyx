@@ -90,21 +90,21 @@ cdef class GaussianStatModelConfig:
         The seed used to initialize the random generator.
 
     """
-    cdef CppGaussianStatModelConfig config
+    cdef shared[CppGaussianStatModelConfig] config
     cdef FunctionalModel functionalModel
 
     def __cinit__(self, generatorType, functionalModel , covariance, seed):
         cdef double[::1] covariance_memview = np.ascontiguousarray(covariance)
-
-        self.config.generatorType = <string>generatorType.encode('utf-8')
-        self.config.functionalModel = (<FunctionalModel>functionalModel).getInstance()
-        self.config.covariance = &covariance_memview[0]
-        self.config.cov_size = covariance_memview.shape[0]
-        self.config.seed = seed
+        self.config = shared_ptr[CppGaussianStatModelConfig](new CppGaussianStatModelConfig())
+        deref(self.config).generatorType = <string>generatorType.encode('utf-8')
+        deref(self.config).functionalModel = (<FunctionalModel>functionalModel).getInstance()
+        deref(self.config).covariance = &covariance_memview[0]
+        deref(self.config).cov_size = covariance_memview.shape[0]
+        deref(self.config).seed = seed
         self.functionalModel = functionalModel
 
     def create(self):
-        cdef shared_ptr[CppStatModel] model = self.config.create()
+        cdef shared_ptr[CppStatModel] model = deref(self.config).create()
         return StatModel.create(model, self.functionalModel)
 
 
@@ -130,17 +130,18 @@ cdef class DependentGaussianStatModelConfig:
 
     """
 
-    cdef CppDependentGaussianStatModelConfig config
+    cdef shared_ptr[CppDependentGaussianStatModelConfig] config
     cdef FunctionalModel functionalModel
 
     def __cinit__(self, generatorType, functionalModel, r, seed):
-        self.config.generatorType = <string>generatorType.encode('utf-8')
-        self.config.functionalModel = (<FunctionalModel>functionalModel).getInstance()
-        self.config.r = r
-        self.config.seed = seed
+        self.config = shared_ptr[CppDependentGaussianStatModelConfig](new CppDependentGaussianStatModelConfig())
+        deref(self.config).generatorType = <string>generatorType.encode('utf-8')
+        deref(self.config).functionalModel = (<FunctionalModel>functionalModel).getInstance()
+        deref(self.config).r = r
+        deref(self.config).seed = seed
         self.functionalModel = functionalModel
 
     def create(self):
-        cdef shared_ptr[CppStatModel] model = self.config.create()
+        cdef shared_ptr[CppStatModel] model = deref(self.config).create()
         return StatModel.create(model, self.functionalModel)
 
