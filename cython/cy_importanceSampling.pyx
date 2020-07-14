@@ -156,6 +156,7 @@ cdef class ImportanceSamplingConfig:
     cdef shared_ptr[CppImportanceSamplingConfig] config
 
     def __cinit__(self, N_Samples, statModel):
+        self.config = shared_ptr[CppImportanceSamplingConfig](new CppImportanceSamplingConfig())
         deref(self.config).N_Samples = N_Samples
         deref(self.config).statModel = (<StatModel>statModel).getInstance()
 
