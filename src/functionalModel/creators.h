@@ -63,7 +63,7 @@ namespace Functional{
     struct HapkeModelConfig{
         std::string version; /**< A string that determines which version of the Hapke model is required. It may be
  * 2000 or 1993.*/
-        HapkeAdapterConfig adapterConfig; /**< See documentation of @ref HapkeAdapterConfig "HapkeAdapterConfig" */
+        std::shared_ptr<HapkeAdapterConfig> adapterConfig; /**< See documentation of @ref HapkeAdapterConfig "HapkeAdapterConfig" */
         const double *geometries; /**< A pointer to a matrix of geometries required to initialize a Hapke model. */
         int row_size; /**< The number of geometries. */
         int col_size; /**< The dimension of the geometries. */
@@ -76,7 +76,7 @@ namespace Functional{
          * @return A shared pointer of the created Hapke model object as @ref FunctionalModel "FunctionalModel"
          */
         std::shared_ptr<FunctionalModel> create(){
-            std::shared_ptr<HapkeAdapter> adapter = this->adapterConfig.create();
+            std::shared_ptr<HapkeAdapter> adapter = this->adapterConfig->create();
             if(version == "2002"){
                 return std::shared_ptr<FunctionalModel>(
                         new Hapke02Model(
