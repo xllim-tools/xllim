@@ -134,7 +134,7 @@ arma::gmm_full GLLiMLearning<T, U>::computeGMM(const vec &y_obs, const vec &cov_
 
     // 1 - alter sigma covariance
     Logging::Logger::GetInstance() -> log("step A", Logging::Logger::level(Logging::INFO));
-    GLLiMParameters<T, U> temp_gllim = *gllim_parameters;
+    GLLiMParameters<T, U> temp_gllim = gllim_parameters.get();
     Logging::Logger::GetInstance() -> log("step B", Logging::Logger::level(Logging::INFO));
     this->alterCovariance(temp_gllim, cov_obs);
     Logging::Logger::GetInstance() -> log("step C", Logging::Logger::level(Logging::INFO));
