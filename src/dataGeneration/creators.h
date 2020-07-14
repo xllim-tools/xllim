@@ -24,9 +24,10 @@ namespace DataGeneration{
     public:
         std::string generatorType;
         std::shared_ptr<FunctionalModel> functionalModel;
-        double *covariance;
-        int cov_size;
-        unsigned seed;
+        double *covariance{};
+        int cov_size{};
+        unsigned seed{};
+        GaussianStatModelConfig() = default;
 
         GaussianStatModelConfig(
                 std::string generatorType,
@@ -57,9 +58,9 @@ namespace DataGeneration{
     public:
         std::string generatorType;
         std::shared_ptr<FunctionalModel> functionalModel;
-        int r;
-        unsigned seed;
-
+        int r{};
+        unsigned seed{};
+        DependentGaussianStatModelConfig() = default;
         DependentGaussianStatModelConfig(
                 std::string generatorType,
                 std::shared_ptr<FunctionalModel> functionalModel,

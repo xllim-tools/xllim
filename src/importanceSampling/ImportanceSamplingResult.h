@@ -18,7 +18,7 @@ namespace importanceSampling{
      */
     class ImportanceSamplingResult{
     public:
-        ImportanceSamplingDiagnostic diagnostic;
+        std::shared_ptr<ImportanceSamplingDiagnostic> diagnostic;
         double *covariance;
         double *mean;
     };

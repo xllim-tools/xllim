@@ -56,9 +56,9 @@ void ImportanceSampler::execute(
 
     ISResult result = this->execute(isProposition, y_obs_arma, var_obs_arma);
 
-    resultExport->diagnostic.nb_effective_sample = result.diagnostic.nb_effective_sample;
-    resultExport->diagnostic.effective_sample_size = result.diagnostic.effective_sample_size;
-    resultExport->diagnostic.qn = result.diagnostic.qn;
+    resultExport->diagnostic->nb_effective_sample = result.diagnostic.nb_effective_sample;
+    resultExport->diagnostic->effective_sample_size = result.diagnostic.effective_sample_size;
+    resultExport->diagnostic->qn = result.diagnostic.qn;
 
     for(unsigned j=0 ; j<isProposition->getDimension(); j++){
         resultExport->mean[j] = result.mean(j);
