@@ -11,6 +11,7 @@
 
 #include <armadillo>
 #include "../covariances/Icovariance.h"
+#include "../../logging/Logger.h"
 
 using namespace arma;
 
@@ -58,6 +59,7 @@ namespace learningModel{
          * @param gllimParams : GLLiMParameters
          */
         GLLiMParameters(const GLLiMParameters &gllimParams){
+            Logging::Logger::GetInstance() -> log("step A1", Logging::Logger::level(Logging::INFO));
             this->D = gllimParams.D;
             this->L = gllimParams.L;
             this->K = gllimParams.K;
@@ -67,12 +69,14 @@ namespace learningModel{
             this->C = gllimParams.C;
             this->B = gllimParams.B;
             this->A = gllimParams.A;
+            Logging::Logger::GetInstance() -> log("step A2", Logging::Logger::level(Logging::INFO));
         }
         /**
          * Assignement operator redifinition
          * @param gllimParams : GLLiMParameters
          */
         GLLiMParameters &operator=(const GLLiMParameters &gllimParams){
+            Logging::Logger::GetInstance() -> log("step B1", Logging::Logger::level(Logging::INFO));
             this->D = gllimParams.D;
             this->L = gllimParams.L;
             this->K = gllimParams.K;
@@ -82,7 +86,7 @@ namespace learningModel{
             this->C = gllimParams.C;
             this->B = gllimParams.B;
             this->A = gllimParams.A;
-
+            Logging::Logger::GetInstance() -> log("step B2", Logging::Logger::level(Logging::INFO));
             return *this;
         }
 
