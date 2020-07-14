@@ -1,4 +1,4 @@
-FROM jupyter/base-notebook:python-3.7.6
+FROM jupyter/base-notebook:ubuntu-18.04
 
 MAINTAINER sami-djouadi
 
@@ -6,6 +6,7 @@ USER root
 
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
     apt-get install -y --no-install-recommends build-essential cmake g++ python3.7 python3.7-dev libopenblas-dev liblapack-dev libatlas-base-dev gfortran
 
 RUN mkdir /home/libraries && \
