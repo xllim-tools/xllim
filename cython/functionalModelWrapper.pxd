@@ -16,10 +16,11 @@ cdef extern from "../src/functionalModel/HapkeModel/HapkeAdapter.h" namespace "F
         pass
 
 cdef extern from "../src/functionalModel/creators.h" namespace "Functional":
-    cdef struct HapkeAdapterConfig:
+    cdef cppclass HapkeAdapterConfig:
         string version
         double b0
         double h
+        HapkeAdapterConfig() except +
 
     cdef struct HapkeModelConfig:
         string version

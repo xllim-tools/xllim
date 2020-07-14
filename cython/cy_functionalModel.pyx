@@ -109,9 +109,9 @@ cdef class FunctionalModel:
         return obj
 
 cdef class HapkeAdapterConfig:
-    cdef CppHapkeAdapterConfig config
+    cdef shared_ptr[CppHapkeAdapterConfig] config
 
-    cdef CppHapkeAdapterConfig getInstance(self):
+    cdef shared_ptr[CppHapkeAdapterConfig] getInstance(self):
         return self.config
 
 cdef class FourParamsHapkeAdapterConfig(HapkeAdapterConfig):
@@ -164,8 +164,9 @@ cdef class SixParamsHapkeAdapterConfig(HapkeAdapterConfig):
 
     """
     def __cinit__(self):
+        self.config = shared_ptr[CppHapkeAdapterConfig](new CppHapkeAdapterConfig())
         version = "six"
-        self.config.version = <string>version.encode('utf-8')
+        deref(self.config).version = <string>version.encode('utf-8')
 
 cdef class HapkeModelConfig:
     """

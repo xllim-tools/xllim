@@ -28,7 +28,8 @@ namespace Functional{
      * This struct wraps the parameters used to configure an adapter of the Hapke model. It contains the method
      * create that returns a shared pointer to a @ref HapkeAdapter "HapkeAdapter" object.
      */
-    struct HapkeAdapterConfig{
+    class HapkeAdapterConfig{
+    public:
         std::string version; /**< A string that determines which adapter to create : six , four or three
  * parameters adapter. */
         double b0; /**< a default value to set on the photometric parameter B0 of the model in case a three or four
