@@ -37,7 +37,7 @@ namespace prediction{
             vec y_obs_arma(&y_obs[0], size,  false, true);
             vec var_obs_arma(&var_obs[0], size, false, true);
             PredictionResult result = predict(y_obs_arma, var_obs_arma);
-
+            Logging::Logger::GetInstance() -> log("step 6", Logging::Logger::level(Logging::INFO));
             unsigned L = result.meanPredResult.mean.n_rows;
             unsigned k_merged = result.centerPredResult.weights.n_rows;
             unsigned k_pred_mean = result.meanPredResult.gmm_weights.n_rows;
