@@ -32,14 +32,13 @@ bool compareByWeight(const std::pair<MultivariateGaussian, bool> &g1, const std:
 
 PredictionResult Predictor::predict(const vec &y_obs, const vec &cov_obs) {
     PredictionResult result;
-    Logging::Logger::GetInstance() -> log("step 1", Logging::Logger::level(Logging::INFO));
     // compute GMM of the observation
     arma::gmm_full gmm_obs = learningModel->computeGMM(y_obs, cov_obs);
-    Logging::Logger::GetInstance() -> log("step 2", Logging::Logger::level(Logging::INFO));
+
     unsigned K = gmm_obs.means.n_cols;
     unsigned L = gmm_obs.means.n_rows;
     std::vector<std::pair<vec,mat>> predicitons;
-    Logging::Logger::GetInstance() -> log("step 2", Logging::Logger::level(Logging::INFO));
+
     // move gmms to vector<MultivariateGaussians, bool> structure
     std::vector<std::pair<MultivariateGaussian, bool>> gaussians(K);
     for(unsigned k=0; k<K; k++){
@@ -48,7 +47,7 @@ PredictionResult Predictor::predict(const vec &y_obs, const vec &cov_obs) {
         gaussians[k].first.mean = gmm_obs.means.col(k);
         gaussians[k].first.covariance = gmm_obs.fcovs.slice(k);
     }
-    Logging::Logger::GetInstance() -> log("step 3", Logging::Logger::level(Logging::INFO));
+
     // Get the k_gaussian_mean best gaussians for prediction by mean
     std::sort(gaussians.begin(), gaussians.end(), compareByWeight);
     std::vector<MultivariateGaussian> gaussians_for_predi_mean;
@@ -73,7 +72,7 @@ PredictionResult Predictor::predict(const vec &y_obs, const vec &cov_obs) {
         }
         K -= 1;
     }
-    Logging::Logger::GetInstance() -> log("step 4", Logging::Logger::level(Logging::INFO));
+
     result.centerPredResult.weights = vec(k_merged);
     result.centerPredResult.means = mat(L,k_merged);
     result.centerPredResult.covs = cube(L,L,k_merged);
@@ -90,7 +89,6 @@ PredictionResult Predictor::predict(const vec &y_obs, const vec &cov_obs) {
             predicitons.emplace_back(element.first.mean,element.first.covariance);
         }
     }
-    Logging::Logger::GetInstance() -> log("step 5", Logging::Logger::level(Logging::INFO));
     // Compute the mean of the means in the mixture
     result.meanPredResult.mean = vec(L, fill::zeros);
     for(const auto &element : gaussians_for_predi_mean){
