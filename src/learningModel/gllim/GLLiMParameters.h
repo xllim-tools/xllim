@@ -100,7 +100,7 @@ namespace learningModel{
             return *this;
         }
 
-        GLLiMParameters(std::shared_ptr<GLLiMParameters<U,T>> gllimParams){
+        GLLiMParameters(std::shared_ptr<GLLiMParameters> gllimParams){
             Logging::Logger::GetInstance() -> log("step A5", Logging::Logger::level(Logging::INFO));
             this->D = gllimParams->D;
             Logging::Logger::GetInstance() -> log("step A6", Logging::Logger::level(Logging::INFO));
@@ -108,7 +108,6 @@ namespace learningModel{
             Logging::Logger::GetInstance() -> log("step A7", Logging::Logger::level(Logging::INFO));
             this->K = gllimParams->K;
             Logging::Logger::GetInstance() -> log("step A8", Logging::Logger::level(Logging::INFO));
-            gllimParams.Pi.print();
             this->Pi = gllimParams->Pi;
             Logging::Logger::GetInstance() -> log("step A1", Logging::Logger::level(Logging::INFO));
             for(unsigned k=0; k<this->K; k++){
