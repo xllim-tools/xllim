@@ -59,21 +59,18 @@ namespace learningModel{
          * @param gllimParams : GLLiMParameters
          */
         GLLiMParameters(const GLLiMParameters &gllimParams){
-            Logging::Logger::GetInstance() -> log("step A5", Logging::Logger::level(Logging::INFO));
             this->D = gllimParams.D;
-            Logging::Logger::GetInstance() -> log("step A6", Logging::Logger::level(Logging::INFO));
             this->L = gllimParams.L;
-            Logging::Logger::GetInstance() -> log("step A7", Logging::Logger::level(Logging::INFO));
             this->K = gllimParams.K;
-            Logging::Logger::GetInstance() -> log("step A8", Logging::Logger::level(Logging::INFO));
             gllimParams.Pi.print();
             this->Pi = gllimParams.Pi;
+            this->Gamma = std::vector<T>(K);
+            this->Sigma = std::vector<U>(K);
             Logging::Logger::GetInstance() -> log("step A1", Logging::Logger::level(Logging::INFO));
             for(unsigned k=0; k<this->K; k++){
                 this->Gamma[k] = gllimParams.Gamma[k];
+                this->Sigma[k] = gllimParams.Sigma[k];
             }
-            Logging::Logger::GetInstance() -> log("step A2", Logging::Logger::level(Logging::INFO));
-            this->Sigma = gllimParams.Sigma;
             Logging::Logger::GetInstance() -> log("step A3", Logging::Logger::level(Logging::INFO));
             this->C = gllimParams.C;
             this->B = gllimParams.B;
