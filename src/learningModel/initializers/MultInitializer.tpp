@@ -39,7 +39,7 @@ std::shared_ptr <GLLiMParameters<T, U>> MultInitializer<T, U>::execute(const mat
     Logging::Logger::GetInstance() -> log("Start Multi initialization", Logging::Logger::level(Logging::INFO));
 
     for(unsigned exp=0; exp<config->nb_experiences; exp++){
-        Logging::Logger::GetInstance() -> log("Initialisation : " + std::to_string(exp), Logging::Logger::level(Logging::INFO));
+        Logging::Logger::GetInstance() -> log("Initialisation : " + std::to_string(exp + 1), Logging::Logger::level(Logging::INFO));
         // generate a mean for the GMM using a data generator strategy
         Logging::Logger::GetInstance() -> log("\tGenerate GMM means", Logging::Logger::level(Logging::INFO));
         config->generator->execute(m);

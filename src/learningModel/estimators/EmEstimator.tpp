@@ -49,7 +49,6 @@ void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiM
         Logging::Logger::GetInstance() -> log("Iteration : " + std::to_string(iteration)
                                                  + ", log likelihood : " + std::to_string(new_log_likelihood),
                                               Logging::Logger::level(Logging::INFO));
-        //std::cout << "ll : " << new_log_likelihood << std::endl;
     }while(!hasConverged(old_log_likelihood, new_log_likelihood, iteration));
 
     Logging::Logger::GetInstance() -> log("Finish GLLiM-EM Training", Logging::Logger::level(Logging::INFO));

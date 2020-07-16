@@ -195,7 +195,7 @@ arma::gmm_full GLLiMLearning<T, U>::logDensity(std::shared_ptr<GLLiMParameters<V
 
 
     model.set_params(means,covariances,weights.t());
-    
+
     return model;
 }
 
