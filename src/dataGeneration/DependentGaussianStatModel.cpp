@@ -74,5 +74,5 @@ double DependentGaussianStatModel::density_X_Y(const vec &x, const vec &y, const
     y_u = y.t() - y_u;
     return -0.5 * (y_cov.n_rows * LOG_2_PI +
         log(prod(pow(y_cov,2) + pow(y/r,2))) +
-        dot(y_u % (1 / (pow(y_cov,2) + pow(y/r,2))), y_u.t()));
+        dot(y_u.t() % (1 / (pow(y_cov,2) + pow(y/r,2))), y_u.t()));
 }
