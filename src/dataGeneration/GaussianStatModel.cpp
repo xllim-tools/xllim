@@ -44,6 +44,9 @@ double GaussianStatModel::density_X_Y(const vec &x, const vec &y, const vec &y_c
 
     mat cov = mat(this->functionalModel->get_D_dimension(), this->functionalModel->get_D_dimension(), fill::zeros);
     cov.diag() += pow(y_cov ,2) + pow(covariance.t(),2);
+    std::cout << "det :" << Helpers::computeDeterminant(cov) << std::endl;
+    std::cout << "dot :" << dot(y_u.t() % (1 / (pow(y_cov ,2)+ pow(covariance.t(),2))), y_u.t()) << std::endl;
+
     return -0.5 * (y_cov.n_rows * LOG_2_PI +
         Helpers::computeDeterminant(cov) +
         dot(y_u.t() % (1 / (pow(y_cov ,2)+ pow(covariance.t(),2))), y_u.t()));
