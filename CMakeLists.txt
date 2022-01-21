@@ -83,7 +83,6 @@ add_library(learningModel STATIC
         src/learningModel/configs/InitConfig.h
         src/learningModel/gllim/GLLiM.h src/helpersFunctions/Helpers.h src/helpersFunctions/Helpers.cpp src/learningModel/LearningModelFactory.tpp src/learningModel/LearningModelFactory.h src/learningModel/InitializerFactory.h src/logging/Logger.h src/logging/Logger.cpp)
 
-target_include_directories(functionalModel PUBLIC include)
 
 target_compile_features(functionalModel PUBLIC cxx_std_11)
 
