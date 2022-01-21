@@ -8,7 +8,6 @@
 #include <iostream>
 #include <chrono>
 #include "src/functionalModel/FunctionalModel.h"
-#include "src/functionalModel/FunctionnalModelFactory.h"
 #include "src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.h"
 #include "src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.h"
 #include "src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h"
