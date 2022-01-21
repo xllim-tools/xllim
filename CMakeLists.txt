@@ -89,9 +89,9 @@ target_compile_features(functionalModel PUBLIC cxx_std_11)
 
 add_executable(Test main.cpp)
 
-add_executable(testEmbed embedingPython/test.cpp src/functionalModel/ExternalModel/pyhelper.hpp src/functionalModel/ExternalModel/ExternalFunctionalModel.cpp src/functionalModel/ExternalModel/ExternalFunctionalModel.h)
+#add_executable(testEmbed embedingPython/test.cpp src/functionalModel/ExternalModel/pyhelper.hpp src/functionalModel/ExternalModel/ExternalFunctionalModel.cpp src/functionalModel/ExternalModel/ExternalFunctionalModel.h)
 
-target_link_libraries(testEmbed ${PYTHON_LIBRARIES})
+#target_link_libraries(testEmbed ${PYTHON_LIBRARIES})
 
 add_executable(TestGeneration dataGenerationTest.cpp)
 
