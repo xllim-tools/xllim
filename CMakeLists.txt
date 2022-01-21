@@ -96,9 +96,9 @@ add_executable(TestGeneration dataGenerationTest.cpp)
 
 add_executable(TestLearning learning_test.cpp)
 
-target_link_libraries(TestLearning PUBLIC functionalModel learningModel dataGeneration prediction ${ARMADILLO_LIBRARIES})
+target_link_libraries(TestLearning PUBLIC functionalModel learningModel dataGeneration prediction ${ARMADILLO_LIBRARIES} ${PYTHON_LIBRARIES})
 
-target_link_libraries(TestGeneration PUBLIC functionalModel dataGeneration)
+target_link_libraries(TestGeneration PUBLIC functionalModel dataGeneration learningModel ${ARMADILLO_LIBRARIES})
 
 
 target_link_libraries(Test PUBLIC functionalModel)
