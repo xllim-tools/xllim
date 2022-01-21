@@ -6,7 +6,6 @@
 
 #include <armadillo>
 #include "src/functionalModel/FunctionalModel.h"
-#include "src/functionalModel/FunctionnalModelFactory.h"
 #include "src/functionalModel/ShkuratovModel/ShkuratovModel.h"
 #include "src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.h"
 #include "src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.h"
@@ -139,7 +138,7 @@ int main(){
     double scaling[5] = {1.0,1.5,0.8,1.5,1.5};
     double offset[5] = {0,0,0.2,0,0};
 
-    std::shared_ptr<FunctionalModel> myModel (new ShkuratovModel(geometries, 50, 3, scaling, offset));
+    std::shared_ptr<Functional::FunctionalModel> myModel (new Functional::ShkuratovModel(geometries, 50, 3, scaling, offset));
 
     auto *x = new double[5*10000];
     for(unsigned k=0; k<10000; k++){
