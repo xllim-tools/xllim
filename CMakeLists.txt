@@ -18,7 +18,7 @@ include(ExternalProject)
 
 project(Kernelo VERSION ${PROJECT_VERSION} DESCRIPTION "This is Planeto kernel" LANGUAGES CXX)
 set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -larmadillo -DARMA_NO_DEBUG -DARMA_DONT_USE_OPENMP -D_GLIBCXX_USE_CXX11_ABI=0")
-set(CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -larmadillo")
+set(CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -larmadillo -O0 -g -ggdb")
 #set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 
 find_package(Armadillo REQUIRED)
