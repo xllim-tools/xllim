@@ -68,18 +68,18 @@ doxygen:
         paths:
             - docs/cpp_docs/html/
 
-sphinx:
-    image : samidj/kernelo-builder:v1.0
-    stage : documentation
-    tags:
-        - build
-    before_script:
-        - pip3 install markupsafe
-        - pip3 install sphinx
-    script :
-        - ls
-        - cd sphinx
-        - make html
-    artifacts:
-        paths:
-            - sphinx/_build/
+#sphinx:
+#    image : samidj/kernelo-builder:v1.0
+#    stage : documentation
+#    tags:
+#        - build
+#    before_script:
+#        - pip3 install markupsafe
+#        - pip3 install sphinx
+#    script :
+#        - ls
+#        - cd sphinx
+#        - make html
+#    artifacts:
+#        paths:
+#            - sphinx/_build/
