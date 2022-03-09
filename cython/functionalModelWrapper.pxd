@@ -10,6 +10,7 @@ cdef extern from "../src/functionalModel/FunctionalModel.h" namespace "Functiona
         int get_D_dimension()
         int get_L_dimension()
         void from_physic(double *x, int size)
+        void to_physic(double *x, int size)
 
 cdef extern from "../src/functionalModel/HapkeModel/HapkeAdapter.h" namespace "Functional":
     cdef cppclass HapkeAdapter:

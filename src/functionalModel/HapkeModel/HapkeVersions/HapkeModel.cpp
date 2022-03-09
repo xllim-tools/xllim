@@ -101,6 +101,11 @@ void HapkeModel::from_physic(double *x, int size) {
     }
 }
 
+void HapkeModel::to_physic(double *x, int size) {
+    *(x+THETA_BAR) *= theta_bar_scaling;
+    *(x+OMEGA) = 1 - sqrt(1 - *(x+OMEGA));
+}
+
 //--------------------------------------- PRIVATE METHODS ----------------------------------------//
 void HapkeModel::generate_geom_heper_mat() {
     geom_helper_mat = mat(configuredGeometries.n_rows,10);

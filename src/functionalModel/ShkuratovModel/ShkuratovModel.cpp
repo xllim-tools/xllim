@@ -59,6 +59,12 @@ void ShkuratovModel::to_physic(rowvec &x) {
     }
 }
 
+void ShkuratovModel::to_physic(double *x, int size) {
+    for(unsigned l=0; l<size; l++){
+        *(x+l) = *(x+l) * scalingCoeffs(l) + offset(l);
+    }
+}
+
 void ShkuratovModel::from_physic(double *x, int size) {
     for(unsigned l=0; l<size; l++){
         x[l] = (x[l] - offset(l)) / scalingCoeffs(l) ;

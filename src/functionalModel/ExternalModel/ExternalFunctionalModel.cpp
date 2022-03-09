@@ -117,6 +117,10 @@ void ExternalFunctionalModel::to_physic(rowvec &x) {
     }
 }
 
+void ExternalFunctionalModel::to_physic(double *x, int size) {
+    //TODO : implement
+}
+
 void ExternalFunctionalModel::from_physic(double *x, int size) {
     if(pModule) {
         CPyObject pFunc = PyUnicode_FromString("from_physic");

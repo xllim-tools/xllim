@@ -35,6 +35,7 @@ namespace Functional {
         int get_D_dimension() override;
         int get_L_dimension() override;
         void to_physic(rowvec &x) override;
+        void to_physic(double *x, int size) override;
         void from_physic(double *x, int size) override;
 
     private:

@@ -38,6 +38,7 @@ namespace Functional {
         int get_D_dimension() final;
         int get_L_dimension() final;
         void to_physic(rowvec &x) final;
+        void to_physic(double *x, int size) final;
         void from_physic(double *x, int size) final;
 
     protected:

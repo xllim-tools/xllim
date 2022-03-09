@@ -57,6 +57,8 @@ namespace Functional {
 
         void to_physic(rowvec &x) final;
 
+        void to_physic(double *x, int size) final;
+
         void from_physic(double *x, int size) final;
 
     protected:

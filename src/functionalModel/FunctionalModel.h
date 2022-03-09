@@ -97,6 +97,13 @@ namespace Functional {
         virtual void to_physic(rowvec &x) = 0;
 
         /**
+         * This method transforms the values of x from the mathematical
+         * space to the physical space.
+         * @param x : the vector to normalize
+         */
+        virtual void to_physic(double *x, int size) = 0;
+
+        /**
          * This method transforms the values of x from the physical
          * space to the mathematical space.
          * @param x : the vector to denormalize

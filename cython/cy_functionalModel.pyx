@@ -34,6 +34,9 @@ cdef class FunctionalModel:
     from_physic(self,x)
         returns an 1D array where the values of x are normalized
 
+    to_physic(self,x)
+            returns an 1D array where the values of x are in physical space
+
     F(self,x)
         Returns an 1D array Y = F(X)
 
@@ -80,6 +83,21 @@ cdef class FunctionalModel:
         cdef double[::1] x_memview = x_countiguous
         deref(self.c_functional).from_physic(&x_memview[0], x_memview.shape[0])
         return x_countiguous
+
+    def to_physic(self,x):
+            """
+            to_physic(x)
+
+            Returns
+            -------
+            ndarray
+                1D array where the values of x are in physical space
+
+            """
+            x_countiguous = np.ascontiguousarray(x)
+            cdef double[::1] x_memview = x_countiguous
+            deref(self.c_functional).to_physic(&x_memview[0], x_memview.shape[0])
+            return x_countiguous
 
     def F(self,x):
         """
