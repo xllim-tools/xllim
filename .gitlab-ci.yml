@@ -74,6 +74,7 @@ sphinx:
     tags:
         - build
     before_script:
+        - pip3 install markupsafe
         - pip3 install sphinx
     script :
         - ls
