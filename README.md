@@ -43,6 +43,7 @@ If you are mostly interested in par line count coverage, you may use ``--exclude
 To push the report to Sonarqube, make sure the  ``sonar.coverageReportPaths=build/coverage.xml`` property is set in ``sonar-project.properties`` file.
 
 ## Install Sonarqube scanner
+[Source](https://techexpert.tips/sonarqube/sonarqube-scanner-installation-ubuntu-linux/)
 ```
 sudo apt install unzip wget nodejs
 wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
@@ -63,6 +64,7 @@ pip install gcovr
 ```
 
 ## Install a more recent cmake
+[Source](https://askubuntu.com/questions/355565/how-do-i-install-the-latest-version-of-cmake-from-the-command-line)
 Ubuntu 18.04 provides an old version of cmake.
 ```
 sudo apt purge --auto-remove cmake
@@ -74,6 +76,7 @@ sudo apt install cmake
 ```
 
 ## Install a more recent gcc
+[Source](https://linuxize.com/post/how-to-install-gcc-compiler-on-ubuntu-18-04/)
 ```
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test
 sudo apt install gcc-9 g++-9
