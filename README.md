@@ -41,3 +41,42 @@ Run gcovr
 If you are mostly interested in par line count coverage, you may use ``--exclude-unreachable-branches --exclude-throw-branches`` options with ``gcovr`` to reduce the number of overly reported compilation branches.
 
 To push the report to Sonarqube, make sure the  ``sonar.coverageReportPaths=build/coverage.xml`` property is set in ``sonar-project.properties`` file.
+
+## Install Sonarqube scanner
+```
+sudo apt install unzip wget nodejs
+wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
+unzip sonar-scanner-cli-4.7.0.2747-linux.zip
+```
+Add sonarscanner location to PATH, by adding it to ```/etc/profile.d/sonar-scanner.sh```.
+
+# Building on Ubuntu 18.04
+
+## Install pip
+Change /usb/bin/python link to python3
+```
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
+sudo apt install python3-pip
+python -V
+pip -V
+pip install gcovr
+```
+
+## Install a more recent cmake
+Ubuntu 18.04 provides an old version of cmake.
+```
+sudo apt purge --auto-remove cmake
+sudo apt install software-properties-common
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
+sudo apt update
+sudo apt install cmake
+```
+
+## Install a more recent gcc
+```
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo apt install gcc-9 g++-9
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
+gcc --version
+```
