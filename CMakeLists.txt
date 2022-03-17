@@ -32,7 +32,30 @@ include_directories("extern/lib")
 
 include(CTest)
 
-add_library(prediction STATIC src/prediction/IPredictor.h src/prediction/Predictor.cpp src/prediction/Predictor.h src/prediction/MultivariateGaussian.h src/importanceSampling/ImportanceSampler.cpp src/importanceSampling/ImportanceSampler.h src/importanceSampling/proposition/ISProposition.h src/importanceSampling/proposition/GaussianMixtureProposition.cpp src/importanceSampling/proposition/GaussianMixtureProposition.h src/importanceSampling/proposition/GaussianRegularizedProposition.cpp src/importanceSampling/proposition/GaussianRegularizedProposition.h src/importanceSampling/proposition/UniformProposition.cpp src/importanceSampling/proposition/UniformProposition.h src/importanceSampling/ISResult.h src/importanceSampling/ISDiagnostic.h src/importanceSampling/target/ISTarget.h src/importanceSampling/target/ISTargetDependent.cpp src/importanceSampling/target/ISTargetDependent.h src/prediction/PredictionResult.h src/prediction/creators.h src/importanceSampling/creators.h src/prediction/PredictionResultExport.h src/importanceSampling/ImportanceSamplingDiagnostic.h src/importanceSampling/ImportanceSamplingResult.h)
+add_library(prediction STATIC
+        src/prediction/IPredictor.h
+        src/prediction/Predictor.cpp
+        src/prediction/Predictor.h
+        src/prediction/MultivariateGaussian.h
+        src/importanceSampling/ImportanceSampler.cpp
+        src/importanceSampling/ImportanceSampler.h
+        src/importanceSampling/proposition/ISProposition.h
+        src/importanceSampling/proposition/GaussianMixtureProposition.cpp
+        src/importanceSampling/proposition/GaussianMixtureProposition.h
+        src/importanceSampling/proposition/GaussianRegularizedProposition.cpp
+        src/importanceSampling/proposition/GaussianRegularizedProposition.h
+        src/importanceSampling/proposition/UniformProposition.cpp
+        src/importanceSampling/proposition/UniformProposition.h
+        src/importanceSampling/ISResult.h src/importanceSampling/ISDiagnostic.h
+        src/importanceSampling/target/ISTarget.h
+        src/importanceSampling/target/ISTargetDependent.cpp
+        src/importanceSampling/target/ISTargetDependent.h
+        src/prediction/PredictionResult.h
+        src/prediction/creators.h
+        src/importanceSampling/creators.h
+        src/prediction/PredictionResultExport.h
+        src/importanceSampling/ImportanceSamplingDiagnostic.h
+        src/importanceSampling/ImportanceSamplingResult.h)
 
 add_library(dataGeneration STATIC
         src/dataGeneration/StatModel.h
@@ -48,7 +71,11 @@ add_library(dataGeneration STATIC
         src/dataGeneration/SobolGenerator.cpp
         src/dataGeneration/SobolGenerator.h
         src/dataGeneration/DependentGaussianStatModel.cpp
-        src/dataGeneration/DependentGaussianStatModel.h src/dataGeneration/creators.h src/prediction/IPredictor.h src/logging/Logger.h src/logging/Logger.cpp)
+        src/dataGeneration/DependentGaussianStatModel.h
+        src/dataGeneration/creators.h
+        src/prediction/IPredictor.h
+        src/logging/Logger.h
+        src/logging/Logger.cpp)
 
 add_library(functionalModel STATIC
         src/functionalModel/HapkeModel/HapkeVersions/HapkeModel.cpp
@@ -58,7 +85,16 @@ add_library(functionalModel STATIC
         src/functionalModel/HapkeModel/HapkeModel.h
         src/functionalModel/FunctionalModel.h
         src/functionalModel/HapkeModel/HapkeVersions/Hapke93Model.h
-        src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.h src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h src/functionalModel/HapkeModel/HapkeAdapter.h src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.h src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.cpp src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.h src/functionalModel/ShkuratovModel/ShkuratovModel.cpp src/functionalModel/ShkuratovModel/ShkuratovModel.h)
+        src/functionalModel/HapkeModel/HapkeVersions/Hapke02Model.h
+        src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.cpp
+        src/functionalModel/HapkeModel/HapkeAdapters/ThreeParamsModel.h
+        src/functionalModel/HapkeModel/HapkeAdapter.h
+        src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.cpp
+        src/functionalModel/HapkeModel/HapkeAdapters/SixParamsModel.h
+        src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.cpp
+        src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.h
+        src/functionalModel/ShkuratovModel/ShkuratovModel.cpp
+        src/functionalModel/ShkuratovModel/ShkuratovModel.h)
 
 add_library(learningModel STATIC
         src/learningModel/configs/LearningConfig.h
@@ -81,7 +117,13 @@ add_library(learningModel STATIC
         src/learningModel/initializers/MultInitializer.h
         src/learningModel/initializers/MultInitializer.tpp
         src/learningModel/configs/InitConfig.h
-        src/learningModel/gllim/GLLiM.h src/helpersFunctions/Helpers.h src/helpersFunctions/Helpers.cpp src/learningModel/LearningModelFactory.tpp src/learningModel/LearningModelFactory.h src/learningModel/InitializerFactory.h src/logging/Logger.h src/logging/Logger.cpp)
+        src/learningModel/gllim/GLLiM.h src/helpersFunctions/Helpers.h
+        src/helpersFunctions/Helpers.cpp
+        src/learningModel/LearningModelFactory.tpp
+        src/learningModel/LearningModelFactory.h
+        src/learningModel/InitializerFactory.h
+        src/logging/Logger.h
+        src/logging/Logger.cpp)
 
 
 target_compile_features(functionalModel PUBLIC cxx_std_11)
