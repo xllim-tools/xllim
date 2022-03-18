@@ -10,7 +10,6 @@
 #define KERNELO_GMMESTIMATOR_H
 
 #include "Estimators.h"
-//#include <gtest/gtest_prod.h>
 
 namespace learningModel{
 
@@ -57,8 +56,8 @@ namespace learningModel{
         mat posterior; /**< the posterior from the training of the GMM */
         std::shared_ptr<GMMLearningConfig> config; /**< The estimator configuration parameters @see GMMLearningConfig GMMLearningConfig*/
 
-        //FRIEND_TEST(GmmEstimatorTest, toGMM);
-        //FRIEND_TEST(GmmEstimatorTest, fromGMM);
+        friend class GmmEstimatorTest_toGMM_Test;
+        friend class GmmEstimatorTest_fromGMM_Test;
 
         /**
          * @brief The method transforms a GMM to GLLiM model.

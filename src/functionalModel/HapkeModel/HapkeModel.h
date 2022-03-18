@@ -9,8 +9,6 @@
 #ifndef KERNELO_HAPKEMODEL_H
 #define KERNELO_HAPKEMODEL_H
 
-
-#include "../../../extern/lib/googletest/include/gtest/gtest_prod.h"
 #include "HapkeAdapter.h"
 #include "../FunctionalModel.h"
 #include <utility>
@@ -67,9 +65,12 @@ namespace Functional {
         std::shared_ptr<HapkeAdapter> adapter;/**< A shared pointer to the @ref HapkeAdapter "adapter" */
         double theta_bar_scaling; /**< A value used to transform theta_bar between physical and mathematical spaces */
 
-        FRIEND_TEST(Hapke02ModelTest, CalculateP);
-        FRIEND_TEST(Hapke02ModelTest, CalculateX);
-        FRIEND_TEST(Hapke02ModelTest, CalculateB);
+        // FRIEND_TEST(Hapke02ModelTest, CalculateP);
+        // FRIEND_TEST(Hapke02ModelTest, CalculateX);
+        // FRIEND_TEST(Hapke02ModelTest, CalculateB);
+        friend class Hapke02ModelTest_CalculateP_Test;
+        friend class Hapke02ModelTest_CalculateX_Test;
+        friend class Hapke02ModelTest_CalculateB_Test;
 
         /**
          * This method configures the geometries and prepares it for the calculation of reflectances

@@ -13,7 +13,6 @@
 #include "MultivariateGaussian.h"
 #include <memory>
 #include "armadillo"
-#include <gtest/gtest_prod.h>
 #include "PredictionResult.h"
 #include "IPredictor.h"
 
@@ -59,8 +58,10 @@ namespace prediction {
         double threshold = THRESHOLD; /**< The minimum weight of a gaussian distribution that is allowed in a GMM otherwise it is deleted. */
         unsigned k_pred_mean = K_PRED_MEAN; /**< Number of gaussian distributions that are kept during th prediction by the mean.*/
 
-        FRIEND_TEST(PredictionByCentersTests, generatePermutations);
-        FRIEND_TEST(PredictionByCentersTests, regularize);
+        // FRIEND_TEST(PredictionByCentersTests, generatePermutations);
+        // FRIEND_TEST(PredictionByCentersTests, regularize);
+        friend class PredictionByCentersTests_generatePermutations_Test;
+        friend class PredictionByCentersTests_regularize_Test;
 
 
         /**
