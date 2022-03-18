@@ -21,16 +21,24 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -larmadillo -DARMA_NO_DEBUG -DARMA_DONT_USE_
 set(CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -larmadillo -O0 -g -ggdb")
 #set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 
+# get googletest -------------------------------------
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+# ----------------------------------------------------
+
 find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("/usr/lib/python3/dist-packages/numpy/core/include/")
-include_directories("extern/lib")
-
-
-include(CTest)
+#include_directories("extern/lib")
 
 add_library(prediction STATIC
         src/prediction/IPredictor.h
@@ -128,28 +136,28 @@ add_library(learningModel STATIC
 
 target_compile_features(functionalModel PUBLIC cxx_std_11)
 
-add_executable(Test main.cpp)
+add_executable(main_test main.cpp)
+target_link_libraries(main_test PUBLIC functionalModel)
 
 #add_executable(testEmbed embedingPython/test.cpp src/functionalModel/ExternalModel/pyhelper.hpp src/functionalModel/ExternalModel/ExternalFunctionalModel.cpp src/functionalModel/ExternalModel/ExternalFunctionalModel.h)
-
 #target_link_libraries(testEmbed ${PYTHON_LIBRARIES})
 
-add_executable(TestGeneration dataGenerationTest.cpp)
+add_executable(generation_test dataGenerationTest.cpp)
+target_link_libraries(generation_test PUBLIC gtest_main functionalModel dataGeneration learningModel ${ARMADILLO_LIBRARIES})
 
-add_executable(TestLearning learning_test.cpp)
-
-target_link_libraries(TestLearning PUBLIC functionalModel learningModel dataGeneration prediction ${ARMADILLO_LIBRARIES} ${PYTHON_LIBRARIES})
-
-target_link_libraries(TestGeneration PUBLIC functionalModel dataGeneration learningModel ${ARMADILLO_LIBRARIES})
-
-
-target_link_libraries(Test PUBLIC functionalModel)
+add_executable(learning_test learning_test.cpp)
+target_link_libraries(learning_test PUBLIC gtest_main functionalModel learningModel dataGeneration prediction ${ARMADILLO_LIBRARIES} ${PYTHON_LIBRARIES})
 
 
 add_subdirectory(cpptest/functionalModel_tests)
-
-add_subdirectory(valgrind)
-
 add_subdirectory(cpptest/learningModelTests)
+# add_subdirectory(cpptest/predictionTests)  <-- doesn't compile
 
-add_subdirectory(cpptest/predictionTests)
+# declare tests to ctest (optional as binaries can be executed one by one)
+enable_testing()
+include(GoogleTest)
+gtest_discover_tests(learning_test DISCOVERY_TIMEOUT 60)
+gtest_discover_tests(generation_test DISCOVERY_TIMEOUT 60)
+
+# add_subdirectory(valgrind)
+
