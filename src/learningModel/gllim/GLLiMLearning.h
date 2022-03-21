@@ -13,7 +13,6 @@
 #include "../initializers/Initializers.h"
 #include "../estimators/Estimators.h"
 #include <memory>
-#include <gtest/gtest.h>
 
 namespace learningModel{
 
