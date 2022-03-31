@@ -37,14 +37,15 @@ DiagCovariance &DiagCovariance::operator=(double scalar) {
     return *this;
 }
 
-mat learningModel::operator+(const mat &y, const DiagCovariance &x) {
-    mat result = y;
-    result.diag() += x.variances;
-    return result;
-}
+//mat learningModel::operator+(const mat &y, const DiagCovariance &x) {
+//    mat result = y;
+//    result.diag() += x.variances;
+//    return result;
+//}
 
 mat learningModel::operator+(const DiagCovariance &x, const mat &y) {
-    return y + x;
+    mat result = y + diagmat(x.variances);
+    return result;
 }
 
 mat learningModel::operator*(const mat &y, const DiagCovariance &x) {
@@ -91,11 +92,13 @@ void DiagCovariance::print() {
 }
 
 vec learningModel::operator*(const DiagCovariance &x, const vec &y) {
-    return x.variances % y;
+    vec result = x.variances % y;
+    return result;
 }
 
 rowvec learningModel::operator*(const rowvec &y, const DiagCovariance &x) {
-    return y % x.variances.t();
+    rowvec result = y % x.variances.t();
+    return result;
 }
 
 mat DiagCovariance::getFull() const {

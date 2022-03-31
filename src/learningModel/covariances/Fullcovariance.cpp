@@ -40,19 +40,23 @@ FullCovariance FullCovariance::inv() {
 }
 
 mat learningModel::operator+(const mat &y, const FullCovariance &x) {
-    return y + x.covariance;
+    mat result = y + x.covariance;
+    return result;
 }
 
 mat learningModel::operator+(const FullCovariance &x, const mat &y) {
-    return y + x.covariance;
+    mat result = y + x.covariance;
+    return result;
 }
 
 mat learningModel::operator*(const mat &y, const FullCovariance &x) {
-    return y * x.covariance;
+    mat result = y * x.covariance;
+    return result;
 }
 
 mat learningModel::operator*(const FullCovariance &x, const mat &y) {
-    return x.covariance * y;
+    mat result = x.covariance * y;
+    return result;
 }
 
 FullCovariance &FullCovariance::operator+=(const mat &cov) {
@@ -64,11 +68,13 @@ FullCovariance &FullCovariance::operator+=(double scalar) {
 }
 
 vec learningModel::operator*(const FullCovariance &x, const vec &y) {
-    return x.covariance * y;
+    vec result = x.covariance * y;
+    return result;
 }
 
 rowvec learningModel::operator*(const rowvec &y, const FullCovariance &x) {
-    return y * x.covariance;
+    rowvec result = y * x.covariance;
+    return result;
 }
 
 void FullCovariance::print() {

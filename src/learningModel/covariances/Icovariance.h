@@ -21,6 +21,26 @@ namespace learningModel{
      * @brief This interface has been created for generalisation purpose
      */
     class Icovariance{};
+    class DiagCovariance;
+    class FullCovariance;
+    class IsoCovariance;
+
+    mat operator + (const DiagCovariance &x, const mat &y);
+    mat operator + (const mat &y, const DiagCovariance &x);
+    mat operator * (const mat &y, const DiagCovariance &x);
+    mat operator * (const DiagCovariance &x, const mat &y);
+    vec operator * (const DiagCovariance &x, const vec &y);
+    rowvec operator * (const rowvec &y, const DiagCovariance &x);
+
+    mat operator + (const mat &y, const FullCovariance &x);
+    mat operator + (const FullCovariance &x, const mat &y);
+    rowvec operator * (const rowvec &y, const FullCovariance &x);
+    vec operator * (const FullCovariance &x, const vec &y);
+    mat operator * (const FullCovariance &x, const mat &y);
+    mat operator * (const mat &y, const FullCovariance &x);
+
+    mat operator + (const mat &y, const IsoCovariance &x);
+    mat operator + (const IsoCovariance &x, const mat &y);
 
     /**
      * @class DiagCovariance
@@ -40,7 +60,7 @@ namespace learningModel{
          * @param x : DiagCovariance
          * @return : armadillo::Mat<double>
          */
-        friend mat operator + (const mat &y, const DiagCovariance &x);
+//        friend mat operator + (const mat &y, const DiagCovariance &x);
 
         /**
          * @brief Addition operator redefinition
@@ -49,7 +69,7 @@ namespace learningModel{
          * @param y : armadillo::Mat<double>
          * @return : armadillo::Mat<double>
          */
-        friend mat operator + (const DiagCovariance &x, const mat &y);
+        //friend mat operator + (const DiagCovariance &x, const mat &y);
 
         /**
          * @brief Subtraction operator redefinition
@@ -76,7 +96,7 @@ namespace learningModel{
          * @param x : DiagCovariance
          * @return : armadillo::Mat<double>
          */
-        friend mat operator * (const mat &y, const DiagCovariance &x);
+//        friend mat operator * (const mat &y, const DiagCovariance &x);
 
         /**
          * @brief Multiplication operator redefinition
@@ -85,7 +105,7 @@ namespace learningModel{
          * @param y : armadillo::Mat<double>
          * @return : armadillo::Mat<double>
          */
-        friend mat operator * (const DiagCovariance &x, const mat &y);
+//        friend mat operator * (const DiagCovariance &x, const mat &y);
 
         /**
          * @brief Multiplication operator redefinition
@@ -94,7 +114,7 @@ namespace learningModel{
          * @param x : DiagCovariance
          * @return : armadillo::Col<double>
          */
-        friend vec operator * (const DiagCovariance &x, const vec &y);
+//        friend vec operator * (const DiagCovariance &x, const vec &y);
 
         /**
          * @brief Multiplication operator redefinition
@@ -103,7 +123,7 @@ namespace learningModel{
          * @param x : DiagCovariance
          * @return : armadillo::Row<double>
          */
-        friend rowvec operator * (const rowvec &y, const DiagCovariance &x);
+//        friend rowvec operator * (const rowvec &y, const DiagCovariance &x);
 
     public:
         /**
@@ -203,8 +223,9 @@ namespace learningModel{
          */
         mat getFull() const;
 
-    private:
         vec variances; /**< The vector of variances */
+    private:
+//        vec variances; /**< The vector of variances */
     };
 
     /**
@@ -220,7 +241,7 @@ namespace learningModel{
          * @param x : FullCovariance
          * @return : armadillo::Mat<double>
          */
-        friend mat operator + (const mat &y, const FullCovariance &x);
+//        friend mat operator + (const mat &y, const FullCovariance &x);
 
         /**
          * @brief Addition operator redefinition
@@ -229,7 +250,7 @@ namespace learningModel{
          * @param y : armadillo::Mat<double>
          * @return : armadillo::Mat<double>
          */
-        friend mat operator + (const FullCovariance &x, const mat &y);
+//        friend mat operator + (const FullCovariance &x, const mat &y);
 
         /**
          * @brief Subtraction operator redefinition
@@ -256,7 +277,7 @@ namespace learningModel{
          * @param x : FullCovariance
          * @return : armadillo::Mat<double>
          */
-        friend mat operator * (const mat &y, const FullCovariance &x);
+//        friend mat operator * (const mat &y, const FullCovariance &x);
 
         /**
          * @brief Multiplication operator redefinition
@@ -265,7 +286,7 @@ namespace learningModel{
          * @param y : armadillo::Mat<double>
          * @return : armadillo::Mat<double>
          */
-        friend mat operator * (const FullCovariance &x, const mat &y);
+//        friend mat operator * (const FullCovariance &x, const mat &y);
 
         /**
          * @brief Multiplication operator redefinition
@@ -274,7 +295,7 @@ namespace learningModel{
          * @param x : FullCovariance
          * @return : armadillo::Col<double>
          */
-        friend vec operator * (const FullCovariance &x, const vec &y);
+//        friend vec operator * (const FullCovariance &x, const vec &y);
 
         /**
          * @brief Multiplication operator redefinition
@@ -283,7 +304,7 @@ namespace learningModel{
          * @param x : FullCovariance
          * @return : armadillo::Row<double>
          */
-        friend rowvec operator * (const rowvec &y, const FullCovariance &x);
+//        friend rowvec operator * (const rowvec &y, const FullCovariance &x);
 
     public:
         /**
@@ -375,7 +396,7 @@ namespace learningModel{
          */
         mat getFull() const;
 
-    private:
+//    private:
         mat covariance; /**< The matrix of covariance. */
     };
 
@@ -397,7 +418,7 @@ namespace learningModel{
          * @param x : IsoCovariance
          * @return : armadillo::Mat<double>
          */
-        friend mat operator + (const mat &y, const IsoCovariance &x);
+//        friend mat operator + (const mat &y, const IsoCovariance &x);
 
         /**
         * @brief Addition operator redefinition
@@ -406,7 +427,7 @@ namespace learningModel{
         * @param y : armadillo::Mat<double>
         * @return : armadillo::Mat<double>
         */
-        friend mat operator + (const IsoCovariance &x, const mat &y);
+//        friend mat operator + (const IsoCovariance &x, const mat &y);
 
         /**
          * @brief Subtraction operator redefinition
@@ -560,7 +581,7 @@ namespace learningModel{
          */
         mat getFull() const;
 
-    private:
+//    private:
         double scalar; /**< the value of the variance of the variables*/
         unsigned size; /**< The number of variables*/
     };
