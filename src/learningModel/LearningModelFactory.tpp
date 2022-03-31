@@ -83,4 +83,5 @@ std::shared_ptr<IGLLiMLearning> LearningModelFactory::create(
                             k));
         }
     }
+    return NULL;
 }

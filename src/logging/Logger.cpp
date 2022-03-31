@@ -21,6 +21,7 @@ std::string Logger::level(Level level){
         case CRITICAL:
             return "CRITICAL";
     }
+    return "INFO";
 }
 
 Logger *Logger::GetInstance() {

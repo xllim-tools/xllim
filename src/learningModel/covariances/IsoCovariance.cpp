@@ -44,10 +44,12 @@ IsoCovariance &IsoCovariance::operator=(double scalar) {
 
 IsoCovariance &IsoCovariance::operator+=(double scalar) {
     this->scalar += scalar;
+    return *this;
 }
 
 IsoCovariance &IsoCovariance::operator+=(const arma::mat & cov) {
     scalar += accu(cov.diag()) / cov.n_cols;
+    return *this;
 }
 
 mat learningModel::operator+(const mat &y, const IsoCovariance &x) {

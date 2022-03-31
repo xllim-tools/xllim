@@ -75,6 +75,7 @@ int ExternalFunctionalModel::get_D_dimension() {
     }else{
         printf("ERROR: Module not imported, Can not call function get_D_dimension()\n");
     };
+    return 0;
 }
 
 int ExternalFunctionalModel::get_L_dimension() {
@@ -91,6 +92,7 @@ int ExternalFunctionalModel::get_L_dimension() {
     }else{
         printf("ERROR: Module not imported, Can not call function get_D_dimension()\n");
     };
+    return 0;
 }
 
 void ExternalFunctionalModel::to_physic(rowvec &x) {

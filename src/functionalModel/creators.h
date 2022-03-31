@@ -19,6 +19,7 @@
 #include "HapkeModel/HapkeVersions/Hapke93Model.h"
 #include "ShkuratovModel/ShkuratovModel.h"
 #include "ExternalModel/ExternalFunctionalModel.h"
+#include "../logging/Logger.h"
 
 namespace Functional{
 
@@ -51,6 +52,8 @@ namespace Functional{
             }else if(version == "three"){
                 return std::shared_ptr<HapkeAdapter>(new ThreeParamsModel(this->b0, this->h));
             }
+            Logging::Logger::GetInstance() -> log("\tInvalid Hapke adapter version", Logging::Logger::level(Logging::ERROR));
+            return NULL;
         }
     };
 
@@ -98,6 +101,8 @@ namespace Functional{
                                 theta_bar_scalling)
                                 );
             }
+            Logging::Logger::GetInstance() -> log("\tInvalid Hapke version", Logging::Logger::level(Logging::ERROR));
+            return NULL;
         }
     };
 
