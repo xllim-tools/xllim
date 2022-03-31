@@ -23,7 +23,7 @@ namespace learningModel{
 
     class EMLearningConfig : public LearningConfig{
     public:
-        int max_iteration;
+        unsigned int max_iteration;
         double ratio_ll;
         double floor;
 
