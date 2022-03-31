@@ -161,7 +161,7 @@ double Predictor::safeCovDet(mat &covariance) {
 void Predictor::findPairToMerge(std::vector<std::pair<MultivariateGaussian, bool>> &gaussians) {
     unsigned K = gaussians.size();
     MultivariateGaussian proposition_merge, best_merge;
-    unsigned best_k1, best_k2;
+    unsigned best_k1 = 0, best_k2 = 0;
     double proposition_d, best_d = datum::inf;
 
     for(unsigned k1=0; k1<K; k1++){
