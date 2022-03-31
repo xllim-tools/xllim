@@ -235,7 +235,7 @@ template<typename T, typename U>
 template<typename V>
 void EmEstimator<T, U>::covStabilityImprov(V &covariance, unsigned dimension, double floor) {
     static_assert(std::is_base_of<Icovariance, V>(), "Type V must be Icovariance specialization");
-    covariance += eye(dimension ,dimension ) * floor;
+    covariance = covariance + eye(dimension ,dimension ) * floor;
 }
 
 template<typename T, typename U>
