@@ -201,7 +201,7 @@ arma::gmm_full GLLiMLearning<T, U>::logDensity(std::shared_ptr<GLLiMParameters<V
 
 template<typename T, typename U>
 void GLLiMLearning<T,U>::alterCovariance(GLLiMParameters<T, U> &gllim, const vec &cov_obs){
-    mat cov(gllim.D, gllim.K , fill::zeros);
+    mat cov(gllim.D, gllim.D , fill::zeros);
     cov.diag() += cov_obs;
     for(unsigned k=0; k<gllim.K; k++){
         gllim.Sigma[k] += pow(cov, 2);
