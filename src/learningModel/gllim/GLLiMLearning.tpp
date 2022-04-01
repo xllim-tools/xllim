@@ -60,9 +60,11 @@ void GLLiMLearning<T, U>::getModel(GLLiM &gllim) {
             }
         }
         for(unsigned i=0; i<gllim.L * gllim.D * gllim.K; i++){
-            gllim.A[i] = gllim_parameters->A((i % (gllim.L * gllim.D))% (gllim.L),
-                           (i % (gllim.L * gllim.D))/ (gllim.L),
-                           i / (gllim.L * gllim.D));
+            auto l = (i % (gllim.L * gllim.D))% (gllim.L);
+            auto d = (i % (gllim.L * gllim.D))/ (gllim.L);
+            auto k = i / (gllim.L * gllim.D);
+            std::cout << i << "  " << d << "  " << l <<  "  " << k <<  endl;
+            gllim.A[i] = gllim_parameters->A(d, l, k);
         }
     }
 }
@@ -95,9 +97,10 @@ void GLLiMLearning<T, U>::setModel(GLLiM &gllim) {
     }
 
     for(unsigned i=0; i<gllim.L * gllim.D * gllim.K; i++){
-        gllim_parameters->A((i % (gllim.L * gllim.D))% (gllim.L),
-                                         (i % (gllim.L * gllim.D))/ (gllim.L),
-                                         i / (gllim.L * gllim.D)) = gllim.A[i];
+        auto l = (i % (gllim.L * gllim.D))% (gllim.L);
+        auto d = (i % (gllim.L * gllim.D))/ (gllim.L);
+        auto k = i / (gllim.L * gllim.D);
+        gllim_parameters->A(d, l, k) = gllim.A[i];
     }
 
     this->inverse_gllim_parameters = std::make_shared<GLLiMParameters<FullCovariance, FullCovariance>>(
@@ -235,9 +238,10 @@ void GLLiMLearning<T, U>::getInverse(GLLiM &gllim) {
         }
 
         for(unsigned i=0; i<gllim.L * gllim.D * gllim.K; i++){
-            gllim.A[i] = inverse_gllim_parameters->A((i % (gllim.L * gllim.D))% (gllim.L),
-                                             (i % (gllim.L * gllim.D))/ (gllim.L),
-                                             i / (gllim.L * gllim.D));
+            auto l = (i % (gllim.L * gllim.D))% (gllim.L);
+            auto d = (i % (gllim.L * gllim.D))/ (gllim.L);
+            auto k = i / (gllim.L * gllim.D);
+            gllim.A[i] = inverse_gllim_parameters->A(d, l, k);
         }
     }
 }
