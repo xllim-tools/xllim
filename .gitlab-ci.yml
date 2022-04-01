@@ -35,22 +35,22 @@ staging:
         - docker push registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is:armafix
 
 
-#sonarqube:
-#    image : openjdk:8-jdk
-#    stage : analysis
-#    tags:
-#        - build
-#    before_script:
-#        - apt update
-#        - apt-get install -y wget unzip
-#        - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
-#        - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
-#        - export PATH=$PWD/sonar-scanner-3.3.0.1492-linux/bin:$PATH
-#        - keytool -import -alias inria -storepass "changeit" -keystore sonar-scanner-3.3.0.1492-linux/jre/lib/security/cacerts -file digicertca.crt
-#    script:
-#        - sonar-scanner
-#    after_script:
-#        - echo "Please visit the followinf link to see the result of sonar-scaner https://sonarqube.inria.fr/sonarqube"
+sonarqube:
+    image : openjdk:8-jdk
+    stage : analysis
+    tags:
+        - build
+    before_script:
+        - apt update
+        - apt-get install -y wget unzip
+        - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
+        - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
+        - export PATH=$PWD/sonar-scanner-3.3.0.1492-linux/bin:$PATH
+        - keytool -import -alias inria -storepass "changeit" -keystore sonar-scanner-3.3.0.1492-linux/jre/lib/security/cacerts -file digicertca.crt
+    script:
+        - sonar-scanner
+    after_script:
+        - echo "Please visit the followinf link to see the result of sonar-scaner https://sonarqube.inria.fr/sonarqube"
 
 doxygen:
     image : ubuntu:bionic
