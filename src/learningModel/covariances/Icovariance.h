@@ -25,22 +25,222 @@ namespace learningModel{
     class FullCovariance;
     class IsoCovariance;
 
-    mat operator + (const DiagCovariance &x, const mat &y);
+    /**
+     * @brief Addition operator redefinition
+     * @details The method performs C = A + B where C and A are armadillo matrices and B is of type DiagCovariance.
+     * @param y : armadillo::Mat<double>
+     * @param x : DiagCovariance
+     * @return : armadillo::Mat<double>
+     */
     mat operator + (const mat &y, const DiagCovariance &x);
+
+    /**
+     * @brief Addition operator redefinition
+     * @details The method performs C = A + B where C and B are armadillo matrices and A is of type DiagCovariance.
+     * @param x : DiagCovariance
+     * @param y : armadillo::Mat<double>
+     * @return : armadillo::Mat<double>
+     */
+    mat operator + (const DiagCovariance &x, const mat &y);
+
+    /**
+     * @brief Subtraction operator redefinition
+     * @details The method performs C = A - B where C and A are armadillo matrices and B is of type DiagCovariance.
+     * @param y : armadillo::Mat<double>
+     * @param x : DiagCovariance
+     * @return : armadillo::Mat<double>
+     */
+    mat operator - (const mat &y, const DiagCovariance &x);
+
+    /**
+     * @brief Subtraction operator redefinition
+     * @details The method performs C = A - B where C and B are armadillo matrices and A is of type DiagCovariance.
+     * @param x : DiagCovariance
+     * @param y : armadillo::Mat<double>
+     * @return : armadillo::Mat<double>
+     */
+    mat operator - (const DiagCovariance &x, const mat &y);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and A are armadillo matrices and B is of type DiagCovariance.
+     * @param y : armadillo::Mat<double>
+     * @param x : DiagCovariance
+     * @return : armadillo::Mat<double>
+     */
     mat operator * (const mat &y, const DiagCovariance &x);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and B are armadillo matrices and A is of type DiagCovariance.
+     * @param x : DiagCovariance
+     * @param y : armadillo::Mat<double>
+     * @return : armadillo::Mat<double>
+     */
     mat operator * (const DiagCovariance &x, const mat &y);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and B are column vectors and A is of type DiagCovariance.
+     * @param y : armadillo::Col<double>
+     * @param x : DiagCovariance
+     * @return : armadillo::Col<double>
+     */
     vec operator * (const DiagCovariance &x, const vec &y);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and A are row vectors and A is of type DiagCovariance.
+     * @param y : armadillo::Row<double>
+     * @param x : DiagCovariance
+     * @return : armadillo::Row<double>
+     */
     rowvec operator * (const rowvec &y, const DiagCovariance &x);
 
+    /**
+     * @brief Addition operator redefinition
+     * @details The method performs C = A + B where C and A are armadillo matrices and B is of type FullCovariance.
+     * @param y : armadillo::Mat<double>
+     * @param x : FullCovariance
+     * @return : armadillo::Mat<double>
+     */
     mat operator + (const mat &y, const FullCovariance &x);
+
+    /**
+     * @brief Addition operator redefinition
+     * @details The method performs C = A + B where C and B are armadillo matrices and A is of type FullCovariance.
+     * @param x : FullCovariance
+     * @param y : armadillo::Mat<double>
+     * @return : armadillo::Mat<double>
+     */
     mat operator + (const FullCovariance &x, const mat &y);
-    rowvec operator * (const rowvec &y, const FullCovariance &x);
-    vec operator * (const FullCovariance &x, const vec &y);
-    mat operator * (const FullCovariance &x, const mat &y);
+
+    /**
+     * @brief Subtraction operator redefinition
+     * @details The method performs C = A - B where C and A are armadillo matrices and B is of type FullCovariance.
+     * @param y : armadillo::Mat<double>
+     * @param x : FullCovariance
+     * @return : armadillo::Mat<double>
+     */
+    mat operator - (const mat &y, const FullCovariance &x);
+
+    /**
+     * @brief Subtraction operator redefinition
+     * @details The method performs C = A - B where C and B are armadillo matrices and A is of type FullCovariance.
+     * @param x : FullCovariance
+     * @param y : armadillo::Mat<double>
+     * @return : armadillo::Mat<double>
+     */
+     mat operator - (const FullCovariance &x, const mat &y);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and A are armadillo matrices and B is of type FullCovariance.
+     * @param y : armadillo::Mat<double>
+     * @param x : FullCovariance
+     * @return : armadillo::Mat<double>
+     */
     mat operator * (const mat &y, const FullCovariance &x);
 
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and B are armadillo matrices and A is of type FullCovariance.
+     * @param x : FullCovariance
+     * @param y : armadillo::Mat<double>
+     * @return : armadillo::Mat<double>
+     */
+    mat operator * (const FullCovariance &x, const mat &y);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and B are column vectors and A is of type FullCovariance.
+     * @param y : armadillo::Col<double>
+     * @param x : FullCovariance
+     * @return : armadillo::Col<double>
+     */
+    vec operator * (const FullCovariance &x, const vec &y);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and A are row vectors and A is of type FullCovariance.
+     * @param y : armadillo::Row<double>
+     * @param x : FullCovariance
+     * @return : armadillo::Row<double>
+     */
+    rowvec operator * (const rowvec &y, const FullCovariance &x);
+
+    /**
+     * @brief Addition operator redefinition
+     * @details The method performs C = A + B where C and A are armadillo matrices and B is of type IsoCovariance.
+     * @param y : armadillo::Mat<double>
+     * @param x : IsoCovariance
+     * @return : armadillo::Mat<double>
+     */
     mat operator + (const mat &y, const IsoCovariance &x);
+
+    /**
+    * @brief Addition operator redefinition
+    * @details The method performs C = A + B where C and B are armadillo matrices and A is of type IsoCovariance.
+    * @param x : IsoCovariance
+    * @param y : armadillo::Mat<double>
+    * @return : armadillo::Mat<double>
+    */
     mat operator + (const IsoCovariance &x, const mat &y);
+
+    /**
+     * @brief Subtraction operator redefinition
+     * @details The method performs C = A - B where C and A are armadillo matrices and B is of type IsoCovariance.
+     * @param y : armadillo::Mat<double>
+     * @param x : IsoCovariance
+     * @return : armadillo::Mat<double>
+     */
+    mat operator - (const mat &y, const IsoCovariance &x);
+
+    /**
+     * @brief Subtraction operator redefinition
+     * @details The method performs C = A - B where C and B are armadillo matrices and A is of type IsoCovariance.
+     * @param x : IsoCovariance
+     * @param y : armadillo::Mat<double>
+     * @return : armadillo::Mat<double>
+     */
+    mat operator - (const IsoCovariance &x, const mat &y);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and A are armadillo matrices and B is of type IsoCovariance.
+     * @param y : armadillo::Mat<double>
+     * @param x : IsoCovariance
+     * @return : armadillo::Mat<double>
+     */
+    mat operator * (const mat &y, const IsoCovariance &x);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and B are armadillo matrices and A is of type IsoCovariance.
+     * @param x : IsoCovariance
+     * @param y : armadillo::Mat<double>
+     * @return : armadillo::Mat<double>
+     */
+    mat operator * (const IsoCovariance &x, const mat &y);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and B are column vectors and A is of type IsoCovariance.
+     * @param y : armadillo::Col<double>
+     * @param x : IsoCovariance
+     * @return : armadillo::Col<double>
+     */
+    vec operator * (const IsoCovariance &x, const vec &y);
+
+    /**
+     * @brief Multiplication operator redefinition
+     * @details The method performs C = A * B where C and A are row vectors and A is of type IsoCovariance.
+     * @param y : armadillo::Row<double>
+     * @param x : IsoCovariance
+     * @return : armadillo::Row<double>
+     */
+    rowvec operator * (const rowvec &y, const IsoCovariance &x);
+
 
     /**
      * @class DiagCovariance
@@ -52,79 +252,6 @@ namespace learningModel{
      *
      */
     class DiagCovariance : public Icovariance{
-
-        /**
-         * @brief Addition operator redefinition
-         * @details The method performs C = A + B where C and A are armadillo matrices and B is of type DiagCovariance.
-         * @param y : armadillo::Mat<double>
-         * @param x : DiagCovariance
-         * @return : armadillo::Mat<double>
-         */
-//        friend mat operator + (const mat &y, const DiagCovariance &x);
-
-        /**
-         * @brief Addition operator redefinition
-         * @details The method performs C = A + B where C and B are armadillo matrices and A is of type DiagCovariance.
-         * @param x : DiagCovariance
-         * @param y : armadillo::Mat<double>
-         * @return : armadillo::Mat<double>
-         */
-        //friend mat operator + (const DiagCovariance &x, const mat &y);
-
-        /**
-         * @brief Subtraction operator redefinition
-         * @details The method performs C = A - B where C and A are armadillo matrices and B is of type DiagCovariance.
-         * @param y : armadillo::Mat<double>
-         * @param x : DiagCovariance
-         * @return : armadillo::Mat<double>
-         */
-        friend mat operator - (const mat &y, const DiagCovariance &x);
-
-        /**
-         * @brief Subtraction operator redefinition
-         * @details The method performs C = A - B where C and B are armadillo matrices and A is of type DiagCovariance.
-         * @param x : DiagCovariance
-         * @param y : armadillo::Mat<double>
-         * @return : armadillo::Mat<double>
-         */
-        friend mat operator - (const DiagCovariance &x, const mat &y);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and A are armadillo matrices and B is of type DiagCovariance.
-         * @param y : armadillo::Mat<double>
-         * @param x : DiagCovariance
-         * @return : armadillo::Mat<double>
-         */
-//        friend mat operator * (const mat &y, const DiagCovariance &x);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and B are armadillo matrices and A is of type DiagCovariance.
-         * @param x : DiagCovariance
-         * @param y : armadillo::Mat<double>
-         * @return : armadillo::Mat<double>
-         */
-//        friend mat operator * (const DiagCovariance &x, const mat &y);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and B are column vectors and A is of type DiagCovariance.
-         * @param y : armadillo::Col<double>
-         * @param x : DiagCovariance
-         * @return : armadillo::Col<double>
-         */
-//        friend vec operator * (const DiagCovariance &x, const vec &y);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and A are row vectors and A is of type DiagCovariance.
-         * @param y : armadillo::Row<double>
-         * @param x : DiagCovariance
-         * @return : armadillo::Row<double>
-         */
-//        friend rowvec operator * (const rowvec &y, const DiagCovariance &x);
-
     public:
         /**
          * @brief Constructor
@@ -228,84 +355,13 @@ namespace learningModel{
 //        vec variances; /**< The vector of variances */
     };
 
+
     /**
      * @class FullCovariance
      * @brief This class stands for a covariance matrix with no constraint.
      *
      */
     class FullCovariance : public Icovariance{
-        /**
-         * @brief Addition operator redefinition
-         * @details The method performs C = A + B where C and A are armadillo matrices and B is of type FullCovariance.
-         * @param y : armadillo::Mat<double>
-         * @param x : FullCovariance
-         * @return : armadillo::Mat<double>
-         */
-//        friend mat operator + (const mat &y, const FullCovariance &x);
-
-        /**
-         * @brief Addition operator redefinition
-         * @details The method performs C = A + B where C and B are armadillo matrices and A is of type FullCovariance.
-         * @param x : FullCovariance
-         * @param y : armadillo::Mat<double>
-         * @return : armadillo::Mat<double>
-         */
-//        friend mat operator + (const FullCovariance &x, const mat &y);
-
-        /**
-         * @brief Subtraction operator redefinition
-         * @details The method performs C = A - B where C and A are armadillo matrices and B is of type FullCovariance.
-         * @param y : armadillo::Mat<double>
-         * @param x : FullCovariance
-         * @return : armadillo::Mat<double>
-         */
-        friend mat operator - (const mat &y, const FullCovariance &x);
-
-        /**
-         * @brief Subtraction operator redefinition
-         * @details The method performs C = A - B where C and B are armadillo matrices and A is of type FullCovariance.
-         * @param x : FullCovariance
-         * @param y : armadillo::Mat<double>
-         * @return : armadillo::Mat<double>
-         */
-        friend mat operator - (const FullCovariance &x, const mat &y);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and A are armadillo matrices and B is of type FullCovariance.
-         * @param y : armadillo::Mat<double>
-         * @param x : FullCovariance
-         * @return : armadillo::Mat<double>
-         */
-//        friend mat operator * (const mat &y, const FullCovariance &x);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and B are armadillo matrices and A is of type FullCovariance.
-         * @param x : FullCovariance
-         * @param y : armadillo::Mat<double>
-         * @return : armadillo::Mat<double>
-         */
-//        friend mat operator * (const FullCovariance &x, const mat &y);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and B are column vectors and A is of type FullCovariance.
-         * @param y : armadillo::Col<double>
-         * @param x : FullCovariance
-         * @return : armadillo::Col<double>
-         */
-//        friend vec operator * (const FullCovariance &x, const vec &y);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and A are row vectors and A is of type FullCovariance.
-         * @param y : armadillo::Row<double>
-         * @param x : FullCovariance
-         * @return : armadillo::Row<double>
-         */
-//        friend rowvec operator * (const rowvec &y, const FullCovariance &x);
-
     public:
         /**
          * @biref Constructor
@@ -400,6 +456,7 @@ namespace learningModel{
         mat covariance; /**< The matrix of covariance. */
     };
 
+
     /**
     * @class IsoCovariance
     * @brief This class stands for a covariance matrix where all the covariances are put to zero and all the variances
@@ -411,80 +468,7 @@ namespace learningModel{
     *
     */
     class IsoCovariance : public Icovariance{
-        /**
-         * @brief Addition operator redefinition
-         * @details The method performs C = A + B where C and A are armadillo matrices and B is of type IsoCovariance.
-         * @param y : armadillo::Mat<double>
-         * @param x : IsoCovariance
-         * @return : armadillo::Mat<double>
-         */
-//        friend mat operator + (const mat &y, const IsoCovariance &x);
-
-        /**
-        * @brief Addition operator redefinition
-        * @details The method performs C = A + B where C and B are armadillo matrices and A is of type IsoCovariance.
-        * @param x : IsoCovariance
-        * @param y : armadillo::Mat<double>
-        * @return : armadillo::Mat<double>
-        */
-//        friend mat operator + (const IsoCovariance &x, const mat &y);
-
-        /**
-         * @brief Subtraction operator redefinition
-         * @details The method performs C = A - B where C and A are armadillo matrices and B is of type IsoCovariance.
-         * @param y : armadillo::Mat<double>
-         * @param x : IsoCovariance
-         * @return : armadillo::Mat<double>
-         */
-        friend mat operator - (const mat &y, const IsoCovariance &x);
-
-        /**
-         * @brief Subtraction operator redefinition
-         * @details The method performs C = A - B where C and B are armadillo matrices and A is of type IsoCovariance.
-         * @param x : IsoCovariance
-         * @param y : armadillo::Mat<double>
-         * @return : armadillo::Mat<double>
-         */
-        friend mat operator - (const IsoCovariance &x, const mat &y);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and A are armadillo matrices and B is of type IsoCovariance.
-         * @param y : armadillo::Mat<double>
-         * @param x : IsoCovariance
-         * @return : armadillo::Mat<double>
-         */
-        friend mat operator * (const mat &y, const IsoCovariance &x);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and B are armadillo matrices and A is of type IsoCovariance.
-         * @param x : IsoCovariance
-         * @param y : armadillo::Mat<double>
-         * @return : armadillo::Mat<double>
-         */
-        friend mat operator * (const IsoCovariance &x, const mat &y);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and B are column vectors and A is of type IsoCovariance.
-         * @param y : armadillo::Col<double>
-         * @param x : IsoCovariance
-         * @return : armadillo::Col<double>
-         */
-        friend vec operator * (const IsoCovariance &x, const vec &y);
-
-        /**
-         * @brief Multiplication operator redefinition
-         * @details The method performs C = A * B where C and A are row vectors and A is of type IsoCovariance.
-         * @param y : armadillo::Row<double>
-         * @param x : IsoCovariance
-         * @return : armadillo::Row<double>
-         */
-        friend rowvec operator * (const rowvec &y, const IsoCovariance &x);
-
     public:
-
         /**
          * Constructor
          * @param scalar : is the value of the variance of all the variables
