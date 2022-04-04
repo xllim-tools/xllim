@@ -143,7 +143,7 @@ int main(){
     auto *x = new double[5*10000];
     for(unsigned k=0; k<10000; k++){
         for(unsigned j=0; j<5; j++){
-            x[k*5+j] = photometries(i,j);
+            x[k*5+j] = photometries(k,j);
         }
     }
 
