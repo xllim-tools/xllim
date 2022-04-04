@@ -63,7 +63,6 @@ void GLLiMLearning<T, U>::getModel(GLLiM &gllim) {
             auto l = (i % (gllim.L * gllim.D))% (gllim.L);
             auto d = (i % (gllim.L * gllim.D))/ (gllim.L);
             auto k = i / (gllim.L * gllim.D);
-            std::cout << i << "  " << d << "  " << l <<  "  " << k <<  endl;
             gllim.A[i] = gllim_parameters->A(d, l, k);
         }
     }
