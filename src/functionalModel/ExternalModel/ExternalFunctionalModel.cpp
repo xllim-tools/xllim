@@ -13,8 +13,10 @@
 
 using namespace Functional;
 
-int import_fucntion(){
+// wrapper around macro that returns NULL
+int call_numpy_import_array_macro(){
     import_array();
+    return 0;
 }
 
 ExternalFunctionalModel::ExternalFunctionalModel(const std::string &className, const std::string &fileName, const std::string &filePath) {
@@ -34,7 +36,7 @@ ExternalFunctionalModel::ExternalFunctionalModel(const std::string &className, c
             printf("ERROR: Class not found \n");
         }
     }
-    import_fucntion();
+    call_numpy_import_array_macro();
 }
 
 void ExternalFunctionalModel::F(rowvec x, rowvec &y) {
