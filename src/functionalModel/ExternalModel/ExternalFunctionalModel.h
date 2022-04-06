@@ -8,6 +8,8 @@
 #ifndef KERNELO_EXTERNALFUNCTIONALMODEL_H
 #define KERNELO_EXTERNALFUNCTIONALMODEL_H
 
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+
 #include "../FunctionalModel.h"
 #include <Python.h>
 #include "pyhelper.hpp"
