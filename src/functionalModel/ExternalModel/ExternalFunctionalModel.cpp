@@ -119,11 +119,11 @@ void ExternalFunctionalModel::to_physic(rowvec &x) {
     }
 }
 
-void ExternalFunctionalModel::to_physic(double *x, int size) {
+void ExternalFunctionalModel::to_physic(double *x, unsigned int size) {
     //TODO : implement
 }
 
-void ExternalFunctionalModel::from_physic(double *x, int size) {
+void ExternalFunctionalModel::from_physic(double *x, unsigned int size) {
     if(pModule) {
         CPyObject pFunc = PyUnicode_FromString("from_physic");
         if (pFunc) {
@@ -136,7 +136,7 @@ void ExternalFunctionalModel::from_physic(double *x, int size) {
 
             auto *x_modified = reinterpret_cast<double *>(PyArray_DATA(x_arrayModified));
 
-            for(int i=0; i<size ; i++){
+            for(unsigned int i=0; i<size ; i++){
                 x[i] = x_modified[i];
             }
 

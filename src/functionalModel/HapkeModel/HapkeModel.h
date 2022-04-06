@@ -44,7 +44,7 @@ namespace Functional {
          * @param adapter : a shared pointer to the @ref HapkeAdapter "adapter".
          * @param theta_bar_scaling : value used to transform theta_bar between physical and mathematical spaces.
          */
-        HapkeModel(const double *geometries, int row_size, int col_size, const std::shared_ptr<HapkeAdapter> &adapter,
+        HapkeModel(const double *geometries, unsigned int row_size, unsigned int col_size, const std::shared_ptr<HapkeAdapter> &adapter,
                    double theta_bar_scaling);
 
         void F(rowvec photometry, rowvec &reflectances) final;
@@ -55,9 +55,9 @@ namespace Functional {
 
         void to_physic(rowvec &x) final;
 
-        void to_physic(double *x, int size) final;
+        void to_physic(double *x, unsigned int size) final;
 
-        void from_physic(double *x, int size) final;
+        void from_physic(double *x, unsigned int size) final;
 
     protected:
         mat geom_helper_mat; /**< A matrix containing intermediate results in relation to geometries */

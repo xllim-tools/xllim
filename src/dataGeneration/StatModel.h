@@ -39,7 +39,7 @@ namespace DataGeneration{
          * @param y : calculated values with the functional model and using the generated values in X
          *            (like reflectances in the context of space remote sensing)
          */
-        virtual void gen_data(int n, double *x, int x_dimension, double *y, int y_dimension) {
+        virtual void gen_data(unsigned int n, double *x, unsigned int x_dimension, double *y, unsigned int y_dimension) {
             std::tuple<mat, mat> data = gen_data(n);
 
             for(unsigned i=0 ; i<n ; i++){
@@ -60,7 +60,7 @@ namespace DataGeneration{
          * @param n : number of rows in the dat set
          * @return A pair of X (generated data) and Y (calculated data using the functional model)
          */
-        virtual std::tuple<mat, mat> gen_data(int n) = 0;
+        virtual std::tuple<mat, mat> gen_data(unsigned int n) = 0;
 
         /**
          * This method computes the logarithm of the direct conditional density.

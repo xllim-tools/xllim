@@ -44,7 +44,7 @@ namespace DataGeneration{
                 int cov_size,
                 unsigned seed);
 
-        std::tuple<mat, mat> gen_data(int n) final;
+        std::tuple<mat, mat> gen_data(unsigned int n) final;
 
         double density_X_Y(const vec &x, const vec &y, const vec &y_cov) final;
 

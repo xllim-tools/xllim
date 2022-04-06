@@ -31,7 +31,7 @@ enum geom_helper_index{
 };
 
 //-------------------------------- PUBLIC ------------------------------------//
-HapkeModel::HapkeModel(const double *geometries, int row_size, int col_size,
+HapkeModel::HapkeModel(const double *geometries, unsigned int row_size, unsigned int col_size,
                        const std::shared_ptr<HapkeAdapter> &adapter,
                        double theta_bar_scaling) {
     // Transform the geometry structure from double * to armadillo::mat
@@ -93,7 +93,7 @@ void HapkeModel::to_physic(rowvec &x) {
     x[OMEGA] = 1 - sqrt(1 - x[OMEGA]);
 }
 
-void HapkeModel::from_physic(double *x, int size) {
+void HapkeModel::from_physic(double *x, unsigned int size) {
     // Denormalize THETA_BAR
     if(THETA_BAR < size){
         x[OMEGA] = 1 - pow(1- x[OMEGA], 2);
@@ -101,7 +101,7 @@ void HapkeModel::from_physic(double *x, int size) {
     }
 }
 
-void HapkeModel::to_physic(double *x, int size) {
+void HapkeModel::to_physic(double *x, unsigned int size) {
     *(x+THETA_BAR) *= theta_bar_scaling;
     *(x+OMEGA) = 1 - sqrt(1 - *(x+OMEGA));
 }

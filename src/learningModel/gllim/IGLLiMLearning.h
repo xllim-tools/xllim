@@ -36,7 +36,7 @@ namespace learningModel{
          * @param y_rows : number of tuples of high dimension data
          * @param y_cols : size of a tuple of high dimension data
          */
-        void train(double *x, int x_rows, int x_cols, double *y, int y_rows, int y_cols){
+        void train(double *x, unsigned int x_rows, unsigned int x_cols, double *y, unsigned int y_rows, unsigned int y_cols){
             mat x_arma(x_rows, x_cols);
             for(unsigned i=0; i<x_rows; i++){
                 for(unsigned j=0; j<x_cols; j++){
@@ -64,7 +64,7 @@ namespace learningModel{
          * @param y_rows : number of tuples of high dimension data
          * @param y_cols : size of a tuple of high dimension data
          */
-        void initialize(double *x, int x_rows, int x_cols, double *y, int y_rows, int y_cols){
+        void initialize(double *x, unsigned int x_rows, unsigned int x_cols, double *y, unsigned int y_rows, unsigned int y_cols){
             mat x_arma(x_rows, x_cols);
             for(unsigned i=0; i<x_rows; i++){
                 for(unsigned j=0; j<x_cols; j++){

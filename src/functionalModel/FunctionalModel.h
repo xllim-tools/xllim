@@ -50,7 +50,7 @@ namespace Functional {
          * @param y : pointer  to the set of results
          * @param size_y : number of outputs (D dimension)
          */
-        virtual void F(double *x, int size_x, double *y, int size_y) {
+        virtual void F(double *x, unsigned int size_x, double *y, unsigned int size_y) {
             //create an armadillo row vector pointing to the standard array
             rowvec x_arma = rowvec(&x[0], size_x);
             rowvec y_arma = rowvec(size_y);
@@ -73,7 +73,7 @@ namespace Functional {
          * @param y_row_size : number of sets of results
          * @param y_col_size : number of results by set (D dimension)
          */
-        virtual void F(double *x, int x_row_size, int x_col_size, double *y, int y_row_size, int y_col_size) {
+        virtual void F(double *x, unsigned int x_row_size, unsigned int x_col_size, double *y, unsigned int y_row_size, unsigned int y_col_size) {
             //test
         };
 
@@ -101,14 +101,14 @@ namespace Functional {
          * space to the physical space.
          * @param x : the vector to normalize
          */
-        virtual void to_physic(double *x, int size) = 0;
+        virtual void to_physic(double *x, unsigned int size) = 0;
 
         /**
          * This method transforms the values of x from the physical
          * space to the mathematical space.
          * @param x : the vector to denormalize
          */
-        virtual void from_physic(double *x, int size) = 0;
+        virtual void from_physic(double *x, unsigned int size) = 0;
     };
 
 }

@@ -33,13 +33,13 @@ namespace Functional {
          * @param scalingCoeffs : A set of coefficients used in the transformation between physical and mathematical spaces.
          * @param offset : Offsets used in the transformation between physical and mathematical spaces.
          */
-        ShkuratovModel(const double *geometries, int row_size, int col_size, const double *scalingCoeffs, const double *offset);
+        ShkuratovModel(const double *geometries, unsigned int row_size, unsigned int col_size, const double *scalingCoeffs, const double *offset);
         void F(rowvec photometry, rowvec &reflectances) final;
         int get_D_dimension() final;
         int get_L_dimension() final;
         void to_physic(rowvec &x) final;
-        void to_physic(double *x, int size) final;
-        void from_physic(double *x, int size) final;
+        void to_physic(double *x, unsigned int size) final;
+        void from_physic(double *x, unsigned int size) final;
 
     protected:
         mat configuredGeometries; /**< A matrix of the configured geometries */

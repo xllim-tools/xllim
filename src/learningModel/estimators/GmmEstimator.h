@@ -68,7 +68,7 @@ namespace learningModel{
          * @param L : low dimension value
          * @return GLLiMParameters<FullCovariance, FullCovariance>
          */
-        GLLiMParameters<FullCovariance, FullCovariance> fromGMM(int K, int D, int L);
+        GLLiMParameters<FullCovariance, FullCovariance> fromGMM(unsigned int K, unsigned int D, unsigned int L);
 
         /**
          * @brief The method transforms a GLLiM model to an equivalent GMM.

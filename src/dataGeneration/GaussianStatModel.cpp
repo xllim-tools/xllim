@@ -54,9 +54,9 @@ double GaussianStatModel::density_X_Y(const vec &x, const vec &y, const vec &y_c
 
 
 
-std::tuple<mat, mat> GaussianStatModel::gen_data(int n) {
-    int dimension_D = functionalModel->get_D_dimension();
-    int dimension_L = functionalModel->get_L_dimension();
+std::tuple<mat, mat> GaussianStatModel::gen_data(unsigned int n) {
+    unsigned int dimension_D = functionalModel->get_D_dimension();
+    unsigned int dimension_L = functionalModel->get_L_dimension();
 
     mat x_arma = mat(n,dimension_L);
     mat y_arma = mat(n,dimension_D);

@@ -17,7 +17,7 @@
 using namespace Functional;
 using namespace ShkuratovEnumeration;
 
-ShkuratovModel::ShkuratovModel(const double *geometries, int row_size, int col_size,
+ShkuratovModel::ShkuratovModel(const double *geometries, unsigned int row_size, unsigned int col_size,
                                            const double *scalingCoeffs, const double *offset) {
 
     this->scalingCoeffs = vec(&scalingCoeffs[0], L_dimension);
@@ -59,13 +59,13 @@ void ShkuratovModel::to_physic(rowvec &x) {
     }
 }
 
-void ShkuratovModel::to_physic(double *x, int size) {
+void ShkuratovModel::to_physic(double *x, unsigned int size) {
     for(unsigned l=0; l<size; l++){
         *(x+l) = *(x+l) * scalingCoeffs(l) + offset(l);
     }
 }
 
-void ShkuratovModel::from_physic(double *x, int size) {
+void ShkuratovModel::from_physic(double *x, unsigned int size) {
     for(unsigned l=0; l<size; l++){
         x[l] = (x[l] - offset(l)) / scalingCoeffs(l) ;
     }

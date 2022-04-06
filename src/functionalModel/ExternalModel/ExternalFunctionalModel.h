@@ -35,8 +35,8 @@ namespace Functional {
         int get_D_dimension() override;
         int get_L_dimension() override;
         void to_physic(rowvec &x) override;
-        void to_physic(double *x, int size) override;
-        void from_physic(double *x, int size) override;
+        void to_physic(double *x, unsigned int size) override;
+        void from_physic(double *x, unsigned int size) override;
 
     private:
         CPyObject pModule; /**< Is a reference to the module containing the class describing the functional model in Python code. */

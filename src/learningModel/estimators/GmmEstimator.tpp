@@ -23,7 +23,7 @@ mat GmmEstimator::getPosterior() {
 
 void GmmEstimator::train(const mat &data, const vec& weights, const mat &means, const cube &covariances){
     gmm_full model;
-    int n_gaus = weights.n_rows;
+    unsigned int n_gaus = weights.n_rows;
     posterior = mat(data.n_cols, n_gaus);
     model.set_params(means, covariances, weights.t());
     if(config->em_iteration == 0){
@@ -59,9 +59,9 @@ void GmmEstimator::execute(const arma::mat & x, const arma::mat & y,
 }
 
 void GmmEstimator::toGMM(const std::shared_ptr<GLLiMParameters<FullCovariance, FullCovariance>>& theta) {
-    int K = theta->Pi.n_rows;
-    int L = theta->C.n_rows;
-    int D = theta->B.n_rows;
+    unsigned int K = theta->Pi.n_rows;
+    unsigned int L = theta->C.n_rows;
+    unsigned int D = theta->B.n_rows;
 
     // GMM weights
     this->Rou = theta->Pi;
@@ -84,7 +84,7 @@ void GmmEstimator::toGMM(const std::shared_ptr<GLLiMParameters<FullCovariance, F
     }
 }
 
-GLLiMParameters<FullCovariance, FullCovariance> GmmEstimator::fromGMM(int K, int D, int L) {
+GLLiMParameters<FullCovariance, FullCovariance> GmmEstimator::fromGMM(unsigned int K, unsigned int D, unsigned int L) {
     GLLiMParameters<FullCovariance, FullCovariance> gLLiMParameters(D,L,K);
 
     mat m_x = M.submat(0, 0, L-1, K-1);

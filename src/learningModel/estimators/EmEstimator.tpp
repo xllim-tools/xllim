@@ -58,10 +58,10 @@ void EmEstimator<T,U>::execute(const mat &x, const mat &y, std::shared_ptr<GLLiM
 template <typename T , typename U >
 void EmEstimator<T,U>::next_rnk(const mat &x, const mat &y, std::shared_ptr <GLLiMParameters<T, U>> theta, mat &next_rnk) {
 
-    int K = theta->Pi.n_rows;
-    int L = theta->C.n_rows;
-    int D = theta->B.n_rows;
-    int N = x.n_cols;
+    unsigned int K = theta->Pi.n_rows;
+    unsigned int L = theta->C.n_rows;
+    unsigned int D = theta->B.n_rows;
+    unsigned int N = x.n_cols;
 
     double D_log_2_pi = D * LOG_2_PI;
     double L_log_2_pi = L * LOG_2_PI;
@@ -130,10 +130,10 @@ template <typename T , typename U >
 void EmEstimator<T,U>::next_theta(const mat &x, const mat &y, const mat &r_nk,
                              std::shared_ptr <GLLiMParameters<T, U>> next_theta) {
 
-    int N = r_nk.n_rows;
-    int K = r_nk.n_cols;
-    int L = x.n_rows;
-    int D = y.n_rows;
+    unsigned int N = r_nk.n_rows;
+    unsigned int K = r_nk.n_cols;
+    unsigned int L = x.n_rows;
+    unsigned int D = y.n_rows;
     mat Y_AX(D,N);
     vec exp_avg_rnk(N);
     double r_k = 0;
