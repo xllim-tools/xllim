@@ -14,9 +14,9 @@
 using namespace Functional;
 
 // wrapper around macro that returns NULL
-int call_numpy_import_array_macro(){
+int* call_numpy_import_array_macro(){
     import_array();
-    return 0;
+    return NULL;
 }
 
 ExternalFunctionalModel::ExternalFunctionalModel(const std::string &className, const std::string &fileName, const std::string &filePath) {
