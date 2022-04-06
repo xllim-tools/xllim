@@ -77,10 +77,12 @@ double DiagCovariance::log_det() {
 
 DiagCovariance &DiagCovariance::operator+=(double scalar) {
     variances += scalar;
+    return *this;
 }
 
 DiagCovariance &DiagCovariance::operator+=(const mat &cov) {
     variances += cov.diag();
+    return *this;
 }
 
 void DiagCovariance::rankOneUpdate(const vec &v, double alpha) {

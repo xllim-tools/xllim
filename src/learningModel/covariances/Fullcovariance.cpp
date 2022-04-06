@@ -61,10 +61,12 @@ mat learningModel::operator*(const FullCovariance &x, const mat &y) {
 
 FullCovariance &FullCovariance::operator+=(const mat &cov) {
     covariance += cov;
+    return *this;
 }
 
 FullCovariance &FullCovariance::operator+=(double scalar) {
     covariance += scalar;
+    return *this;
 }
 
 vec learningModel::operator*(const FullCovariance &x, const vec &y) {
