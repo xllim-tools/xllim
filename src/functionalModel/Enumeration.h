@@ -32,8 +32,8 @@ namespace Functional {
          * @enum geometry data index enumeration
          */
         enum geometry {
-            THETA = 0, /**< view zenith angle : index value 0*/
-            THETA_0 = 1, /**< solar zenith angle : index value 1*/
+            THETA = 1, /**< view zenith angle : index value 0*/
+            THETA_0 = 0, /**< solar zenith angle : index value 1*/
             PSI = 2, /**< azimuth : index value 2*/
             ALPHA = 3, /**< alpha : index value 3*/
             G = 4, /**< phase angle : index value 4*/
