@@ -90,20 +90,20 @@ int HapkeModel::get_L_dimension() {
 void HapkeModel::to_physic(rowvec &x) {
     // Normalize THETA_BAR
     x[THETA_BAR] *= theta_bar_scaling;
-    x[OMEGA] = 1 - sqrt(1 - x[OMEGA]);
+    x[OMEGA] = 1 - pow(1- x[OMEGA], 2);
 }
 
 void HapkeModel::from_physic(double *x, unsigned int size) {
     // Denormalize THETA_BAR
     if(THETA_BAR < size){
-        x[OMEGA] = 1 - pow(1- x[OMEGA], 2);
+        x[OMEGA] = 1 - sqrt(1 - x[OMEGA]);
         x[THETA_BAR] /= theta_bar_scaling;
     }
 }
 
 void HapkeModel::to_physic(double *x, unsigned int size) {
     *(x+THETA_BAR) *= theta_bar_scaling;
-    *(x+OMEGA) = 1 - sqrt(1 - *(x+OMEGA));
+    *(x+OMEGA) = 1 - pow(1- *(x+OMEGA), 2);
 }
 
 //--------------------------------------- PRIVATE METHODS ----------------------------------------//
