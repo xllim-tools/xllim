@@ -8,5 +8,5 @@ build-test:
         - small
     image: docker:stable
     script:
-        - docker build -f Builder.dockerfile
+        - docker build -f Builder.dockerfile .
     
