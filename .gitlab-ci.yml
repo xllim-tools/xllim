@@ -1,85 +1,12 @@
 stages:
-    - analysis
     - test
-    - build
-    - documentation
-    - deploy
 
-build:
-    #only:
-    #    refs:
-    #      - merge_requests
-    #    variables:
-    #      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "staging" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "production"
-    stage: build
-    image: samidj/kernelo-builder:v1.0
+build-test:
+    stage: test
     tags:
-        - build
+        - ci.inria.fr
+        - small
+    image: docker:stable
     script:
-        - echo "building kernel"
-        - python3.7 setup.py build_ext --inplace -vvv
-    artifacts:
-        paths:
-            - ./*.so
-
-staging:
-    stage : deploy
-    tags:
-        - deploy
-    before_script:
-        - docker info
-    script:
-        - echo "Building run environement"
-        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.inria.fr
-        - docker build --no-cache -t registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is:armafix .
-        - docker push registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is:armafix
-
-
-sonarqube:
-    image : openjdk:8-jdk
-    stage : analysis
-    tags:
-        - build
-    before_script:
-        - apt update
-        - apt-get install -y wget unzip
-        - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
-        - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
-        - export PATH=$PWD/sonar-scanner-3.3.0.1492-linux/bin:$PATH
-        - keytool -import -alias inria -storepass "changeit" -keystore sonar-scanner-3.3.0.1492-linux/jre/lib/security/cacerts -file digicertca.crt
-    script:
-        - sonar-scanner
-    after_script:
-        - echo "Please visit the followinf link to see the result of sonar-scaner https://sonarqube.inria.fr/sonarqube"
-
-doxygen:
-    image : ubuntu:bionic
-    stage : documentation
-    tags:
-        - build
-    before_script:
-        - apt update
-        - apt install -y doxygen
-        - apt install -y graphviz
-        - mkdir -p docs/cpp_docs
-    script:
-        - doxygen Doxyfile
-    artifacts:
-        paths:
-            - docs/cpp_docs/html/
-
-#sphinx:
-#    image : samidj/kernelo-builder:v1.0
-#    stage : documentation
-#    tags:
-#        - build
-#    before_script:
-#        - pip3 install markupsafe
-#        - pip3 install sphinx
-#    script :
-#        - ls
-#        - cd sphinx
-#        - make html
-#    artifacts:
-#        paths:
-#            - sphinx/_build/
+        - docker build -f Builder.dockerfile
+    
