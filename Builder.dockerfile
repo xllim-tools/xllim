@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+FROM scratch
 MAINTAINER stan.borkowski
 USER root
 
