@@ -25,7 +25,7 @@ test_job:
     tags:
         - ci.inria.fr
         - small
-    image: "$CI_REGISTRY_IMAGE/kernelo_builder"
+    image: "$CI_REGISTRY_IMAGE/kernelo_coverage"
     script:
         - echo "Setting up symbolic links to test data"
         - ln -sf cpptest/functionalModel_tests/test_hapke.json .
@@ -55,6 +55,6 @@ build_job:
     tags:
         - ci.inria.fr
         - small
-    image: "$CI_REGISTRY_IMAGE/kernelo_coverage"
+    image: "$CI_REGISTRY_IMAGE/kernelo_builder"
     script:
         - python3 setup.py build_ext --inplace -vvv
