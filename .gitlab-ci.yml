@@ -1,5 +1,5 @@
 stages:
-    - build_dockers
+    # - build_dockers
     - test
     # - coverage
     # - documentation
