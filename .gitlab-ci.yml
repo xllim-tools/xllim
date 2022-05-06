@@ -44,7 +44,8 @@ test_job:
         - echo "Running Python tests -------"
         - python3 run.py
         - echo "Python tests completed -----"
-        - cd build; gcovr -r ../ . --sonarqube coverage.xml
+        - cd build; gcovr -r ../ . --sonarqube coverage.xml ; cd ..
+        - sonar-scanner
 
 build_job:
     stage: deploy
