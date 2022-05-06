@@ -12,16 +12,20 @@ dockers:
     image: docker:stable
     script:
         - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_runner" --target runner .
-        # - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_builder" --target builder .
+        - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_builder" --target builder .
         - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
         - docker push "$CI_REGISTRY_IMAGE/kernelo_runner"
+        - docker push "$CI_REGISTRY_IMAGE/kernelo_builder"
     
 build_and_test:
     stage: test
     tags:
         - ci.inria.fr
         - small
-    image: "$CI_REGISTRY_IMAGE/kernelo_runner"
+    image: "$CI_REGISTRY_IMAGE/kernelo_builder"
     script:
-        - echo "success"
+        - docker run "$CI_REGISTRY_IMAGE/kernelo_builder" build_and_test.sh
+    # artifacts:
+    #     paths:
+    #         - kernelo*.so
     
