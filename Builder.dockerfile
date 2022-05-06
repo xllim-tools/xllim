@@ -13,7 +13,7 @@ RUN apt-get install -y --no-install-recommends \
 # install kernelo build dependencies
 FROM runner AS builder
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends gcc g++ cmake \
+RUN apt-get install -y --no-install-recommends gcc g++ cmake make \
 	python3-dev cython3 python3-numpy python3-pip \
 	libatlas-base-dev libarmadillo-dev libboost-dev
 RUN pip3 install cyarma
@@ -28,10 +28,3 @@ ENV PATH "$PATH:/sonar-scanner-4.7.0.2747-linux/bin/"
 
 # prefetch sonar-scanner dependencies
 # TODO
-
-FROM builder AS buildso
-RUN python3 setup.py build_ext --inplace -vvv
-
-# run build and compile tests 
-FROM tester AS runtests
-RUN mkdir -p build; cd build; cmake ../; cmake --build .
