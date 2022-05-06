@@ -1,12 +1,27 @@
 stages:
+    - build_dockers
     - test
+    # - coverage
+    # - documentation
 
-build-test:
-    stage: test
+dockers:
+    stage: build_dockers
     tags:
         - ci.inria.fr
         - small
     image: docker:stable
     script:
-        - docker build -f Builder.dockerfile .
+        - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_runner" --target runner .
+        # - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_builder" --target builder .
+        - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+        - docker push "$CI_REGISTRY_IMAGE/kernelo_runner"
+    
+build_and_test:
+    stage: test
+    tags:
+        - ci.inria.fr
+        - small
+    image: "$CI_REGISTRY_IMAGE/kernelo_runner"
+    script:
+        - echo "success"
     
