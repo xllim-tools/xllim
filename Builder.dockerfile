@@ -23,5 +23,6 @@ RUN apt-get install -y --no-install-recommends unzip wget nodejs pylint
 RUN wget --no-check-certificate https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
 RUN unzip sonar-scanner-cli-4.7.0.2747-linux.zip
 ENV PATH "$PATH:/sonar-scanner-4.7.0.2747-linux/bin/"
+RUN pip3 install gcovr
 # prefetch sonar-scanner dependencies
 # TODO
