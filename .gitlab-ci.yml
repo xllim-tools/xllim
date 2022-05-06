@@ -1,11 +1,12 @@
 stages:
-    # - build_dockers
+    - build_dockers
     - test
     # - coverage
     # - documentation
 
 dockers:
     stage: build_dockers
+    when: manual
     tags:
         - ci.inria.fr
         - small
