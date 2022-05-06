@@ -20,6 +20,9 @@ dockers:
     
 build_and_test:
     stage: test
+    artifacts:
+        paths:
+            - kernelo*.so
     tags:
         - ci.inria.fr
         - small
@@ -36,8 +39,8 @@ build_and_test:
         - ./learning_test > /dev/null
         - ./main_test > /dev/null
         - cd - ; echo "Cpp tests completed --------"
-        
-    artifacts:
-        paths:
-            - kernelo*.so
-    
+        - echo "Building Python module -----"
+        - python3 setup.py build_ext --inplace -vvv
+        - echo "Running Python tests -------"
+        - python3 run.py
+        - echo "Python tests completed -----"
