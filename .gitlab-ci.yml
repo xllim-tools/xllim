@@ -24,8 +24,8 @@ build_and_test:
         - small
     image: "$CI_REGISTRY_IMAGE/kernelo_builder"
     script:
-        - docker run "$CI_REGISTRY_IMAGE/kernelo_builder" build_and_test.sh
-    # artifacts:
-    #     paths:
-    #         - kernelo*.so
+        - build_and_test.sh
+    artifacts:
+        paths:
+            - kernelo*.so
     
