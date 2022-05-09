@@ -19,6 +19,7 @@
 #include "HapkeModel/HapkeVersions/Hapke93Model.h"
 #include "ShkuratovModel/ShkuratovModel.h"
 #include "ExternalModel/ExternalFunctionalModel.h"
+#include "TestModel/TestModel.h"
 #include "../logging/Logger.h"
 
 namespace Functional{
@@ -137,6 +138,27 @@ namespace Functional{
                             scalingCoeffs,
                             offset)
                     );
+        }
+    };
+
+    /**
+     * @struct TestModelConfig
+     *
+     * This struct wraps the parameters used to configure the test functional model.
+     * It contains the method create that returns a shared pointer to a @ref FunctionalModel "FunctionalModel" object.
+     */
+    class TestModelConfig{
+    public:
+        /**
+         * This method creates an @ref TestFunctionalModel "ExternalFunctionalModel" object given the configuration
+         * parameters and returns a shared pointer of it.
+         *
+         * @return A shared pointer of the created TestModel model object as @ref FunctionalModel "FunctionalModel"
+         */
+        std::shared_ptr<FunctionalModel> create(){
+            return std::shared_ptr<FunctionalModel>(
+                    new TestModel()
+            );
         }
     };
 

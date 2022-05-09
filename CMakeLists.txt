@@ -102,7 +102,9 @@ add_library(functionalModel STATIC
         src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.cpp
         src/functionalModel/HapkeModel/HapkeAdapters/FourParamsModel.h
         src/functionalModel/ShkuratovModel/ShkuratovModel.cpp
-        src/functionalModel/ShkuratovModel/ShkuratovModel.h)
+        src/functionalModel/ShkuratovModel/ShkuratovModel.h
+        src/functionalModel/TestModel/TestModel.cpp
+        src/functionalModel/TestModel/TestModel.h)
 
 add_library(learningModel STATIC
         src/learningModel/configs/LearningConfig.h

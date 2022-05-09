@@ -13,6 +13,7 @@ from functionalModelWrapper cimport HapkeAdapterConfig as CppHapkeAdapterConfig
 from functionalModelWrapper cimport HapkeModelConfig as CppHapkeModelConfig
 from functionalModelWrapper cimport ShkuratovModelConfig as CppShkuratovModelConfig
 from functionalModelWrapper cimport ExternalModelConfig as CppExternalModelConfig
+from functionalModelWrapper cimport TestModelConfig as CppTestModelConfig
 
 cimport numpy as np
 import numpy as np
@@ -259,6 +260,22 @@ cdef class ShkuratovModelConfig:
 
         self.offset_memview = np.ascontiguousarray(offset)
         deref(self.config).offset = &self.offset_memview[0]
+
+    def create(self):
+        return FunctionalModel.create(deref(self.config).create())
+
+cdef class TestModelConfig:
+    """
+    This class wraps the parameters that configure the Test model
+
+    Constructor
+    -----------
+    TestModel()
+    """
+    cdef shared_ptr[CppTestModelConfig] config
+
+    def __cinit__(self):
+        self.config = shared_ptr[CppTestModelConfig](new CppTestModelConfig())
 
     def create(self):
         return FunctionalModel.create(deref(self.config).create())

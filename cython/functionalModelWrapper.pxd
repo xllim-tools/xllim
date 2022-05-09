@@ -44,6 +44,10 @@ cdef extern from "../src/functionalModel/creators.h" namespace "Functional":
         ShkuratovModelConfig() except +
         shared_ptr[FunctionalModel] create()
 
+    cdef cppclass TestModelConfig:
+        TestModelConfig() except +
+        shared_ptr[FunctionalModel] create()
+
     cdef cppclass ExternalModelConfig:
         string className
         string fileName
@@ -80,4 +84,7 @@ cdef extern from "../src/functionalModel/ShkuratovModel/ShkuratovModel.cpp":
     pass
 
 cdef extern from "../src/functionalModel/ExternalModel/ExternalFunctionalModel.cpp":
+    pass
+
+cdef extern from "../src/functionalModel/TestModel/TestModel.cpp":
     pass
