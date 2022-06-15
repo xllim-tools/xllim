@@ -1,3 +1,3 @@
+numpy==1.22.3
 cyarma==0.2
 Cython==0.29.28
-numpy==1.22.3

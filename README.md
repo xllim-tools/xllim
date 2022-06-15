@@ -2,7 +2,7 @@
 
 ## Install dependecies
 ```
-sudo apt install gcc cmake python3-dev libarmadillo-dev libboost-dev libgtest-dev
+sudo apt install gcc cmake python3-dev libatlas-base-dev libarmadillo-dev libboost-dev
 ```
 Apparently the cmake setup is not building the googletest code present in ``external/lib``.
 The ``libgtest-dev`` of the system must be used istead.
@@ -51,7 +51,11 @@ unzip sonar-scanner-cli-4.7.0.2747-linux.zip
 ```
 Add sonarscanner location to PATH, by adding it to ```/etc/profile.d/sonar-scanner.sh```.
 
-# Building on Ubuntu 18.04
+# CI setup
+
+* Get a VM with docker on it
+
+# Building on Ubuntu 18.04 (obsolete)
 
 ## Install pip
 Change /usb/bin/python link to python3

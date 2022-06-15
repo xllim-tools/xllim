@@ -1,85 +1,60 @@
 stages:
-    - analysis
+    - build_dockers
     - test
-    - build
-    - documentation
     - deploy
+    # - documentation
 
-build:
-    #only:
-    #    refs:
-    #      - merge_requests
-    #    variables:
-    #      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "staging" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "production"
-    stage: build
-    image: samidj/kernelo-builder:v1.0
+dockers:
+    stage: build_dockers
+    when: manual
     tags:
-        - build
+        - ci.inria.fr
+        - small
+    image: docker:stable
     script:
-        - echo "building kernel"
-        - python3.7 setup.py build_ext --inplace -vvv
-    artifacts:
-        paths:
-            - ./*.so
-
-staging:
-    stage : deploy
+        - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_runner" --target runner .
+        - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_builder" --target builder .
+        - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_coverage" --target coveragetester .
+        - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+        - docker push "$CI_REGISTRY_IMAGE/kernelo_runner"
+        - docker push "$CI_REGISTRY_IMAGE/kernelo_builder"
+        - docker push "$CI_REGISTRY_IMAGE/kernelo_coverage"
+    
+test_job:
+    stage: test
     tags:
-        - deploy
-    before_script:
-        - docker info
+        - ci.inria.fr
+        - small
+    image: "$CI_REGISTRY_IMAGE/kernelo_coverage"
     script:
-        - echo "Building run environement"
-        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.inria.fr
-        - docker build --no-cache -t registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is:armafix .
-        - docker push registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is:armafix
-
-
-sonarqube:
-    image : openjdk:8-jdk
-    stage : analysis
-    tags:
-        - build
-    before_script:
-        - apt update
-        - apt-get install -y wget unzip
-        - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
-        - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
-        - export PATH=$PWD/sonar-scanner-3.3.0.1492-linux/bin:$PATH
-        - keytool -import -alias inria -storepass "changeit" -keystore sonar-scanner-3.3.0.1492-linux/jre/lib/security/cacerts -file digicertca.crt
-    script:
+        - echo "Setting up symbolic links to test data"
+        - ln -sf cpptest/functionalModel_tests/test_hapke.json .
+        - ln -sf cpptest/functionalModel_tests/test_shkuratov.json .
+        - echo "Bulding cpp tests ---------"
+        - mkdir -p build; cd build
+        - cmake -DCMAKE_BUILD_TYPE=Coverage ../
+        - cmake --build .
+        - echo "Running cpp tests ----------"
+        - ./generation_test > /dev/null
+        - ./learning_test > /dev/null
+        - ./main_test > /dev/null
+        - cd - ; echo "Cpp tests completed --------"
+        - echo "Building Python module -----"
+        - python3 setup.py build_ext --inplace -vvv
+        - echo "Running Python tests -------"
+        - python3 run.py
+        - echo "Python tests completed -----"
+        - cd build; gcovr -r ../ . --sonarqube coverage.xml ; cd ..
         - sonar-scanner
-    after_script:
-        - echo "Please visit the followinf link to see the result of sonar-scaner https://sonarqube.inria.fr/sonarqube"
 
-doxygen:
-    image : ubuntu:bionic
-    stage : documentation
-    tags:
-        - build
-    before_script:
-        - apt update
-        - apt install -y doxygen
-        - apt install -y graphviz
-        - mkdir -p docs/cpp_docs
-    script:
-        - doxygen Doxyfile
+build_job:
+    stage: deploy
     artifacts:
         paths:
-            - docs/cpp_docs/html/
-
-#sphinx:
-#    image : samidj/kernelo-builder:v1.0
-#    stage : documentation
-#    tags:
-#        - build
-#    before_script:
-#        - pip3 install markupsafe
-#        - pip3 install sphinx
-#    script :
-#        - ls
-#        - cd sphinx
-#        - make html
-#    artifacts:
-#        paths:
-#            - sphinx/_build/
+            - kernelo*.so
+    tags:
+        - ci.inria.fr
+        - small
+    image: "$CI_REGISTRY_IMAGE/kernelo_builder"
+    script:
+        - python3 setup.py build_ext --inplace -vvv

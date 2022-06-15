@@ -28,7 +28,7 @@ print(y_test)
 
 learningConfig = ker.EMLearningConfig(30,2.0,1e-08)
 initconfig = ker.MultInitConfig(123456789, 5, 3, ker.GMMLearningConfig(10,5,1e-08))
-gllim = ker.GLLiM(47,4,10,"Diag", "Diag", initconfig, learningConfig)
+gllim = ker.GLLiM(47,4,10,"Full", "Diag", initconfig, learningConfig)
 print(x_gen[0,:])
 print(y_gen[0,:])
 gllim.initialize(x_gen, y_gen)
