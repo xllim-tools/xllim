@@ -4,13 +4,13 @@
 
 #include "TestModel.h"
 
-#define L_dimension 4
-#define D_dimension 9
+#define TestModel_L_dimension 4
+#define TestModel_D_dimension 9
 
 using namespace Functional;
 
 TestModel::TestModel() {
-    this->A = mat(D_dimension, L_dimension, fill::zeros);
+    this->A = mat(TestModel_D_dimension, TestModel_L_dimension, fill::zeros);
     this->A = { {1, 2, 2, 1},
                 {0, 0.5, 0, 0},
                 {0, 0, 1, 0},
@@ -24,8 +24,8 @@ TestModel::TestModel() {
 }
 
 void TestModel::F(rowvec x, rowvec &y) {
-    rowvec Hx(L_dimension, fill::ones);
-    rowvec Gx(L_dimension, fill::ones);
+    rowvec Hx(TestModel_L_dimension, fill::ones);
+    rowvec Gx(TestModel_L_dimension, fill::ones);
 
     // Fill Hx
     Hx(0) = x(0);
@@ -46,11 +46,11 @@ void TestModel::F(rowvec x, rowvec &y) {
 }
 
 int TestModel::get_D_dimension() {
-    return D_dimension;
+    return TestModel_D_dimension;
 }
 
 int TestModel::get_L_dimension() {
-    return L_dimension;
+    return TestModel_L_dimension;
 }
 
 void TestModel::to_physic(rowvec &x) {
