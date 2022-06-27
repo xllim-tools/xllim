@@ -22,13 +22,14 @@ class TestModel_test(unittest.TestCase):
         #get the minimum value in the list
         min_value = min(inputlist)
         #return the index of minimum value
-        min_index=[]
-        for i in range(0,len(inputlist)):
+        min_index = []
+        for i in range(0, len(inputlist)):
             if min_value == inputlist[i]:
                 min_index.append(i)
         return min_index
 
     def setUp(self) -> None:
+        self.number_of_tests = 100
         self.datasize = 50000  # 50000
         self.nb_centers = 2
         # Create physical model (here it will be our TestModel)
@@ -62,10 +63,7 @@ class TestModel_test(unittest.TestCase):
                 self.gllim.importModel(self.gllim_parameters)
             print("GLLIM model loaded")
 
-        # Create predicator
-        self.predicator = ker.PredictionConfig(self.nb_centers, self.nb_centers, 1e-10, self.gllim).create()
-
-        # create x_test, y_test dataset
+        # declare x_test, y_test dataset and predictions
         self.n_samples = 500
         self.x_test_primary_solution = np.zeros((self.n_samples, self.physicalModel.get_L_dimension()))
         self.x_test_secondary_solution = np.zeros((self.n_samples, self.physicalModel.get_L_dimension()))
@@ -75,132 +73,137 @@ class TestModel_test(unittest.TestCase):
         self.predictions = []
         self.centerIsPred = []
 
-        for i in range(self.n_samples):
-            for j in range(self.physicalModel.get_L_dimension()):
-                self.x_test_primary_solution[i, j] = 0.4 * math.sin(2.*math.pi*i/self.n_samples + (j * math.pi/4.)) + 0.5
-                if j == 2:
-                    self.x_test_secondary_solution[i, j] = 0.4 * math.sin(2.*math.pi*i/self.n_samples + (j * math.pi/4.) + math.pi) + 0.5
-                else:
-                    self.x_test_secondary_solution[i, j] = 0.4 * math.sin(2.*math.pi*i/self.n_samples + (j * math.pi/4.)) + 0.5
-
-        # fig3, axs3 = plt.subplots(2, 1, constrained_layout=True)
-        # axs3[0].plot(self.x_test[:, 2])
-        # axs3[1].plot(self.x3_test_secondary_solution[:, 2])
-        # plt.show()
-
-        for i in range(self.n_samples):
-            self.y_test[i] = self.physicalModel.F(self.x_test_primary_solution[i])
-            # Add noise for each Y component
-            for j in range(self.physicalModel.get_D_dimension()):
-                self.y_test_noise[i][j] = (self.y_test[i][j]/1000.) * np.random.normal(0, math.pow(self.y_test[i][j]/1000., 2), 1)
-
-        self.y_test_noised = self.y_test + self.y_test_noise
-
 
     def test_prediction(self):
-        # Compute reconstruction mse on centers
         reconstruction_errors = {
-            "center1": [],
-            "center2": [],
-            "min": []
+            "center1": np.zeros((self.n_samples, self.number_of_tests)),
+            "center2": np.zeros((self.n_samples, self.number_of_tests))
         }
-        reconstruction_errors_IS = {
-            "center1": [],
-            "center2": [],
-            "min": []
+        reconstruction_errors_is = {
+            "center1": np.zeros((self.n_samples, self.number_of_tests)),
+            "center2": np.zeros((self.n_samples, self.number_of_tests))
         }
-        y_recontructed_centers = []
-        y_reconstructed_centers_IS = []
-
-        # compute predictions
-        print("computing predictions")
-        for i in range(self.n_samples):
-            self.predictions.append(self.predicator.predict(y_obs=self.y_test_noised[i], var_obs=self.y_test_noise[i]))
-        self.centerPred = np.array([[pred.centersPred.means[:, k] for pred in self.predictions] for k in range(self.nb_centers)])
-        self.predictions = np.array(self.predictions)
-
-        # compute IS
-        print("computing IS")
-        for nb_center in range(self.nb_centers):
-            temp_res_is = []
-            for i in range(self.n_samples):
-                proposition = ker.GaussianRegularizedPropositionConfig(self.predictions[i].centersPred.means[:, nb_center], self.predictions[i].centersPred.covs[nb_center, :, :]).create()
-                sampler = ker.ImportanceSamplingConfig(2000, self.statModel).create()
-                temp_res_is.append(sampler.execute(proposition, self.y_test_noised[i], self.y_test_noise[i]))
-            self.centerIsPred.append([res_is.mean for res_is in temp_res_is])
-        self.centerIsPred = np.array(self.centerIsPred)
-
-        # Compute reconstructed centers
-        for i in range(self.nb_centers):
-            y_recontructed_centers.append([self.physicalModel.F(x) for x in self.centerPred[i]])
-            y_reconstructed_centers_IS.append([self.physicalModel.F(x) for x in self.centerIsPred[i]])
-        y_recontructed_centers = np.array(y_recontructed_centers)
-        y_reconstructed_centers_IS = np.array(y_reconstructed_centers_IS)
-
-        # Compute errors
-        for i in range(self.n_samples):
-            for center_nb in range(self.nb_centers):
-                reconstruction_errors["center" + str(center_nb+1)].append(self.compute_reconstruction_error(y_recontructed_centers[center_nb, i], self.y_test_noised[i]))
-                reconstruction_errors_IS["center" + str(center_nb+1)].append(self.compute_reconstruction_error(y_reconstructed_centers_IS[center_nb, i], self.y_test_noised[i]))
-            reconstruction_errors_IS["min"].append(np.amin(np.array([reconstruction_errors_IS["center1"], reconstruction_errors_IS["center2"]])))
-            reconstruction_errors["min"].append(np.amin(np.array([reconstruction_errors["center1"], reconstruction_errors["center2"]])))
-
-
-        # Compute prediction errors
         prediction_errors = {
-            "center1": [],
-            "center2": []
+            "center1": np.zeros((self.n_samples, self.number_of_tests)),
+            "center2": np.zeros((self.n_samples, self.number_of_tests))
         }
-        prediction_errors_IS = {
-            "center1": [],
-            "center2": []
+        prediction_errors_is = {
+            "center1": np.zeros((self.n_samples, self.number_of_tests)),
+            "center2": np.zeros((self.n_samples, self.number_of_tests))
         }
 
-        for i in range(self.n_samples):
-            current_xobs = None
-            for center_nb in range(self.nb_centers):
-                error = 0
-                min_index = -1
-                perm_erros = []
-                error_xobs1 = self.compute_prediction_error(self.centerPred[center_nb, i], self.x_test_primary_solution[i])
-                error_xobs2 = self.compute_prediction_error(self.centerPred[center_nb, i], self.x_test_secondary_solution[i])
-                perm_erros = [error_xobs1, error_xobs2]
-                if current_xobs is None:
-                    min_index = self.get_minvalue(perm_erros)
-                    if not len(min_index) == 1:
-                        raise RuntimeError('errors in center predictions permutations have more than one minimim')
-                    else:
-                        min_index = min_index[0]
-                        error = perm_erros[min_index]
-                        current_xobs = min_index
-                else:
-                    error = perm_erros[(current_xobs + 1)%2]
-                # print(str(i) + "\t" + "xobs1:\t" + str(error_xobs1) + "\txobs2:\t" + str(error_xobs2) + "\tselected:\t" + str(error))
-                prediction_errors["center" + str(center_nb+1)].append(error)
+        for test_nb in range(self.number_of_tests):
+            print("test " + str(test_nb+1) + " of " + str(self.number_of_tests))
+            y_recontructed_centers = []
+            y_reconstructed_centers_IS = []
 
-        # Compute prediction IS errors
-        for i in range(self.n_samples):
-            current_xobs = None
-            for center_nb in range(self.nb_centers):
-                error = 0
-                min_index = -1
-                perm_erros = []
-                error_xobs1 = self.compute_prediction_error(self.centerIsPred[center_nb, i], self.x_test_primary_solution[i])
-                error_xobs2 = self.compute_prediction_error(self.centerIsPred[center_nb, i], self.x_test_secondary_solution[i])
-                perm_erros = [error_xobs1, error_xobs2]
-                if current_xobs is None:
-                    min_index = self.get_minvalue(perm_erros)
-                    if not len(min_index) == 1:
-                        raise RuntimeError('errors in center predictions permutations have more than one minimim')
+            # Create predicator
+            self.predicator = ker.PredictionConfig(self.nb_centers, self.nb_centers, 1e-10, self.gllim).create()
+            for i in range(self.n_samples):
+                for j in range(self.physicalModel.get_L_dimension()):
+                    self.x_test_primary_solution[i, j] = 0.4 * math.sin(2.*math.pi*i/self.n_samples + (j * math.pi/4.)) + 0.5
+                    if j == 2:
+                        self.x_test_secondary_solution[i, j] = 0.4 * math.sin(2.*math.pi*i/self.n_samples + (j * math.pi/4.) + math.pi) + 0.5
                     else:
-                        min_index = min_index[0]
-                        error = perm_erros[min_index]
-                        current_xobs = min_index
-                else:
-                    error = perm_erros[(current_xobs + 1)%2]
-                # print(str(i) + "\t" + "xobs1:\t" + str(error_xobs1) + "\txobs2:\t" + str(error_xobs2) + "\tselected:\t" + str(error))
-                prediction_errors_IS["center" + str(center_nb+1)].append(error)
+                        self.x_test_secondary_solution[i, j] = 0.4 * math.sin(2.*math.pi*i/self.n_samples + (j * math.pi/4.)) + 0.5
 
+            for i in range(self.n_samples):
+                self.y_test[i] = self.physicalModel.F(self.x_test_primary_solution[i])
+                # Add noise for each Y component
+                for j in range(self.physicalModel.get_D_dimension()):
+                    self.y_test_noise[i][j] = (self.y_test[i][j]/1000.) * np.random.normal(0, math.pow(self.y_test[i][j]/1000., 2), 1)
+
+            self.y_test_noised = self.y_test + self.y_test_noise
+
+            # compute predictions
+            print("computing predictions")
+            self.predictions = []
+            for i in range(self.n_samples):
+                self.predictions.append(self.predicator.predict(y_obs=self.y_test_noised[i], var_obs=self.y_test_noise[i]))
+            self.centerPred = np.array([[pred.centersPred.means[:, k] for pred in self.predictions] for k in range(self.nb_centers)])
+            self.predictions = np.array(self.predictions)
+
+            # compute IS
+            print("computing IS")
+            self.centerIsPred = []
+            for nb_center in range(self.nb_centers):
+                temp_res_is = []
+                for i in range(self.n_samples):
+                    proposition = ker.GaussianRegularizedPropositionConfig(self.predictions[i].centersPred.means[:, nb_center], self.predictions[i].centersPred.covs[nb_center, :, :]).create()
+                    sampler = ker.ImportanceSamplingConfig(2000, self.statModel).create()
+                    temp_res_is.append(sampler.execute(proposition, self.y_test_noised[i], self.y_test_noise[i]))
+                self.centerIsPred.append([res_is.mean for res_is in temp_res_is])
+            self.centerIsPred = np.array(self.centerIsPred)
+
+            # Compute reconstructed centers
+            for i in range(self.nb_centers):
+                y_recontructed_centers.append([self.physicalModel.F(x) for x in self.centerPred[i]])
+                y_reconstructed_centers_IS.append([self.physicalModel.F(x) for x in self.centerIsPred[i]])
+            y_recontructed_centers = np.array(y_recontructed_centers)
+            y_reconstructed_centers_IS = np.array(y_reconstructed_centers_IS)
+
+            # Compute errors
+            for i in range(self.n_samples):
+                for center_nb in range(self.nb_centers):
+                    reconstruction_errors["center" + str(center_nb+1)][i, test_nb] = (self.compute_reconstruction_error(y_recontructed_centers[center_nb, i], self.y_test_noised[i]))
+                    reconstruction_errors_is["center" + str(center_nb+1)][i, test_nb] = (self.compute_reconstruction_error(y_reconstructed_centers_IS[center_nb, i], self.y_test_noised[i]))
+
+
+            # Compute prediction errors
+            for i in range(self.n_samples):
+                current_xobs = None
+                for center_nb in range(self.nb_centers):
+                    error = 0
+                    min_index = -1
+                    perm_errors = []
+                    error_xobs1 = self.compute_prediction_error(self.centerPred[center_nb, i], self.x_test_primary_solution[i])
+                    error_xobs2 = self.compute_prediction_error(self.centerPred[center_nb, i], self.x_test_secondary_solution[i])
+                    perm_errors = [error_xobs1, error_xobs2]
+                    if current_xobs is None:
+                        min_index = self.get_minvalue(perm_errors)
+                        if not len(min_index) == 1:
+                            raise RuntimeError('errors in center predictions permutations have more than one minimim')
+                        else:
+                            min_index = min_index[0]
+                            error = perm_errors[min_index]
+                            current_xobs = min_index
+                    else:
+                        error = perm_errors[(current_xobs + 1)%2]
+                    # print(str(i) + "\t" + "xobs1:\t" + str(error_xobs1) + "\txobs2:\t" + str(error_xobs2) + "\tselected:\t" + str(error))
+                    prediction_errors["center" + str(center_nb+1)][i, test_nb] = error
+
+            # Compute prediction IS errors
+            for i in range(self.n_samples):
+                current_xobs = None
+                for center_nb in range(self.nb_centers):
+                    error = 0
+                    min_index = -1
+                    perm_errors = []
+                    error_xobs1 = self.compute_prediction_error(self.centerIsPred[center_nb, i], self.x_test_primary_solution[i])
+                    error_xobs2 = self.compute_prediction_error(self.centerIsPred[center_nb, i], self.x_test_secondary_solution[i])
+                    perm_errors = [error_xobs1, error_xobs2]
+                    if current_xobs is None:
+                        min_index = self.get_minvalue(perm_errors)
+                        if not len(min_index) == 1:
+                            raise RuntimeError('errors in center predictions permutations have more than one minimim')
+                        else:
+                            min_index = min_index[0]
+                            error = perm_errors[min_index]
+                            current_xobs = min_index
+                    else:
+                        error = perm_errors[(current_xobs + 1)%2]
+                    # print(str(i) + "\t" + "xobs1:\t" + str(error_xobs1) + "\txobs2:\t" + str(error_xobs2) + "\tselected:\t" + str(error))
+                    prediction_errors_is["center" + str(center_nb+1)][i, test_nb] = error
+
+        # Compute means
+        print("Prediction error center1 :\t" + str(np.mean(prediction_errors["center1"])))
+        print("Prediction error center2 :\t" + str(np.mean(prediction_errors["center2"])))
+        print("Prediction error center1 IS :\t" + str(np.mean(prediction_errors_is["center1"])))
+        print("Prediction error center2 IS :\t" + str(np.mean(prediction_errors_is["center2"])))
+        print("Reconstruction error center1 :\t" + str(np.mean(reconstruction_errors["center1"])))
+        print("Reconstruction error center2 :\t" + str(np.mean(reconstruction_errors["center2"])))
+        print("Reconstruction error center1 IS :\t" + str(np.mean(reconstruction_errors_is["center1"])))
+        print("Reconstruction error center2 IS :\t" + str(np.mean(reconstruction_errors_is["center2"])))
 
         # Plot
         fig1, axs1 = plt.subplots(2, 2, constrained_layout=True)
@@ -276,27 +279,24 @@ class TestModel_test(unittest.TestCase):
         fig3, axs3 = plt.subplots(1, 1, constrained_layout=True)
         fig3.suptitle('Reconstruction error')
         axs3.set_yscale('log')
-        axs3.plot(reconstruction_errors["center1"], 'b.', label='center1')
-        axs3.plot(reconstruction_errors["center2"], 'g.', label='center2')
-        axs3.plot(reconstruction_errors_IS["center1"], 'r.', label='center1_is')
-        axs3.plot(reconstruction_errors_IS["center2"], 'm.', label='center2_is')
+        axs3.plot(np.mean(reconstruction_errors["center1"], axis=1), 'b.', label='center1')
+        axs3.plot(np.mean(reconstruction_errors["center2"], axis=1), 'g.', label='center2')
+        axs3.plot(np.mean(reconstruction_errors_is["center1"], axis=1), 'r.', label='center1_is')
+        axs3.plot(np.mean(reconstruction_errors_is["center2"], axis=1), 'm.', label='center2_is')
         axs3.legend()
         plt.grid()
+
 
         fig4, axs4 = plt.subplots(1, 1, constrained_layout=True)
         fig4.suptitle('Prediction error')
         axs4.set_yscale('log')
-        axs4.plot(prediction_errors["center1"], 'b.', label='center1')
-        axs4.plot(prediction_errors["center2"], 'g.', label='center2')
-        axs4.plot(prediction_errors_IS["center1"], 'r.', label='center1_is')
-        axs4.plot(prediction_errors_IS["center2"], 'm.', label='center2_is')
+        axs4.plot(np.mean(prediction_errors["center1"], axis=1), 'b.', label='center1')
+        axs4.plot(np.mean(prediction_errors["center2"], axis=1), 'g.', label='center2')
+        axs4.plot(np.mean(prediction_errors_is["center1"], axis=1), 'r.', label='center1_is')
+        axs4.plot(np.mean(prediction_errors_is["center2"], axis=1), 'm.', label='center2_is')
         axs4.legend()
         plt.grid()
         plt.show()
-
-
-    def test_is(self):
-        b = 0
 
 if __name__ == '__main__':
     unittest.main()
