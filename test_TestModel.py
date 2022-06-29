@@ -29,7 +29,7 @@ class TestModel_test(unittest.TestCase):
         return min_index
 
     def setUp(self) -> None:
-        self.number_of_tests = 100
+        self.number_of_tests = 1000
         self.datasize = 50000  # 50000
         self.nb_centers = 2
         # Create physical model (here it will be our TestModel)
@@ -142,7 +142,7 @@ class TestModel_test(unittest.TestCase):
             y_recontructed_centers = np.array(y_recontructed_centers)
             y_reconstructed_centers_IS = np.array(y_reconstructed_centers_IS)
 
-            # Compute errors
+            # Compute reconstruction errors
             for i in range(self.n_samples):
                 for center_nb in range(self.nb_centers):
                     reconstruction_errors["center" + str(center_nb+1)][i, test_nb] = (self.compute_reconstruction_error(y_recontructed_centers[center_nb, i], self.y_test_noised[i]))
@@ -204,6 +204,25 @@ class TestModel_test(unittest.TestCase):
         print("Reconstruction error center2 :\t" + str(np.mean(reconstruction_errors["center2"])))
         print("Reconstruction error center1 IS :\t" + str(np.mean(reconstruction_errors_is["center1"])))
         print("Reconstruction error center2 IS :\t" + str(np.mean(reconstruction_errors_is["center2"])))
+
+        a_file = open("reconstruction_errors.pkl", "wb")
+        pickle.dump(reconstruction_errors, a_file)
+        a_file.close()
+        a_file = open("reconstruction_errors_is.pkl", "wb")
+        pickle.dump(reconstruction_errors_is, a_file)
+        a_file.close()
+        a_file = open("prediction_errors.pkl", "wb")
+        pickle.dump(prediction_errors, a_file)
+        a_file.close()
+        a_file = open("prediction_errors_is.pkl", "wb")
+        pickle.dump(prediction_errors_is, a_file)
+        a_file.close()
+        a_file = open("x.pkl", "wb")
+        pickle.dump(self.x_test_primary_solution, a_file)
+        a_file.close()
+        a_file = open("yobs.pkl", "wb")
+        pickle.dump(self.y_test_noised, a_file)
+        a_file.close()
 
         # Plot
         fig1, axs1 = plt.subplots(2, 2, constrained_layout=True)
@@ -286,7 +305,6 @@ class TestModel_test(unittest.TestCase):
         axs3.legend()
         plt.grid()
 
-
         fig4, axs4 = plt.subplots(1, 1, constrained_layout=True)
         fig4.suptitle('Prediction error')
         axs4.set_yscale('log')
@@ -296,7 +314,7 @@ class TestModel_test(unittest.TestCase):
         axs4.plot(np.mean(prediction_errors_is["center2"], axis=1), 'm.', label='center2_is')
         axs4.legend()
         plt.grid()
-        plt.show()
+        # plt.show()
 
 if __name__ == '__main__':
     unittest.main()
