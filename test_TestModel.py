@@ -223,6 +223,12 @@ class TestModel_test(unittest.TestCase):
         a_file = open("yobs.pkl", "wb")
         pickle.dump(self.y_test_noised, a_file)
         a_file.close()
+        a_file = open("predictions_by_centers.pkl", "wb")
+        pickle.dump(self.centerPred, a_file)
+        a_file.close()
+        a_file = open("predictions_by_centers_is.pkl", "wb")
+        pickle.dump(self.centerIsPred, a_file)
+        a_file.close()
 
         # Plot
         fig1, axs1 = plt.subplots(2, 2, constrained_layout=True)
