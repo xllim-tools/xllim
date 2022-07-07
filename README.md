@@ -1,59 +1,29 @@
+Here you will find instructions on how to compile and run Kernelo.
+You may skip to Running Kernelo in * if you don't intend to build the module from source.
+
+[[_TOC_]]
+
 # Building on Ubuntu 20.04
 
 ## Install dependecies
 ```
 sudo apt install gcc cmake python3-dev libatlas-base-dev libarmadillo-dev libboost-dev
 ```
-Apparently the cmake setup is not building the googletest code present in ``external/lib``.
-The ``libgtest-dev`` of the system must be used istead.
 
-## Build the project
+## Build the Python extension
 ```
-$ mkdir build ; cd build
-$ cmake ../
-$ cmake --build .
+$ python3 setup.py build_ext --inplace -vvv
 ```
-## Genrating test coverage reports
-Inria's SonarCube has only the community [C++ plugin](https://github.com/SonarOpenCommunity/sonar-cxx).
-This means that it cannot process gcov coverage reports directly and they need to be converted to an XML format using ``gcovr``.
+Now you can run import kernelo in Python:
+```
+>>> import kernelo
+```
 
-Installing gcovr:
-```
-$ pip install gcovr
-```
-Build the project for coverage test:
-```
-(build_dir)$ cmake -DCMAKE_BUILD_TYPE=Coverage ../
-(build_dir)$ cmake --build .
-```
-Run whatever tests you have.
-You may need to create links to input files.
-```
-()$ ln -s cpptest/functionalModel_tests/test_shkuratov.json .
-()$ ln -s cpptest/functionalModel_tests/test_hapke.json .
-(build_dir)$ ./TestLearning
-(build_dir)$ ./TestGeneration
-```
-Run gcovr
-```
-(build_dir)$ gcovr -r ../ . --sonarqube coverage.xml
-```
-If you are mostly interested in par line count coverage, you may use ``--exclude-unreachable-branches --exclude-throw-branches`` options with ``gcovr`` to reduce the number of overly reported compilation branches.
+# Running Kernelo in Docker
+TODO
 
-To push the report to Sonarqube, make sure the  ``sonar.coverageReportPaths=build/coverage.xml`` property is set in ``sonar-project.properties`` file.
-
-## Install Sonarqube scanner
-[Source](https://techexpert.tips/sonarqube/sonarqube-scanner-installation-ubuntu-linux/)
-```
-sudo apt install unzip wget nodejs
-wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
-unzip sonar-scanner-cli-4.7.0.2747-linux.zip
-```
-Add sonarscanner location to PATH, by adding it to ```/etc/profile.d/sonar-scanner.sh```.
-
-# CI setup
-
-* Get a VM with docker on it
+# Running Kernelo in Vagrant
+TODO
 
 # Building on Ubuntu 18.04 (obsolete)
 
