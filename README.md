@@ -4,56 +4,91 @@ You may skip to Running Kernelo in * if you don't intend to build the module fro
 [[_TOC_]]
 
 # Building on Ubuntu 20.04
-
-## Install dependecies
+1. Install dependecies
 ```
 sudo apt install gcc cmake python3-dev libatlas-base-dev libarmadillo-dev libboost-dev
 ```
-
-## Build the Python extension
+2. Build the Python extension
 ```
 $ python3 setup.py build_ext --inplace -vvv
 ```
-Now you can run import kernelo in Python:
+3. Now you can import kernelo in Python 3:
 ```
 >>> import kernelo
 ```
 
-# Running Kernelo in Docker
-TODO
-
-# Running Kernelo in Vagrant
-TODO
-
-# Building on Ubuntu 18.04 (obsolete)
-
-## Install pip
-Change /usb/bin/python link to python3
+# Running Kernelo without building it
+Python extensions are build by the Gitlab CI every time a commit is made.
+The extension .so file is then stored as artifact, and can be downloaded from
+[GitLab's CI page](https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/pipelines).
+Once you have the .so file you can import kernelo in Python 3:
 ```
-sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
-sudo apt install python3-pip
-python -V
-pip -V
-pip install gcovr
+>>> import kernelo
 ```
 
-## Install a more recent cmake
-[Source](https://askubuntu.com/questions/355565/how-do-i-install-the-latest-version-of-cmake-from-the-command-line)
-Ubuntu 18.04 provides an old version of cmake.
+## Download the pre-built Python extension
+1. Go to [GitLab's CI page](https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/pipelines).
+2. Click on the menu on the right side of the latest succesful job and select ``build_job:archive``.
+This will download an ``archive.zip`` file containing the extension ``.so`` file.
+
+## Running Kernelo on Ubuntu 20.04
+1. Install dependecies
 ```
-sudo apt purge --auto-remove cmake
-sudo apt install software-properties-common
-wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
-sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
-sudo apt update
-sudo apt install cmake
+sudo apt install python3 python3-numpy libatlas3-base libarmadillo9
+```
+2. Copy the .so extension file into your working directory and start Python 3
+```
+$ python3
+>>> import kernelo
 ```
 
-## Install a more recent gcc
-[Source](https://linuxize.com/post/how-to-install-gcc-compiler-on-ubuntu-18-04/)
+## Running Kernelo on Windows or Mac
+Kernelo is build on Linux Ubuntu, but can be executed on other systems using virtualisation.
+Here we provide instructions how to do it using Docker and Vagrant.
+
+### Prerequisite
+1. Clone the Kernelo repository
 ```
-sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-sudo apt install gcc-9 g++-9
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
-gcc --version
+$ git clone git@gitlab.inria.fr:kernelo-mistis/kernelo-gllim-is.git Kernelo_dir
+$ cd Kernelo_dir
 ```
+2. Copy the .so extension file into ``Kernelo_dir``
+
+### Using Docker
+1. Install Docker following [these instrucitons]()
+2. Build the runner image
+```
+$ docker build -f Builder.dockerfile --target runner -t kernelo_runner .
+```
+3. Start the runner with the ``Kernelo_dir`` mounted at ``/kernelo``, and go to that directory
+```
+$ docker run -i -t -v "$(pwd)":/kernelo kernelo_runner
+root@kernelo_runner:/# cd kernelo/
+```
+4. Now you can import kernelo in Python 3:
+```
+root@kernelo_runner:/kernelo# python3
+>>> import kernelo
+```
+Note that changes made to the docker image (installing packages etc.) are not persistent.
+
+### Using Vagrant
+Vagrant allows to run processes in a VM provided run by VirtualBox.
+It simplifies the setup and configuration of the VM.
+By default when you start a vagrant box (the VM) from a folder, this folder is made available in the VM at ``/vagrant/``.
+You can run any scripts in this directory and write results in it, and they will be written in the directory from which you started the VM on your host.
+1. Install Vagrant following instructions available [here](https://www.vagrantup.com/downloads)
+2. Init a Ubuntu 20.04 Vagrant box in the project's directory
+```
+Kernelo_dir$ vagrant init ubuntu/focal64
+```
+3. Start the box, connect to it, install dependecies and go to the /vagrant direcotry on the box
+```
+Kernelo_dir$ vagrant up
+Kernelo_dir$ vagrant ssh
+vagrant-box:/$ sudo apt install python3 python3-numpy libatlas3-base libarmadillo9
+vagrant-box:/$ cd /vagrant
+vagrant-box:/vagrant/$
+```
+Now you can run your programs on the Vagrant box while using the /vagrant directory for input and output of data.
+Any changes you make to the box (install packages etc.) are persistent, and you can safely logout from the box and shut it down with ``vagrant halt``.
