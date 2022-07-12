@@ -26,7 +26,7 @@ Once you have the .so file you can import kernelo in Python 3:
 >>> import kernelo
 ```
 
-## Download the pre-built Python extension
+### Download the pre-built Python extension
 1. Go to [GitLab's CI page](https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/pipelines).
 2. Click on the menu on the right side of the latest succesful job and select ``build_job:archive``.
 This will download an ``archive.zip`` file containing the extension ``.so`` file.
