@@ -92,3 +92,7 @@ vagrant-box:/vagrant/$
 ```
 Now you can run your programs on the Vagrant box while using the /vagrant directory for input and output of data.
 Any changes you make to the box (install packages etc.) are persistent, and you can safely logout from the box and shut it down with ``vagrant halt``.
+
+# Licence
+Please refer to the [lincence page](LICENCE.md)
+If the licence does not meet your needs, please send a request at ``kernelo at inria.fr``.
