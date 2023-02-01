@@ -6,13 +6,17 @@ You may skip to Running Kernelo in * if you don't intend to build the module fro
 # Building on Ubuntu 20.04
 1. Install dependecies
 ```
-sudo apt install gcc cmake python3-dev libatlas-base-dev libarmadillo-dev libboost-dev
+sudo apt install gcc cmake python3-dev libatlas-base-dev libarmadillo-dev libboost-dev libboost-all-dev libatlas-base-dev
 ```
-2. Build the Python extension
+2. Install python requirements
+```
+pip install -r requirements.txt
+```
+3. Build the Python extension
 ```
 $ python3 setup.py build_ext --inplace -vvv
 ```
-3. Now you can import kernelo in Python 3:
+4. Now you can import kernelo in Python 3:
 ```
 >>> import kernelo
 ```
@@ -92,6 +96,8 @@ vagrant-box:/vagrant/$
 ```
 Now you can run your programs on the Vagrant box while using the /vagrant directory for input and output of data.
 Any changes you make to the box (install packages etc.) are persistent, and you can safely logout from the box and shut it down with ``vagrant halt``.
+
+
 
 # Licence
 Please refer to the [lincence page](LICENCE.md)
