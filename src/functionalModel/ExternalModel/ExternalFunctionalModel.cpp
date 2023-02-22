@@ -21,8 +21,8 @@ int* call_numpy_import_array_macro(){
 
 ExternalFunctionalModel::ExternalFunctionalModel(const std::string &className, const std::string &fileName, const std::string &filePath) {
 //    CPyObject sys_path = PySys_GetObject("path");
-
 //    PyList_Append(sys_path, PyUnicode_FromString(filePath.c_str()));
+    Py_Initialize(); // initialize the Python interpreter
     PyRun_SimpleString("import sys");
     std::string c = std::string("sys.path.append(\"") + filePath.c_str() + std::string("\")");
     PyRun_SimpleString(c.c_str());
