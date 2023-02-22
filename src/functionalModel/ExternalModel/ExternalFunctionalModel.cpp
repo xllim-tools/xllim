@@ -125,7 +125,28 @@ void ExternalFunctionalModel::to_physic(rowvec &x) {
 }
 
 void ExternalFunctionalModel::to_physic(double *x, unsigned int size) {
-    //TODO : implement
+    if(pModule) {
+        CPyObject pFunc = PyUnicode_FromString("to_physic");
+        if (pFunc) {
+
+            npy_intp x_dims[1]{size};
+            CPyObject x_pArray = PyArray_SimpleNewFromData(1, x_dims, NPY_DOUBLE, x);
+
+            CPyObject x_pModified = PyObject_CallMethodObjArgs(py_obj, pFunc, x_pArray.getObject(), NULL);
+            auto x_arrayModified = reinterpret_cast<PyArrayObject *>(x_pModified.getObject());
+
+            auto *x_modified = reinterpret_cast<double *>(PyArray_DATA(x_arrayModified));
+
+            for(unsigned int i=0; i<size ; i++){
+                x[i] = x_modified[i];
+            }
+
+        } else {
+            printf("ERROR: function to_physic(x) \n");
+        }
+    }else{
+        printf("ERROR: Module not imported, Can not call function to_physic(x)\n");
+    }
 }
 
 void ExternalFunctionalModel::from_physic(double *x, unsigned int size) {
