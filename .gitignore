@@ -9,7 +9,8 @@ CMakeFiles/
 cython/kernelo.cpp
 build/
 *.so
-
+dist/
+kernelo.egg-info/
 
 ##### Windows
 # Windows thumbnail cache files

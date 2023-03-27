@@ -1,14 +1,16 @@
 from distutils.core import setup
-from distutils.extension import Extension
+# from distutils.extension import Extension
 from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 from numpy import get_include
 import cyarma
+from setuptools import find_packages, Extension
 
 setup(name='kernelo',
       version='0.1',
-      packages=['kernelo'],
-      package_dir={'kernelo': 'kernelo'},
+      # packages=['kernelo'],
+      packages=find_packages(),
+      # package_dir={'kernelo': 'kernelo'},
       description='Wrapper to Armadillo',
       cmdclass = {'build_ext': build_ext},
       ext_modules = [Extension("kernelo",
@@ -20,7 +22,7 @@ setup(name='kernelo',
                                libraries=["armadillo", "lapack_atlas", "blas"],
                                language='c++',
                                compiler_directives={'embedsignature': True},
-                               extra_compile_args=["-Ofast", "-DARMA_NO_DEBUG", "-std=c++11"]
+                               extra_compile_args=["-Ofast", "-DARMA_NO_DEBUG", "-std=c++11"],
                                ),
                      ]
       )
