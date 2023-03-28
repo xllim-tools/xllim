@@ -13,6 +13,8 @@ from importanceSamplingWrapper cimport GaussianRegularizedPropositionConfig as C
 from importanceSamplingWrapper cimport ImportanceSamplingConfig as CppImportanceSamplingConfig
 from importanceSamplingWrapper cimport ImportanceSampler as CppImportanceSampler
 from importanceSamplingWrapper cimport ISProposition as CppISProposition
+from importanceSamplingWrapper cimport ImisConfig as CppImisConfig
+from importanceSamplingWrapper cimport Imis as CppImis
 
 cimport numpy as np
 import numpy as np
@@ -187,6 +189,107 @@ cdef class ImportanceSampler:
         execute(proposition, y_obs, y_var)
 
         Executes the importance sampling algorithm given an observation, its error and a proposition law.
+
+        Parameters
+        ----------
+        proposition : ISProposition
+
+        y_obs : ndarray
+            1D array(D) is the observation that the sampler will enhance its prediction
+
+        y_var : ndarray
+            1D array(D) is the error over the observation
+
+        Returns
+        -------
+        ImportanceSamplingResult
+            See the documentation of the class ImportanceSamplingResult
+
+        """
+
+        cdef double[::1] y_obs_memview = np.ascontiguousarray(y_obs)
+        cdef double[::1] var_obs_memview = np.ascontiguousarray(y_var)
+        cdef shared_ptr[CppImportanceSamplingResult] cpp_result = shared_ptr[CppImportanceSamplingResult](new CppImportanceSamplingResult())
+        deref(cpp_result).diagnostic = shared_ptr[CppImportanceSamplingDiagnostic](new CppImportanceSamplingDiagnostic())
+        py_result = ImportanceSamplingResult()
+
+        L = proposition.getDimension()
+
+        py_result.mean = np.ascontiguousarray(np.arange(L), dtype=np.double)
+        cdef double[::1] mean_memview = py_result.mean
+        deref(cpp_result).mean = &mean_memview[0]
+
+        py_result.covariance = np.ascontiguousarray(np.arange(L), dtype=np.double)
+        cdef double[::1] covariance_memview = py_result.covariance
+        deref(cpp_result).covariance = &covariance_memview[0]
+
+        deref(self.__c_sampler).execute((<ISProposition>proposition).getInstance(), &y_obs_memview[0], &var_obs_memview[0], y_obs_memview.shape[0], cpp_result)
+
+        return py_result
+
+
+cdef class ImisConfig:
+    """
+    This class wraps the parameters used to configure the imis sampler.
+
+    Constructor
+    -----------
+    N_0 : int
+        The number of samples at the initialisation of imis algorithm
+
+    B : int
+        The number of step sample
+    
+    J : int
+        The number of imis iteration. At the end of the algorithm, there are N_tot = N_0+J*B samples
+
+    statModel : StatModel
+        The stat model object is used to construct the target law for the importance sampling algorithm
+
+    """
+    cdef shared_ptr[CppImisConfig] config
+
+    def __cinit__(self, N_0, B, J, statModel):
+        self.config = shared_ptr[CppImisConfig](new CppImisConfig())
+        deref(self.config).N_0 = N_0
+        deref(self.config).B = B
+        deref(self.config).J = J
+        deref(self.config).statModel = (<StatModel>statModel).getInstance()
+
+    def create(self):
+        cdef shared_ptr[CppImis] sampler = deref(self.config).create()
+        return Imis.create(sampler)
+
+cdef class Imis:
+    """
+    Incremental Mixture Important Sampling (IMIS) does the same as the Importance Sample (IS) but better.
+    The basic idea of IMIS is that points with high importance weights are in areas where the target density 
+    is underrepresented by the importance sampling distribution. At each iteration, a multivariate normal 
+    distribution centered at the point with the highest importance weight is added to the current importance 
+    sampling distribution, which thus becomes a mixture of such functions and of the prior. In this way 
+    underrepresented parts of parameter space are successively identified and are given representation, 
+    ending up with an iteratively constructed importance sampling distribution that covers the target 
+    distribution well.
+
+    Methods
+    -------
+    execute(proposition, y_obs, y_var)
+        Executes the IMIS algorithm given an observation, its error and a proposition law.
+
+    """
+    cdef shared_ptr[CppImis] __c_sampler
+
+    @staticmethod
+    cdef Imis create(shared_ptr[CppImis] sampler):
+        obj = <Imis>Imis.__new__(Imis)
+        obj.__c_sampler = sampler
+        return obj
+
+    def execute(self, proposition, y_obs, y_var):
+        """
+        execute(proposition, y_obs, y_var)
+
+        Executes the IMIS algorithm given an observation, its error and a proposition law.
 
         Parameters
         ----------

@@ -47,6 +47,8 @@ add_library(prediction STATIC
         src/prediction/MultivariateGaussian.h
         src/importanceSampling/ImportanceSampler.cpp
         src/importanceSampling/ImportanceSampler.h
+        src/importanceSampling/Imis.cpp
+        src/importanceSampling/Imis.h
         src/importanceSampling/proposition/ISProposition.h
         src/importanceSampling/proposition/GaussianMixtureProposition.cpp
         src/importanceSampling/proposition/GaussianMixtureProposition.h

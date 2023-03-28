@@ -16,6 +16,7 @@
 #include "proposition/GaussianMixtureProposition.h"
 #include "proposition/GaussianRegularizedProposition.h"
 #include "ImportanceSampler.h"
+#include "Imis.h"
 
 namespace importanceSampling{
 
@@ -98,6 +99,32 @@ namespace importanceSampling{
             target.setTarget(statModel);
             return std::make_shared<ImportanceSampler>(
                     N_Samples,
+                    std::make_shared<ISTarget>(target));
+        };
+    };
+
+    /**
+     * @struct ImisConfig
+     * @details This struct wraps the parameters that configure imis sampler.
+     */
+    class ImisConfig{
+    public:
+        unsigned N_0; /**< The number of initial sample*/
+        unsigned B; /**< The number of step sample*/
+        unsigned J; /**< The number of imis iteration. At the end of the algorithm, there are N_tot = N_0+J*B samples*/
+        std::shared_ptr<DataGeneration::StatModel> statModel; /**< The stat model is used to construct the target law of the imis sampler*/
+
+        /**
+         * This method creates an imis sampler and returns a pointer of it.
+         * @return std::shared_ptr<Imis>
+         */
+        std::shared_ptr<Imis> create(){
+            ISTarget target;
+            target.setTarget(statModel);
+            return std::make_shared<Imis>(
+                    N_0,
+                    B,
+                    J,
                     std::make_shared<ISTarget>(target));
         };
     };
