@@ -63,6 +63,7 @@ namespace importanceSampling {
         unsigned N_0;/**<  The number of initial sample*/
         unsigned B;/**<  The number of step sample*/
         unsigned J;/**<  The number of imis iteration. At the end of the algorithm, there are N_tot = N_0+J*B samples*/
+        unsigned N_tot;/* The final (total) number of IMIS samples */
         std::shared_ptr<ISTarget> isTarget;/**< A shared pointer to the target low , see @see ISTarget ISTarget*/
 
         ISDiagnostic diagnostic(

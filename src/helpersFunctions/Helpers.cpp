@@ -59,9 +59,6 @@ double Helpers::weightedLogSumExp(
     
     double result;
     double m(std::max(log_p1, log_p2));
-    std::cout << m << std::endl;
-    std::cout << log_p1 << std::endl;
-    std::cout << log_p2 << std::endl;
     if(m == -datum::inf){
         return m;
     }else{
@@ -85,13 +82,11 @@ void inplace_tri_mat_mult(arma::rowvec &x, arma::mat const &trimat){
 /* The Multivariate Normal density function */
 vec Helpers::dmvnrm_arma_fast_chol(arma::mat const &x,arma::rowvec const &mean, arma::mat &chol, bool const logd /*= true*/) { 
     using arma::uword;
-    uword const n = x.n_cols, 
-                xdim = x.n_rows;
+    uword const n = x.n_rows, 
+                xdim = x.n_cols;
     arma::vec out(n);
-    std::cout << "Safe Chol dmvnrm_arma_fast" << std::endl;
     // arma::mat const rooti = arma::inv(trimatu(Helpers::safe_cholesky(sigma)));
     arma::mat const rooti = arma::inv(chol);
-    std::cout << "END Safe Chol dmvnrm_arma_fast" << std::endl;
     double const rootisum = arma::sum(log(rooti.diag())), 
                 constants = -(double)xdim/2.0 * log2pi, 
               other_terms = rootisum + constants;
@@ -117,11 +112,10 @@ mat Helpers::safe_cholesky(mat & Sigma){
     while (success == false)
     {
         success = arma::chol(Chol, Sigma);
-        std::cout << success << std::endl;
         if(success == false)
             {
             Sigma += eye(Sigma.n_rows,Sigma.n_rows) * 1e-8;
-            success = true;
+            // success = true;
             }
     }
     return Chol;

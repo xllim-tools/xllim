@@ -124,6 +124,26 @@ ISDiagnostic ImportanceSampler::diagnostic(
     return diagnostic;
 }
 
+void ImportanceSampler::execute(
+        mat &samples,
+        vec &weights,
+        vec &target_log_densities,
+        vec &proposition_log_densities,
+        const vec &y_obs,
+        const vec &y_cov,
+        std::shared_ptr<ISProposition> isProposition) {
+
+    for(unsigned n=0; n<N_Samples; n++){
+        samples.col(n) = isProposition->sample(); // sample X_n
+        target_log_densities(n) = isTarget->target_log_density(samples.col(n), y_obs, y_cov); // compute target density
+        proposition_log_densities(n) = isProposition->proposition_log_density(samples.col(n)); // compute proposition density
+    }
+    weights = target_log_densities - proposition_log_densities; // compute weights verifying numerical stability
+    double sum_weights = Helpers::logSumExp(weights);
+    weights -= sum_weights;
+    weights = exp(weights);
+}
+
 ImportanceSampler::ImportanceSampler(unsigned N_Samples, std::shared_ptr<ISTarget> isTarget) {
     this->N_Samples = N_Samples;
     this->isTarget = isTarget;

@@ -155,6 +155,7 @@ target_link_libraries(learning_test PUBLIC gtest_main functionalModel learningMo
 
 add_subdirectory(cpptest/functionalModel_tests)
 add_subdirectory(cpptest/learningModelTests)
+add_subdirectory(cpptest/importanceSamplingTests)
 # add_subdirectory(cpptest/predictionTests)  <-- doesn't compile
 
 # declare tests to ctest (optional as binaries can be executed one by one)
