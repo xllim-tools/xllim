@@ -49,20 +49,24 @@ int main(){
     // ------------- INPUTS -------------
 
     // constructor
-    unsigned N_0(10), B(6), J(5);
+    unsigned N_0(100), B(10), J(180);
     std::shared_ptr<ISTarget> isTarget;
     std::shared_ptr<DataGeneration::StatModel> statModel;
     std::shared_ptr<Functional::TestModel> myModel = std::shared_ptr<Functional::TestModel>((new TestModel()));
     unsigned L = myModel->get_L_dimension();
     unsigned D = myModel->get_D_dimension();
-    double r_noise(1);
+    double r_noise(50);
     std::shared_ptr<Functional::FunctionalModel> functionalModel = std::shared_ptr<Functional::FunctionalModel>(myModel);
     statModel = std::shared_ptr<DataGeneration::StatModel>(DataGeneration::DependentGaussianStatModelConfig("sobol", functionalModel, r_noise , 12345).create());
 
     // execute
-    vec y_obs(D, arma::fill::zeros), y_cov(D, arma::fill::ones);
-    y_obs = vec("4.0 0.0 4.5 2.5 0.0 0.0 -1.0 0.0 -0.5");
-    y_cov *= 0.1;
+    vec y_cov(D, arma::fill::zeros);
+    vec x_obs = vec("0.1 0.2 0.5 0.8");
+    rowvec y_obs_rowvec(D);
+    myModel->F(x_obs.t(), y_obs_rowvec);
+    vec y_obs = y_obs_rowvec.t();
+    // y_obs = vec("4.0 0.0 4.5 2.5 0.0 0.0 -1.0 0.0 -0.5");
+    // y_cov *= 0.1;
     // double *y_obs_double, *y_cov_double;
     // unsigned size(1);
 
@@ -82,14 +86,14 @@ int main(){
     vec gmm_weights(1, arma::fill::ones);
     mat gmm_means(L, 1, arma::fill::zeros);
     // Note: there is no "to_physic" fonction in TestModel that is why x sampled must be in [0,1]. So the prop gaussian must correct this
-    gmm_means = mat("0.2 ; 0.8 ; 0.4 ; 0.6");
+    // gmm_means = mat("0.5 ; 0.5 ; 0.4 ; 0.6");
     cube gmm_covs(L, L, 1, arma::fill::zeros); // Faire un truc symetrique !!
-    gmm_covs.slice(0) = {   {1, 0, 2, 1},
-                            {0, 2, 3, 0},
-                            {2, 3, 1, 0},
-                            {1, 0, 0, 3},
+    gmm_covs.slice(0) = {   {1, 0, 0, 0},
+                            {0, 1, 0, 0},
+                            {0, 0, 1, 0},
+                            {0, 0, 0, 1},
                         };
-    gmm_covs *= 0.01;
+    gmm_covs *= 0.001;
     importanceSampling::GaussianMixtureProposition prop(
                         gmm_weights,
                         gmm_means,
@@ -118,6 +122,9 @@ int main(){
     std::cout << nb_effective_sample << std::endl;
     std::cout << effective_sample_size << std::endl;
     std::cout << qn << std::endl;
+    double err = arma::norm(res_mean-x_obs, "inf");
+    std::cout << x_obs << std::endl;
+    std::cout << err << std::endl;
 
 
 

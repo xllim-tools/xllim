@@ -10,6 +10,7 @@
 using namespace Functional;
 
 TestModel::TestModel() {
+    // Il s'agit de l'exemple Bi-modal explicité dans la thèse
     this->A = mat(TestModel_D_dimension, TestModel_L_dimension, fill::zeros);
     this->A = { {1, 2, 2, 1},
                 {0, 0.5, 0, 0},
