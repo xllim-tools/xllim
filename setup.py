@@ -22,7 +22,7 @@ setup(name='kernelo',
                                libraries=["armadillo", "lapack_atlas", "blas"],
                                language='c++',
                                compiler_directives={'embedsignature': True},
-                               extra_compile_args=["-Ofast", "-DARMA_NO_DEBUG", "-std=c++11"],
+                               extra_compile_args=["-Ofast", "-DARMA_NO_DEBUG", "-std=c++11"], # optimized
                               #  extra_compile_args=["-O0", "-DARMA_NO_DEBUG", "-std=c++11"], # for debug
                                ),
                      ]
