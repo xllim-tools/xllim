@@ -1,10 +1,7 @@
-from distutils.core import setup
-# from distutils.extension import Extension
-from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 from numpy import get_include
 import cyarma
-from setuptools import find_packages, Extension
+from setuptools import find_packages, Extension, setup
 
 setup(name='kernelo',
       version='0.1',
