@@ -64,6 +64,7 @@ pages:
     tags:
         - ci.inria.fr
         - small
+    image: "$CI_REGISTRY_IMAGE/kernelo_builder"
     script:
         - pip install -U sphinx
         - sphinx-build -b html docs/source public
