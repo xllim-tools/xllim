@@ -21,24 +21,16 @@ class MeanPredictionResultExport:
     """
     This class wraps the result of the prediction by the mean. It contains the prediction of the variables and their corresponding variances. It also includes the GMM used to compute the prediction which composed of K components.
 
-    Attributes
-    ----------
-
-    mean : ndarray
-        1D array (L) is the mean of the GMM which stands for the prediction
-
-    variance : ndarray
-        1D array (L) is the variance of the prediction
-
-    gmm_weights : ndarray
-        1D array (K) is the weights of the components in the GMM
-
-    gmm_means : ndarray
-        2D array (L * K) is the means of each component in the GMM
-
-    gmm_covs : ndarray
-        3D array (L * L * K) is the covariance matrices of each component in the GMM
-
+    :param mean: 1D array (L) is the mean of the GMM which stands for the prediction
+    :type mean: ndarray
+    :param variance: 1D array (L) is the variance of the prediction
+    :type variance: ndarray
+    :param gmm_weights: 1D array (K) is the weights of the components in the GMM
+    :type gmm_weights: ndarray
+    :param gmm_means: 2D array (L, K) is the means of each component in the GMM
+    :type gmm_means: ndarray
+    :param gmm_covs: 3D array (L, L, K) is the covariance matrices of each component in the GMM
+    :type gmm_covs: ndarray
     """
     def __init__(self):
         self.mean = 0
@@ -52,17 +44,12 @@ class CenterPredictionResultExport:
     """
     This class wraps the result of the prediction by the centers. It contains K gaussian models represented by their weight , mean and matrix of covariances.
 
-    Attributes
-    ----------
-
-    weights : ndarray
-        1D array(K) is the weights of the centers
-
-    means : ndarray
-        2D array(L, K) is the centers that stands for the predictions
-
-    covs : ndarray
-        3D array(L, L, K) contains the covariances matrices of the centers
+    :param weights: 1D array(K) is the weights of the centers
+    :type weights: ndarray
+    :param means: 2D array(L, K) is the centers that stands for the predictions
+    :type means: ndarray
+    :param covs: 3D array(L, L, K) contains the covariances matrices of the centers
+    :type covs: ndarray
     """
     def __init__(self):
         self.weights = 0
@@ -73,15 +60,8 @@ class PredictionResultExport:
     """
     This class aggregates the objects containing the result of the prediction by the mean and the prediction by the centers
 
-    Attributes
-    ----------
-
-    meansPred : MeanPredictionResultExport
-        See the documentation of the class "MeanPredictionResultExport"
-
-    centersPred : CenterPredictionResultExport
-        See the documentation of the calss "CenterPredictionResultExport"
-
+    :param meansPred: :class:`MeanPredictionResultExport`
+    :param centersPred: :class:`CenterPredictionResultExport`
     """
     def __init__(self):
         self.meansPred = MeanPredictionResultExport()
@@ -91,21 +71,15 @@ cdef class PredictionConfig:
     """
     This class wraps the parameters used to configure the prediction module that offers two type pf predictions. One using the mean of the GMM computed from the GLLiM model and using the observation and it variance, while the second giving the pertinent centers of the GMM.
 
-    Constructor
-    -----------
-    PredictionConfig(k_merged, k_pred_mean, threshold, gllim)
-
-    k_merged : int
-        The number of centers to obtain while using the prediction by the centers
-
-    k_pred_mean : int
-        The number of components that the GMM must be reduced to before returning the prediction by the mean
-
-    threshold : double
-        While reducing the size of the GMM during the prediction by the centers, only the components with a weight superior or equal to the threshold are kept.
-
-    gllim : GLLiM
-        The trained GLLiM model
+    :param k_merged: The number of centers to obtain while using the prediction by the centers
+    :type k_merged: int
+    :param k_pred_mean: The number of components that the GMM must be reduced to before returning the prediction by the mean
+    :type k_pred_mean: int
+    :param threshold: While reducing the size of the GMM during the prediction by the centers, only the components with a weight superior or equal to the threshold are kept
+    :type threshold: double
+    :param gllim: The trained GLLiM model
+    :type gllim: :class:`GLLiM`
+    
     """
 
     cdef shared_ptr[CppPredictionConfig] config
@@ -120,21 +94,17 @@ cdef class PredictionConfig:
         self.gllim = gllim
 
     def create(self):
+        """
+        This methods creates the predicator. Below is an example of a fully configured predicator::
+
+            predicator = ker.PredictionConfig(k_merged, k_pred_mean, threshold, gllim).create()
+        """
         cdef shared_ptr[CppIPredictor] predictor = deref(self.config).create()
         return Predictor.create(predictor, self.gllim, deref(self.config).k_merged, deref(self.config).k_pred_mean)
 
 cdef class Predictor:
     """
     The prediction class provides two types of predictions, by the mean and by the centers. It can also regularize the centers if the context requires a regularity.
-
-    Methods
-    -------
-    predict(y_obs, var_obs)
-        Returns the prediction corresponding to an observation y_obs with an uncertainty var_obs.
-
-    regularize(series):
-        If the context requires a regularity in the predictions and given series of predictions , the method returns a permutation of it.
-
     """
     cdef shared_ptr[CppIPredictor] __c_predictor
     cdef GLLiM gllim
@@ -152,22 +122,14 @@ cdef class Predictor:
 
     def predict(self, y_obs, var_obs):
         """
-        predict(y_obs, var_obs)
-
         This method performs the prediction of the lower dimension variable given an observation and its error. The predictions includes two types, by the mean and by the centers
 
-        Parameters
-        ----------
-        y_obs : ndarray
-            1D array containing the observation of dimension D
+        :param y_obs: 1D array containing the observation of dimension D
+        :type y_obs: ndarray
+        :param var_obs: 1D array containing the error of the observation
+        :type var_obs: ndarray
 
-        var_obs : ndarray
-            1D array of dimension D containing the error of the observation
-
-        Returns
-        -------
-        PredictionResultExport
-            See the documentation fo the class PredictionResultExport
+        :rtype: :class:`PredictionResultExport`
 
         """
         cdef double[::1] y_obs_memview = np.ascontiguousarray(y_obs)
@@ -222,19 +184,13 @@ cdef class Predictor:
 
     def regularize(self, series):
         """
-        regularize(series)
-
         If the context requires a regularity in the predictions and given series of predictions , the method returns a permutation of it.
 
-        Parameters
-        ----------
-        series : ndarray
-            3D array (L, K, N) containing series of predictions per observation
-
-        Returns
-        -------
-        permutations : ndarray
-            2D array (N , K) containing a permutation of the indices of the centers per observation.
+        :param series: 3D array (L, K, N) containing series of predictions per observation
+        :type series: ndarray
+            
+        :returns: 2D array (N , K) containing a permutation of the indices of the centers per observation.
+        :rtype: ndarray
 
         """
         cdef unsigned rows = series.shape[1]
