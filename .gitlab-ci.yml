@@ -60,10 +60,13 @@ build_job:
         - python3 setup.py build_ext --inplace -vvv
 
 pages:
-  stage: documentation
-  script:
-  - pip install -U sphinx
-  - sphinx-build -b html docs/source public
-  artifacts:
-    paths:
-    - public
+    stage: documentation
+    tags:
+        - ci.inria.fr
+        - small
+    script:
+        - pip install -U sphinx
+        - sphinx-build -b html docs/source public
+    artifacts:
+        paths:
+            - public
