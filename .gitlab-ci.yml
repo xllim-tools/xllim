@@ -2,7 +2,7 @@ stages:
     - build_dockers
     - test
     - deploy
-    # - documentation
+    - documentation
 
 dockers:
     stage: build_dockers
@@ -58,3 +58,12 @@ build_job:
     image: "$CI_REGISTRY_IMAGE/kernelo_builder"
     script:
         - python3 setup.py build_ext --inplace -vvv
+
+pages:
+  stage: documentation
+  script:
+  - pip install -U sphinx
+  - sphinx-build -b html docs/source public
+  artifacts:
+    paths:
+    - public
