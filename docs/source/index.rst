@@ -6,18 +6,17 @@
 Welcome to Kernelo's documentation!
 ===================================
 
+``Kernelo`` Kernelo is a python module performing efficient inversion of high-dimensional models within a Bayesian framework using GLLiM (Gaussian Locally-Linear Mapping) model approximation.
+
 Contents:
 ~~~~~~~~~~
 
 .. toctree::
    :maxdepth: 2
 
-.. automodule:: kernelo
-   :members:
-   :inherited-members:
-   :undoc-members:
-   :show-inheritance:
-
+   introduction
+   kernelo
+   example
 
 
 Indices and tables
