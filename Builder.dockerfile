@@ -8,7 +8,7 @@ RUN apt-get update
 # install kernelo dependencies
 RUN apt-get install -y --no-install-recommends \
 	python3 python3-numpy \
-	libatlas3-base libarmadillo9
+	libatlas3-base libarmadillo11
 
 # install kernelo build dependencies
 FROM runner AS builder
