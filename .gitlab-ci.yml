@@ -31,6 +31,7 @@ test_job:
         - ln -sf cpptest/functionalModel_tests/test_hapke.json .
         - ln -sf cpptest/functionalModel_tests/test_shkuratov.json .
         - echo "Bulding cpp tests ---------"
+        - apt list --installed | grep arma
         - mkdir -p build; cd build
         - cmake -DCMAKE_BUILD_TYPE=Coverage ../
         - cmake --build .
