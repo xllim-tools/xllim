@@ -62,6 +62,26 @@ namespace importanceSampling {
                 std::shared_ptr<ISProposition> isProposition,
                 const vec &y_obs,
                 const vec &y_cov);
+        
+        /**
+         * This methods performs the importance sampling algorithm and updates samples and weights. There is no diagnostic.
+         * @param samples : A matrix of size (L, N_Samples) storing the IS samples
+         * @param weights : A vector of size N_Samples storing the weights corresponding to each sample
+         * @param target_log_densities : A vector of size N_Samples storing the logarithm of target law densities
+         * @param proposition_log_densities : A vector of size N_Samples storing the logarithm of proposition law densities
+         * @param y_obs : A vector of variables describing the observation
+         * @param y_cov : A vector of measure errors of the observation
+         * @param isProposition : @see ISProposition ISProposition
+         
+         */
+        void execute(
+                mat &samples,
+                vec &weights,
+                vec &target_log_densities,
+                vec &proposition_log_densities,
+                const vec &y_obs,
+                const vec &y_cov,
+                std::shared_ptr<ISProposition> isProposition);
 
     private:
         unsigned N_Samples;/**< Number of samples of the proposition law that will be generated*/

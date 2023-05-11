@@ -13,7 +13,7 @@ import time
 # print(y)
 
 #Read geometries and photometries from file 'test_hapke.json'
-with open('test_hapke.json') as json_file:
+with open('cpptest/functionalModel_tests/test_hapke.json') as json_file:
     data = json.load(json_file)
     y = np.array(data['y'])
     geom = np.array([data['eme'], data['inc'], data['phi']]).transpose()
@@ -38,7 +38,8 @@ gllim.train(x_gen, y_gen)
 predictor = ker.PredictionConfig(2, 5, 0.01, gllim).create()
 result1 = predictor.predict(y_test, np.zeros(47))
 print(result1.centersPred.means)
-print(result1.meansPred.mean)
+print("=== result Predictor ===")
+print(result1.meansPred.mean, result1.meansPred.variance)
 # print(result1.centersPred.means)
 # print(result1.centersPred.weights)
 # print(result1.centersPred.covs)
@@ -59,12 +60,24 @@ cov_is = np.zeros(47)
 
 proposition = ker.GaussianMixturePropositionConfig(result1.meansPred.gmm_weights, result1.meansPred.gmm_means, result1.meansPred.gmm_covs).create()
 #proposition = ker.GaussianRegularizedPropositionConfig(result1.centersPred.means[:,0], result1.centersPred.covs[0,:,:]).create()
-sampler = ker.ImportanceSamplingConfig(1000, myStatModel_2).create()
-res_is = sampler.execute(proposition, y_test, cov_is)
-print(res_is.mean)
-print(x_gen[0,:])
-
-
+sampler_is = ker.ImportanceSamplingConfig(1000, myStatModel_2).create()
+sampler_imis = ker.ImisConfig(10,5,3, myStatModel_2).create()
+res_is = sampler_is.execute(proposition, y_test, cov_is)
+res_imis = sampler_imis.execute(proposition, y_test, cov_is)
+print("=== result IS ===")
+print(res_is.mean, 
+    res_is.covariance, 
+    res_is.diagnostic.nb_effective_sample, 
+    res_is.diagnostic.effective_sample_size,
+    res_is.diagnostic.qn
+    )
+print("=== result IMIS ===")
+print(res_imis.mean, 
+    res_imis.covariance, 
+    res_imis.diagnostic.nb_effective_sample, 
+    res_imis.diagnostic.effective_sample_size,
+    res_imis.diagnostic.qn
+    )
 
 
 

@@ -46,8 +46,20 @@ cdef extern from "../src/importanceSampling/creators.h" namespace "importanceSam
         ImportanceSamplingConfig() except +
         shared_ptr[ImportanceSampler] create()
 
+    cdef cppclass ImisConfig:
+        unsigned N_0
+        unsigned B
+        unsigned J
+        shared_ptr[StatModel] statModel
+        ImisConfig() except +
+        shared_ptr[Imis] create()
+
 cdef extern from "../src/importanceSampling/ImportanceSampler.h" namespace "importanceSampling":
     cdef cppclass ImportanceSampler:
+        void execute(shared_ptr[ISProposition] isProposition, double *y_obs, double *y_cov, unsigned size, shared_ptr[ImportanceSamplingResult] resultExport)
+
+cdef extern from "../src/importanceSampling/Imis.h" namespace "importanceSampling":
+    cdef cppclass Imis:
         void execute(shared_ptr[ISProposition] isProposition, double *y_obs, double *y_cov, unsigned size, shared_ptr[ImportanceSamplingResult] resultExport)
 
 
@@ -62,4 +74,7 @@ cdef extern from "../src/importanceSampling/proposition/GaussianMixturePropositi
     pass
 
 cdef extern from "../src/importanceSampling/proposition/GaussianRegularizedProposition.cpp":
+    pass
+
+cdef extern from "../src/importanceSampling/Imis.cpp":
     pass

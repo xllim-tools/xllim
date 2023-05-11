@@ -24,3 +24,7 @@ ehthumbs_vista.db
 
 __pycache__/
 test
+# exclude everything
+pytest/savedFiles/*
+# exception to the rule
+!pytest/savedFiles/.gitkeep 
