@@ -231,10 +231,12 @@ cdef class ShkuratovModelConfig:
 
     Constructor
     -----------
-    ShkuratovModel(geometries, scalingCoeffs, offset)
+    ShkuratovModel(geometries, variant, scalingCoeffs, offset)
 
     ndarray geometries
         2D array containing N geometries with D dimensions.
+    string variant
+        The variant of the model corresponding to the number of parameters. It must be one of the following keywords : {"5p","3p"}.
     ndarray scalingCoeffs
         1D array containing 5 values used to normalize the photometric variables of the model, where normalized_x = (x - offset)/scalingCoeff
     ndarray offset
@@ -246,14 +248,15 @@ cdef class ShkuratovModelConfig:
     cdef double[::1] scalingCoeffs_memview
     cdef double[::1] offset_memview
 
-    def __cinit__(self, geometries, scalingCoeffs, offset):
+    def __cinit__(self, geometries, variant, scalingCoeffs, offset):
         self.config = shared_ptr[CppShkuratovModelConfig](new CppShkuratovModelConfig())
 
         self.geometries_memview = np.ascontiguousarray(geometries)
         deref(self.config).geometries = &self.geometries_memview[0,0]
-
         deref(self.config).row_size = self.geometries_memview.shape[0]
         deref(self.config).col_size = self.geometries_memview.shape[1]
+
+        deref(self.config).variant = <string>variant.encode('utf-8')
 
         self.scalingCoeffs_memview = np.ascontiguousarray(scalingCoeffs)
         deref(self.config).scalingCoeffs = &self.scalingCoeffs_memview[0]

@@ -118,6 +118,7 @@ namespace Functional{
         const double *geometries; /**< A pointer to a matrix of geometries required to initialize a Hapke model. */
         int row_size; /**< The number of geometries. */
         int col_size; /**< The dimension of the geometries. */
+        std::string variant; /**< The variant of the Shkuratov model corresponding to the number of parameters. */
         const double *scalingCoeffs; /**< A set of coefficients used in the transformation between physical and
  * mathematical spaces. */
         const double *offset; /**< Offsets used in the transformation between physical and
@@ -135,6 +136,7 @@ namespace Functional{
                             geometries,
                             row_size,
                             col_size,
+                            variant,
                             scalingCoeffs,
                             offset)
                     );
