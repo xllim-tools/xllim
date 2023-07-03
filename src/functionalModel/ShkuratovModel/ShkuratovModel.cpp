@@ -9,7 +9,6 @@
 #include "ShkuratovModel.h"
 
 #define DEGREE_180 180
-#define L_dimension 5
 #define INC 0
 #define EME 1
 #define PHI 2
@@ -18,8 +17,13 @@ using namespace Functional;
 using namespace ShkuratovEnumeration;
 
 ShkuratovModel::ShkuratovModel(const double *geometries, unsigned int row_size, unsigned int col_size,
-                                           const double *scalingCoeffs, const double *offset) {
+                                        std::string variant, const double *scalingCoeffs, const double *offset) {
 
+    if (variant == "5p"){
+        this->L_dimension = 5;
+    } else if (variant == "3p"){
+        this->L_dimension = 3;
+    }
     this->scalingCoeffs = vec(&scalingCoeffs[0], L_dimension);
     this->offset = vec(&offset[0], L_dimension);
 
@@ -36,7 +40,12 @@ ShkuratovModel::ShkuratovModel(const double *geometries, unsigned int row_size, 
 void ShkuratovModel::F(rowvec photometry, rowvec &reflectances) {
     to_physic(photometry);
 
-    vec f = (exp(- photometry(MU_1) * configuredGeometries.col(ShkuratovEnumeration::ALPHA)) + photometry(M) * exp(- photometry(MU_2) * configuredGeometries.col(ShkuratovEnumeration::ALPHA))) / (1 + photometry(M));
+    vec f;
+    if (this->L_dimension == 5){
+        f = (exp(- photometry(MU_1) * configuredGeometries.col(ShkuratovEnumeration::ALPHA)) + photometry(M) * exp(- photometry(MU_2) * configuredGeometries.col(ShkuratovEnumeration::ALPHA))) / (1 + photometry(M));
+    } else if (this->L_dimension == 3){
+        f = exp(- photometry(MU_1) * configuredGeometries.col(ShkuratovEnumeration::ALPHA));
+    }
     vec d = cos(configuredGeometries.col(ShkuratovEnumeration::ALPHA) / 2.0) % cos(datum::pi * (configuredGeometries.col(GAMMA) - configuredGeometries.col(ShkuratovEnumeration::ALPHA) / 2.0) / (datum::pi - configuredGeometries.col(ShkuratovEnumeration::ALPHA))) / cos(configuredGeometries.col(GAMMA));
     for(unsigned i=0; i<d.n_rows; i++){
         d(i) *= pow(cos(configuredGeometries(i,BETA)), photometry(NU) * configuredGeometries(i,ShkuratovEnumeration::ALPHA) * (datum::pi - configuredGeometries(i,ShkuratovEnumeration::ALPHA)));

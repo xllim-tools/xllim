@@ -30,10 +30,11 @@ namespace Functional {
          * @param geometries : pointer to the matrix of geometries that will be used by the model.
          * @param row_size : number of geometries.
          * @param col_size : the dimension of the geometries (should equals 3).
+         * @param variant : The variant of the model corresponding to the number of parameters. ('5p' or '3p')
          * @param scalingCoeffs : A set of coefficients used in the transformation between physical and mathematical spaces.
          * @param offset : Offsets used in the transformation between physical and mathematical spaces.
          */
-        ShkuratovModel(const double *geometries, unsigned int row_size, unsigned int col_size, const double *scalingCoeffs, const double *offset);
+        ShkuratovModel(const double *geometries, unsigned int row_size, unsigned int col_size, std::string variant, const double *scalingCoeffs, const double *offset);
         void F(rowvec photometry, rowvec &reflectances) final;
         int get_D_dimension() final;
         int get_L_dimension() final;
@@ -48,6 +49,7 @@ namespace Functional {
         vec offset; /**< Offsets used in the transformation between physical and
  * mathematical spaces. */
         vec cos_i; /**< cos_i  directly computed from incidence angle  */
+        unsigned int L_dimension; /**< The dimension corresponds the the model variant*/
 
     private:
         /**

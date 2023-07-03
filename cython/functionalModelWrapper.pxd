@@ -38,6 +38,7 @@ cdef extern from "../src/functionalModel/creators.h" namespace "Functional":
         double *geometries
         int row_size
         int col_size
+        string variant
         double *scalingCoeffs
         double *offset
 
