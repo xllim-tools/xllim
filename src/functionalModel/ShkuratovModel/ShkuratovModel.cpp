@@ -30,19 +30,18 @@ ShkuratovModel::ShkuratovModel(const double *geometries, unsigned int row_size, 
         }
     }
     setupGeometries(geomsMat);
+    cos_i = cos(geomsMat.col(INC) * datum::pi / DEGREE_180);
 }
 
 void ShkuratovModel::F(rowvec photometry, rowvec &reflectances) {
     to_physic(photometry);
 
-    vec cos_i = cos(configuredGeometries.col(BETA)) % cos(configuredGeometries.col(ShkuratovEnumeration::ALPHA) - configuredGeometries.col(GAMMA));
     vec f = (exp(- photometry(MU_1) * configuredGeometries.col(ShkuratovEnumeration::ALPHA)) + photometry(M) * exp(- photometry(MU_2) * configuredGeometries.col(ShkuratovEnumeration::ALPHA))) / (1 + photometry(M));
     vec d = cos(configuredGeometries.col(ShkuratovEnumeration::ALPHA) / 2.0) % cos(datum::pi * (configuredGeometries.col(GAMMA) - configuredGeometries.col(ShkuratovEnumeration::ALPHA) / 2.0) / (datum::pi - configuredGeometries.col(ShkuratovEnumeration::ALPHA))) / cos(configuredGeometries.col(GAMMA));
     for(unsigned i=0; i<d.n_rows; i++){
         d(i) *= pow(cos(configuredGeometries(i,BETA)), photometry(NU) * configuredGeometries(i,ShkuratovEnumeration::ALPHA) * (datum::pi - configuredGeometries(i,ShkuratovEnumeration::ALPHA)));
     }
     reflectances = photometry(AN) * d.t() % f.t() / cos_i.t();
-
 }
 
 int ShkuratovModel::get_D_dimension() {
@@ -92,7 +91,7 @@ void ShkuratovModel::setupGeometries(const mat &geometries) {
     configuredGeometries.col(BETA) = acos(cos_beta);
 
     //compute Gamma
-    configuredGeometries.col(GAMMA) = acos(cos(geomsGrad.col(EME)) / cos_beta);
+    configuredGeometries.col(GAMMA) = atan((cos(geomsGrad.col(INC))/cos(geomsGrad.col(EME)) - cos(configuredGeometries.col(ShkuratovEnumeration::ALPHA))) / sin(configuredGeometries.col(ShkuratovEnumeration::ALPHA)));
 }
 
 double ShkuratovModel::degToGrad(double degree) {

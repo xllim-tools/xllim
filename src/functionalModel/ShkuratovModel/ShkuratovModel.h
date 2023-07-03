@@ -47,6 +47,7 @@ namespace Functional {
  * mathematical spaces. */
         vec offset; /**< Offsets used in the transformation between physical and
  * mathematical spaces. */
+        vec cos_i; /**< cos_i  directly computed from incidence angle  */
 
     private:
         /**
