@@ -6,7 +6,11 @@ You may skip to Running Kernelo in * if you don't intend to build the module fro
 # Building on Ubuntu 20.04
 1. Install dependecies
 ```
-sudo apt install gcc cmake python3-dev libatlas-base-dev libarmadillo-dev libboost-dev libboost-all-dev libatlas-base-dev
+$ sudo apt update
+$ sudo apt-get install -y --no-install-recommends gcc g++ \
+	python3-dev cython3 python3-numpy python3-pip \
+	libatlas-base-dev libarmadillo-dev libboost-dev
+$ pip3 install -U pip wheel setuptools cyarma
 ```
 2. Install python requirements
 ```
@@ -14,9 +18,14 @@ pip install -r requirements.txt
 ```
 3. Build the Python extension
 ```
-$ python3 setup.py build_ext --inplace -vvv
+$ python3 setup.py bdist_wheel -vvv
 ```
-4. Now you can import kernelo in Python 3:
+4. Install the extension in your Python environnemnt.
+Wheel file may have slightly different name.
+```
+pip3 install --no-cache-dir dist/kernelo-0.1-cp38-cp38-linux_x86_64.whl
+```
+5. Now you can import kernelo in Python 3:
 ```
 >>> import kernelo
 ```
@@ -38,9 +47,11 @@ This will download an ``archive.zip`` file containing the extension ``.so`` file
 ## Running Kernelo on Ubuntu 20.04
 1. Install dependecies
 ```
-sudo apt install python3 python3-numpy libatlas3-base libarmadillo9
+$ sudo apt update
+$ sudo apt install python3 python3-numpy libatlas3-base libarmadillo9
 ```
 2. Copy the .so extension file into your working directory and start Python 3
+TODO python3 setup.py install --user
 ```
 $ python3
 >>> import kernelo
