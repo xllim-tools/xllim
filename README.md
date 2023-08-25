@@ -100,5 +100,5 @@ Any changes you make to the box (install packages etc.) are persistent, and you 
 
 
 # Licence
-Please refer to the [lincence page](LICENCE.md)
-If the licence does not meet your needs, please send a request at ``kernelo at inria.fr``.
+Please refer to the [lincence page](LICENCE.txt)
+If the licence does not meet your needs, please send a request at ``kernelo.gliim at inria.fr``.
