@@ -100,5 +100,6 @@ Any changes you make to the box (install packages etc.) are persistent, and you 
 
 
 # Licence
-Please refer to the [lincence page](LICENCE.txt)
-If the licence does not meet your needs, please send a request at ``kernelo.gliim at inria.fr``.
+This software is licensed under the GNU GPL-compatible [CeCILL-C licence](LICENCE.txt).
+While the software is free, we would appreciate it if you send us an e-mail at ``kernelo.gliim at inria.fr`` to let us know how you use it.
+Also, please contact us if the licence does not meet your needs.
