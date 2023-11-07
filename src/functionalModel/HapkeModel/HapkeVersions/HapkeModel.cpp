@@ -5,10 +5,14 @@
  * @version 1.0
  * @date 18/12/2019
  */
-
+#include <pybind11/pybind11.h>
 #include "../HapkeModel.h"
 #include "../../../logging/Logger.h"
 #include <utility>
+
+// ----------------
+// regular C++ code
+// ----------------
 
 #define DEGREE_180 180
 
@@ -272,9 +276,22 @@ rowvec HapkeModel::calculate_Mu0E_0(double theta_bar, rowvec &E1, rowvec &E1_0, 
 
 
 
+// ----------------
+// Python interface
+// ----------------
 
+namespace py = pybind11;
 
+PYBIND11_MODULE(HapkeModel,m)
+{
+    m.doc() = "pybind11 example plugin";
 
+    m.def("F", &HapkeModel::F);
+
+    m.def("get_D_dimension", &HapkeModel::get_D_dimension);
+
+    m.def("get_L_dimension", &HapkeModel::get_L_dimension);
+}
 
 
 

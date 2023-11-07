@@ -1,26 +1,31 @@
-from Cython.Distutils import build_ext
-from numpy import get_include
-import cyarma
-from setuptools import find_packages, Extension, setup
+# Available at setup time due to pyproject.toml
+from glob import glob
+from pybind11.setup_helpers import Pybind11Extension, build_ext
+from setuptools import setup
 
-setup(name='kernelo',
-      version='0.1',
-      # packages=['kernelo'],
-      packages=find_packages(),
-      # package_dir={'kernelo': 'kernelo'},
-      description='Wrapper to Armadillo',
-      cmdclass = {'build_ext': build_ext},
-      ext_modules = [Extension("kernelo",
-                               ["cython/kernelo.pyx"],
-                               include_dirs = [get_include(), '/usr/include',
-                                               '/usr/local/include',
-                                               cyarma.include_dir],
-                               library_dirs = ['/usr/lib', '/usr/local/lib'],
-                               libraries=["armadillo", "lapack_atlas", "blas"],
-                               language='c++',
-                               compiler_directives={'embedsignature': True},
-                               extra_compile_args=["-Ofast", "-DARMA_NO_DEBUG", "-std=c++11"], # optimized
-                              #  extra_compile_args=["-O0", "-DARMA_NO_DEBUG", "-std=c++11"], # for debug
-                               ),
-                     ]
-      )
+__version__ = "0.0.1"
+
+ext_modules = [
+    Pybind11Extension("kernelo",
+        sorted(glob("src/*.cpp")),
+        # Example: passing in the version to the compiled code
+        define_macros = [('VERSION_INFO', __version__)],
+        extra_compile_args=[
+                '-Ofast', '-DARMA_NO_DEBUG', '-std=c++14'
+        ]
+        ),
+]
+
+setup(
+    name="kernelo_lib",
+    version=__version__,
+    description="A test project using pybind11",
+    long_description="",
+    ext_modules=ext_modules,
+    extras_require={"test": "pytest"},
+    # Currently, build_ext only provides an optional "highest supported C++
+    # level" feature, but in the future it may provide more features.
+    cmdclass={"build_ext": build_ext},
+    zip_safe=False,
+    python_requires=">=3.7",
+)
