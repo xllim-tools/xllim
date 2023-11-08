@@ -40,12 +40,6 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("/usr/lib/python3/dist-packages/numpy/core/include/")
 #include_directories("extern/lib")
 
-# Replace the Cython code with Pybind11 for creating Python bindings
-find_package(pybind11 REQUIRED)
-
-add_library(HapkeModel MODULE src/functionalModel/HapkeModel/HapkeVersions/HapkeModel.cpp)
-target_link_libraries(HapkeModel PRIVATE pybind11::module)
-
 add_library(prediction STATIC
         src/prediction/IPredictor.h
         src/prediction/Predictor.cpp
@@ -113,7 +107,6 @@ add_library(functionalModel STATIC
         src/functionalModel/ShkuratovModel/ShkuratovModel.h
         src/functionalModel/TestModel/TestModel.cpp
         src/functionalModel/TestModel/TestModel.h)
-target_link_libraries(functionalModel PRIVATE pybind11::module)
 
 add_library(learningModel STATIC
         src/learningModel/configs/LearningConfig.h

@@ -7,21 +7,22 @@
 
 using namespace arma;
 
-namespace Functional {
-/**
- * @class FunctionalModel
- * @brief Abstract class representing the functional model
- *
- * This class is an interface of the functional model. It offers the
- * functional method "F" which requires that the parameters of X be 
- * in mathematical space. It contains normalization methods to transform
- * X from and to physical space. It also allows to retrieve the dimensions 
- * of the problem.
- *
- */
-    class FunctionalModel {
+namespace Functional
+{
+    /**
+     * @class FunctionalModel
+     * @brief Abstract class representing the functional model
+     *
+     * This class is an interface of the functional model. It offers the
+     * functional method "F" which requires that the parameters of X be
+     * in mathematical space. It contains normalization methods to transform
+     * X from and to physical space. It also allows to retrieve the dimensions
+     * of the problem.
+     *
+     */
+    class FunctionalModel
+    {
     public:
-
         /**
          * This method calculates y = F(x) using armadillo library and writes
          * results on the vector y without allocating new memory. This method
@@ -31,6 +32,13 @@ namespace Functional {
          * @param y : vector of results (D dimension)
          */
         virtual void F(rowvec x, rowvec &y) = 0;
+
+        rowvec F(rowvec x)
+        {
+            rowvec y(get_D_dimension());
+            F(x, y);
+            return y;
+        }
 
         /**
          * This method calculates y = F(x) using the method above, after adapting
@@ -42,14 +50,16 @@ namespace Functional {
          * @param y : pointer  to the set of results
          * @param size_y : number of outputs (D dimension)
          */
-        virtual void F(double *x, unsigned int size_x, double *y, unsigned int size_y) {
-            //create an armadillo row vector pointing to the standard array
+        virtual void F(double *x, unsigned int size_x, double *y, unsigned int size_y)
+        {
+            // create an armadillo row vector pointing to the standard array
             rowvec x_arma = rowvec(&x[0], size_x);
             rowvec y_arma = rowvec(size_y);
 
             F(x_arma, y_arma);
 
-            for (unsigned i = 0; i < size_y; i++) {
+            for (unsigned i = 0; i < size_y; i++)
+            {
                 y[i] = y_arma(i);
             }
         }
@@ -65,8 +75,8 @@ namespace Functional {
          * @param y_row_size : number of sets of results
          * @param y_col_size : number of results by set (D dimension)
          */
-        virtual void F(double *x, unsigned int x_row_size, unsigned int x_col_size, double *y, unsigned int y_row_size, unsigned int y_col_size) {
-            //test
+        virtual void F(double *x, unsigned int x_row_size, unsigned int x_col_size, double *y, unsigned int y_row_size, unsigned int y_col_size){
+            // test
         };
 
         /**
@@ -105,4 +115,4 @@ namespace Functional {
 
 }
 
-#endif //KERNELO_FUNCTIONNALMODEL_H
+#endif // KERNELO_FUNCTIONNALMODEL_H

@@ -41,7 +41,16 @@ void TestModel::F(rowvec x, rowvec &y) {
     mat C = this->A * Gx.t();
     C = C.t();
     y = C.row(0);
+    std::cout << "C++ code y" << std::endl;
+    std::cout << y << std::endl;
+    std::cout << "C++ code y" << std::endl;
 }
+
+// rowvec TestModel::F(rowvec x) {
+//     rowvec y(TestModel::get_D_dimension());
+//     TestModel::F(x,y);
+//     return y;
+// }
 
 int TestModel::get_D_dimension() {
     return TestModel_D_dimension;

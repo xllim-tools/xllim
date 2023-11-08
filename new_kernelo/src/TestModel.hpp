@@ -21,6 +21,7 @@ namespace Functional {
          */
         TestModel();
         void F(rowvec photometry, rowvec &reflectances) final;
+        // rowvec F(rowvec photometry);
         int get_D_dimension() final;
         int get_L_dimension() final;
         void to_physic(rowvec &x) final;
