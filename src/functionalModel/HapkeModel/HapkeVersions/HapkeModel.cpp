@@ -277,4 +277,3 @@ rowvec HapkeModel::calculate_Mu0E_0(double theta_bar, rowvec &E1, rowvec &E1_0, 
 
 
 
-
