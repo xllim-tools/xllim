@@ -140,6 +140,12 @@ arma::gmm_full GLLiMLearning<T, U>::computeGMM(const vec &y_obs, const vec &cov_
 
     this->alterCovariance(temp_gllim, cov_obs);
 
+    // Different cases : <FullCovariance, FullCovariance>, <DiagCovariance, FullCovariance>, <FullCovariance, DiagCovariance>, <DiagCovariance, DiagCovariance>
+    // demanière général, on a juste besoin de Pi*, C* et Gamma*
+    // if <T,U> = <FullCovariance, DiagCovariance>
+    //      on a besoin de Pi, C, A, Gamma, Sigma (de gllim_direct!!! donc on prend temp_gllim)
+
+
     // 2 - inverse theta_obs
     GLLiMParameters<FullCovariance, FullCovariance> gllim_inv = inverse(temp_gllim);
 

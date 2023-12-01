@@ -25,15 +25,15 @@ double Helpers::logSumExp(const arma::vec & elements) {
 }
 
 
-double Helpers::computeDeterminant(const mat& matrix){
+double Helpers::computeDeterminant(const mat& matrix){ // log determinant
     if(matrix.n_rows <= 3){
-        return det(matrix);
+        return real(log_det(matrix));
     }else{
         mat R;
         if(chol(R,matrix)){
             return 2 * sum(log(R.diag()));
         }else{
-            return det(matrix);
+            return real(log_det(matrix));
         }
     }
 
@@ -68,7 +68,7 @@ double Helpers::weightedLogSumExp(
 }
 
 /* C++ version of the dtrmv BLAS function */
-void inplace_tri_mat_mult(arma::rowvec &x, arma::mat const &trimat){
+void Helpers::inplace_tri_mat_mult(arma::rowvec &x, arma::mat const &trimat){
   arma::uword const n = trimat.n_cols;
   
   for(unsigned j = n; j-- > 0;){

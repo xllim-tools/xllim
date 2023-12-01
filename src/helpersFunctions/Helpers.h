@@ -18,6 +18,7 @@ namespace Helpers{
     vec dmvnrm_arma_fast_chol(mat const &x, rowvec const &mean, mat &sigma, bool const logd = true);
     double mvnrm_arma_fast_chol(rowvec const &x, rowvec const &mean, mat &sigma, bool const logd = true);
     mat safe_cholesky(mat & Sigma);
+    void inplace_tri_mat_mult(rowvec &x, mat const &trimat);
     // arma::vec Mahalanobis(arma::mat const &x, arma::vec const &center, arma::mat const &cov);
 }
 
