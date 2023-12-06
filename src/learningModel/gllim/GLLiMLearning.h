@@ -57,6 +57,9 @@ namespace learningModel{
         template <typename V, typename W>
         arma::gmm_full logDensity(std::shared_ptr<GLLiMParameters<V,W>> gllim, const vec &x);
 
+        template <typename V, typename W>
+        arma::gmm_full logDensity(GLLiMParameters<T, U> gllim_direct, GLLiMParameters<V, W> gllim_inv, const vec &x);
+
     private:
         std::shared_ptr<Iinitilizer<T,U>> initializer; /**< @see Iinitilizer Iinitilizer*/
         std::shared_ptr<Iestimator<T,U>> estimator;/**< @see Iestimator Iestimator*/
