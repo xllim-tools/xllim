@@ -70,9 +70,7 @@ DiagCovariance DiagCovariance::inv() {
 }
 
 double DiagCovariance::log_det() {
-    mat full(variances.n_rows, variances.n_rows, fill::zeros);
-    full.diag() += variances;
-    return Helpers::computeDeterminant(full);
+    return sum(log(variances));
 }
 
 DiagCovariance &DiagCovariance::operator+=(double scalar) {

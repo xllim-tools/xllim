@@ -25,15 +25,15 @@ double Helpers::logSumExp(const arma::vec & elements) {
 }
 
 
-double Helpers::computeDeterminant(const mat& matrix){
+double Helpers::computeDeterminant(const mat& matrix){ // log determinant
     if(matrix.n_rows <= 3){
-        return det(matrix);
+        return real(log_det(matrix));
     }else{
         mat R;
         if(chol(R,matrix)){
             return 2 * sum(log(R.diag()));
         }else{
-            return det(matrix);
+            return real(log_det(matrix));
         }
     }
 
@@ -68,7 +68,7 @@ double Helpers::weightedLogSumExp(
 }
 
 /* C++ version of the dtrmv BLAS function */
-void inplace_tri_mat_mult(arma::rowvec &x, arma::mat const &trimat){
+void Helpers::inplace_tri_mat_mult(arma::rowvec &x, arma::mat const &trimat){
   arma::uword const n = trimat.n_cols;
   
   for(unsigned j = n; j-- > 0;){
@@ -79,6 +79,7 @@ void inplace_tri_mat_mult(arma::rowvec &x, arma::mat const &trimat){
   }
 }
 
+// https://gallery.rcpp.org/articles/dmvnorm_arma/
 /* The Multivariate Normal density function */
 vec Helpers::dmvnrm_arma_fast_chol(arma::mat const &x,arma::rowvec const &mean, arma::mat &chol, bool const logd /*= true*/) { 
     using arma::uword;
@@ -98,6 +99,27 @@ vec Helpers::dmvnrm_arma_fast_chol(arma::mat const &x,arma::rowvec const &mean, 
         inplace_tri_mat_mult(z, rooti);
         out(i) = other_terms - 0.5 * arma::dot(z, z);     
     }  
+      
+    if (logd)
+      return out;
+    return exp(out);
+}
+
+/* The Multivariate Normal density function */
+double Helpers::mvnrm_arma_fast_chol(arma::rowvec const &x,arma::rowvec const &mean, arma::mat &chol, bool const logd /*= true*/) { 
+    using arma::uword;
+    uword const xdim = x.n_cols;
+    double out;
+    arma::mat const rooti = arma::inv(arma::trimatu(safe_cholesky(chol)));
+    // arma::mat const rooti = arma::inv(chol);
+    double const rootisum = arma::sum(log(rooti.diag())), 
+                constants = -(double)xdim/2.0 * log2pi, 
+              other_terms = rootisum + constants;
+    
+    // #pragma omp parallel for schedule(static) private(z)
+    arma::rowvec z = (x - mean);
+    inplace_tri_mat_mult(z, rooti);
+    out = other_terms - 0.5 * arma::dot(z, z);     
       
     if (logd)
       return out;

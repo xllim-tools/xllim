@@ -83,9 +83,7 @@ IsoCovariance IsoCovariance::inv(){
 }
 
 double IsoCovariance::log_det() {
-    mat full(size, size, fill::zeros);
-    full.diag() += scalar;
-    return Helpers::computeDeterminant(full);
+    return size*log(scalar);
 }
 
 void IsoCovariance::rankOneUpdate(const arma::vec & v, double alpha) {

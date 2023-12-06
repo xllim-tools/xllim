@@ -116,8 +116,8 @@ GLLiMParameters<FullCovariance,FullCovariance> GLLiMLearning<T, U>::inverse(GLLi
     for(unsigned k=0; k<gllim_direct.K; k++){
         if(gllim_direct.Pi(k) != 0){
             gllim_inv.Pi(k) = gllim_direct.Pi(k);
-            FullCovariance sigma_inv = FullCovariance(gllim_direct.Sigma[k].inv().getFull());
-            FullCovariance gamma_inv = FullCovariance(gllim_direct.Gamma[k].inv().getFull());
+            U sigma_inv = U(gllim_direct.Sigma[k].inv());
+            T gamma_inv = T(gllim_direct.Gamma[k].inv());
             gllim_inv.C.col(k) = gllim_direct.A.slice(k) * gllim_direct.C.col(k) + gllim_direct.B.col(k);
             gllim_inv.Gamma[k] = FullCovariance(gllim_direct.Sigma[k] + gllim_direct.A.slice(k) * gllim_direct.Gamma[k] * gllim_direct.A.slice(k).t());
             gllim_inv.Sigma[k] = FullCovariance(gamma_inv + mat(gllim_direct.A.slice(k).t()) * sigma_inv * mat(gllim_direct.A.slice(k))).inv();
@@ -130,21 +130,21 @@ GLLiMParameters<FullCovariance,FullCovariance> GLLiMLearning<T, U>::inverse(GLLi
 
 template<typename T, typename U>
 arma::gmm_full GLLiMLearning<T, U>::computeGMM(const vec &y_obs, const vec &cov_obs) {
-
     // compute P_X|Y=y which is a GMM with weights , means and covariances deduced from the inversed GLLiM
 
-
     // 1 - alter sigma covariance
-
     GLLiMParameters<T, U> temp_gllim = GLLiMParameters<T, U>(gllim_parameters);
-
     this->alterCovariance(temp_gllim, cov_obs);
 
     // 2 - inverse theta_obs
     GLLiMParameters<FullCovariance, FullCovariance> gllim_inv = inverse(temp_gllim);
 
     // 3 - construct the GMM
-    return this->logDensity(std::make_shared<GLLiMParameters<FullCovariance, FullCovariance>>(gllim_inv), y_obs);
+    if(std::is_same<FullCovariance, U>::value) { // apply optimised log_density function for genral matrix
+        return this->logDensity(std::make_shared<GLLiMParameters<FullCovariance, FullCovariance>>(gllim_inv), y_obs);
+    }else{ // apply woodbury formula. See *Gaussian Locally-Linear Mapping: computation simplifications, Forbes, 3/11/2023*
+        return this->logDensity(temp_gllim, gllim_inv, y_obs);
+    }
 }
 
 template<typename T, typename U>
@@ -153,23 +153,18 @@ arma::gmm_full GLLiMLearning<T, U>::logDensity(std::shared_ptr<GLLiMParameters<V
     static_assert(std::is_base_of<Icovariance, V>(), "Type V must be Icovariance specialization");
     static_assert(std::is_base_of<Icovariance, W>(), "Type W must be Icovariance specialization");
 
-    gmm_full model;
-    double log_det_gamma;
-    vec x_u;
-
+    mat Gamma_k(gllim->L,gllim->L);
     vec weights(gllim->K,fill::zeros);
+
     for(unsigned k=0; k<gllim->K; k++){
         if(gllim->Pi(k) == 0){
             weights(k) = -datum::inf;
         }else{
-            log_det_gamma = gllim->Gamma[k].log_det();
-            x_u = x - gllim->C.col(k);
-            if(log_det_gamma != -datum::inf){
-                weights(k) = log(gllim->Pi(k)) - 0.5 * (gllim->L * log(2* datum::pi) + log_det_gamma + dot((rowvec(x_u.t()) * gllim->Gamma[k].inv()).t(), x_u));
-            }
+            Gamma_k = gllim->Gamma[k].getFull();
+            weights(k) = log(gllim->Pi(k)) + Helpers::mvnrm_arma_fast_chol(rowvec(x.t()), rowvec(gllim->C.col(k).t()), Gamma_k);
         }
     }
-
+    // weights normalisation
     double result = 0;
     double max = weights.max();
     if(max != -datum::inf){
@@ -181,23 +176,81 @@ arma::gmm_full GLLiMLearning<T, U>::logDensity(std::shared_ptr<GLLiMParameters<V
     if(result != -datum::inf){
         weights = exp(weights - result);
     }
-
-
     // means
     mat means(gllim->D,gllim->K);
     for(unsigned k=0; k<gllim->K; k++){
         means.col(k) = gllim->A.slice(k) * x + gllim->B.col(k);
     }
-
     // covariances
     cube covariances(gllim->D,gllim->D,gllim->K);
     for(unsigned k=0; k<gllim->K; k++){
         covariances.slice(k) = gllim->Sigma[k].getFull();
     }
-
-
+    gmm_full model;
     model.set_params(means,covariances,weights.t());
+    return model;
+}
 
+template<typename T, typename U>
+template <typename V, typename W>
+arma::gmm_full GLLiMLearning<T, U>::logDensity(GLLiMParameters<T, U> gllim_direct, GLLiMParameters<V, W> gllim_inv, const vec &x) {
+    static_assert(std::is_base_of<Icovariance, V>(), "Type V must be Icovariance specialization");
+    static_assert(std::is_base_of<Icovariance, W>(), "Type W must be Icovariance specialization");
+    
+    vec weights(gllim_direct.K,fill::zeros);
+    vec x_u(gllim_direct.D);
+    vec w(gllim_direct.D);
+    rowvec z(gllim_direct.L);
+    mat M(gllim_direct.L, gllim_direct.L);
+
+    using arma::uword;
+    uword const xdim = x.n_rows;
+    double constants = -(double)xdim/2.0 * log(2* datum::pi);
+    double log_det_gamma;
+    double quadratic;
+    mat rooti(gllim_direct.L, gllim_direct.L);
+
+    for(unsigned k=0; k<gllim_direct.K; k++){
+        if(gllim_direct.Pi(k) == 0){
+            weights(k) = -datum::inf;
+        }else{
+            x_u = x - (gllim_direct.A.slice(k) * gllim_direct.C.col(k) + gllim_direct.B.col(k));
+            w = gllim_direct.Sigma[k].inv() * x_u;
+            z = (gllim_direct.A.slice(k).t() * w).t();
+            M = gllim_direct.Gamma[k].inv() + gllim_direct.A.slice(k).t() * (gllim_direct.Sigma[k].inv() * gllim_direct.A.slice(k));
+
+            log_det_gamma = real(log_det(M)) + gllim_direct.Gamma[k].log_det() + gllim_direct.Sigma[k].log_det(); // log_det() is the armadillo function and .log_det() is the ICovariances method
+            rooti = arma::inv(arma::trimatu(Helpers::safe_cholesky(M)));
+            Helpers::inplace_tri_mat_mult(z, rooti);
+            quadratic = dot(x_u.t(),w) - dot(z,z);
+
+            weights(k) = log(gllim_direct.Pi(k)) + constants - 0.5 * (log_det_gamma + quadratic);
+        }
+    }
+    // weights normalisation
+    double result = 0;
+    double max = weights.max();
+    if(max != -datum::inf){
+        for(unsigned k=0; k<gllim_inv.K; k++){
+            result += exp(weights(k) - max);
+        }
+        result = log(result) + max;
+    }
+    if(result != -datum::inf){
+        weights = exp(weights - result);
+    }
+    // means
+    mat means(gllim_inv.D,gllim_inv.K);
+    for(unsigned k=0; k<gllim_inv.K; k++){
+        means.col(k) = gllim_inv.A.slice(k) * x + gllim_inv.B.col(k);
+    }
+    // covariances
+    cube covariances(gllim_inv.D,gllim_inv.D,gllim_inv.K);
+    for(unsigned k=0; k<gllim_inv.K; k++){
+        covariances.slice(k) = gllim_inv.Sigma[k].getFull();
+    }
+    gmm_full model;
+    model.set_params(means,covariances,weights.t());
     return model;
 }
 
