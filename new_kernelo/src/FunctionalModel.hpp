@@ -41,45 +41,6 @@ namespace Functional
         }
 
         /**
-         * This method calculates y = F(x) using the method above, after adapting
-         * the data structure to armadillo structure: the function copy the results
-         * from armadillo structure to standard array structure.
-         *
-         * @param x : pointer to the set of parameters of the physical model.
-         * @param size_x : number of parameters (L dimension)
-         * @param y : pointer  to the set of results
-         * @param size_y : number of outputs (D dimension)
-         */
-        virtual void F(double *x, unsigned int size_x, double *y, unsigned int size_y)
-        {
-            // create an armadillo row vector pointing to the standard array
-            rowvec x_arma = rowvec(&x[0], size_x);
-            rowvec y_arma = rowvec(size_y);
-
-            F(x_arma, y_arma);
-
-            for (unsigned i = 0; i < size_y; i++)
-            {
-                y[i] = y_arma(i);
-            }
-        }
-
-        /**
-         * This method calculates y = F(x) considering x and y as matrix. It iterates over
-         * the matrix line by line and calls the vector version of F.
-         *
-         * @param x : pointer to the matrix of the functional model parameters.
-         * @param x_row_size : number of sets of parameters
-         * @param x_col_size : number of parameters by set (L dimension)
-         * @param y : pointer to the matrix of the results
-         * @param y_row_size : number of sets of results
-         * @param y_col_size : number of results by set (D dimension)
-         */
-        virtual void F(double *x, unsigned int x_row_size, unsigned int x_col_size, double *y, unsigned int y_row_size, unsigned int y_col_size){
-            // test
-        };
-
-        /**
          * This method returns the D dimension of the problem
          * @return the dimension D of the problem
          */
@@ -103,14 +64,7 @@ namespace Functional
          * space to the physical space.
          * @param x : the vector to normalize
          */
-        virtual void to_physic(double *x, unsigned int size) = 0;
-
-        /**
-         * This method transforms the values of x from the physical
-         * space to the mathematical space.
-         * @param x : the vector to denormalize
-         */
-        virtual void from_physic(double *x, unsigned int size) = 0;
+        virtual void from_physic(rowvec &x) = 0;
     };
 
 }

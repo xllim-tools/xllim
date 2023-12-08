@@ -40,41 +40,44 @@ namespace py = pybind11;
 
 
 
-PYBIND11_MODULE(cmake_example, m) {
+PYBIND11_MODULE(newkernelo, m) {
 
     py::class_<TestModel>(m, "TestModel")
         .def(py::init<>())
-        .def("F", static_cast<void (TestModel::*)(arma::rowvec, arma::rowvec &)>(&TestModel::F), "F return reference")
-        .def("F", static_cast<arma::rowvec (FunctionalModel::*)(arma::rowvec)>(&FunctionalModel::F), "F return value")
+        .def("F", static_cast<arma::rowvec (FunctionalModel::*)(arma::rowvec)>(&FunctionalModel::F), R"pbdoc(
+            Add two numbers
+            Some other explanation about the add function.
+            )pbdoc") // kernelo.Testmodel.__doc__. Note that the identation in R"pbdoc() is kept
         .def("get_D_dimension", &TestModel::get_D_dimension)
-        .def("get_L_dimension", &TestModel::get_L_dimension);
+        .def("get_L_dimension", &TestModel::get_L_dimension)
+        // .def("to_physic", &TestModel::to_physic, pybind11::return_value_policy::reference)
+        .def("to_physic", [](TestModel &self, py::array_t<double> x){
+            auto carmaVec = carma::arr_to_row(x,true); // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
+            self.to_physic(carmaVec); // Call the C++ function
+            return carma::row_to_arr(carmaVec); // Convert the Carma vector back to a NumPy array
+        })
+        // .def("to_physics", &FunctionalModel::to_physics)
+        // .def("from_physic", &TestModel::from_physic)//, pybind11::return_value_policy::reference)
+        .def("from_physic", [](TestModel &self, py::array_t<double> x){
+            auto carmaVec = carma::arr_to_row(x,true); // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
+            self.from_physic(carmaVec); // Call the C++ function
+            return carma::row_to_arr(carmaVec); // Convert the Carma vector back to a NumPy array
+        })
+        .doc() = R"pbdoc(
+            TestModel
+            -----------------------
+            derived from Functional
+            F(x) = 1/2A*exp(HX) ...
+        )pbdoc"; // kernelo.Testmodel.__doc__
         
     
     m.doc() = R"pbdoc(
-        Pybind11 example
+        Kernelo
         -----------------------
-        F
-        get_D_dimension
-        get_L_dimension
-    )pbdoc";
+        Functional
+        Learning
+        DataGeneration
+        ...
+    )pbdoc"; // kernelo.__doc__
 
-    // m.def("F", &TestModel::F, R"pbdoc(
-    //     Add two numbers
-
-    //     Some other explanation about the add function.
-    // )pbdoc");
-
-    // m.def("get_D_dimension", &TestModel::get_D_dimension, R"pbdoc(
-    //     Add two numbers
-
-    //     Some other explanation about the add function.
-    // )pbdoc");
-
-    // m.def("subtract", [](int i, int j) { return i - j; }, R"pbdoc(
-    //     Subtract two numbers
-
-    //     Some other explanation about the subtract function.
-    // )pbdoc");
-
-        // m.attr("__version__") = "0.0.1";
 }

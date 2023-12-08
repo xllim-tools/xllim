@@ -21,12 +21,10 @@ namespace Functional {
          */
         TestModel();
         void F(rowvec photometry, rowvec &reflectances) final;
-        // rowvec F(rowvec photometry);
         int get_D_dimension() final;
         int get_L_dimension() final;
         void to_physic(rowvec &x) final;
-        void to_physic(double *x, unsigned int size) final;
-        void from_physic(double *x, unsigned int size) final;
+        void from_physic(rowvec &x) final;
 
     private:
         mat A;
