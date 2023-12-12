@@ -35,6 +35,8 @@ namespace Functional
 
         rowvec F(rowvec x)
         {
+            std::cout<< "HEYYY"<<std::endl;
+            std::cout<< x <<std::endl;
             rowvec y(get_D_dimension());
             F(x, y);
             return y;
