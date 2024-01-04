@@ -40,12 +40,6 @@ namespace py = pybind11;
 PYBIND11_MODULE(newkernelo, m)
 {
     py::class_<TestModel>(m, "TestModel")
-        .doc() = R"pbdoc(
-            TestModel
-            -----------------------
-            derived from Functional
-            F(x) = 1/2A*exp(HX) ...
-        )pbdoc"; // kernelo.Testmodel.__doc__
         .def(py::init<>())
         .def("F", [](TestModel &self, py::array_t<double> x)
             {
@@ -79,6 +73,12 @@ PYBIND11_MODULE(newkernelo, m)
                 py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();
                 return y_arr;
             })
+        .doc() = R"pbdoc(
+            TestModel
+            -----------------------
+            derived from Functional
+            F(x) = 1/2A*exp(HX) ...
+        )pbdoc"; // kernelo.Testmodel.__doc__
 
 
     py::class_<ShkuratovModel>(m, "ShkuratovModel")
