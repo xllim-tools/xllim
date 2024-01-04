@@ -18,7 +18,7 @@ ShkuratovModel::ShkuratovModel(mat geometries, std::string variant, vec scalingC
     this->cos_i = cos(geometries.col(INC) * datum::pi / DEGREE_180);
 }
 
-void ShkuratovModel::F(rowvec photometry, rowvec &reflectances)
+void ShkuratovModel::F(vec photometry, vec &reflectances)
 {
     to_physic(photometry);
 
@@ -36,7 +36,7 @@ void ShkuratovModel::F(rowvec photometry, rowvec &reflectances)
     {
         d(i) *= pow(cos(configuredGeometries(i, BETA)), photometry(NU) * configuredGeometries(i, ALPHA) * (datum::pi - configuredGeometries(i, ALPHA)));
     }
-    reflectances = photometry(AN) * d.t() % f.t() / cos_i.t();
+    reflectances = photometry(AN) * d % f / cos_i;
 }
 
 int ShkuratovModel::get_D_dimension()
@@ -49,12 +49,12 @@ int ShkuratovModel::get_L_dimension()
     return L_dimension;
 }
 
-void ShkuratovModel::to_physic(rowvec &x)
+void ShkuratovModel::to_physic(vec &x)
 {
     x = x % scalingCoeffs + offset;
 }
 
-void ShkuratovModel::from_physic(rowvec &x)
+void ShkuratovModel::from_physic(vec &x)
 {
     x = (x - offset) / scalingCoeffs;
 }

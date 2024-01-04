@@ -31,13 +31,11 @@ namespace Functional
          * @param x : vector of the functional model parameters. (L dimension)
          * @param y : vector of results (D dimension)
          */
-        virtual void F(rowvec x, rowvec &y) = 0;
+        virtual void F(vec x, vec &y) = 0;
 
-        rowvec F(rowvec x)
+        vec F(vec x)
         {
-            std::cout<< "HEYYY"<<std::endl;
-            std::cout<< x <<std::endl;
-            rowvec y(get_D_dimension());
+            vec y(get_D_dimension());
             F(x, y);
             return y;
         }
@@ -59,14 +57,14 @@ namespace Functional
          * space to the physical space.
          * @param x : the vector to normalize
          */
-        virtual void to_physic(rowvec &x) = 0;
+        virtual void to_physic(vec &x) = 0;
 
         /**
          * This method transforms the values of x from the mathematical
          * space to the physical space.
          * @param x : the vector to normalize
          */
-        virtual void from_physic(rowvec &x) = 0;
+        virtual void from_physic(vec &x) = 0;
     };
 
 }

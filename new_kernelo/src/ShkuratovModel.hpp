@@ -27,11 +27,11 @@ namespace Functional
          * @param offset : Offsets used in the transformation between physical and mathematical spaces.
          */
         ShkuratovModel(mat geometries, std::string variant, vec scalingCoeffs, vec offset);
-        void F(rowvec photometry, rowvec &reflectances) final;
+        void F(vec photometry, vec &reflectances) final;
         int get_D_dimension() final;
         int get_L_dimension() final;
-        void to_physic(rowvec &x) final;
-        void from_physic(rowvec &x) final;
+        void to_physic(vec &x) final;
+        void from_physic(vec &x) final;
 
     protected:
         mat configuredGeometries; /** A matrix of the configured geometries */

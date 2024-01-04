@@ -27,10 +27,10 @@ namespace py = pybind11;
 
 //     // convert to armadillo matrix without copying.
 //     // Note the size of the matrix cannot be changed when borrowing
-//     arma::rowvec photometry_arma = carma::arr_to_mat<double>(photometry);
+//     arma::vec photometry_arma = carma::arr_to_mat<double>(photometry);
 
 //     // useful code
-//     arma::rowvec reflectances_arma;
+//     arma::vec reflectances_arma;
 //     TestModel::F(photometry_arma, reflectances_arma);
 
 //     // convert to Numpy array and copy out
@@ -41,7 +41,7 @@ PYBIND11_MODULE(newkernelo, m)
 {
     py::class_<TestModel>(m, "TestModel")
         .def(py::init<>())
-        .def("F", static_cast<arma::rowvec (FunctionalModel::*)(arma::rowvec)>(&FunctionalModel::F), R"pbdoc(
+        .def("F", static_cast<arma::vec (FunctionalModel::*)(arma::vec)>(&FunctionalModel::F), R"pbdoc(
             Add two numbers
             Some other explanation about the add function.
             )pbdoc") // kernelo.Testmodel.__doc__. Note that the identation in R"pbdoc() is kept
@@ -50,17 +50,17 @@ PYBIND11_MODULE(newkernelo, m)
         // .def("to_physic", &TestModel::to_physic, pybind11::return_value_policy::reference)
         .def("to_physic", [](TestModel &self, py::array_t<double> x)
              {
-                 auto carmaVec = carma::arr_to_row(x, true); // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
+                 auto carmaVec = carma::arr_to_col(x, true); // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
                  self.to_physic(carmaVec);                   // Call the C++ function
-                 return carma::row_to_arr(carmaVec);         // Convert the Carma vector back to a NumPy array
+                 return carma::col_to_arr(carmaVec);         // Convert the Carma vector back to a NumPy array
              })
         // .def("to_physics", &FunctionalModel::to_physics)
         // .def("from_physic", &TestModel::from_physic)//, pybind11::return_value_policy::reference)
         .def("from_physic", [](TestModel &self, py::array_t<double> x)
              {
-                 auto carmaVec = carma::arr_to_row(x, true); // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
+                 auto carmaVec = carma::arr_to_col(x, true); // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
                  self.from_physic(carmaVec);                 // Call the C++ function
-                 return carma::row_to_arr(carmaVec);         // Convert the Carma vector back to a NumPy array
+                 return carma::col_to_arr(carmaVec);         // Convert the Carma vector back to a NumPy array
              })
         .doc() = R"pbdoc(
             TestModel
@@ -73,7 +73,7 @@ PYBIND11_MODULE(newkernelo, m)
         .def(py::init<mat, std::string, vec, vec>(),
              // .def(py::init<py::array_t<double>, std::string, py::array_t<double>, py::array_t<double>>(),//py::array_t<double>mat, std::string, vec, vec>(),
              py::arg("geometries"), py::arg("variant"), py::arg("scaling_coeffs"), py::arg("offset"))
-        .def("F", static_cast<arma::rowvec (FunctionalModel::*)(arma::rowvec)>(&FunctionalModel::F), R"pbdoc(
+        .def("F", static_cast<arma::vec (FunctionalModel::*)(arma::vec)>(&FunctionalModel::F), R"pbdoc(
             Add two numbers
             Some other explanation about the add function.
             )pbdoc")
@@ -81,14 +81,14 @@ PYBIND11_MODULE(newkernelo, m)
         .def("get_L_dimension", &ShkuratovModel::get_L_dimension)
         .def("to_physic", [](ShkuratovModel &self, py::array_t<double> x)
              {
-                 auto carmaVec = carma::arr_to_row(x, true);
+                 auto carmaVec = carma::arr_to_col(x, true);
                  self.to_physic(carmaVec);
-                 return carma::row_to_arr(carmaVec); })
+                 return carma::col_to_arr(carmaVec); })
         .def("from_physic", [](ShkuratovModel &self, py::array_t<double> x)
              {
-                 auto carmaVec = carma::arr_to_row(x, true);
+                 auto carmaVec = carma::arr_to_col(x, true);
                  self.from_physic(carmaVec);
-                 return carma::row_to_arr(carmaVec); })
+                 return carma::col_to_arr(carmaVec); })
         .doc() = R"pbdoc(
             ShkuratovModel
             -----------------------

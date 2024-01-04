@@ -20,11 +20,11 @@ namespace Functional {
          * @brief Constructor
          */
         TestModel();
-        void F(rowvec photometry, rowvec &reflectances) final;
+        void F(vec x, vec &y) final;
         int get_D_dimension() final;
         int get_L_dimension() final;
-        void to_physic(rowvec &x) final;
-        void from_physic(rowvec &x) final;
+        void to_physic(vec &x) final;
+        void from_physic(vec &x) final;
 
     private:
         mat A;

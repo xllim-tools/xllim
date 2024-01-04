@@ -21,9 +21,9 @@ TestModel::TestModel() {
     this->A *= 0.5;
 }
 
-void TestModel::F(rowvec x, rowvec &y) {
-    rowvec Hx(TestModel_L_dimension, fill::ones);
-    rowvec Gx(TestModel_L_dimension, fill::ones);
+void TestModel::F(vec x, vec &y) {
+    vec Hx(TestModel_L_dimension, fill::ones);
+    vec Gx(TestModel_L_dimension, fill::ones);
 
     // Fill Hx
     Hx(0) = x(0);
@@ -38,9 +38,7 @@ void TestModel::F(rowvec x, rowvec &y) {
     Gx(3) = exp(Hx(3));
 
     // compute y
-    mat C = this->A * Gx.t();
-    C = C.t();
-    y = C.row(0);
+    y = this->A * Gx;
 }
 
 int TestModel::get_D_dimension() {
@@ -51,10 +49,10 @@ int TestModel::get_L_dimension() {
     return TestModel_L_dimension;
 }
 
-void TestModel::to_physic(rowvec &x) {
+void TestModel::to_physic(vec &x) {
     x*=2;
 }
 
-void TestModel::from_physic(rowvec &x) {
+void TestModel::from_physic(vec &x) {
     x/=2;
 }
