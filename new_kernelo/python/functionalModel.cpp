@@ -40,55 +40,78 @@ namespace py = pybind11;
 PYBIND11_MODULE(newkernelo, m)
 {
     py::class_<TestModel>(m, "TestModel")
-        .def(py::init<>())
-        .def("F", static_cast<arma::vec (FunctionalModel::*)(arma::vec)>(&FunctionalModel::F), R"pbdoc(
-            Add two numbers
-            Some other explanation about the add function.
-            )pbdoc") // kernelo.Testmodel.__doc__. Note that the identation in R"pbdoc() is kept
-        .def("get_D_dimension", &TestModel::get_D_dimension)
-        .def("get_L_dimension", &TestModel::get_L_dimension)
-        // .def("to_physic", &TestModel::to_physic, pybind11::return_value_policy::reference)
-        .def("to_physic", [](TestModel &self, py::array_t<double> x)
-             {
-                 auto carmaVec = carma::arr_to_col(x, true); // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
-                 self.to_physic(carmaVec);                   // Call the C++ function
-                 return carma::col_to_arr(carmaVec);         // Convert the Carma vector back to a NumPy array
-             })
-        // .def("to_physics", &FunctionalModel::to_physics)
-        // .def("from_physic", &TestModel::from_physic)//, pybind11::return_value_policy::reference)
-        .def("from_physic", [](TestModel &self, py::array_t<double> x)
-             {
-                 auto carmaVec = carma::arr_to_col(x, true); // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
-                 self.from_physic(carmaVec);                 // Call the C++ function
-                 return carma::col_to_arr(carmaVec);         // Convert the Carma vector back to a NumPy array
-             })
         .doc() = R"pbdoc(
             TestModel
             -----------------------
             derived from Functional
             F(x) = 1/2A*exp(HX) ...
         )pbdoc"; // kernelo.Testmodel.__doc__
+        .def(py::init<>())
+        .def("F", [](TestModel &self, py::array_t<double> x)
+            {
+                arma::vec x_arma = carma::arr_to_col(x, true);
+                arma::vec y_arma;
+                self.F(x_arma, y_arma);
+                py::array_t<double> y_arr = carma::col_to_arr(y_arma).squeeze();
+                return y_arr;
+            }, 
+            R"pbdoc(
+                Add two numbers
+                Some other explanation about the add function.
+            )pbdoc") // kernelo.Testmodel.__doc__. Note that the identation in R"pbdoc() is kept
+        .def("F", static_cast<arma::vec (FunctionalModel::*)(arma::vec)>(&FunctionalModel::F), R"pbdoc(
+            Add two numbers
+            Some other explanation about the add function.
+            )pbdoc") // kernelo.Testmodel.__doc__. Note that the identation in R"pbdoc() is kept
+        .def("get_D_dimension", &TestModel::get_D_dimension)
+        .def("get_L_dimension", &TestModel::get_L_dimension)
+        .def("to_physic", [](TestModel &self, py::array_t<double> x)
+            {
+                arma::vec x_arma = carma::arr_to_col(x, true);                      // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
+                self.to_physic(x_arma);                                             // Call the C++ function
+                py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();    // Convert the Carma vector back to a NumPy array + squeeze the array into shape (x,)
+                return y_arr;
+            })
+        .def("from_physic", [](TestModel &self, py::array_t<double> x)
+            {
+                arma::vec x_arma = carma::arr_to_col(x, true);
+                self.from_physic(x_arma);
+                py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();
+                return y_arr;
+            })
+
 
     py::class_<ShkuratovModel>(m, "ShkuratovModel")
         .def(py::init<mat, std::string, vec, vec>(),
              // .def(py::init<py::array_t<double>, std::string, py::array_t<double>, py::array_t<double>>(),//py::array_t<double>mat, std::string, vec, vec>(),
              py::arg("geometries"), py::arg("variant"), py::arg("scaling_coeffs"), py::arg("offset"))
-        .def("F", static_cast<arma::vec (FunctionalModel::*)(arma::vec)>(&FunctionalModel::F), R"pbdoc(
-            Add two numbers
-            Some other explanation about the add function.
+        .def("F", [](ShkuratovModel &self, py::array_t<double> x)
+            {
+                arma::vec x_arma = carma::arr_to_col(x, true);
+                arma::vec y_arma;
+                self.F(x_arma, y_arma);
+                py::array_t<double> y_arr = carma::col_to_arr(y_arma).squeeze();
+                return y_arr;
+            }, R"pbdoc(
+                Add two numbers
+                Some other explanation about the add function.
             )pbdoc")
         .def("get_D_dimension", &ShkuratovModel::get_D_dimension)
         .def("get_L_dimension", &ShkuratovModel::get_L_dimension)
         .def("to_physic", [](ShkuratovModel &self, py::array_t<double> x)
-             {
-                 auto carmaVec = carma::arr_to_col(x, true);
-                 self.to_physic(carmaVec);
-                 return carma::col_to_arr(carmaVec); })
+            {
+                arma::vec x_arma = carma::arr_to_col(x, true);
+                self.to_physic(x_arma);
+                py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();
+                return y_arr;
+            })
         .def("from_physic", [](ShkuratovModel &self, py::array_t<double> x)
              {
-                 auto carmaVec = carma::arr_to_col(x, true);
-                 self.from_physic(carmaVec);
-                 return carma::col_to_arr(carmaVec); })
+                arma::vec x_arma = carma::arr_to_col(x, true);
+                self.from_physic(x_arma);
+                py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();
+                return y_arr;
+             })
         .doc() = R"pbdoc(
             ShkuratovModel
             -----------------------
