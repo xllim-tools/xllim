@@ -33,13 +33,6 @@ namespace Functional
          */
         virtual void F(vec x, vec &y) = 0;
 
-        vec F(vec x)
-        {
-            vec y(get_D_dimension());
-            F(x, y);
-            return y;
-        }
-
         /**
          * This method returns the D dimension of the problem
          * @return the dimension D of the problem
