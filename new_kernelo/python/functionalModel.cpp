@@ -39,78 +39,131 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(newkernelo, m)
 {
-    py::class_<TestModel>(m, "TestModel")
-        .def(py::init<>())
-        .def("F", [](TestModel &self, py::array_t<double> x)
+    py::class_<FunctionalModel> (m, "FunctionalModel")
+        .def("F", [](FunctionalModel &self, py::array_t<double> x)
             {
                 arma::vec x_arma = carma::arr_to_col(x, true);
                 arma::vec y_arma;
                 self.F(x_arma, y_arma);
                 py::array_t<double> y_arr = carma::col_to_arr(y_arma).squeeze();
                 return y_arr; },
-            R"pbdoc(Add two numbers
-    Some other explanation about the add function.)pbdoc") // kernelo.Testmodel.__doc__. Note that the identation in R"pbdoc() is kept
-        .def("get_D_dimension", &TestModel::get_D_dimension, R"pbdoc(get_D_dimension)pbdoc")
-        .def("get_L_dimension", &TestModel::get_L_dimension, "get_L_dimension")
-        .def("to_physic", [](TestModel &self, py::array_t<double> x)
+            R"mydelimiter(
+                Computes and returns Y = F(X)
+
+                Returns
+                -------
+                ndarray
+                    1D array containing Y = F(X)
+            )mydelimiter") // kernelo.FunctionalModel.__doc__.
+        .def("get_D_dimension", &FunctionalModel::get_D_dimension,
+            R"mydelimiter(
+                Returns the D dimension of the model.
+
+                Returns
+                -------
+                int
+                    The D dimension of the model.
+            )mydelimiter")
+        .def("get_L_dimension", &FunctionalModel::get_L_dimension,
+            R"mydelimiter(
+                Returns the L dimension of the model.
+
+                Returns
+                -------
+                int
+                    The L dimension of the model.
+            )mydelimiter")
+        .def("to_physic", [](FunctionalModel &self, py::array_t<double> x)
             {
                 arma::vec x_arma = carma::arr_to_col(x, true);                      // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
                 self.to_physic(x_arma);                                             // Call the C++ function
                 py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();    // Convert the Carma vector back to a NumPy array + squeeze the array into shape (x,)
                 return y_arr; },
-            R"pbdoc(to_physicdsqdqs)pbdoc")
-        .def("from_physic", [](TestModel &self, py::array_t<double> x)
+            R"mydelimiter(
+                to_physic(x)
+
+                Returns
+                -------
+                ndarray
+                    1D array where the values of x are in physical space
+            )mydelimiter")
+        .def("from_physic", [](FunctionalModel &self, py::array_t<double> x)
             {
                 arma::vec x_arma = carma::arr_to_col(x, true);
                 self.from_physic(x_arma);
                 py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();
                 return y_arr;
-            }, R"pbdoc(from_physic dsqdqssss)pbdoc")
-        .doc() = R"pbdoc(
-            TestModel
-            -----------------------
-            derived from Functional
-            F(x) = 1/2A*exp(HX) ...
-        )pbdoc"; // kernelo.Testmodel.__doc__
+            }, R"mydelimiter(
+                from_physic(x)
 
-    py::class_<ShkuratovModel>(m, "ShkuratovModel")
-        .def(py::init<mat, std::string, vec, vec>(), py::arg("geometries"), py::arg("variant"), py::arg("scaling_coeffs"), py::arg("offset"))
-        .def("F", [](ShkuratovModel &self, py::array_t<double> x)
-            {
-                arma::vec x_arma = carma::arr_to_col(x, true);
-                arma::vec y_arma;
-                self.F(x_arma, y_arma);
-                py::array_t<double> y_arr = carma::col_to_arr(y_arma).squeeze();
-                return y_arr; },
-            R"pbdoc(Add two numbers
-    Some other explanation about the add function.)pbdoc")
-        .def("get_D_dimension", &ShkuratovModel::get_D_dimension)
-        .def("get_L_dimension", &ShkuratovModel::get_L_dimension)
-        .def("to_physic", [](ShkuratovModel &self, py::array_t<double> x)
-            {
-                arma::vec x_arma = carma::arr_to_col(x, true);
-                self.to_physic(x_arma);
-                py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();
-                return y_arr; })
-        .def("from_physic", [](ShkuratovModel &self, py::array_t<double> x)
-            {
-                arma::vec x_arma = carma::arr_to_col(x, true);
-                self.from_physic(x_arma);
-                py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();
-                return y_arr; })
-        .doc() = R"pbdoc(
-            ShkuratovModel
-            -----------------------
-            derived from Functional
-            F(x) = alpha*cos(i) ...
-        )pbdoc";
+                Returns
+                -------
+                ndarray
+                    1D array where the values of x are normalized
+            )mydelimiter")
+        .doc() = R"mydelimiter(
+                Functional Model
+                -----------------------
+                This class is an interface of the functional model.
 
-    m.doc() = R"pbdoc(
-        Kernelo
-        -----------------------
-        Functional
-        Learning
-        DataGeneration
-        ...
-    )pbdoc"; // kernelo.__doc__
+                Methods
+                -------
+                get_D_dimension(self)
+                    returns the D dimension of the model.
+
+                get_L_dimension(self)
+                    returns the L dimension of the model.
+
+                from_physic(self,x)
+                    returns an 1D array where the values of x are normalized
+
+                to_physic(self,x)
+                        returns an 1D array where the values of x are in physical space
+
+                F(self,x)
+                    Returns an 1D array Y = F(X)
+            )mydelimiter"; // kernelo.Testmodel.__doc__
+
+    py::class_<TestModel, FunctionalModel>(m, "TestModel")
+        .def(py::init<>())
+        .doc() = R"mydelimiter(
+                TestModel
+                -----------------------
+                derived from Functional
+                F(x) = 1/2A*exp(HX) ...
+            )mydelimiter";
+
+    py::class_<ShkuratovModel, FunctionalModel>(m, "ShkuratovModel")
+        .def(py::init<mat, std::string, vec, vec>(), py::arg("geometries"), py::arg("variant"), py::arg("scaling_coeffs"), py::arg("offset"),
+            R"mydelimiter(
+                Constructor
+                -----------
+                ShkuratovModel(geometries, variant, scalingCoeffs, offset)
+
+                ndarray geometries
+                    2D array containing N geometries with D dimensions.
+                string variant
+                    The variant of the model corresponding to the number of parameters. It must be one of the following keywords : {"5p","3p"}.
+                ndarray scalingCoeffs
+                    1D array containing 5 values used to normalize the photometric variables of the model, where normalized_x = (x - offset)/scalingCoeff
+                ndarray offset
+                    1D array containing 5 values used to normalize the photometric variables of the model, where normalized_x = (x - offset)/scalingCoeff
+
+            )mydelimiter")
+        .doc() = R"mydelimiter(
+                ShkuratovModel
+                -----------------------
+                derived from Functional.
+                Some more details.
+                F(x) = alpha*cos(i) ...
+            )mydelimiter";
+
+    // m.doc() = R"mydelimiter(
+    //     Kernelo
+    //     -----------------------
+    //     Functional
+    //     Learning
+    //     DataGeneration
+    //     ...
+    // )mydelimiter"; // kernelo.__doc__
 }
