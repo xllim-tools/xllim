@@ -5,6 +5,7 @@
 #include "../src/FunctionalModel.hpp"
 #include "../src/TestModel.hpp"
 #include "../src/ShkuratovModel.hpp"
+#include "../src/HapkeModel.hpp"
 
 using namespace Functional;
 
@@ -152,6 +153,32 @@ PYBIND11_MODULE(newkernelo, m)
             )mydelimiter")
         .doc() = R"mydelimiter(
                 ShkuratovModel
+                -----------------------
+                derived from Functional.
+                Some more details.
+                F(x) = alpha*cos(i) ...
+            )mydelimiter";
+    
+    py::class_<HapkeModel, FunctionalModel>(m, "HapkeModel")
+        .def(py::init<mat, std::string, std::string, double, double, double>(), py::arg("geometries"), py::arg("variant"), py::arg("adapter"), py::arg("theta_bar_scaling"), py::arg("b0"), py::arg("h"),
+            R"mydelimiter(
+                This class wraps the parameters that configure the Hapke model
+
+                Constructor
+                -----------
+                HapkeModelConfig(version, adapter, geometries, theta_bar_scalling)
+
+                string version
+                    The version of the hapke model must be one of the following keywords : {"2002","1993"}.
+                HapkeAdapterConfig adapter
+                    This object is used to create a Hapke model adapter.
+                ndarray geometries
+                    2D array containing N geometries with D dimensions.
+                double theta_bar_scalling
+                    Used to transform theta_bar between physical and mathematical spaces.
+            )mydelimiter")
+        .doc() = R"mydelimiter(
+                HapkeModel
                 -----------------------
                 derived from Functional.
                 Some more details.

@@ -5,6 +5,7 @@ find_package(Armadillo REQUIRED)
 add_library(functionalModel STATIC 
     src/TestModel.cpp
     src/ShkuratovModel.cpp
+    src/HapkeModel.cpp
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
