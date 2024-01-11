@@ -156,7 +156,7 @@ namespace Functional
          * be overridden by subclasses
          * @return coefficient
          */
-        double set_coef(std::string variant);
+        double set_coef();
 
         /**
          * This method is virtual, it represents the changing part in the reflectance formula.
@@ -167,7 +167,7 @@ namespace Functional
          * @return a vector of D results
          */
         // vec define_different_part(const vec &photometry, vec mue, vec mu0e);
-        vec calculate_H(std::string variant, const vec &x, double omega);
+        vec calculate_H(const vec &x, double omega);
 
     private:
         static constexpr double DEGREE_180 = 180;
