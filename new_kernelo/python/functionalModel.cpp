@@ -6,6 +6,7 @@
 #include "../src/TestModel.hpp"
 #include "../src/ShkuratovModel.hpp"
 #include "../src/HapkeModel.hpp"
+#include "../src/ExternalPythonModel.hpp"
 
 using namespace Functional;
 
@@ -183,6 +184,18 @@ PYBIND11_MODULE(newkernelo, m)
                 derived from Functional.
                 Some more details.
                 F(x) = alpha*cos(i) ...
+            )mydelimiter";
+        
+    py::class_<ExternalPythonModel, FunctionalModel>(m, "ExternalPythonModel")
+        .def(py::init<std::string, std::string, std::string>(), py::arg("className"), py::arg("fileName"), py::arg("filePath"),
+            R"mydelimiter(
+                ExternalPythonModel
+                blabla
+            )mydelimiter")
+        .doc() = R"mydelimiter(
+                ExternalPythonModel
+                -----------------------
+                blabla
             )mydelimiter";
 
     // m.doc() = R"mydelimiter(

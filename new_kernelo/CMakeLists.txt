@@ -6,6 +6,7 @@ add_library(functionalModel STATIC
     src/TestModel.cpp
     src/ShkuratovModel.cpp
     src/HapkeModel.cpp
+    src/ExternalPythonModel.cpp
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -13,6 +14,7 @@ set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(extern/pybind11) # in subdirectory
 pybind11_add_module(newkernelo python/functionalModel.cpp)
 target_link_libraries(newkernelo PRIVATE functionalModel)
+target_link_libraries(functionalModel PRIVATE pybind11::embed carma::carma) # link pybind11::embed and carma::carma to ExternalModel
 
 find_package(carma CONFIG REQUIRED) # -- Found carma: /usr/local/include/carma (found version "0.6.7")
 target_link_libraries(newkernelo PRIVATE carma::carma)
