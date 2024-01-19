@@ -45,7 +45,8 @@ extensions = [
     'sphinx.ext.autodoc',
     "sphinx.ext.autosummary",
     'sphinx.ext.autosectionlabel',
-    'sphinx_rtd_theme'
+    'sphinx_rtd_theme',
+    'myst_parser'
 ]
 
 # autosectionlabel_prefix_document = True # If True references must be with full path, ie. :ref:`Hapke <kernelo:HapkeModel>`. It can be useful to use this option if there is several section with the same name.
