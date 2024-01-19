@@ -10,6 +10,11 @@ add_library(functionalModel STATIC
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
+# 2 methodes pour inclure CARMA:
+#      soit C/C dans le code en dur carma/include et faire #include <carma.carma.h> dans le C++ pybind11
+#      soit comme dans la docu officiel avec cmake (instalation dans /usr/local/include/) ... mouais
+#  -> c'est plus clair si le carma est directement dans le code, discretmement dans python/carma, à côté des binding files
+# Même "problème" avec pybind11 (submodule or pip/cmake installation)
 # find_package(pybind11 REQUIRED) # -- Found pybind11: /home/luc/.local/include (found version "2.11.1")
 add_subdirectory(extern/pybind11) # in subdirectory
 pybind11_add_module(newkernelo python/functionalModel.cpp)

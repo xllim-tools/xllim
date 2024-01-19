@@ -43,7 +43,13 @@ release = '0.1'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    "sphinx.ext.autosummary",
+    'sphinx.ext.autosectionlabel',
+    'sphinx_rtd_theme'
 ]
+
+# autosectionlabel_prefix_document = True # If True references must be with full path, ie. :ref:`Hapke <kernelo:HapkeModel>`. It can be useful to use this option if there is several section with the same name.
+autoclass_content = 'both' # This helps compiling __init__ 
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

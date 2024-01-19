@@ -1,39 +1,51 @@
-User guide
-==========
+.. raw:: html
 
-Functional Model
-****************
-.. autoclass:: newkernelo.FunctionalModel
-    :members:
-.. autoclass:: newkernelo.ExternalModelConfig
-    :members:
-.. autoclass:: newkernelo.ShkuratovModelConfig
-    :members:
-.. autoclass:: newkernelo.HapkeModelConfig
-    :members:
+   <div style="text-align: center; font-size: 36px; font-weight: bold;">Functional models</div>
 
-Data generation
-***************
-.. autoclass:: newkernelo.GaussianStatModelConfig
-    :members:
 
-Learning model
+.. automodule:: newkernelo.FunctionalModel
+___________________________
+
+HapkeModel
+**********
+
+.. autoclass:: newkernelo.HapkeModel
+   :members:
+   :inherited-members:
+   :show-inheritance:
+ 
+___________________________
+
+ShkuratovModel
 **************
-.. automodule:: newkernelo
-    :members: MultInitConfig
-    :undoc-members:
+
+.. _shkuratov-model:
+
+.. autoclass:: newkernelo.ShkuratovModel
+    :members:
+    :inherited-members:
+    :show-inheritance:
+
+___________________________
+
+ExternalPythonModel
+*******************
+
+.. _external-python-model:
+
+.. autoclass:: newkernelo.ExternalPythonModel
+    :members:
+    :inherited-members:
     :show-inheritance:
     
-Prediction
-**********
-.. automodule:: newkernelo
-    :members: PredictionConfig
-    :undoc-members:
-    :show-inheritance:
+___________________________
 
-Importance sampling
-*******************
-.. automodule:: newkernelo
-    :members: GaussianRegularizedPropositionConfig
-    :undoc-members:
+TestModel
+*********
+
+.. _test-model:
+
+.. autoclass:: newkernelo.TestModel
+    :members:
+    :inherited-members:
     :show-inheritance:
