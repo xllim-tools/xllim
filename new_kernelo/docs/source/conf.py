@@ -45,6 +45,7 @@ extensions = [
     'sphinx.ext.autodoc',
     "sphinx.ext.autosummary",
     'sphinx.ext.autosectionlabel',
+    'sphinx.ext.mathjax',
     'sphinx_rtd_theme',
     'myst_parser'
 ]
