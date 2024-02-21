@@ -26,5 +26,7 @@ __pycache__/
 test
 # exclude everything
 pytest/savedFiles/*
+pytest/dico/*
 # exception to the rule
-!pytest/savedFiles/.gitkeep 
+!pytest/savedFiles/.gitkeep
+!pytest/dico/.gitkeep 
