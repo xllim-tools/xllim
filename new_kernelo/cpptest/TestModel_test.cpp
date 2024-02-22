@@ -23,6 +23,22 @@ namespace Functional{
         ASSERT_EQ(model->get_D_dimension(), 9);
     }
 
+    TEST_F(TestModelTest, ToPhysicOnes){
+        vec x_true(4, fill::ones);
+        x_true *= 2;
+        vec x(4, fill::ones);
+        model->to_physic(x);
+        ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
+    }
+    
+    TEST_F(TestModelTest, FromPhysicOnes){
+        vec x_true(4, fill::ones);
+        x_true /= 2;
+        vec x(4, fill::ones);
+        model->from_physic(x);
+        ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
+    }
+
     TEST_F(TestModelTest, FOnZerosX){
         vec y_true = {4+2*datum::e, 0.5, datum::e, 3, 0.2, -0.5, -0.2-datum::e, 2*datum::e-1, -0.7};
         y_true *= 0.5;
