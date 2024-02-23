@@ -43,7 +43,7 @@ namespace Functional{
         vec y_true = {4+2*datum::e, 0.5, datum::e, 3, 0.2, -0.5, -0.2-datum::e, 2*datum::e-1, -0.7};
         y_true *= 0.5;
         vec x(4, fill::zeros);
-        vec y(9,fill::ones);
+        vec y(9, fill::ones);
         model->F(x, y);
         ASSERT_TRUE(approx_equal(y_true, y, "reldiff", 1e-8));
     }
