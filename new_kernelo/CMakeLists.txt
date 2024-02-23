@@ -48,7 +48,7 @@ FetchContent_MakeAvailable(googletest)
 
 
 enable_testing()
-add_executable(FunctionalModel_test cpptest/TestModel_test.cpp cpptest/ShkuratovModel_test.cpp)
+add_executable(FunctionalModel_test cpptest/TestModel_test.cpp cpptest/ShkuratovModel_test.cpp cpptest/HapkeModel_test.cpp)
 target_link_libraries(FunctionalModel_test gtest_main functionalModel) # gtest ${ARMADILLO_LIBRARIES}
 
 include(GoogleTest)
