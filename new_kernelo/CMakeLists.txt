@@ -48,8 +48,8 @@ FetchContent_MakeAvailable(googletest)
 
 
 enable_testing()
-add_executable(FunctionalModel_test cpptest/TestModel_test.cpp cpptest/ShkuratovModel_test.cpp cpptest/HapkeModel_test.cpp)
-target_link_libraries(FunctionalModel_test gtest_main functionalModel) # gtest ${ARMADILLO_LIBRARIES}
+add_executable(FunctionalModel_test cpptest/TestModel_test.cpp cpptest/ShkuratovModel_test.cpp cpptest/HapkeModel_test.cpp cpptest/ExternalPythonModel_test.cpp)
+target_link_libraries(FunctionalModel_test PRIVATE gtest_main pybind11::embed functionalModel) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
 
 include(GoogleTest)
 gtest_discover_tests(FunctionalModel_test)
