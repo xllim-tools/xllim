@@ -21,7 +21,7 @@ namespace Functional{
 
             // read geometries from dataset file
             pt::ptree root;
-            pt::read_json("../cpptest/ShkuratovModel_dataset.json", root);  // Load the json file in this ptree
+            pt::read_json("../cpptest/Shkuratov5p_data_ref.json", root);  // Load the json file in this ptree
             std::string variables[3] = {"inc", "eme", "phi"};
             geometries = mat(D, 3);
             unsigned i = 0;
@@ -75,7 +75,7 @@ namespace Functional{
         unsigned n;
         unsigned d;
         pt::ptree root;
-        pt::read_json("/home/luc/Documents/dev/kernelo-gllim-is/new_kernelo/cpptest/ShkuratovModel_dataset.json", root);
+        pt::read_json("../cpptest/Shkuratov5p_data_ref.json", root);
         
         // Read photometries
         mat photometries = mat(L,N);
