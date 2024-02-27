@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/TestModel.hpp"
+#include "../../src/functionalModel/TestModel.hpp"
 
 using namespace std;
 

@@ -2,11 +2,11 @@
 #include <carma>
 #include <armadillo>
 
-#include "../src/FunctionalModel.hpp"
-#include "../src/TestModel.hpp"
-#include "../src/ShkuratovModel.hpp"
-#include "../src/HapkeModel.hpp"
-#include "../src/ExternalPythonModel.hpp"
+#include "../src/functionalModel/FunctionalModel.hpp"
+#include "../src/functionalModel/TestModel.hpp"
+#include "../src/functionalModel/ShkuratovModel.hpp"
+#include "../src/functionalModel/HapkeModel.hpp"
+#include "../src/functionalModel/ExternalPythonModel.hpp"
 
 using namespace Functional;
 namespace py = pybind11;

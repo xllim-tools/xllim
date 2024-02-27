@@ -9,10 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Armadillo REQUIRED)
 add_library(functionalModel STATIC 
-    src/TestModel.cpp
-    src/ShkuratovModel.cpp
-    src/HapkeModel.cpp
-    src/ExternalPythonModel.cpp
+    src/functionalModel/TestModel.cpp
+    src/functionalModel/ShkuratovModel.cpp
+    src/functionalModel/HapkeModel.cpp
+    src/functionalModel/ExternalPythonModel.cpp
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -48,7 +48,11 @@ FetchContent_MakeAvailable(googletest)
 
 
 enable_testing()
-add_executable(FunctionalModel_test cpptest/TestModel_test.cpp cpptest/ShkuratovModel_test.cpp cpptest/HapkeModel_test.cpp cpptest/ExternalPythonModel_test.cpp)
+add_executable(FunctionalModel_test 
+    cpptest/functionalModel/TestModel_test.cpp
+    cpptest/functionalModel/ShkuratovModel_test.cpp
+    cpptest/functionalModel/HapkeModel_test.cpp
+    cpptest/functionalModel/ExternalPythonModel_test.cpp)
 target_link_libraries(FunctionalModel_test PRIVATE gtest_main pybind11::embed functionalModel) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
 
 include(GoogleTest)

@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include "../src/ExternalPythonModel.hpp"
-// #include "../src/ShkuratovModel.hpp"
+#include "../../src/functionalModel/ExternalPythonModel.hpp"
 
 
 namespace pt = boost::property_tree;
@@ -64,7 +63,7 @@ namespace Functional{
         unsigned n;
         unsigned d;
         pt::ptree root;
-        pt::read_json("../cpptest/Shkuratov5p_data_ref.json", root);
+        pt::read_json("../cpptest/functionalModel/dataRef/Shkuratov5p_data_ref.json", root);
         
         // Read photometries
         mat photometries = mat(L,N);

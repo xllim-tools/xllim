@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include "../src/HapkeModel.hpp"
+#include "../../src/functionalModel/HapkeModel.hpp"
 
 
 namespace pt = boost::property_tree;
@@ -28,7 +28,7 @@ namespace Functional{
 
             //Read geometries for 6 parameters model
             pt::ptree root;
-            pt::read_json("../cpptest/Hapke6p_geom70_data_ref.json", root);  // Load the json file in this ptree
+            pt::read_json("../cpptest/functionalModel/dataRef/Hapke6p_geom70_data_ref.json", root);  // Load the json file in this ptree
             geometries = mat(D, 3);
             unsigned i = 0;
             unsigned j = 0;
@@ -89,7 +89,7 @@ namespace Functional{
         unsigned N = 20000;
         unsigned n, d, l;
         pt::ptree root;
-        pt::read_json("../cpptest/Hapke6p_geom70_data_ref.json", root);
+        pt::read_json("../cpptest/functionalModel/dataRef/Hapke6p_geom70_data_ref.json", root);
         
         // Read photometries
         mat photometries(L,N);
@@ -142,7 +142,7 @@ namespace Functional{
 
             //Read geometries for 6 parameters model
             pt::ptree root;
-            pt::read_json("../cpptest/Hapke4p_geom70_data_ref.json", root);  // Load the json file in this ptree
+            pt::read_json("../cpptest/functionalModel/dataRef/Hapke4p_geom70_data_ref.json", root);  // Load the json file in this ptree
             geometries = mat(D, 3);
             unsigned i = 0;
             unsigned j = 0;
@@ -203,7 +203,7 @@ namespace Functional{
         unsigned N = 20000;
         unsigned n, d, l;
         pt::ptree root;
-        pt::read_json("../cpptest/Hapke4p_geom70_data_ref.json", root);
+        pt::read_json("../cpptest/functionalModel/dataRef/Hapke4p_geom70_data_ref.json", root);
         
         // Read photometries
         mat photometries(L,N);
