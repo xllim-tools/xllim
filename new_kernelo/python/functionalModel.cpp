@@ -12,9 +12,9 @@ using namespace Functional;
 namespace py = pybind11;
 
 
-PYBIND11_MODULE(newkernelo, m)
+void bind_functional_model(pybind11::module& m)
 {
-    py::class_<FunctionalModel> (m, "FunctionalModel")
+    py::class_<FunctionalModel, std::shared_ptr<FunctionalModel> > (m, "FunctionalModel")
         .def("F", [](FunctionalModel &self, py::array_t<double> x)
             {
                 arma::vec x_arma = carma::arr_to_col(x, true);
@@ -111,7 +111,7 @@ PYBIND11_MODULE(newkernelo, m)
             +------------------------+------------------------------------------------------------------------------+
             )mydelimiter"; // kernelo.Testmodel.__doc__
 
-    py::class_<TestModel, FunctionalModel>(m, "TestModel")
+    py::class_<TestModel, std::shared_ptr<TestModel>, FunctionalModel>(m, "TestModel")
         .def(py::init<>())
         .doc() = R"mydelimiter(
 
@@ -139,7 +139,7 @@ PYBIND11_MODULE(newkernelo, m)
 
         )mydelimiter";
 
-    py::class_<ShkuratovModel, FunctionalModel>(m, "ShkuratovModel")
+    py::class_<ShkuratovModel, std::shared_ptr<ShkuratovModel>, FunctionalModel>(m, "ShkuratovModel")
         .def(py::init<mat, std::string, vec, vec>(), py::arg("geometries"), py::arg("variant"), py::arg("scaling_coeffs"), py::arg("offset"))
         .doc() = R"mydelimiter(
             The class :class:`ShkuratovModel` is a representation of the Shkuratov's photometric model.
@@ -172,7 +172,7 @@ PYBIND11_MODULE(newkernelo, m)
             :type offset: ndarray of shape (L,)
         )mydelimiter";
     
-    py::class_<HapkeModel, FunctionalModel>(m, "HapkeModel")
+    py::class_<HapkeModel, std::shared_ptr<HapkeModel>, FunctionalModel>(m, "HapkeModel")
         .def(py::init<mat, std::string, std::string, double, double, double>(), py::arg("geometries"), py::arg("variant"), py::arg("adapter"), py::arg("theta_bar_scaling"), py::arg("b0"), py::arg("h"))
         .doc() = R"mydelimiter(
             The class :class:`HapkeModel` is a representation of the Hapke's photometric model.
@@ -215,7 +215,7 @@ PYBIND11_MODULE(newkernelo, m)
             :type h: float
         )mydelimiter";
         
-    py::class_<ExternalPythonModel, FunctionalModel>(m, "ExternalPythonModel")
+    py::class_<ExternalPythonModel, std::shared_ptr<ExternalPythonModel>, FunctionalModel>(m, "ExternalPythonModel")
         .def(py::init<std::string, std::string, std::string>(), py::arg("className"), py::arg("fileName"), py::arg("filePath"))
         .doc() = R"mydelimiter(
             

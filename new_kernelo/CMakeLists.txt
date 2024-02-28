@@ -16,6 +16,12 @@ add_library(functionalModel STATIC
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
+add_library(dataGeneration STATIC 
+    src/dataGeneration/generator/GeneratorFactory.cpp
+    src/dataGeneration/generator/RandomGenerator.cpp
+    src/dataGeneration/statModel/GaussianStatModel.cpp
+)
+set_target_properties(dataGeneration PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # 2 methodes pour inclure CARMA:
 #      soit C/C dans le code en dur carma/include et faire #include <carma.carma.h> dans le C++ pybind11
 #      soit comme dans la docu officiel avec cmake (instalation dans /usr/local/include/) ... mouais
@@ -23,9 +29,10 @@ set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # Même "problème" avec pybind11 (submodule or pip/cmake installation)
 # find_package(pybind11 REQUIRED) # -- Found pybind11: /home/luc/.local/include (found version "2.11.1")
 add_subdirectory(extern/pybind11) # in subdirectory
-pybind11_add_module(newkernelo python/functionalModel.cpp)
-target_link_libraries(newkernelo PRIVATE functionalModel)
+pybind11_add_module(newkernelo python/kernelo.cpp)
+target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration)
 target_link_libraries(functionalModel PRIVATE pybind11::embed carma::carma) # link pybind11::embed and carma::carma to ExternalModel
+target_link_libraries(dataGeneration PRIVATE pybind11::embed carma::carma) # link pybind11::embed and carma::carma to ExternalModel
 
 find_package(carma CONFIG REQUIRED) # -- Found carma: /usr/local/include/carma (found version "0.6.7")
 target_link_libraries(newkernelo PRIVATE carma::carma)

@@ -1,0 +1,10 @@
+#include <pybind11/pybind11.h>
+#include "functionalModel.cpp"
+#include "dataGeneration.cpp"
+
+PYBIND11_MODULE(newkernelo, m) {
+    // Define the Python module and initialize function
+    m.doc() = "Your module documentation";
+    bind_functional_model(m);
+    bind_data_generation(m);
+}
