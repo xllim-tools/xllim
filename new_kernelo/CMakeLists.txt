@@ -19,6 +19,8 @@ set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_library(dataGeneration STATIC 
     src/dataGeneration/generator/GeneratorFactory.cpp
     src/dataGeneration/generator/RandomGenerator.cpp
+    src/dataGeneration/generator/SobolGenerator.cpp
+    src/dataGeneration/generator/LatinCubeGenerator.cpp
     src/dataGeneration/statModel/GaussianStatModel.cpp
 )
 set_target_properties(dataGeneration PROPERTIES POSITION_INDEPENDENT_CODE ON)

@@ -15,7 +15,7 @@ namespace DataGeneration{
      * @brief A class representing a statistical model using a normal distribution to create a noise in data
      * generation process.
      *
-     * @details This class generates X matrix using a @ref GeneratorStrategy "data generator". This matrix is used
+     * @details This class generates X matrix using a @ref Generator "data generator". This matrix is used
      * to calculate Y through the functional model to which a gaussian noise is added. The class requires the type
      * of the data generator to use , the matrix of the covariance and a seed used by generators.
      */
