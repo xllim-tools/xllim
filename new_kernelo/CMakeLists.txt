@@ -66,6 +66,7 @@ add_executable(functionalModel_test
 target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
 
 add_executable(dataGeneration_test 
+    cpptest/dataGeneration/Generator_test.cpp
     cpptest/dataGeneration/GaussianStatModel_test.cpp
     cpptest/dataGeneration/DependentGaussianStatModel_test.cpp)
 target_link_libraries(dataGeneration_test PRIVATE gtest_main pybind11::embed dataGeneration functionalModel) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel

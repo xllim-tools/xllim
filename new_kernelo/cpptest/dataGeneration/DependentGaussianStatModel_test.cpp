@@ -33,7 +33,6 @@ TEST_P(DependentGaussianStatModelTest, GenDataReturnsXYGoodShape)
 
 TEST_P(DependentGaussianStatModelTest, YGenApproxEqualFOnXGen)
 {
-    std::cout << std::to_string(r) << std::endl;
     // This test is based on the validity of FunctionalModel::TestModel::F method
     unsigned int N = 50;
     stat_model = std::shared_ptr<StatModel>(new DependentGaussianStatModel(GetParam(), functional_test_model, r, seed));
