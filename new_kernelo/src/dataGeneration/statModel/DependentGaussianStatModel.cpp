@@ -1,26 +1,27 @@
-#include "GaussianStatModel.hpp"
+#include "DependentGaussianStatModel.hpp"
 #include "../generator/GeneratorFactory.hpp"
 #include "../../../../src/helpersFunctions/Helpers.h"
 #include <omp.h>
 
+// #include <utility>
+
 #define LOG_2_PI log(2 * datum::pi)
 
-using namespace std;
 using namespace DataGeneration;
 
-GaussianStatModel::GaussianStatModel(
+DependentGaussianStatModel::DependentGaussianStatModel(
     const std::string &generatorType,
     std::shared_ptr<FunctionalModel> functionalModel,
-    vec covariance,
+    double r,
     unsigned int seed)
 {
     this->generator = GeneratorFactory::create(generatorType, seed);
     this->functionalModel = std::move(functionalModel);
-    this->covariance = covariance;
+    this->r = r;
     this->seed = seed;
 }
 
-std::tuple<mat, mat> GaussianStatModel::gen_data(unsigned int n)
+std::tuple<mat, mat> DependentGaussianStatModel::gen_data(unsigned int n)
 {
     unsigned int dimension_D = functionalModel->get_D_dimension();
     unsigned int dimension_L = functionalModel->get_L_dimension();
@@ -50,14 +51,14 @@ std::tuple<mat, mat> GaussianStatModel::gen_data(unsigned int n)
         for (unsigned j = 0; j < dimension_D; j++)
         {
             noise(j) = normalDistribution(engine);
-            y_arma(i, j) = y_temp(j) + noise(j) * covariance(j);
+            y_arma(i, j) = y_temp(j) + noise(j) * y_temp(j) / r;
         }
     }
 
     return std::tuple<mat, mat>(x_arma, y_arma);
 }
 
-// double GaussianStatModel::density_X_Y(const vec &x, const vec &y, const vec &y_cov)
+// double DependentGaussianStatModel::density_X_Y(const vec &x, const vec &y, const vec &y_cov)
 // {
 //     for (auto x_i : x)
 //     {
@@ -71,11 +72,8 @@ std::tuple<mat, mat> GaussianStatModel::gen_data(unsigned int n)
 //     y_u = y.t() - y_u;
 
 //     mat cov = mat(this->functionalModel->get_D_dimension(), this->functionalModel->get_D_dimension(), fill::zeros);
-//     cov.diag() += pow(y_cov, 2) + pow(covariance.t(), 2);
-//     //    std::cout << "det :" << Helpers::computeDeterminant(cov) << std::endl;
-//     //    std::cout << "dot :" << dot(y_u.t() % (1 / (pow(y_cov ,2)+ pow(covariance.t(),2))), y_u.t()) << std::endl;
-
+//     cov.diag() += pow(y_cov, 2) + pow(y / r, 2);
 //     return -0.5 * (y_cov.n_rows * LOG_2_PI +
 //                    Helpers::computeDeterminant(cov) +
-//                    dot(y_u.t() % (1 / (pow(y_cov, 2) + pow(covariance.t(), 2))), y_u.t()));
+//                    dot(y_u.t() % (1 / (pow(y_cov, 2) + pow(y / r, 2))), y_u.t()));
 // }

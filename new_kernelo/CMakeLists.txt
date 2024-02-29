@@ -22,6 +22,7 @@ add_library(dataGeneration STATIC
     src/dataGeneration/generator/SobolGenerator.cpp
     src/dataGeneration/generator/LatinCubeGenerator.cpp
     src/dataGeneration/statModel/GaussianStatModel.cpp
+    src/dataGeneration/statModel/DependentGaussianStatModel.cpp
 )
 set_target_properties(dataGeneration PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # 2 methodes pour inclure CARMA:

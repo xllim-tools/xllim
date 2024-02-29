@@ -2,7 +2,7 @@
 #define KERNELO_GAUSSSTATMODEL_H
 
 #include "StatModel.hpp"
-#include "../generator/RandomGenerator.hpp"
+#include "../generator/Generator.hpp"
 #include <memory>
 
 using namespace Functional;

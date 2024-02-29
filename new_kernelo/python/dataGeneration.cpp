@@ -6,6 +6,7 @@
 // #include "../src/dataGeneration/generator/RandomGenerator.hpp"
 #include "../src/dataGeneration/statModel/StatModel.hpp"
 #include "../src/dataGeneration/statModel/GaussianStatModel.hpp"
+#include "../src/dataGeneration/statModel/DependentGaussianStatModel.hpp"
 #include "../src/functionalModel/FunctionalModel.hpp"
 
 using namespace DataGeneration;
@@ -20,8 +21,13 @@ void bind_data_generation(pybind11::module &m)
                 StatModel
             )mydelimiter");
     py::class_<GaussianStatModel, StatModel>(m, "GaussianStatModel")
-        .def(py::init<std::string &, std::shared_ptr<FunctionalModel>, vec, unsigned>(), py::arg("generator_type"), py::arg("functional_model"), py::arg("covariance"), py::arg("seed"))
+        .def(py::init<std::string &, std::shared_ptr<FunctionalModel>, vec, unsigned int>(), py::arg("generator_type"), py::arg("functional_model"), py::arg("covariance"), py::arg("seed"))
         .doc() = R"mydelimiter(
                 GaussianStatModel
+            )mydelimiter";
+    py::class_<DependentGaussianStatModel, StatModel>(m, "DependentGaussianStatModel")
+        .def(py::init<std::string &, std::shared_ptr<FunctionalModel>, double, unsigned int>(), py::arg("generator_type"), py::arg("functional_model"), py::arg("r"), py::arg("seed"))
+        .doc() = R"mydelimiter(
+                DependentGaussianStatModel
             )mydelimiter";
 }
