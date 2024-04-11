@@ -31,7 +31,10 @@ void GmmEstimator::train(const mat &data, const vec& weights, const mat &means, 
             posterior.col(k) = model.log_p(data,k).t();
         }
     }else{
-        if(model.learn(data, n_gaus, maha_dist, keep_existing, config->kmeans_iteration, config->em_iteration,config->floor ,false)){
+        if(model.learn(data, n_gaus, maha_dist, keep_existing, config->kmeans_iteration, config->em_iteration,config->floor ,true)){
+            this->Rou = model.hefts.t();
+            this->M = model.means;
+            this->V = model.fcovs;
             for(unsigned k=0; k<n_gaus; k++){
                 posterior.col(k) = model.log_p(data,k).t();
             }
@@ -52,7 +55,7 @@ void GmmEstimator::execute(const arma::mat & x, const arma::mat & y,
     mat training_data = join_cols(x.t(),y.t());
 
     // train the GMM with the training data set
-    train(x,Rou,M,V);
+    train(training_data,this->Rou,this->M,this->V);
 
     // return the GLLiM from the GMM
     initial_theta->operator=(fromGMM(Rou.n_rows, y.n_cols, x.n_cols));

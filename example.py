@@ -74,8 +74,7 @@ nb_centers = 2
 predicator = ker.PredictionConfig(nb_centers, nb_centers, 1e-10, gllim).create()
 prediction_means = [[] for i in range(nb_centers+1)] # list[0] is the list for mean ; list[1] is the list for center1 ; list[2] is the list for center2
 prediction_reconstruction_error = [[] for i in range(nb_centers+1)]
-mean_prop_laws = [] # Proposition laws for IS and IMIS
-center_prop_laws = []
+prop_laws = [[] for i in range(nb_centers+1)] # Proposition laws for IS and IMIS
 print("Computing predictions")
 for i in range(n_observations):
     prediction = predicator.predict(y_obs_noised[i], y_obs_noise[i])
@@ -87,7 +86,7 @@ for i in range(n_observations):
         prediction.meansPred.gmm_weights, 
         prediction.meansPred.gmm_means,
         prediction.meansPred.gmm_covs).create()
-    mean_prop_laws.append(mean_prop_law)
+    prop_laws[0].append(mean_prop_law)
 
     for center in range(1, nb_centers+1):
         x_pred = prediction.centersPred.means[:, center-1]
@@ -97,7 +96,7 @@ for i in range(n_observations):
         center_prop_law = ker.GaussianRegularizedPropositionConfig(
             prediction.centersPred.means[:, center-1],
             prediction.centersPred.covs[center-1, :, :]).create()
-        center_prop_laws.append(center_prop_law)
+        prop_laws[center].append(center_prop_law)
 
 # Gllim-IS
 sampler_is = ker.ImportanceSamplingConfig(1000, stat_model).create()
@@ -105,14 +104,14 @@ is_means = [[] for i in range(nb_centers+1)]
 is_reconstruction_error = [[] for i in range(nb_centers+1)]
 print("Computing IS")
 for i in range(n_observations):
-    result = sampler_is.execute(mean_prop_laws[i], y_obs_noised[i], y_obs_noise[i])
+    result = sampler_is.execute(prop_laws[0][i], y_obs_noised[i], y_obs_noise[i])
     x_pred = result.mean
     y_pred = physical_model.F(x_pred)
     is_means[0].append(x_pred)
     is_reconstruction_error[0].append(compute_reconstruction_error(y_pred, y_obs_noised[i]))
 
     for center in range(1, nb_centers+1):
-        result = sampler_is.execute(center_prop_laws[i], y_obs_noised[i], y_obs_noise[i])
+        result = sampler_is.execute(prop_laws[center][i], y_obs_noised[i], y_obs_noise[i])
         x_pred = result.mean
         y_pred = physical_model.F(x_pred)
         is_means[center].append(x_pred)
@@ -124,14 +123,14 @@ imis_means = [[] for i in range(nb_centers+1)]
 imis_reconstruction_error = [[] for i in range(nb_centers+1)]
 print("Computing IMIS")
 for i in range(n_observations):
-    result = sampler_imis.execute(mean_prop_laws[i], y_obs_noised[i], y_obs_noise[i])
+    result = sampler_imis.execute(prop_laws[0][i], y_obs_noised[i], y_obs_noise[i])
     x_pred = result.mean
     y_pred = physical_model.F(x_pred)
     imis_means[0].append(x_pred)
     imis_reconstruction_error[0].append(compute_reconstruction_error(y_pred, y_obs_noised[i]))
 
     for center in range(1, nb_centers+1):
-        result = sampler_imis.execute(center_prop_laws[i], y_obs_noised[i], y_obs_noise[i])
+        result = sampler_imis.execute(prop_laws[center][i], y_obs_noised[i], y_obs_noise[i])
         x_pred = result.mean
         y_pred = physical_model.F(x_pred)
         imis_means[center].append(x_pred)
