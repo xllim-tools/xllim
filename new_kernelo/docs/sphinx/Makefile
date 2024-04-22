@@ -62,7 +62,6 @@ clean:
 
 .PHONY: html
 html:
-	@cd ..; rm -rf cython/kernelo.cpp; python3 setup.py build_ext --inplace
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

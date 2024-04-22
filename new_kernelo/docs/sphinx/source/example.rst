@@ -8,4 +8,4 @@ For instructions about how to install, as well as the full documentation of, ``k
 
 Code example
 ************
-.. literalinclude:: ../../example.py
+.. literalinclude:: ../../../../example.py
