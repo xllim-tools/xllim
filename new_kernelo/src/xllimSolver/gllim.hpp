@@ -1,11 +1,12 @@
 #ifndef GLLIM_HPP
 #define GLLIM_HPP
 
-// #include "../initializers/Initializers.h"
-
 class GLLiM
 {
 public:
+    /**
+     * TODO
+     */
     GLLiM(unsigned D, unsigned L, unsigned K, GLLiMParameters &theta, GLLiMConstraints &constraints);
     void initialize(
         const mat &x,
@@ -13,29 +14,32 @@ public:
         unsigned seed,
         unsigned nb_iter_EM = 1,     // default = FixedInit
         unsigned nb_experiences = 1, // default = FixedInit
-        // EMLearningConfig EMLearningConfig,
+        // EMLearningConfig
         unsigned max_iteration,
         double ratio_ll,
         double floor,
-        // GMMLearningConfig GMMLearningConfig,
-        unsigned kmeans_iteration unsigned em_iteration double floor);
+        // GMMLearningConfig
+        unsigned kmeans_iteration,
+        unsigned em_iteration,
+        double floor);
     void train(
         const mat &x,
         const mat &y,
         unsigned max_iteration,
         double ratio_ll,
-        double floor);,
+        double floor);
     GLLiMParameters getParams();
     GLLiMParameters getParamA(); // one method for each GLLiM parameter
     void setParams(GLLiMParameters &theta);
     void setParamA(cube A); // one method for each GLLiM parameter
     GLLiMParameters getInverse();
     void directDensities(const mat &x);
-    void inverseLogDensities(const mat &y);
+    void inverseDensities(const mat &y);
+    /// @brief TODO
     void getInsights();
 
 private:
-// TODO
+    // TODO
     std::shared_ptr<Iinitilizer<T, U>> initializer;                                            /**< @see Iinitilizer Iinitilizer*/
     std::shared_ptr<Iestimator<T, U>> estimator;                                               /**< @see Iestimator Iestimator*/
     std::shared_ptr<GLLiMParameters<T, U>> gllim_parameters;                                   /**< The parameters of the direct GLLiM model*/
@@ -43,7 +47,7 @@ private:
     unsigned K;                                                                                /**< the number of affine transformation and the number of gaussian distributions in the mixture */
 
 protected:
-// TODO
+    // TODO
     /**
      * This method adjusts the Sigma parameter of the trained GLLiM model with the variance of the observation before computing the corresponding GMM
      * @param gllim : the parameters of the trained GLLiM

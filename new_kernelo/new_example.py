@@ -119,4 +119,5 @@ for i in range(n_observations):
 # Faire un dossier sampling/ avec des méthodes de sampling dans un seul fichier, sans constructeur (comme Helpers) et contenant les méthodes de sampling
 # ker.XSampling(prop, y, y_obs, sample_args, functional_model) -> {means, variance, IS_diagnostic{nb_effective_sample, effective_sample_size, qn}}
 # faire un sampling.hpp et sampling.cpp qui fait le wrapping des méthodes. Mais chaque méthode est détaillé dans un sous répertoire
-
+# Ou bien faire une méthode de la classe functionalModel, car ça dépend directement de F
+# functional_model.importanceSampling(prop, y, y_obs, sample_args) -> {means, variance, IS_diagnostic{nb_effective_sample, effective_sample_size, qn}}
