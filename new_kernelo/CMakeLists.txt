@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4...3.18)
+cmake_minimum_required(VERSION 3.4...3.18) # check version
 project(newkernelo)
 
 
@@ -78,3 +78,12 @@ gtest_discover_tests(dataGeneration_test)
 
 
 #################################################################
+
+
+install(TARGETS newkernelo
+  COMPONENT python
+  LIBRARY DESTINATION "${PYTHON_LIBRARY_DIR}"
+  )
+
+# (/build)$ cmake .. -DPYTHON_LIBRARY_DIR="/home/luc/.local/lib/python3.10/site-packages" -DPYTHON_EXECUTABLE="/usr/bin/python3"
+# (/build)$ make install
