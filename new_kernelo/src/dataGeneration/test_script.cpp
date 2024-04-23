@@ -11,7 +11,7 @@ int main(){
     std::shared_ptr<Functional::TestModel> testModel = std::shared_ptr<Functional::TestModel>((new TestModel()));
     std::shared_ptr<Functional::FunctionalModel> functionalModel = std::shared_ptr<Functional::FunctionalModel>(testModel);
     // BasicDependentGaussianStatModel = std::shared_ptr<DataGeneration::StatModel>(DataGeneration::DependentGaussianStatModelConfig("sobol", functionalModel, 50 , 12345).create());
-    arma::vec cov(functionalModel->get_D_dimension(), fill::ones);
+    arma::vec cov(functionalModel->getDimensionY(), fill::ones);
     std::cout<< "hey"<<std::endl;
     std::shared_ptr<DataGeneration::StatModel> BasicGaussianStatModel =  std::shared_ptr<DataGeneration::StatModel>(new DataGeneration::GaussianStatModel("sobol", functionalModel, cov, 12345));
     

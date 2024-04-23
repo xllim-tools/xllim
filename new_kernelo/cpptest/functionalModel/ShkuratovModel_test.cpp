@@ -4,7 +4,6 @@
 #include "../../src/functionalModel/ShkuratovModel.hpp"
 
 namespace pt = boost::property_tree;
-using namespace Functional;
 
 class ShkuratovModelTest : public testing::Test
 {
@@ -45,12 +44,12 @@ protected:
 
 TEST_F(ShkuratovModelTest, GetLDimension)
 {
-    ASSERT_EQ(model->get_L_dimension(), 5);
+    ASSERT_EQ(model->getDimensionX(), 5);
 }
 
 TEST_F(ShkuratovModelTest, GetDDimension)
 {
-    ASSERT_EQ(model->get_D_dimension(), D);
+    ASSERT_EQ(model->getDimensionY(), D);
 }
 
 TEST_F(ShkuratovModelTest, ToPhysicOnes)
@@ -58,7 +57,7 @@ TEST_F(ShkuratovModelTest, ToPhysicOnes)
     vec x_true(5, fill::ones);
     x_true = x_true % scaling + offset;
     vec x(5, fill::ones);
-    model->to_physic(x);
+    model->toPhysic(x);
     ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
 }
 
@@ -67,7 +66,7 @@ TEST_F(ShkuratovModelTest, FromPhysicOnes)
     vec x_true(5, fill::ones);
     x_true = (x_true - offset) / scaling;
     vec x(5, fill::ones);
-    model->from_physic(x);
+    model->fromPhysic(x);
     ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
 }
 
@@ -117,5 +116,5 @@ TEST_F(ShkuratovModelTest, FOnDataset)
 TEST_F(ShkuratovModelTest, GetLDimension3p)
 {
     model = std::unique_ptr<ShkuratovModel>((new ShkuratovModel(geometries, "3p", scaling, offset)));
-    ASSERT_EQ(model->get_L_dimension(), 3);
+    ASSERT_EQ(model->getDimensionX(), 3);
 }

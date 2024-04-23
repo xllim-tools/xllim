@@ -5,7 +5,6 @@
 #include "../../functionalModel/FunctionalModel.hpp"
 
 using namespace arma;
-using namespace Functional;
 
 namespace DataGeneration{
     /**

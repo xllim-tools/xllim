@@ -23,8 +23,8 @@ DependentGaussianStatModel::DependentGaussianStatModel(
 
 std::tuple<mat, mat> DependentGaussianStatModel::gen_data(unsigned int n)
 {
-    unsigned int dimension_D = functionalModel->get_D_dimension();
-    unsigned int dimension_L = functionalModel->get_L_dimension();
+    unsigned int dimension_D = functionalModel->getDimensionY();
+    unsigned int dimension_L = functionalModel->getDimensionX();
 
     mat x_arma = mat(n, dimension_L);
     mat y_arma = mat(n, dimension_D);
@@ -71,7 +71,7 @@ std::tuple<mat, mat> DependentGaussianStatModel::gen_data(unsigned int n)
 //     this->functionalModel->F(x, y_u);
 //     y_u = y.t() - y_u;
 
-//     mat cov = mat(this->functionalModel->get_D_dimension(), this->functionalModel->get_D_dimension(), fill::zeros);
+//     mat cov = mat(this->functionalModel->getDimensionY(), this->functionalModel->getDimensionY(), fill::zeros);
 //     cov.diag() += pow(y_cov, 2) + pow(y / r, 2);
 //     return -0.5 * (y_cov.n_rows * LOG_2_PI +
 //                    Helpers::computeDeterminant(cov) +

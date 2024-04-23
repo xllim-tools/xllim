@@ -1,7 +1,5 @@
 #include "ShkuratovModel.hpp"
 
-using namespace Functional;
-
 ShkuratovModel::ShkuratovModel(mat geometries, std::string variant, vec scalingCoeffs, vec offset)
 {
     if (variant == "5p")
@@ -20,7 +18,7 @@ ShkuratovModel::ShkuratovModel(mat geometries, std::string variant, vec scalingC
 
 void ShkuratovModel::F(vec photometry, vec &reflectances)
 {
-    to_physic(photometry);
+    toPhysic(photometry);
 
     vec f;
     if (this->L_dimension == 5)
@@ -39,22 +37,22 @@ void ShkuratovModel::F(vec photometry, vec &reflectances)
     reflectances = photometry(AN) * d % f / cos_i;
 }
 
-int ShkuratovModel::get_D_dimension()
+unsigned ShkuratovModel::getDimensionY()
 {
     return configuredGeometries.n_rows;
 }
 
-int ShkuratovModel::get_L_dimension()
+unsigned ShkuratovModel::getDimensionX()
 {
     return L_dimension;
 }
 
-void ShkuratovModel::to_physic(vec &x)
+void ShkuratovModel::toPhysic(vec &x)
 {
     x = x % scalingCoeffs + offset;
 }
 
-void ShkuratovModel::from_physic(vec &x)
+void ShkuratovModel::fromPhysic(vec &x)
 {
     x = (x - offset) / scalingCoeffs;
 }

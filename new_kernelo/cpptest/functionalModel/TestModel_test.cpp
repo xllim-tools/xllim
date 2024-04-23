@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
 #include "../../src/functionalModel/TestModel.hpp"
 
-
-using namespace Functional;
-
 class TestModelTest : public testing::Test
 {
 protected:
@@ -16,12 +13,12 @@ protected:
 
 TEST_F(TestModelTest, GetLDimension)
 {
-    ASSERT_EQ(model->get_L_dimension(), 4);
+    ASSERT_EQ(model->getDimensionX(), 4);
 }
 
 TEST_F(TestModelTest, GetDDimension)
 {
-    ASSERT_EQ(model->get_D_dimension(), 9);
+    ASSERT_EQ(model->getDimensionY(), 9);
 }
 
 TEST_F(TestModelTest, ToPhysicOnes)
@@ -29,7 +26,7 @@ TEST_F(TestModelTest, ToPhysicOnes)
     vec x_true(4, fill::ones);
     x_true *= 2;
     vec x(4, fill::ones);
-    model->to_physic(x);
+    model->toPhysic(x);
     ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
 }
 
@@ -38,7 +35,7 @@ TEST_F(TestModelTest, FromPhysicOnes)
     vec x_true(4, fill::ones);
     x_true /= 2;
     vec x(4, fill::ones);
-    model->from_physic(x);
+    model->fromPhysic(x);
     ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
 }
 

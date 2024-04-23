@@ -5,7 +5,6 @@
 #include "../generator/Generator.hpp"
 // #include <memory>
 
-using namespace Functional;
 
 namespace DataGeneration{
 

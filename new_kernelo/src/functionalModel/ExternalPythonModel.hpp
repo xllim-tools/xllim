@@ -9,33 +9,31 @@
 namespace py = pybind11;
 using namespace py::literals;
 
-namespace Functional {
+/**
+ * @class ExternalPythonModel
+ * @details This class allows to extend the library dynamically with functional models written with Python. This avoid
+ * to rebuild the library for new functional models. This use is meant to make protoypes of new functional models and
+ * test them before coding them with C++.
+ */
+class ExternalPythonModel : public FunctionalModel
+{
+public:
     /**
-     * @class ExternalPythonModel
-     * @details This class allows to extend the library dynamically with functional models written with Python. This avoid
-     * to rebuild the library for new functional models. This use is meant to make protoypes of new functional models and
-     * test them before coding them with C++.
+     * @brief Constructor
+     * @param className : The name of the concrete class that defines the required external model.
+     * @param fileName : The name of the file where the source code of the external model is written.
+     * @param filePath : The path to the file where the source code of the external model is written.
      */
-    class ExternalPythonModel: public FunctionalModel{
-    public:
+    ExternalPythonModel(const std::string &className, const std::string &fileName, const std::string &filePath);
+    void F(vec photometry, vec &reflectances) final;
+    unsigned getDimensionY() final;
+    unsigned getDimensionX() final;
+    void toPhysic(vec &x) final;
+    void fromPhysic(vec &x) final;
 
-        /**
-         * @brief Constructor
-         * @param className : The name of the concrete class that defines the required external model.
-         * @param fileName : The name of the file where the source code of the external model is written.
-         * @param filePath : The path to the file where the source code of the external model is written.
-         */
-        ExternalPythonModel(const std::string &className, const std::string &fileName, const std::string &filePath);
-        void F(vec photometry, vec &reflectances) final;
-        int get_D_dimension() final;
-        int get_L_dimension() final;
-        void to_physic(vec &x) final;
-        void from_physic(vec &x) final;
+private:
+    py::module_ pModule;
+    py::object pObj;
+};
 
-    private:
-        py::module_ pModule;
-        py::object pObj;
-    };
-}
-
-#endif //KERNELO_EXTERNALPYTHONMODEL_H
+#endif // KERNELO_EXTERNALPYTHONMODEL_H

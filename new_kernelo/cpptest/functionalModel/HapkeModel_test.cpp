@@ -4,7 +4,6 @@
 #include "../../src/functionalModel/HapkeModel.hpp"
 
 namespace pt = boost::property_tree;
-using namespace Functional;
 
 // ******************************************************************** //
 //                      Hapke 6 Parameters Tests
@@ -56,12 +55,12 @@ protected:
 
 TEST_F(HapkeModel6ParamsTest, GetLDimension)
 {
-    ASSERT_EQ(model->get_L_dimension(), L);
+    ASSERT_EQ(model->getDimensionX(), L);
 }
 
 TEST_F(HapkeModel6ParamsTest, GetDDimension)
 {
-    ASSERT_EQ(model->get_D_dimension(), D);
+    ASSERT_EQ(model->getDimensionY(), D);
 }
 
 TEST_F(HapkeModel6ParamsTest, ToPhysicOnesTenths)
@@ -72,7 +71,7 @@ TEST_F(HapkeModel6ParamsTest, ToPhysicOnesTenths)
     x_true(1) *= theta_bar_scaling; // x(1) corresponds to THETA_BAR : x(THETA_BAR) *= theta_bar_scaling;
     vec x(L, fill::ones);
     x *= 0.1;
-    model->to_physic(x);
+    model->toPhysic(x);
     ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
 }
 
@@ -84,7 +83,7 @@ TEST_F(HapkeModel6ParamsTest, FromPhysicOneTenths)
     x_true(1) /= theta_bar_scaling;      // x(1) corresponds to THETA_BAR : x(THETA_BAR) /= theta_bar_scaling;
     vec x(L, fill::ones);
     x *= 0.1;
-    model->from_physic(x);
+    model->fromPhysic(x);
     ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
 }
 
@@ -180,12 +179,12 @@ protected:
 
 TEST_F(HapkeModel4ParamsTest, GetLDimension)
 {
-    ASSERT_EQ(model->get_L_dimension(), L);
+    ASSERT_EQ(model->getDimensionX(), L);
 }
 
 TEST_F(HapkeModel4ParamsTest, GetDDimension)
 {
-    ASSERT_EQ(model->get_D_dimension(), D);
+    ASSERT_EQ(model->getDimensionY(), D);
 }
 
 TEST_F(HapkeModel4ParamsTest, ToPhysicOnesTenths)
@@ -196,7 +195,7 @@ TEST_F(HapkeModel4ParamsTest, ToPhysicOnesTenths)
     x_true(1) *= theta_bar_scaling; // x(1) corresponds to THETA_BAR : x(THETA_BAR) *= theta_bar_scaling;
     vec x(L, fill::ones);
     x *= 0.1;
-    model->to_physic(x);
+    model->toPhysic(x);
     ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
 }
 
@@ -208,7 +207,7 @@ TEST_F(HapkeModel4ParamsTest, FromPhysicOneTenths)
     x_true(1) /= theta_bar_scaling;      // x(1) corresponds to THETA_BAR : x(THETA_BAR) /= theta_bar_scaling;
     vec x(L, fill::ones);
     x *= 0.1;
-    model->from_physic(x);
+    model->fromPhysic(x);
     ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
 }
 

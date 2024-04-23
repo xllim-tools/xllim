@@ -8,7 +8,6 @@
 #include "../src/functionalModel/HapkeModel.hpp"
 #include "../src/functionalModel/ExternalPythonModel.hpp"
 
-using namespace Functional;
 namespace py = pybind11;
 
 
@@ -31,24 +30,24 @@ void bind_functional_model(pybind11::module& m)
                 :return: The Numpy array with shape (D,) resulting from F(x).
                 :rtype: ndarray of shape (D,)
             )mydelimiter") // kernelo.FunctionalModel.__doc__.
-        .def("get_D_dimension", &FunctionalModel::get_D_dimension,
+        .def("getDimensionY", &FunctionalModel::getDimensionY,
             R"mydelimiter(
                 This method returns the D dimension of the problem.
 
                 :return: The D dimension of the model.
                 :rtype: int
             )mydelimiter")
-        .def("get_L_dimension", &FunctionalModel::get_L_dimension,
+        .def("getDimensionX", &FunctionalModel::getDimensionX,
             R"mydelimiter(
                 This method returns the L dimension of the problem.
 
                 :return: The L dimension of the model.
                 :rtype: int
             )mydelimiter")
-        .def("to_physic", [](FunctionalModel &self, py::array_t<double> x)
+        .def("toPhysic", [](FunctionalModel &self, py::array_t<double> x)
             {
                 arma::vec x_arma = carma::arr_to_col(x, true);                      // Convert the NumPy array to a Carma vector with copy=true because we want to argument to keep unmodified
-                self.to_physic(x_arma);                                             // Call the C++ function
+                self.toPhysic(x_arma);                                             // Call the C++ function
                 py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();    // Convert the Carma vector back to a NumPy array + squeeze the array into shape (x,)
                 return y_arr; },
             R"mydelimiter(
@@ -60,10 +59,10 @@ void bind_functional_model(pybind11::module& m)
                 :return: The transformed Numpy array.
                 :rtype: ndarray of shape (L,)
             )mydelimiter")
-        .def("from_physic", [](FunctionalModel &self, py::array_t<double> x)
+        .def("fromPhysic", [](FunctionalModel &self, py::array_t<double> x)
             {
                 arma::vec x_arma = carma::arr_to_col(x, true);
-                self.from_physic(x_arma);
+                self.fromPhysic(x_arma);
                 py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();
                 return y_arr;
             }, R"mydelimiter(
@@ -101,13 +100,13 @@ void bind_functional_model(pybind11::module& m)
             +------------------------+------------------------------------------------------------------------------+
             | **F** (*X*)            | Apply the model function on vector *x*                                       |
             +------------------------+------------------------------------------------------------------------------+
-            | **get_D_dimension** () | get the dimension **D** of the model - ie. dim(*Y*)                          |
+            | **getDimensionY** () | get the dimension **D** of the model - ie. dim(*Y*)                          |
             +------------------------+------------------------------------------------------------------------------+
-            | **get_L_dimension** () | get the dimension **L** of the model - ie. dim(*X*)                          |
+            | **getDimensionX** () | get the dimension **L** of the model - ie. dim(*X*)                          |
             +------------------------+------------------------------------------------------------------------------+
-            | **to_physic** (*X*)    | Get a transformed vector of *X* from mathematical domain to physical domain. |
+            | **toPhysic** (*X*)    | Get a transformed vector of *X* from mathematical domain to physical domain. |
             +------------------------+------------------------------------------------------------------------------+
-            | **from_physic** (*X*)  | Get a transformed vector of *X* from physical model to mathematical domain.  |
+            | **fromPhysic** (*X*)  | Get a transformed vector of *X* from physical model to mathematical domain.  |
             +------------------------+------------------------------------------------------------------------------+
             )mydelimiter"; // kernelo.Testmodel.__doc__
 
@@ -147,7 +146,7 @@ void bind_functional_model(pybind11::module& m)
 
             There are two variants of the Shkuratov's formulation, the original model with 5 parameters and a reduced model with 3 parameters.
             The *scaling_coeffs* and *offset* arguments are  to perform affine transformation between the physical space and the mathematical space, such as, 
-            :math:`(\text{to_physic}(x))_{1 \leq i \leq L} = (\text{scaling_coeffs}_i x_i + \text{offset}_i)_{1 \leq i \leq L}`.
+            :math:`(\text{toPhysic}(x))_{1 \leq i \leq L} = (\text{scaling_coeffs}_i x_i + \text{offset}_i)_{1 \leq i \leq L}`.
 
             :param geometries: The matrix of geometries that will be used by the model. The shape of the Numpy array should be (n_geometries,3).
                 The three geometric angles must be this particular order :
@@ -230,10 +229,10 @@ void bind_functional_model(pybind11::module& m)
             >>>    
             >>>    This class is composed of 5 mandatory functions:
             >>>        - F: the functional model F describing the physical model. F takes photometries as arguments and return reflectances
-            >>>        - get_D_dimension: returns the dimension of Y (reflectances)
-            >>>        - get_L_dimension: return de dimension of X (photometries)
-            >>>        - to_physic: converts the X data from mathematical framework (0<X<1) to physical framework
-            >>>        - from_physic: converts the X data from physical framework to mathematical framework (0<X<1)
+            >>>        - getDimensionY: returns the dimension of Y (reflectances)
+            >>>        - getDimensionX: return de dimension of X (photometries)
+            >>>        - toPhysic: converts the X data from mathematical framework (0<X<1) to physical framework
+            >>>        - fromPhysic: converts the X data from physical framework to mathematical framework (0<X<1)
             >>>
             >>>    Note that some class constants, other functions and class constructors can be declared.
             >>>
@@ -257,16 +256,16 @@ void bind_functional_model(pybind11::module& m)
             >>>    def F(self):
             >>>        pass
             >>>
-            >>>    def get_D_dimension(self):
+            >>>    def getDimensionY(self):
             >>>        pass
             >>>
-            >>>    def get_L_dimension(self):
+            >>>    def getDimensionX(self):
             >>>        pass
             >>>
-            >>>    def to_physic(self):
+            >>>    def toPhysic(self):
             >>>        pass
             >>>
-            >>>    def from_physic(self):
+            >>>    def fromPhysic(self):
             >>>        pass
             >>>
             >>>

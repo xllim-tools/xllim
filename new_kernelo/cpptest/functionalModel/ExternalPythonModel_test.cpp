@@ -4,7 +4,6 @@
 #include "../../src/functionalModel/ExternalPythonModel.hpp"
 
 namespace pt = boost::property_tree;
-using namespace Functional;
 
 class ExternalShkuratovModel5pTest : public testing::Test
 {
@@ -18,7 +17,7 @@ protected:
         D = 50;
         scaling = {1.0, 1.5, 1.5, 1.5, 1.5};
         offset = {0, 0, 0.2, 0, 0};
-        model = std::unique_ptr<ExternalPythonModel>((new ExternalPythonModel("ShkuratovModel5p", "ShkuratovModel5pPython", "../../pytest/models/")));
+        model = std::unique_ptr<ExternalPythonModel>((new ExternalPythonModel("ShkuratovModel5p", "ShkuratovModel5pPython", "../cpptest/functionalModel/dataRef/")));
         std::cout << "extern" << std::endl;
     };
 
@@ -31,12 +30,12 @@ protected:
 
 TEST_F(ExternalShkuratovModel5pTest, GetLDimension)
 {
-    ASSERT_EQ(model->get_L_dimension(), 5);
+    ASSERT_EQ(model->getDimensionX(), 5);
 }
 
 TEST_F(ExternalShkuratovModel5pTest, GetDDimension)
 {
-    ASSERT_EQ(model->get_D_dimension(), D);
+    ASSERT_EQ(model->getDimensionY(), D);
 }
 
 TEST_F(ExternalShkuratovModel5pTest, ToPhysicOnes)
@@ -44,7 +43,7 @@ TEST_F(ExternalShkuratovModel5pTest, ToPhysicOnes)
     vec x_true(5, fill::ones);
     x_true = x_true % scaling + offset;
     vec x(5, fill::ones);
-    model->to_physic(x);
+    model->toPhysic(x);
     ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
 }
 
@@ -53,7 +52,7 @@ TEST_F(ExternalShkuratovModel5pTest, FromPhysicOnes)
     vec x_true(5, fill::ones);
     x_true = (x_true - offset) / scaling;
     vec x(5, fill::ones);
-    model->from_physic(x);
+    model->fromPhysic(x);
     ASSERT_TRUE(approx_equal(x_true, x, "reldiff", 1e-8));
 }
 

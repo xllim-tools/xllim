@@ -4,7 +4,6 @@
 
 // #define DEGREE_180 180
 
-using namespace Functional;
 // using namespace HapkeEnumeration;
 // using namespace Logging;
 
@@ -32,15 +31,15 @@ HapkeModel::HapkeModel(mat geometries, std::string variant, std::string adapter,
     else
     {
         // Logging::Logger::GetInstance()->log("\tInvalid Hapke adapter version", Logging::Logger::level(Logging::ERROR));
-    }    
+    }
     setupGeometries(geometries);
 }
 
 void HapkeModel::F(vec photometry, vec &reflectances)
 {
-    to_physic(photometry); // Transform photometry from mathematical space to physical space
+    toPhysic(photometry);                                     // Transform photometry from mathematical space to physical space
     photometry(THETA_BAR) = degToGrad(photometry(THETA_BAR)); // Set THETA_BAR to radian
-    adaptModel(photometry); // Adapting Hapke model according to adapter type
+    adaptModel(photometry);                                   // Adapting Hapke model according to adapter type
 
     vec E1 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA) / tan(photometry(THETA_BAR)));
     vec E1_0 = exp(-2 / datum::pi * geom_helper_mat.col(TAN_THETA_0) / tan(photometry(THETA_BAR)));
@@ -57,30 +56,27 @@ void HapkeModel::F(vec photometry, vec &reflectances)
     reflectances = set_coef() * (photometry(OMEGA) / configuredGeometries.col(ALPHA) % mu0e / (mue + mu0e)) % specific_part % calculate_S(photometry(THETA_BAR), mue, mu0e, mue_0, mu0e_0);
 }
 
-int HapkeModel::get_D_dimension()
+unsigned HapkeModel::getDimensionY()
 {
     return configuredGeometries.n_rows;
 }
 
-int HapkeModel::get_L_dimension()
+unsigned HapkeModel::getDimensionX()
 {
     return this->L_dimension;
 }
 
-void HapkeModel::to_physic(vec &x)
+void HapkeModel::toPhysic(vec &x)
 {
     x(OMEGA) = 1 - pow(1 - x(OMEGA), 2);
     x(THETA_BAR) *= theta_bar_scaling;
-    
 }
 
-void HapkeModel::from_physic(vec &x)
+void HapkeModel::fromPhysic(vec &x)
 {
     x(OMEGA) = 1 - sqrt(1 - x(OMEGA));
     x(THETA_BAR) /= theta_bar_scaling;
-    
 }
-
 
 //--------------------------------------- PRIVATE METHODS ----------------------------------------//
 void HapkeModel::generate_geom_helper_mat()
@@ -149,7 +145,7 @@ void HapkeModel::setupGeometries(mat geometries)
 {
     configuredGeometries = std::move(geometries);
     configuredGeometries.transform([](double val)
-                                   { return degToGrad(val); }); // transform degrees to gradients
+                                   { return degToGrad(val); });  // transform degrees to gradients
     configuredGeometries.resize(configuredGeometries.n_rows, 6); // adding columns for ALPHA, G and COS_G
     calculate_phase_angle(
         configuredGeometries.col(THETA),
