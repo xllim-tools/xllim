@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Armadillo REQUIRED)
 add_library(functionalModel STATIC 
+    src/functionalModel/FunctionalModel.cpp
     src/functionalModel/TestModel.cpp
     src/functionalModel/ShkuratovModel.cpp
     src/functionalModel/HapkeModel.cpp
@@ -63,7 +64,7 @@ add_executable(functionalModel_test
     cpptest/functionalModel/ShkuratovModel_test.cpp
     cpptest/functionalModel/HapkeModel_test.cpp
     cpptest/functionalModel/ExternalPythonModel_test.cpp)
-target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
+target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel dataGeneration) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
 
 add_executable(dataGeneration_test 
     cpptest/dataGeneration/Generator_test.cpp

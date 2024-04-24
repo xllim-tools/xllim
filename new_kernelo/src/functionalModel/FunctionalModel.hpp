@@ -55,15 +55,24 @@ public:
      */
     virtual void fromPhysic(vec &x) = 0;
 
-    /**
-     * TODO
+    /** @brief This method generates a complete learning data set from the generator type and the @class Functional model.
+     * @param N : number of generated observation
+     * @param generator_type : the type of the generator used to generate x_gen matrix values
+     * @param covariance : vector of dimension D coresponding to the y_i variances.
+     * @param seed : seed number for random generators
+     * @return A generated dataset composed of a pair (x_gen, y_gen) with x_gen of shape (N,L) and y_gen of shape (N,D)
      */
-    void genData(unsigned N, std::string &generator_type, vec &noise, unsigned seed = 0);
+    std::tuple<mat, mat> genData(unsigned N, const std::string &generator_type, vec &covariance, unsigned seed);
 
-    /**
-     * TODO
+
+    /** @brief This method generates a complete learning data set from the generator type and the @class Functional model.
+     * @param N : number of generated observation
+     * @param generator_type : the type of the generator used to generate x_gen matrix values
+     * @param noise_ratio : noise effect
+     * @param seed : seed number for random generators
+     * @return A generated dataset composed of a pair (x_gen, y_gen) with x_gen of shape (N,L) and y_gen of shape (N,D)
      */
-    void genData(unsigned N, std::string &generator_type, double noise_ratio, unsigned seed = 0);
+    std::tuple<mat, mat> genData(unsigned N, const std::string &generator_type, double noise_ratio, unsigned seed = 0);
 
     /**
      * TODO

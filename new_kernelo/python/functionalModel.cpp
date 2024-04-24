@@ -74,6 +74,15 @@ void bind_functional_model(pybind11::module& m)
                 :return: The transformed Numpy array.
                 :rtype: ndarray of shape (L,)
             )mydelimiter")
+        .def("genData", py::overload_cast<unsigned, const std::string &, double, unsigned>(&FunctionalModel::genData),
+        R"mydelimiter(
+                TODO
+            )mydelimiter")
+        .def("genData", py::overload_cast<unsigned, const std::string &, vec &, unsigned>(&FunctionalModel::genData),
+        R"mydelimiter(
+                TODO
+            )mydelimiter")
+        
         .doc() = R"mydelimiter(
 
             The base class :class:`FunctionalModel` is an abstract class representing the functional model.
