@@ -24,8 +24,9 @@ double utils::logSumExp(const vec &elements)
     }
 }
 
-vec utils::logSumExp(const mat &elements)
+vec utils::logSumExp(const mat &x, const int axis)
 {
+    return vec(x.n_rows, fill::value(111));
 }
 
 /* performs the operation log(c1 * exp(log_p1) + c2 * exp(log_p2)) with numerical stability */
@@ -46,12 +47,21 @@ double utils::weightedLogSumExp(
     }
 }
 
-double logDensity(const mat &elements)
+double utils::logDensity(const vec &x, const vec &mean, const mat &covariance)
 {
+    return 0.0;
 }
 
-vec logDensity(const mat &elements)
+double utils::logDensity(const vec &x, const vec &weight, const mat &mean, const cube &covariance)
 {
+    // TODO: check if diamat with .is_diagmat() and apply woodbury
+    return 0.0;
+}
+
+mat utils::logDensity(const mat &x, const vec &weight, const mat &mean, const cube &covariance)
+{
+    // TODO: check if diamat with .is_diagmat() and apply woodbury
+    return mat(x.n_cols, weight.n_cols, fill::value(222));
 }
 
 /* C++ version of the dtrmv BLAS function */

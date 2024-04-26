@@ -14,6 +14,7 @@ add_library(functionalModel STATIC
     src/functionalModel/ShkuratovModel.cpp
     src/functionalModel/HapkeModel.cpp
     src/functionalModel/ExternalPythonModel.cpp
+    src/utils/utils.cpp
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

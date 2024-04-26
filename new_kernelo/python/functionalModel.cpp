@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <carma>
 #include <armadillo>
 
@@ -79,6 +80,10 @@ void bind_functional_model(pybind11::module& m)
                 TODO
             )mydelimiter")
         .def("genData", py::overload_cast<unsigned, const std::string &, vec &, unsigned>(&FunctionalModel::genData),
+        R"mydelimiter(
+                TODO
+            )mydelimiter")
+        .def("importanceSampling", &FunctionalModel::importanceSampling,
         R"mydelimiter(
                 TODO
             )mydelimiter")

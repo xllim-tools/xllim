@@ -64,7 +64,6 @@ public:
      */
     std::tuple<mat, mat> genData(unsigned N, const std::string &generator_type, vec &covariance, unsigned seed);
 
-
     /** @brief This method generates a complete learning data set from the generator type and the @class Functional model.
      * @param N : number of generated observation
      * @param generator_type : the type of the generator used to generate x_gen matrix values
@@ -77,18 +76,29 @@ public:
     /**
      * TODO
      */
-    void importanceSampling(vec &weights, mat &means, cube &covariances, vec &y, vec &y_err, unsigned N_0, unsigned B = 0, unsigned J = 0);
+    mat importanceSampling(std::vector<std::tuple<const vec , const mat , const cube >> proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0);
+    // NOTE: si on met "const vec/mat/cube &" on obtient une erreur avec CARMA/python "Memoryerror: std::bad_alloc"
 
 protected:
     /**
      * TODO
      */
-    void targetDensity(vec &x, vec &y, vec &y_err, vec &noise, bool log = true);
+    vec targetDensity(const mat &x, const vec &y, const vec &y_err, const vec &covariance, bool log = true);
 
     /**
      * TODO
      */
     void targetDensity(vec &x, vec &y, vec &y_err, double noise_ratio, bool log = true);
+
+    /**
+     * TODO
+     */
+    vec propositionDensity(const mat &x, const vec &weight, const mat &mean, const cube &covariance, bool log = true);
+
+    /**
+     * TODO
+     */
+    // void propositionDensity(vec &x, vec &y, vec &y_err, vec &noise, bool log = true);
 };
 
 #endif // FUNCTIONALMODEL_HPP
