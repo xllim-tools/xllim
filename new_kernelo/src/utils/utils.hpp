@@ -6,7 +6,7 @@ using namespace arma;
 
 namespace utils
 {
-    double logSumExp(const vec &elements);
+    double logSumExp(const vec &x);
     vec logSumExp(const mat &x, const int axis);
     double weightedLogSumExp(const double &log_p1, const double &log_p2, const unsigned &c1, const unsigned &c2);
     double logDensity(const vec &x, const vec &mean, const mat &covariance);

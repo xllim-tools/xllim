@@ -14,7 +14,7 @@ add_library(functionalModel STATIC
     src/functionalModel/ShkuratovModel.cpp
     src/functionalModel/HapkeModel.cpp
     src/functionalModel/ExternalPythonModel.cpp
-    src/utils/utils.cpp
+    # src/utils/utils.cpp
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -27,6 +27,12 @@ add_library(dataGeneration STATIC
     src/dataGeneration/statModel/DependentGaussianStatModel.cpp
 )
 set_target_properties(dataGeneration PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+add_library(utils STATIC 
+    src/utils/utils.cpp
+)
+set_target_properties(utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 # 2 methodes pour inclure CARMA:
 #      soit C/C dans le code en dur carma/include et faire #include <carma.carma.h> dans le C++ pybind11
 #      soit comme dans la docu officiel avec cmake (instalation dans /usr/local/include/) ... mouais
@@ -35,8 +41,8 @@ set_target_properties(dataGeneration PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # find_package(pybind11 REQUIRED) # -- Found pybind11: /home/luc/.local/include (found version "2.11.1")
 add_subdirectory(extern/pybind11) # in subdirectory
 pybind11_add_module(newkernelo python/kernelo.cpp)
-target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration)
-target_link_libraries(functionalModel PRIVATE pybind11::embed carma::carma) # link pybind11::embed and carma::carma to ExternalModel
+target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration utils)
+target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma) # link pybind11::embed and carma::carma to ExternalModel
 target_link_libraries(dataGeneration PRIVATE pybind11::embed carma::carma) # link pybind11::embed and carma::carma to ExternalModel
 
 find_package(carma CONFIG REQUIRED) # -- Found carma: /usr/local/include/carma (found version "0.6.7")
@@ -73,9 +79,14 @@ add_executable(dataGeneration_test
     cpptest/dataGeneration/DependentGaussianStatModel_test.cpp)
 target_link_libraries(dataGeneration_test PRIVATE gtest_main pybind11::embed dataGeneration functionalModel) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
 
+add_executable(utils_test 
+    cpptest/utils_test.cpp)
+target_link_libraries(utils_test PRIVATE gtest_main utils armadillo)
+
 include(GoogleTest)
 gtest_discover_tests(functionalModel_test)
 gtest_discover_tests(dataGeneration_test)
+gtest_discover_tests(utils_test)
 
 
 

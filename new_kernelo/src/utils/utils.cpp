@@ -4,29 +4,42 @@ using namespace utils;
 
 static double const log2pi = std::log(2.0 * M_PI);
 
-double utils::logSumExp(const vec &elements)
+double utils::logSumExp(const vec &x)
 {
-    double result = 0;
-    double max = elements.max();
-
+    double max = x.max();
     if (max == -datum::inf)
     {
         return max;
     }
     else
     {
-        for (unsigned i = 0; i < elements.n_rows; i++)
-        {
-            result += exp(elements(i) - max);
-        }
-        result = log(result) + max;
-        return result;
+        return max + log(sum(exp(x - max)));
     }
 }
 
-vec utils::logSumExp(const mat &x, const int axis)
+// TODO essayer avec template<typename T> pour que T soit vec ou rowvec
+vec utils::logSumExp(const mat &x, const int axis = 0)
 {
-    return vec(x.n_rows, fill::value(111));
+    // Transform x according to axis direction
+    mat x_shifted(x);
+    if (axis == 1)
+    {
+        x_shifted = x.t();
+    }
+
+    // Subtract the largest in each column
+    rowvec x_max = max(x_shifted);
+    x_shifted = x_shifted.each_row() - x_max;
+    rowvec s = x_max + log(sum(exp(x_shifted)));
+
+    // Handle numerical issues
+    uvec i = find_nonfinite(x_max);
+    if (i.n_elem > 0)
+    {
+        s.elem(i) = x_max.elem(i);
+    }
+
+    return s.t();
 }
 
 /* performs the operation log(c1 * exp(log_p1) + c2 * exp(log_p2)) with numerical stability */
