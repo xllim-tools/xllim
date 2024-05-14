@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 3.4...3.18) # check version
 project(newkernelo)
 
+set(CMAKE_CXX_FLAGS "-Ofast -DARMA_NO_DEBUG -std=c++11 -larmadillo -fopenmp")
+set(CMAKE_EXE_LINKER_FLAGS "-std=c++11 -larmadillo -fopenmp")
+
 
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(OpenMP REQUIRED)
 
 find_package(Armadillo REQUIRED)
 add_library(functionalModel STATIC 
@@ -42,11 +46,11 @@ set_target_properties(utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(extern/pybind11) # in subdirectory
 pybind11_add_module(newkernelo python/kernelo.cpp)
 target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration utils)
-target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma) # link pybind11::embed and carma::carma to ExternalModel
-target_link_libraries(dataGeneration PRIVATE pybind11::embed carma::carma) # link pybind11::embed and carma::carma to ExternalModel
+target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
+target_link_libraries(dataGeneration PRIVATE pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 
 find_package(carma CONFIG REQUIRED) # -- Found carma: /usr/local/include/carma (found version "0.6.7")
-target_link_libraries(newkernelo PRIVATE carma::carma)
+target_link_libraries(newkernelo PRIVATE carma::carma OpenMP::OpenMP_CXX)
 
 
 #################################################################
