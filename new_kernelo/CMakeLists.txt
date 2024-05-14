@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.4...3.18) # check version
 project(newkernelo)
 
-set(CMAKE_CXX_FLAGS "-Ofast -DARMA_NO_DEBUG -std=c++11 -larmadillo -fopenmp")
+set(CMAKE_CXX_FLAGS "-Ofast -DARMA_DONT_PRINT_FAST_MATH_WARNING -std=c++11 -larmadillo -fopenmp")
 set(CMAKE_EXE_LINKER_FLAGS "-std=c++11 -larmadillo -fopenmp")
 
 
