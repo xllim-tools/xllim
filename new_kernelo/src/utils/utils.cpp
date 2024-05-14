@@ -62,7 +62,8 @@ double utils::weightedLogSumExp(
 
 double utils::logDensity(const vec &x, const vec &mean, const mat &covariance)
 {
-    return 0.0;
+    mat chol(covariance);
+    return utils::mvnrm_arma_fast_chol(x.t(), mean.t(), chol, true);
 }
 
 double utils::logDensity(const vec &x, const vec &weight, const mat &mean, const cube &covariance)
@@ -71,14 +72,20 @@ double utils::logDensity(const vec &x, const vec &weight, const mat &mean, const
     return 0.0;
 }
 
-mat utils::logDensity(const mat &x, const vec &weight, const mat &mean, const cube &covariance)
+mat utils::logDensity(const mat &x, const rowvec &weight, const mat &mean, const cube &covariance)
 {
     // TODO: check if diamat with .is_diagmat() and apply woodbury
-    return mat(x.n_cols, weight.n_cols, fill::value(222));
+    cube chol(covariance);
+    mat results(x.n_cols, weight.n_cols);
+    for (unsigned k = 0; k < weight.n_cols; k++)
+    {
+        results.col(k) = log(weight(k)) + utils::dmvnrm_arma_fast_chol(x.t(), mean.col(k).t(), chol.slice(k), true);
+    }
+    return results;
 }
 
 /* C++ version of the dtrmv BLAS function */
-void inplace_tri_mat_mult(arma::rowvec &x, arma::mat const &trimat)
+void utils::inplace_tri_mat_mult(arma::rowvec &x, arma::mat const &trimat)
 {
     arma::uword const n = trimat.n_cols;
 
@@ -92,20 +99,42 @@ void inplace_tri_mat_mult(arma::rowvec &x, arma::mat const &trimat)
 }
 
 /* The Multivariate Normal density function */
-vec dmvnrm_arma_fast_chol(arma::mat const &x, arma::rowvec const &mean, arma::mat &chol, bool const logd /*= true*/)
+double utils::mvnrm_arma_fast_chol(arma::rowvec const &x, arma::rowvec const &mean, arma::mat &chol, bool const logd /*= true*/)
+{
+    using arma::uword;
+    uword const xdim = x.n_cols;
+    double out;
+    // arma::mat const rooti = arma::inv(arma::trimatu(safe_cholesky(chol)));
+    arma::mat const rooti = arma::inv(arma::trimatu(arma::chol(chol)));
+    double const rootisum = arma::sum(log(rooti.diag())),
+                 constants = -(double)xdim / 2.0 * log2pi,
+                 other_terms = rootisum + constants;
+
+    // #pragma omp parallel for schedule(static) private(z)
+    arma::rowvec z = (x - mean);
+    inplace_tri_mat_mult(z, rooti);
+    out = other_terms - 0.5 * arma::dot(z, z);
+
+    if (logd)
+        return out;
+    return exp(out);
+}
+
+/* The Multivariate Normal density function */
+vec utils::dmvnrm_arma_fast_chol(arma::mat const &x, arma::rowvec const &mean, arma::mat &chol, bool const logd /*= true*/)
 {
     using arma::uword;
     uword const n = x.n_rows,
                 xdim = x.n_cols;
     arma::vec out(n);
-    // arma::mat const rooti = arma::inv(trimatu(Helpers::safe_cholesky(sigma)));
-    arma::mat const rooti = arma::inv(chol);
+    // arma::mat const rooti = arma::inv(trimatu(utils::safe_cholesky(chol)));
+    arma::mat const rooti = arma::inv(arma::trimatu(arma::chol(chol)));
     double const rootisum = arma::sum(log(rooti.diag())),
                  constants = -(double)xdim / 2.0 * log2pi,
                  other_terms = rootisum + constants;
 
     arma::rowvec z;
-    // #pragma omp parallel for schedule(static) private(z)
+#pragma omp parallel for schedule(static) private(z)
     for (uword i = 0; i < n; i++)
     {
         z = (x.row(i) - mean);
@@ -120,7 +149,7 @@ vec dmvnrm_arma_fast_chol(arma::mat const &x, arma::rowvec const &mean, arma::ma
 
 /* Perfoms a cholesky decomposition; if needed add a diagonal regularization term
     to increase numerical stability. */
-mat safe_cholesky(mat &Sigma)
+mat utils::safe_cholesky(mat &Sigma)
 {
     mat Chol(arma::size(Sigma));
     bool success = false;

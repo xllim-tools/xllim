@@ -84,17 +84,22 @@ vec FunctionalModel::targetDensity(const mat &x, const vec &y, const vec &y_err,
 {
     vec densities(x.n_cols);
     vec F_on_x(y.n_rows);
-    mat covariance_matrix = mat(y.n_rows, y.n_rows);
+    mat F_on_x_mat(y.n_rows,1); // TODO: redundant but compilation error otherwise
+    cube  covariance_matrix(y.n_rows, y.n_rows, 1);
+    covariance_matrix.slice(0) = diagmat(pow(y_err, 2) + pow(covariance, 2));
+    gmm_full gmm;
+    rowvec weight(1, fill::value(1));
     for (unsigned n = 0; n < x.n_cols; ++n)
-    { // TODO/NOTE: il faudrait vectoriser les modèles physiques
+    { // TODO/NOTE: vectorisation of physical models
         if (any(x.col(n) > 1 || x.col(n) < 0))
         {
             densities(n) = -datum::inf;
         }
         this->F(x.col(n), F_on_x);
-        // y_u = y - y_u;
-        covariance_matrix = diagmat(pow(y_err, 2) + pow(covariance, 2));
-        densities(n) = utils::logDensity(y, F_on_x, covariance_matrix); // TODO logDensity de type (mat X, weight=1, vec mean, mat cov)
+        F_on_x_mat.col(0) = F_on_x;
+        gmm.set_params(F_on_x_mat, covariance_matrix, weight);
+        densities(n) = gmm.log_p(y);
+        // densities(n) = utils::logDensity(y, F_on_x, covariance_matrix.slice(0));
     }
     return densities;
 }
@@ -105,11 +110,12 @@ void FunctionalModel::targetDensity(vec &x, vec &y, vec &y_err, double noise_rat
 
 vec FunctionalModel::propositionDensity(const mat &x, const vec &weight, const mat &mean, const cube &covariance, bool log)
 {
-    return utils::logSumExp(utils::logDensity(x, weight, mean, covariance), 1); // TODO logDensity de type (mat X, vec weight, mat mean, cube cov) // TODO logSumExp
-    // TODO pourquoi logSumExp ??
+    gmm_full gmm;
+    gmm.set_params(mean, covariance, weight.t());
+    return gmm.log_p(x).t();
+    // return utils::logSumExp(utils::logDensity(x, weight.t(), mean, covariance), 1);
 }
 
-// mat FunctionalModel::importanceSampling(vec &weights, mat &means, cube &covariances, mat &y, mat &y_err, unsigned N_0, unsigned B, unsigned J)
 mat FunctionalModel::importanceSampling(std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J)
 {
     // TODO : modifiy and adapt this code for IMIS
@@ -123,7 +129,6 @@ mat FunctionalModel::importanceSampling(std::vector<std::tuple<const vec, const 
     // il faudra réfléchir à la sortie de gllim.predict() (inverseDensity + gmm/proposition). Vérifier qu'on a bien meanPredResult.mean = Somme de meanPredResult.gmm_weights * meanPredResult.gmm_means
 
     // mat ImportanceSampler::executeAll(std::vector<std::shared_ptr<ISProposition>> &isProposition_list, const mat &y_obs) {
-
     unsigned N_samples = N_0 + B * J;                     // for imis
     unsigned L = std::get<1>(proposition_gmms[0]).n_rows; // get the number of rows in the first GMM mean matrix
     unsigned N_obs = y.n_rows;
