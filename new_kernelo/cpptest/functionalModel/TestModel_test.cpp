@@ -88,27 +88,6 @@ INSTANTIATE_TEST_SUITE_P(GenDataSuite,
                          TestModelTest,
                          testing::Values("random", "sobol")); //, "latin_cube"));
 
-TEST_F(TestModelTest, ImportanceSamplingSumWeightsEqualsOne)
-{
-    // TODO
-    const vec weight(2, fill::value(0.5));
-    const mat mean(4, 2, fill::value(2));
-    const cube covariance(4, 4, 2, fill::value(0.01));
-    std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms;
-    proposition_gmms.push_back(std::make_tuple(weight, mean, covariance));
-    proposition_gmms.push_back(std::make_tuple(weight, mean, covariance));
-    proposition_gmms.push_back(std::make_tuple(weight, mean, covariance));
-    mat y(3, 9, fill::value(3));
-    mat y_err(3, 9, fill::value(0.003));
-    vec y_covariance(9, fill::value(0.06));
-    unsigned N_0 = 10;
-    unsigned B = 5;
-    unsigned J = 8;
-    mat results = model->importanceSampling(proposition_gmms, y, y_err, y_covariance, N_0, B, J);
-    results.print();
-    ASSERT_EQ(results.n_rows, 4); // X dimension
-    ASSERT_EQ(results.n_cols, 3); // nb observation
-};
 
 int main(int argc, char **argv)
 {

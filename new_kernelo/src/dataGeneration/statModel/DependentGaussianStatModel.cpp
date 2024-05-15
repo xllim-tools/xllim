@@ -41,7 +41,7 @@ std::tuple<mat, mat> DependentGaussianStatModel::gen_data(unsigned int n)
     vec noise(dimension_D);
     vec y_temp(dimension_D);
 
-#pragma omp parallel for
+// #pragma omp parallel for
     for (unsigned i = 0; i < n; i++)
     {
         // calculate F(X)
