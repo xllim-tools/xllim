@@ -26,8 +26,8 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     vec noise(dimension_D);
     vec y_temp(dimension_D);
 
-// #pragma omp parallel for
-// NOTE: if parallelized noise and y_temps vectors must be declared inside the loop or declared as matrices
+    // #pragma omp parallel for
+    // NOTE: if parallelized noise and y_temps vectors must be declared inside the loop or declared as matrices
     for (unsigned i = 0; i < N; i++)
     {
         // calculate F(X)
@@ -64,8 +64,8 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     vec noise(dimension_D);
     vec y_temp(dimension_D);
 
-// #pragma omp parallel for
-// NOTE: if parallelized noise and y_temps vectors must be declared inside the loop or declared as matrices
+    // #pragma omp parallel for
+    // NOTE: if parallelized noise and y_temps vectors must be declared inside the loop or declared as matrices
     for (unsigned i = 0; i < N; i++)
     {
         // calculate F(X)
@@ -86,8 +86,8 @@ vec FunctionalModel::targetDensity(const mat &x, const vec &y, const vec &y_err,
 {
     vec densities(x.n_cols);
     vec F_on_x(y.n_rows);
-    mat F_on_x_mat(y.n_rows,1); // TODO: redundant but compilation error otherwise
-    cube  covariance_matrix(y.n_rows, y.n_rows, 1);
+    mat F_on_x_mat(y.n_rows, 1); // TODO: redundant but compilation error otherwise
+    cube covariance_matrix(y.n_rows, y.n_rows, 1);
     covariance_matrix.slice(0) = diagmat(pow(y_err, 2) + pow(covariance, 2));
     gmm_full gmm;
     rowvec weight(1, fill::value(1));
@@ -118,7 +118,7 @@ vec FunctionalModel::propositionDensity(const mat &x, const vec &weight, const m
     // return utils::logSumExp(utils::logDensity(x, weight.t(), mean, covariance), 1);
 }
 
-mat FunctionalModel::importanceSampling(std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J)
+ImportanceSamplingResult FunctionalModel::importanceSampling(std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J)
 {
     // TODO : modifiy and adapt this code for IMIS
     // IDEE: les gmm pour chaque observations (list de (vec &weights, mat &means, cube &covariances)) sont attributs de gllim ? ou pas. Non on ne va pas enregistrer N_obs données
@@ -135,6 +135,7 @@ mat FunctionalModel::importanceSampling(std::vector<std::tuple<const vec, const 
     unsigned L = std::get<1>(proposition_gmms[0]).n_rows; // get the number of rows in the first GMM mean matrix
     unsigned N_obs = y.n_rows;
     mat results(L, N_obs);
+    ImportanceSamplingResult importanceSamplingResult(L, N_obs);
     mat samples(L, N_samples);
     vec weights(N_samples);
     double sum_weights;
@@ -163,16 +164,19 @@ mat FunctionalModel::importanceSampling(std::vector<std::tuple<const vec, const 
         // Compute samples mean
         for (unsigned n = 0; n < N_samples; n++)
         {
-            results.col(n_obs) += samples.col(n) * weights(n); // Compute samples mean
-            // result.variance += weights_samples(n) * pow(X_samples.col(n) - result.mean, 2); // Compute samples variance
+            importanceSamplingResult.predictions.col(n_obs) += weights(n) * samples.col(n); // Compute samples mean
+        }
+        for (unsigned n = 0; n < N_samples; n++)
+        {
+            importanceSamplingResult.predictions_variance.col(n_obs) += weights(n) * pow(samples.col(n) - importanceSamplingResult.predictions.col(n_obs), 2); // Compute samples variance
         }
         // IS diagnostic
         // + des prints !! (logger)
-        // diagnostic.nb_effective_sample = find_finite(target_log_densities).n_elem;
-        // diagnostic.effective_sample_size = exp(2 * sum_weights - sum_weights_2);
-        // diagnostic.qn = exp(weights.max() - sum_weights);
+        importanceSamplingResult.nb_effective_sample(n_obs) = 1; // TODO : find_finite(target_log_densities).n_elem  is not working...;
+        importanceSamplingResult.effective_sample_size(n_obs) = exp(2 * sum_weights - sum_weights_2);
+        importanceSamplingResult.qn(n_obs) = exp(weights.max() - sum_weights);
         // ======================================================================================================
     }
 
-    return results;
+    return importanceSamplingResult;
 }

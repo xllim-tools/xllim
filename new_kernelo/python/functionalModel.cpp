@@ -14,6 +14,15 @@ namespace py = pybind11;
 
 void bind_functional_model(pybind11::module& m)
 {
+    // PYBIND11_NUMPY_DTYPE(Dummy, predictions, predictions_variance);
+    py::class_<ImportanceSamplingResult>(m, "ImportanceSamplingResult")
+        .def(py::init<unsigned, unsigned>())
+        .def_readwrite("predictions", &ImportanceSamplingResult::predictions)
+        .def_readwrite("predictions_variance", &ImportanceSamplingResult::predictions_variance)
+        .def_readwrite("nb_effective_sample", &ImportanceSamplingResult::nb_effective_sample)
+        .def_readwrite("effective_sample_size", &ImportanceSamplingResult::effective_sample_size)
+        .def_readwrite("qn", &ImportanceSamplingResult::qn);
+    
     py::class_<FunctionalModel, std::shared_ptr<FunctionalModel> > (m, "FunctionalModel")
         .def("F", [](FunctionalModel &self, py::array_t<double> x)
             {

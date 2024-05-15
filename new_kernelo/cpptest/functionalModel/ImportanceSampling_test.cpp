@@ -45,9 +45,9 @@ TEST_F(ImportanceSamplingTest, ReturnsGoodShape)
     unsigned N_obs = 20, K = 5, N_0 = 100, B = 5, J = 8;
     SetUp(K, N_obs);
 
-    mat results = model->importanceSampling(proposition_gmms, y, y_err, y_covariance, N_0, B, J);
-    ASSERT_EQ(results.n_rows, L);     // X dimension
-    ASSERT_EQ(results.n_cols, N_obs); // nb observation
+    ImportanceSamplingResult results = model->importanceSampling(proposition_gmms, y, y_err, y_covariance, N_0, B, J);
+    ASSERT_EQ(results.predictions.n_rows, L);     // X dimension
+    ASSERT_EQ(results.predictions.n_cols, N_obs); // nb observation
 };
 
 TEST_F(ImportanceSamplingTest, Performance)
@@ -68,7 +68,8 @@ TEST_F(ImportanceSamplingTest, Performance)
         }
         double error_on_x_is = 0;
         double error_reconstruction_is = 0;
-        mat x_pred_is = model->importanceSampling(proposition_gmms, y, y_err, y_covariance, N_0, B, J);
+        ImportanceSamplingResult results = model->importanceSampling(proposition_gmms, y, y_err, y_covariance, N_0, B, J);
+        mat x_pred_is = results.predictions;
         vec y_pred_is(D);
         for (unsigned n = 0; n < N_obs; n++)
         {
