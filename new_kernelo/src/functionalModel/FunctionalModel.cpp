@@ -26,7 +26,8 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     vec noise(dimension_D);
     vec y_temp(dimension_D);
 
-#pragma omp parallel for
+// #pragma omp parallel for
+// NOTE: if parallelized noise and y_temps vectors must be declared inside the loop or declared as matrices
     for (unsigned i = 0; i < N; i++)
     {
         // calculate F(X)
@@ -63,7 +64,8 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     vec noise(dimension_D);
     vec y_temp(dimension_D);
 
-#pragma omp parallel for
+// #pragma omp parallel for
+// NOTE: if parallelized noise and y_temps vectors must be declared inside the loop or declared as matrices
     for (unsigned i = 0; i < N; i++)
     {
         // calculate F(X)
