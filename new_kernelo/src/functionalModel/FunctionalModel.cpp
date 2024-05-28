@@ -97,11 +97,14 @@ vec FunctionalModel::targetDensity(const mat &x, const vec &y, const vec &y_err,
         {
             densities(n) = -datum::inf;
         }
-        this->F(x.col(n), F_on_x);
-        F_on_x_mat.col(0) = F_on_x;
-        gmm.set_params(F_on_x_mat, covariance_matrix, weight);
-        densities(n) = gmm.log_p(y);
-        // densities(n) = utils::logDensity(y, F_on_x, covariance_matrix.slice(0));
+        else
+        {
+            this->F(x.col(n), F_on_x);
+            F_on_x_mat.col(0) = F_on_x;
+            gmm.set_params(F_on_x_mat, covariance_matrix, weight);
+            densities(n) = gmm.log_p(y);
+            // densities(n) = utils::logDensity(y, F_on_x, covariance_matrix.slice(0)); // provides same results as gmm.log_p(y). I verified.
+        }
     }
     return densities;
 }
@@ -120,48 +123,124 @@ vec FunctionalModel::propositionDensity(const mat &x, const vec &weight, const m
 
 ImportanceSamplingResult FunctionalModel::importanceSampling(std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J)
 {
-    // TODO : modifiy and adapt this code for IMIS
-    // IDEE: les gmm pour chaque observations (list de (vec &weights, mat &means, cube &covariances)) sont attributs de gllim ? ou pas. Non on ne va pas enregistrer N_obs données
-    // Parce que c'est peut être beaucoup d'avoir une liste de longueur N_obs constitué de weight, mean, cov pouvant être très grand aussi
-    // bon tant pis. Au pire il faudrait couper les observations en plusieurs.
-    // IDEE: si les propositions ne servent quà faire des gmm. On pourrait transformer le tuple en gmm dans le binding par example. Puis supprimer le tuple !! (attention aux fuites mémoire). Mais ce que j'ai fait c'est très bien aussi !
-    // IDEE faire un namespace séparé avec les méthodes de importance sampling pour ne pas surcharger ce fichier ?
+    // TODO : add logger for this method
 
-    // TODO faire un code global qui return une structure (struct) ImportanceSamplingResult. a l'instar de old Kernelo !
-    // il faudra réfléchir à la sortie de gllim.predict() (inverseDensity + gmm/proposition). Vérifier qu'on a bien meanPredResult.mean = Somme de meanPredResult.gmm_weights * meanPredResult.gmm_means
+    // Checks on IMIS parameters
+    if (J != 0 && B == 0)
+    {
+        throw std::invalid_argument("If IMIS steps are required (J != 0) then B must be strictly greater than 0 (B>0)");
+    }
+    if (B >= N_0)
+    {
+        throw std::invalid_argument("IMIS requires that B < N_0");
+    }
 
-    // mat ImportanceSampler::executeAll(std::vector<std::shared_ptr<ISProposition>> &isProposition_list, const mat &y_obs) {
     unsigned N_samples = N_0 + B * J;                     // for imis
     unsigned L = std::get<1>(proposition_gmms[0]).n_rows; // get the number of rows in the first GMM mean matrix
     unsigned N_obs = y.n_rows;
     mat results(L, N_obs);
     ImportanceSamplingResult importanceSamplingResult(L, N_obs);
-    mat samples(L, N_samples);
-    vec weights(N_samples);
-    double sum_weights;
-    double sum_weights_2;
-    vec target_log_densities(N_samples);
-    vec proposition_log_densities(N_samples);
-    gmm_full proposition_gmm;
 
-    // #pragma omp parallel for shared(results, y_cov, y_obs, isProposition_list,L,N_obs)// private(samples, weights, target_log_densities, proposition_log_densities) shared(results, y_cov, y_obs, isProposition_list,L,N_obs)
-    // check branch benchmark_with_optimized_methods to get the working parallelized ImportanceSampling() method
+#pragma omp parallel for shared(results, importanceSamplingResult, N_samples, L, N_obs)
     for (unsigned n_obs = 0; n_obs < N_obs; ++n_obs)
     {
-        // ===================== void FunctionalModel::importanceSamplingCore(...) ========================
+        mat samples(L, N_samples);
+        vec weights(N_samples);
+        double sum_weights;
+        double sum_weights_2;
+        vec target_log_densities(N_samples);
+        vec proposition_log_densities(N_samples);
+        vec proposition_log_densities_0(B);
+        gmm_full proposition_gmm;
+
+        // ====================== Importance Sampling basic step and initialisation =========================
+
         proposition_gmm.set_params(std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs]), std::get<0>(proposition_gmms[n_obs]).t());
-        samples = proposition_gmm.generate(N_samples);                                                                                                                             // sample with GLLiM-GMM
-        target_log_densities = targetDensity(samples, y.row(n_obs).t(), y_err.row(n_obs).t(), covariance);                                                                         // compute the target log probability density function (PDF)
-        proposition_log_densities = propositionDensity(samples, std::get<0>(proposition_gmms[n_obs]), std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs])); // compute the target log probability density function (PDF)
-        weights = target_log_densities - proposition_log_densities;                                                                                                                // compute weights verifying numerical stability
+        samples.cols(0, N_0 - 1) = proposition_gmm.generate(N_0);                                                                                                                                                      // sample with GLLiM-GMM
+        target_log_densities.subvec(0, N_0 - 1) = targetDensity(samples.cols(0, N_0 - 1), y.row(n_obs).t(), y_err.row(n_obs).t(), covariance);                                                                         // compute the target log probability density function (PDF)
+        proposition_log_densities.subvec(0, N_0 - 1) = propositionDensity(samples.cols(0, N_0 - 1), std::get<0>(proposition_gmms[n_obs]), std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs])); // compute the target log probability density function (PDF)
+        weights.subvec(0, N_0 - 1) = target_log_densities.subvec(0, N_0 - 1) - proposition_log_densities.subvec(0, N_0 - 1);                                                                                           // compute weights verifying numerical stability
+
+        // ========================================== IMIS steps ============================================
+
+        /* The covariance matrix from the initial proposition law is used for each IMIS iteration
+        The advandage is that the inverse of the covariance matrix is only computed once.
+        However to improve IMIS precision the Mahalanobis distance should be calculated at each step with Covariance of each new proposition law */
+        mat proposition_covariance = utils::proposition_covariance(proposition_gmm);
+        proposition_covariance = trimatl(inv_sympd(proposition_covariance));
+
+        size_t j_step, N_j, N_j1;
+        std::vector<gmm_full> gmm_step(J);
+
+        for (j_step = 0; j_step < J; j_step++)
+        {
+            N_j = (N_0 + j_step * B);
+            N_j1 = N_j + B;
+
+            // a) Find highest weigth
+            uword i_max = weights.subvec(0, N_j - 1).index_max();
+            vec x_max = samples.col(i_max);
+
+            // b) Find the B inputs with smallest Mahalanobis distance to x_max
+            vec mahalanobis_dist = utils::MahalanobisWithInvertedCov(samples.cols(0, N_j - 1), x_max, proposition_covariance);
+            uvec neighboors_idx = sort_index(mahalanobis_dist);
+
+            // d) Compute associated covariance
+            /*  Raftery & Bao propose the formula
+                w = (ws[id] + (1 / Nk)) / 2 (average between importance and 1/Nk)
+                but, according to Fasalio et al 2016, not weighting increases stability
+                w = 1*/
+            cube Sigma_j(L, L, 1);
+            for (unsigned id = 0; id < B; id++)
+            {
+                vec u_tmp = x_max - samples.col(neighboors_idx[id]);
+                Sigma_j.slice(0) += u_tmp * u_tmp.t();
+            }
+            Sigma_j.slice(0) /= B;
+
+            // e) Generate B new samples
+            mat x_max_mat = mat(x_max);
+            rowvec weight_unitary(1, fill::value(1));
+            gmm_step[j_step].set_params(x_max, Sigma_j, weight_unitary); // save the Gaussian(x_max, Sigma_j) for further use ...
+            samples.cols(N_j, N_j1 - 1) = gmm_step[j_step].generate(B);
+
+            // h) Update proposition law
+
+            /* Update current points [0:N_j-1]:
+                for existing points, we can update the weigths without computing the whole mixture using
+                prop_j1 = (N_j / N_j1) * prop_j + (B / N_j1) * phi_j1 */
+            vec log_phi_j1 = gmm_step[j_step].log_p(samples.cols(0, N_j - 1)).t();
+            proposition_log_densities.subvec(0, N_j - 1) = utils::weightedLogSumExp(N_j, proposition_log_densities.subvec(0, N_j - 1), B, log_phi_j1) - log(N_j1);
+
+            /* Update new points [N_j:N_j1-1]:
+                for new points, we have to compute the whole mixture (of j_step first components) using
+                prop_j1 = (N_0 / N_j1) * prop_0 + (B / N_j1) * SUM(phi_j, 1:j) */
+            mat log_phi_list(B, j_step + 1); // extra memory usage
+            for (unsigned n = 0; n < j_step + 1; n++)
+            {
+                log_phi_list.col(n) = gmm_step[n].log_p(samples.cols(N_j, N_j1 - 1)).t();
+            }
+            vec log_sum_phi = utils::logSumExp(log_phi_list, 1);
+            target_log_densities.subvec(N_j, N_j1 - 1) = targetDensity(samples.cols(N_j, N_j1 - 1), y.row(n_obs).t(), y_err.row(n_obs).t(), covariance);                                                     // compute the target log probability density function (PDF)
+            proposition_log_densities_0 = propositionDensity(samples.cols(N_j, N_j1 - 1), std::get<0>(proposition_gmms[n_obs]), std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs])); // compute the target log probability density function (PDF)
+            proposition_log_densities.subvec(N_j, N_j1 - 1) = utils::weightedLogSumExp(N_0, proposition_log_densities_0, B, log_sum_phi) - log(N_j1);
+
+            // i) Update all weights
+            weights.subvec(0, N_j1 - 1) = target_log_densities.subvec(0, N_j1 - 1) - proposition_log_densities.subvec(0, N_j1 - 1); // Careful: here we manipulate log(weights)
+
+        } // End of IMIS steps
+
+        // ====================== Importance Sampling diagnostics and mean estimations ======================
         sum_weights = utils::logSumExp(weights);
         sum_weights_2 = utils::logSumExp(2 * weights);
-        weights -= sum_weights;
-        weights = exp(weights);
-        // ======================================================================================================
 
-        // ===================== void FunctionalModel::importanceSamplingDiagnostic(...) ========================
-        // Compute samples mean
+        importanceSamplingResult.nb_effective_sample(n_obs) = uvec(find_finite(target_log_densities)).n_elem;
+        importanceSamplingResult.effective_sample_size(n_obs) = exp(2 * sum_weights - sum_weights_2);
+        importanceSamplingResult.qn(n_obs) = exp(weights.max() - sum_weights);
+
+        weights -= sum_weights;
+        weights = exp(weights); // back to real weights
+
         for (unsigned n = 0; n < N_samples; n++)
         {
             importanceSamplingResult.predictions.col(n_obs) += weights(n) * samples.col(n); // Compute samples mean
@@ -170,12 +249,7 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(std::vector<std::tu
         {
             importanceSamplingResult.predictions_variance.col(n_obs) += weights(n) * pow(samples.col(n) - importanceSamplingResult.predictions.col(n_obs), 2); // Compute samples variance
         }
-        // IS diagnostic
-        // + des prints !! (logger)
-        importanceSamplingResult.nb_effective_sample(n_obs) = 1; // TODO : find_finite(target_log_densities).n_elem  is not working...;
-        importanceSamplingResult.effective_sample_size(n_obs) = exp(2 * sum_weights - sum_weights_2);
-        importanceSamplingResult.qn(n_obs) = exp(weights.max() - sum_weights);
-        // ======================================================================================================
+        // ==================================================================================================
     }
 
     return importanceSamplingResult;

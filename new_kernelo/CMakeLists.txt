@@ -6,6 +6,7 @@ project(newkernelo)
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 find_package(OpenMP REQUIRED)
 
@@ -101,5 +102,5 @@ install(TARGETS newkernelo
   LIBRARY DESTINATION "${PYTHON_LIBRARY_DIR}"
   )
 
-# (/build)$ cmake .. -DPYTHON_LIBRARY_DIR="/home/luc/.local/lib/python3.10/site-packages" -DPYTHON_EXECUTABLE="/usr/bin/python3"
+# (/build)$ cmake .. -DPYTHON_LIBRARY_DIR="/home/luc/.local/lib/python3.10/site-packages" -DPYTHON_EXECUTABLE="/usr/bin/python3" -DCMAKE_BUILD_TYPE=Release
 # (/build)$ make install
