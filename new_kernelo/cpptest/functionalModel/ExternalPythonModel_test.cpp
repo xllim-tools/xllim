@@ -17,7 +17,7 @@ protected:
         D = 50;
         scaling = {1.0, 1.5, 1.5, 1.5, 1.5};
         offset = {0, 0, 0.2, 0, 0};
-        model = std::unique_ptr<ExternalPythonModel>((new ExternalPythonModel("ShkuratovModel5p", "ShkuratovModel5pPython", "../cpptest/functionalModel/dataRef/")));
+        model = std::unique_ptr<ExternalPythonModel>((new ExternalPythonModel("ShkuratovModel5p", "ShkuratovModel5pPython", "../../cpptest/functionalModel/dataRef/")));
         std::cout << "extern" << std::endl;
     };
 
@@ -63,7 +63,7 @@ TEST_F(ExternalShkuratovModel5pTest, FOnDataset)
     unsigned n;
     unsigned d;
     pt::ptree root;
-    pt::read_json("../cpptest/functionalModel/dataRef/Shkuratov5p_data_ref.json", root);
+    pt::read_json("../../cpptest/functionalModel/dataRef/Shkuratov5p_data_ref.json", root);
 
     // Read photometries
     mat photometries = mat(L, N);

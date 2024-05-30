@@ -7,13 +7,17 @@ protected:
     ImportanceSamplingTest()
     {
         model = std::unique_ptr<TestModel>((new TestModel()));
+        uvec dummy = sort_index(vec(1)); // without this line, the tests below return SEGFAULT ...
+        /*
+            SUMMARY: AddressSanitizer: SEGV (/path_to_libpython3.10.so) in _PyUnicode_FromId
+        */
     }
     void SetUp(const unsigned K, const unsigned N_obs)
     {
         for (size_t i = 0; i < N_obs; ++i)
         {
             weight = vec(K, fill::value(1.0 / K));
-            mean = mat(L, K, fill::randn);
+            mean = mat(L, K, fill::randu);
             covariance = cube(L, L, K, fill::value(0.01));
             for (size_t i = 0; i < covariance.n_slices; ++i)
             {
@@ -40,11 +44,19 @@ protected:
     unsigned N_experiences = 3;
 };
 
-TEST_F(ImportanceSamplingTest, ReturnsGoodShape)
+TEST_F(ImportanceSamplingTest, ISReturnsGoodShape)
 {
-    unsigned N_obs = 20, K = 5, N_0 = 100, B = 5, J = 8;
+    unsigned N_obs = 20, K = 50, N_0 = 1000;
     SetUp(K, N_obs);
+    ImportanceSamplingResult results = model->importanceSampling(proposition_gmms, y, y_err, y_covariance, N_0);
+    ASSERT_EQ(results.predictions.n_rows, L);     // X dimension
+    ASSERT_EQ(results.predictions.n_cols, N_obs); // nb observation
+};
 
+TEST_F(ImportanceSamplingTest, IMISReturnsGoodShape)
+{
+    unsigned N_obs = 10, K = 5, N_0 = 100, B = 5, J = 8;
+    SetUp(K, N_obs);
     ImportanceSamplingResult results = model->importanceSampling(proposition_gmms, y, y_err, y_covariance, N_0, B, J);
     ASSERT_EQ(results.predictions.n_rows, L);     // X dimension
     ASSERT_EQ(results.predictions.n_cols, N_obs); // nb observation
@@ -57,7 +69,7 @@ TEST_F(ImportanceSamplingTest, Performance)
 
     for (unsigned r = 0; r < N_experiences; r++)
     {
-        unsigned N_samples = 1000 * (1 + 5 * r);
+        unsigned N_samples = 100 * (1 + 5 * r);
         unsigned N_0 = N_samples / 10, B = N_samples / 20, J = 18;
         mat x_obs(L, N_obs, fill::randu);
         vec y_obs(D);

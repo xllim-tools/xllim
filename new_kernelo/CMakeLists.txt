@@ -6,7 +6,10 @@ project(newkernelo)
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+
+# Set compiler flags for different build types
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g") # -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -DARMA_EXTRA_DEBUG
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 
 find_package(OpenMP REQUIRED)
 
@@ -102,5 +105,11 @@ install(TARGETS newkernelo
   LIBRARY DESTINATION "${PYTHON_LIBRARY_DIR}"
   )
 
-# (/build)$ cmake .. -DPYTHON_LIBRARY_DIR="/home/luc/.local/lib/python3.10/site-packages" -DPYTHON_EXECUTABLE="/usr/bin/python3" -DCMAKE_BUILD_TYPE=Release
-# (/build)$ make install
+# Release compilation
+# $ cmake -S . -B build/release/ -DPYTHON_LIBRARY_DIR="/home/luc/.local/lib/python3.10/site-packages" -DPYTHON_EXECUTABLE="/usr/bin/python3" -DCMAKE_BUILD_TYPE=Release
+# (/build/release/)$ make install
+
+# Debug release / ctest
+# $ cmake -S . -B build/debug/ -DCMAKE_BUILD_TYPE=Debug
+# (/build/debug/)$ cmake --build . -j
+# (/build/debug)$ ctest
