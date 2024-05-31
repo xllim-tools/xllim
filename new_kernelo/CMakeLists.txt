@@ -39,6 +39,11 @@ add_library(utils STATIC
 )
 set_target_properties(utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
+add_library(gllim STATIC 
+    src/xllimSolver/gllim.cpp
+)
+set_target_properties(gllim PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 # 2 methodes pour inclure CARMA:
 #      soit C/C dans le code en dur carma/include et faire #include <carma.carma.h> dans le C++ pybind11
 #      soit comme dans la docu officiel avec cmake (instalation dans /usr/local/include/) ... mouais
@@ -47,7 +52,7 @@ set_target_properties(utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # find_package(pybind11 REQUIRED) # -- Found pybind11: /home/luc/.local/include (found version "2.11.1")
 add_subdirectory(extern/pybind11) # in subdirectory
 pybind11_add_module(newkernelo python/kernelo.cpp)
-target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration utils)
+target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration utils gllim)
 target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 target_link_libraries(dataGeneration PRIVATE pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 
