@@ -21,6 +21,22 @@ void bind_gllim(pybind11::module &m)
         .def_readwrite("B", &GLLiMParameters::B)
         .def_readwrite("Sigma", &GLLiMParameters::Sigma);
 
+    py::class_<MeanPredictionResult>(m, "MeanPredictionResult")
+        .def_readwrite("mean", &MeanPredictionResult::mean)
+        .def_readwrite("variance", &MeanPredictionResult::variance)
+        .def_readwrite("gmm_weights", &MeanPredictionResult::gmm_weights)
+        .def_readwrite("gmm_means", &MeanPredictionResult::gmm_means)
+        .def_readwrite("gmm_covs", &MeanPredictionResult::gmm_covs);
+    
+    py::class_<CenterPredictionResult>(m, "CenterPredictionResult")
+        .def_readwrite("weights", &CenterPredictionResult::weights)
+        .def_readwrite("means", &CenterPredictionResult::means)
+        .def_readwrite("covs", &CenterPredictionResult::covs);
+
+    py::class_<PredictionResult>(m, "PredictionResult")
+        .def_readwrite("meanPredResult", &PredictionResult::meanPredResult)
+        .def_readwrite("centerPredResult", &PredictionResult::centerPredResult);
+
     py::class_<GLLiM, std::shared_ptr<GLLiM>>(m, "GLLiM")
         .def(py::init<unsigned, unsigned, unsigned>(), py::arg("L"), py::arg("D"), py::arg("K"))
         .def("getParams", &GLLiM::getParams)
@@ -42,7 +58,10 @@ void bind_gllim(pybind11::module &m)
 
         .def("getInverse", &GLLiM::getInverse)
 
-        .def("directDensities", &GLLiM::directDensities)
+        .def("directDensities", py::overload_cast<const mat &, const vec &>(&GLLiM::directDensities))
+        .def("directDensities", py::overload_cast<const mat &>(&GLLiM::directDensities))
+        .def("inverseDensities", py::overload_cast<const mat &, const mat &>(&GLLiM::inverseDensities))
+        .def("inverseDensities", py::overload_cast<const mat &>(&GLLiM::inverseDensities))
 
         .doc() = R"mydelimiter(
             GLLiM class

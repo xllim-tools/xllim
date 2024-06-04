@@ -24,6 +24,32 @@ struct GLLiMParameters
     GLLiMParameters(unsigned L, unsigned D, unsigned K) : L(L), D(D), K(K), Pi(K), A(D, L, K), C(L, K), Gamma(L, L, K), B(D, K), Sigma(D, D, K) {}
 };
 
+struct MeanPredictionResult
+{
+    mat mean;        // The mean of the GMM which stands for the prediction (N_obs, D)
+    cube variance;    // The variance of the prediction (N_obs, D, D)
+    mat gmm_weights; // The weights of the components of the GMM (N_obs, K)
+    cube gmm_means;   // The means of each component in the GMM (N_obs, D, K)
+    cube gmm_covs;   // The covariance matrices of each component in the GMM (D, D, K)
+
+    MeanPredictionResult(unsigned N_obs, unsigned D, unsigned K) : mean(N_obs, D), variance(N_obs, D, D), gmm_weights(N_obs, K), gmm_means(N_obs, D, K), gmm_covs(D, D, K) {}
+};
+
+struct CenterPredictionResult
+{
+    vec weights; // The weights of the centers
+    mat means;   // The centers that stands for the predictions
+    cube covs;   // The covariance matrices of the centers
+};
+
+struct PredictionResult
+{
+    MeanPredictionResult meanPredResult;     // @see MeanPredictionResult MeanPredictionResult
+    CenterPredictionResult centerPredResult; // @see CenterPredictionResult CenterPredictionResult
+
+    PredictionResult(unsigned N_obs, unsigned D, unsigned K) : meanPredResult(N_obs, D, K) {}
+};
+
 class GLLiM
 {
 public:
@@ -72,16 +98,26 @@ public:
 
     GLLiMParameters getInverse();
 
-    std::tuple<mat, cube, cube> directDensities(const mat &x);
+    PredictionResult directDensities(const mat &x, const vec &x_incertitude);
+    PredictionResult directDensities(const mat &x)
+    {
+        return directDensities(x, vec(theta.L, fill::zeros));
+    };
+    PredictionResult inverseDensities(const mat &y, const mat &y_incertitude);
+    PredictionResult inverseDensitiesOneInversion(const mat &y, const vec &y_incertitude);
+    PredictionResult inverseDensities(const mat &y)
+    {
+        return inverseDensitiesOneInversion(y, vec(theta.L, fill::zeros));
+    };
 
-    // void inverseDensities(const mat &y);
     // void getInsights();
 
 private:
     // TODO
-    GLLiMParameters theta; // The parameters of the direct GLLiM model
+    GLLiMParameters theta;      // The parameters of the direct GLLiM model
     GLLiMParameters theta_star; // The parameters of the inverse GLLiM model
-    void inverse();
+    GLLiMParameters inverse(GLLiMParameters &theta);
+    std::tuple<mat, cube, cube> constructGMM(const mat &x, GLLiMParameters &theta);
     // std::shared_ptr<Iinitilizer<T, U>> initializer;                                            /**< @see Iinitilizer Iinitilizer*/
     // std::shared_ptr<Iestimator<T, U>> estimator;                                               /**< @see Iestimator Iestimator*/
     // std::shared_ptr<GLLiMParameters<T, U>> gllim_parameters;                                   /**< The parameters of the direct GLLiM model*/

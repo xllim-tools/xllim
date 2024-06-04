@@ -98,13 +98,15 @@ void GLLiM::setParamSigma(const cube &Sigma)
 
 GLLiMParameters GLLiM::getInverse()
 {
-    this->inverse();
+    this->theta_star = this->inverse(this->theta);
     return this->theta_star;
 }
+// TODO Is the theta_star attribute really useful if it is recalculated every time and is differring from theta_star_altered
 
-void GLLiM::inverse()
+GLLiMParameters GLLiM::inverse(GLLiMParameters &theta)
 {
-    for (unsigned k = 0; k < this->theta.K; k++)
+    GLLiMParameters theta_star(theta.D, theta.L, theta.K);
+    for (unsigned k = 0; k < theta.K; k++)
     {
         if (theta.Pi(k) != 0)
         {
@@ -118,23 +120,22 @@ void GLLiM::inverse()
             theta_star.B.col(k) = theta_star.Sigma.slice(k) * vec(gamma_inv * vec(theta.C.col(k)) - mat(theta.A.slice(k).t()) * sigma_inv * vec(theta.B.col(k)));
         }
     }
+    return theta_star;
 }
 
-// returns posterior mean estimates E[yn|xn;θ]
-// TODO write formula from Delaforge 2014
-std::tuple<mat, cube, cube> GLLiM::directDensities(const mat &x)
+std::tuple<mat, cube, cube> GLLiM::constructGMM(const mat &x, GLLiMParameters &theta)
 {
     unsigned N_obs = x.n_cols;
-    x.print("x");
-    // Compute weights
-    gmm_full gmm;
-    mat weights(N_obs, this->theta.K);
-    gmm.set_params(this->theta.C, this->theta.Gamma, this->theta.Pi);
 
-    // #pragma omp parallel for
-    for (unsigned k = 0; k < this->theta.K; k++)
+    // Compute weights
+    mat weights(N_obs, theta.K);
+    gmm_full gmm;
+    gmm.set_params(theta.C, theta.Gamma, theta.Pi);
+
+    #pragma omp parallel for
+    for (unsigned k = 0; k < theta.K; k++)
     {
-        if (this->theta.Pi(k) == 0)
+        if (theta.Pi(k) == 0)
         {
             weights.col(k) = -datum::inf;
         }
@@ -147,44 +148,144 @@ std::tuple<mat, cube, cube> GLLiM::directDensities(const mat &x)
     weights = exp(weights); // normalized real weights
 
     // means
-    cube means(N_obs, this->theta.D, this->theta.K);
-    for (unsigned k = 0; k < this->theta.K; ++k) {
+    cube means(N_obs, theta.D, theta.K);
+    for (unsigned k = 0; k < theta.K; ++k)
+    {
         // Compute the means for each k
         // Each column of 'x' is multiplied by A.slice(k) and then B.col(k) is added
-        means.slice(k) = (this->theta.A.slice(k) * x).t() + arma::repmat(this->theta.B.col(k).t(), N_obs, 1);
+        means.slice(k) = (theta.A.slice(k) * x).t() + arma::repmat(theta.B.col(k).t(), N_obs, 1);
     }
 
     // covariances
-    cube covariances = this->theta.Sigma; // The covariance is indenpendent from x
+    cube covariances = theta.Sigma; // The covariance is indenpendent from x
 
     return std::make_tuple(weights, means, covariances);
 }
 
-// Fast and general implementation of log-density. Works with Full covariance matrix
-// void GLLiM::inverseDensities(const mat &y)
-// {
-//     gmm_full gmm;
-//     gmm.set_params(this->theta_star.C, this->theta_star.Gamma, this->theta_star.Pi);
-//     return gmm.log_p(y).t();
+// returns posterior mean estimates E[yn|xn;θ]
+// TODO write formula from Delaforge 2014
+PredictionResult GLLiM::directDensities(const mat &x, const vec &x_incertitude)
+{
+    unsigned N_obs = x.n_cols;
+    PredictionResult result(N_obs, this->theta.D, this->theta.K);
 
-//     double log_det_gamma;
-//     vec weights(gllim.K, fill::zeros);
+    // ==================== Alter theta covariance and inverse theta ====================
 
-//     for (unsigned k = 0; k < gllim.K; k++)
-//     {
-//         if (gllim.Pi(k) == 0)
-//         {
-//             weights(k) = -datum::inf;
-//         }
-//         else
-//         {
-//             mat Gamma_k = gllim.Gamma[k].getFull(); // je pense que cela prend du temps surtout lorsque D est grand.
-//             weights(k) = log(gllim.Pi(k)) + Helpers::mvnrm_arma_fast_chol(rowvec(x.t()), rowvec(gllim.C.col(k).t()), Gamma_k);
-//         }
-//     }
+    GLLiMParameters theta_altered = this->theta;
+    theta_altered.Gamma.each_slice() += diagmat(pow(x_incertitude, 2));
 
-//     return weights;
-// }
+    // ==================== Construct the GMM of the forward conditional model ====================
+
+    std::tuple<mat, cube, cube> GMMs = constructGMM(x, theta_altered);
+    result.meanPredResult.gmm_weights = std::get<0>(GMMs); // (N_obs, K)
+    result.meanPredResult.gmm_means = std::get<1>(GMMs);   // (N_obs, D, K)
+    result.meanPredResult.gmm_covs = std::get<2>(GMMs);    // (D, D, K)
+
+    // ============================= Prediction mean estimations ==================================
+
+    // Compute the mean of the means in the mixture
+    result.meanPredResult.mean = mat(N_obs, theta_altered.D);
+    for (unsigned k = 0; k < theta_altered.K; ++k)
+    {
+        result.meanPredResult.mean += diagmat(result.meanPredResult.gmm_weights.col(k)) * result.meanPredResult.gmm_means.slice(k);
+    }
+
+    // Compute the mean of covariances in the mixture
+    // TODO voir formule dans Kugler 2021. Can be simplified
+    #pragma omp parallel
+    result.meanPredResult.variance = cube(N_obs, theta_altered.D, theta_altered.D);
+    for (unsigned n = 0; n < N_obs; ++n)
+    {
+        for (unsigned k = 0; k < theta_altered.K; ++k)
+        {
+            rowvec mean_diff = result.meanPredResult.gmm_means.slice(k).row(n) - result.meanPredResult.mean.row(n);
+            result.meanPredResult.variance.row(n) += result.meanPredResult.gmm_weights(n, k) * (result.meanPredResult.gmm_covs.slice(k) + mean_diff.t() * mean_diff);
+        }
+    }
+
+    return result;
+}
+
+// returns prior mean estimates E[xn|yn;θ]
+PredictionResult GLLiM::inverseDensitiesOneInversion(const mat &y, const vec &y_incertitude)
+// TODO merge this method with directDensities. Check out the differences
+{
+    unsigned N_obs = y.n_cols;
+    PredictionResult result(N_obs, this->theta.L, this->theta.K);
+
+    // ==================== Alter theta covariance and inverse theta ====================
+
+    GLLiMParameters theta_altered = this->theta;
+    theta_altered.Sigma.each_slice() += diagmat(pow(y_incertitude, 2));
+    GLLiMParameters theta_star_altered = inverse(theta_altered);
+
+    // ==================== Construct the GMM of the forward conditional model ====================
+
+    std::tuple<mat, cube, cube> GMMs = constructGMM(y, theta_star_altered);
+    result.meanPredResult.gmm_weights = std::get<0>(GMMs); // (N_obs, K)
+    result.meanPredResult.gmm_means = std::get<1>(GMMs);   // (N_obs, D, K)
+    result.meanPredResult.gmm_covs = std::get<2>(GMMs);    // (D, D, K)
+
+    // ============================= Prediction mean estimations ==================================
+
+    // Compute the mean of the means in the mixture
+    result.meanPredResult.mean = mat(N_obs, theta_star_altered.D); // theta_star_altered.D or theta_altered.L (the second one is more explicit. )
+    for (unsigned k = 0; k < theta_star_altered.K; ++k)
+    {
+        result.meanPredResult.mean += diagmat(result.meanPredResult.gmm_weights.col(k)) * result.meanPredResult.gmm_means.slice(k);
+    }
+
+    // Compute the mean of covariances in the mixture
+    // TODO voir formule dans Kugler 2021.  can be simplified
+    result.meanPredResult.variance = cube(N_obs, theta_star_altered.D, theta_star_altered.D);
+    #pragma omp parallel
+    for (unsigned n = 0; n < N_obs; ++n)
+    {
+        for (unsigned k = 0; k < theta_star_altered.K; ++k)
+        {
+            rowvec mean_diff = result.meanPredResult.gmm_means.slice(k).row(n) - result.meanPredResult.mean.row(n);
+            result.meanPredResult.variance.row(n) += result.meanPredResult.gmm_weights(n, k) * (result.meanPredResult.gmm_covs.slice(k) + mean_diff.t() * mean_diff);
+        }
+    }
+
+    return result;
+}
+
+// returns prior mean estimates E[xn|yn;θ] when the observation incertitude is different for each observation (no parallelisation)
+PredictionResult GLLiM::inverseDensities(const mat &y, const mat &y_incertitude)
+// TODO merge this method with directDensities. Check out the differences
+{
+    unsigned N_obs = y.n_cols;
+    PredictionResult result(N_obs, this->theta.L, this->theta.K);
+
+    if (y_incertitude.n_rows != y.n_rows)
+    {
+        throw std::invalid_argument("Observations and associated incertitudes have not the same dimension.");
+    }
+    else if (y_incertitude.n_cols != 1 && y_incertitude.n_cols != y.n_cols)
+    {
+        throw std::invalid_argument("The number of observations and associated incertitudes do not match.");
+    }
+    else if (y_incertitude.n_cols == 1)
+    {
+        result = GLLiM::inverseDensitiesOneInversion(y, vec(y_incertitude));
+    }
+    else
+    {
+        #pragma omp parallel for
+        for (size_t n = 0; n < N_obs; n++)
+        {
+            PredictionResult res_n = GLLiM::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)));
+            result.meanPredResult.gmm_weights.row(n) = res_n.meanPredResult.gmm_weights; // (N_obs, K)
+            result.meanPredResult.gmm_means.row(n) = res_n.meanPredResult.gmm_means;     // (N_obs, D, K)
+            result.meanPredResult.gmm_covs = res_n.meanPredResult.gmm_covs;              // (D, D, K) // TODO Problem because for this case gmm_covs = theta_star.Sigma and is different for each observation :/
+            result.meanPredResult.mean.row(n) = res_n.meanPredResult.mean;               // (N_obs, D)
+            result.meanPredResult.variance.row(n) = res_n.meanPredResult.variance;       // (N_obs, D, D)
+        }
+    }
+
+    return result;
+}
 
 // void GLLiM::getInsights()
 // {
