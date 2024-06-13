@@ -4,6 +4,7 @@
 #include <armadillo>
 
 #include "../src/xllimSolver/gllim.hpp"
+#include "../src/xllimSolver/jgmm.hpp"
 
 namespace py = pybind11;
 
@@ -62,6 +63,13 @@ void bind_gllim(pybind11::module &m)
         .def("directDensities", py::overload_cast<const mat &>(&GLLiM::directDensities))
         .def("inverseDensities", py::overload_cast<const mat &, const mat &>(&GLLiM::inverseDensities))
         .def("inverseDensities", py::overload_cast<const mat &>(&GLLiM::inverseDensities))
+
+        .def("train", &GLLiM::train);
+
+        py::class_<JGMM, std::shared_ptr<JGMM>>(m, "JGMM")
+        .def(py::init<>())
+        .def("train", &JGMM::train)
+        .def("getPosterior", &JGMM::getPosterior)
 
         .doc() = R"mydelimiter(
             GLLiM class

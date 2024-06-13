@@ -27,9 +27,9 @@ struct GLLiMParameters
 struct MeanPredictionResult
 {
     mat mean;        // The mean of the GMM which stands for the prediction (N_obs, D)
-    cube variance;    // The variance of the prediction (N_obs, D, D)
+    cube variance;   // The variance of the prediction (N_obs, D, D)
     mat gmm_weights; // The weights of the components of the GMM (N_obs, K)
-    cube gmm_means;   // The means of each component in the GMM (N_obs, D, K)
+    cube gmm_means;  // The means of each component in the GMM (N_obs, D, K)
     cube gmm_covs;   // The covariance matrices of each component in the GMM (D, D, K)
 
     MeanPredictionResult(unsigned N_obs, unsigned D, unsigned K) : mean(N_obs, D), variance(N_obs, D, D), gmm_weights(N_obs, K), gmm_means(N_obs, D, K), gmm_covs(D, D, K) {}
@@ -73,12 +73,9 @@ public:
     //     unsigned kmeans_iteration,
     //     unsigned em_iteration,
     //     double floor);
-    // void train(
-    //     const mat &x,
-    //     const mat &y,
-    //     unsigned max_iteration,
-    //     double ratio_ll,
-    //     double floor);
+    // void train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor);
+    void train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor);
+
     GLLiMParameters getParams();
     std::string getDimensions();
     rowvec getParamPi();

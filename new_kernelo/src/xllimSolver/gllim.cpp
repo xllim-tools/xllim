@@ -1,5 +1,6 @@
 #include "gllim.hpp"
 #include "../utils/utils.hpp"
+#include "jgmm.hpp"
 
 // TODO
 
@@ -19,6 +20,22 @@ GLLiM::GLLiM(unsigned L, unsigned D, unsigned K) : theta(L, D, K), theta_star(D,
 // void GLLiM::train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor)
 // {
 // }
+void GLLiM::train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor)
+{
+    // Check if Params are valid and update constraints
+    // this->checkParams();
+    // // Full/Diag case
+    // if (this->sigma_cstr_type == 'full' && this->gamma_cstr_type == 'full')
+    // { // GLLiM is equivalent to a classic GMM on the joint law (X,Y). Applying the Armadillo built-in EM method is more efficient.
+    // GLLiMParameters train(const mat &x, const mat &y, GLLiMParameters &theta, unsigned kmeans_iteration, unsigned em_iteration, double floor);
+    JGMM estimator;
+    this->theta = estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor); //  comment faire avec les paramètres ?
+    // }
+    // else
+    // {
+    //     gmm_diag gmm;
+    // }
+}
 
 GLLiMParameters GLLiM::getParams()
 {
@@ -130,9 +147,20 @@ std::tuple<mat, cube, cube> GLLiM::constructGMM(const mat &x, GLLiMParameters &t
     // Compute weights
     mat weights(N_obs, theta.K);
     gmm_full gmm;
+
+    // Full/Diag case
+    // if (this->sigma_cstr_type == 'diag' || 'iso')
+    // {
+    //     gmm_full gmm;
+    // }
+    // else
+    // {
+    //     gmm_diag gmm;
+    // }
+
     gmm.set_params(theta.C, theta.Gamma, theta.Pi);
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for (unsigned k = 0; k < theta.K; k++)
     {
         if (theta.Pi(k) == 0)
@@ -190,9 +218,9 @@ PredictionResult GLLiM::directDensities(const mat &x, const vec &x_incertitude)
         result.meanPredResult.mean += diagmat(result.meanPredResult.gmm_weights.col(k)) * result.meanPredResult.gmm_means.slice(k);
     }
 
-    // Compute the mean of covariances in the mixture
-    // TODO voir formule dans Kugler 2021. Can be simplified
-    #pragma omp parallel
+// Compute the mean of covariances in the mixture
+// TODO voir formule dans Kugler 2021. Can be simplified
+#pragma omp parallel
     result.meanPredResult.variance = cube(N_obs, theta_altered.D, theta_altered.D);
     for (unsigned n = 0; n < N_obs; ++n)
     {
@@ -238,7 +266,7 @@ PredictionResult GLLiM::inverseDensitiesOneInversion(const mat &y, const vec &y_
     // Compute the mean of covariances in the mixture
     // TODO voir formule dans Kugler 2021.  can be simplified
     result.meanPredResult.variance = cube(N_obs, theta_star_altered.D, theta_star_altered.D);
-    #pragma omp parallel
+#pragma omp parallel
     for (unsigned n = 0; n < N_obs; ++n)
     {
         for (unsigned k = 0; k < theta_star_altered.K; ++k)
@@ -272,7 +300,7 @@ PredictionResult GLLiM::inverseDensities(const mat &y, const mat &y_incertitude)
     }
     else
     {
-        #pragma omp parallel for
+#pragma omp parallel for
         for (size_t n = 0; n < N_obs; n++)
         {
             PredictionResult res_n = GLLiM::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)));
