@@ -8,6 +8,12 @@
 // {
 // }
 
+// TODO est ce qu'on veut que les contraintes (full, diag..) soient définies par la classe ?
+// TODO Si oui alors il faut que les cstr soient def à l'initialisation et il faut que les checks de Params prennent en compte les contraintes.
+// TODO     Dans ce cas peut-être qu'il faudrait faire des template ou des classes dérivées (FullGllim,...)
+// TODO Sinon on doit faire un check des matrices avant les calculs. On n'a pas de arma::is_isotropic(). Voir comment ça s'articule dans les calculs.
+// TODO En soit on a juste besoin de savoir les propriétées des matrices pour certains calculs. Mais dans la théorie, il est intéressant de savoir si on est en Full, Diag ou Iso ou fixed?
+// TODO utilisation mémoire à optimiser en cas de Diag ou iso ...
 GLLiM::GLLiM(unsigned L, unsigned D, unsigned K) : theta(L, D, K), theta_star(D, L, K) // Initialize GLLiMParameters with the required arguments
 {
     std::cout << "GLLiM Parameters initialized" << std::endl;
@@ -22,20 +28,25 @@ GLLiM::GLLiM(unsigned L, unsigned D, unsigned K) : theta(L, D, K), theta_star(D,
 // }
 void GLLiM::train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor)
 {
-    // Check if Params are valid and update constraints
-    // this->checkParams();
-    // // Full/Diag case
+    // this->checkConstraints(); // ? Check if Params are valid and update constraints
+
+    // Full/Diag case
     // if (this->sigma_cstr_type == 'full' && this->gamma_cstr_type == 'full')
-    // { // GLLiM is equivalent to a classic GMM on the joint law (X,Y). Applying the Armadillo built-in EM method is more efficient.
-    // GLLiMParameters train(const mat &x, const mat &y, GLLiMParameters &theta, unsigned kmeans_iteration, unsigned em_iteration, double floor);
-    JGMM estimator;
-    this->theta = estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor); //  comment faire avec les paramètres ?
+    // if (this->theta.Sigma.is_diagmat() || this->theta.Gamma.is_diagmat())
+    // {
+    //     // TODO
     // }
     // else
     // {
-    //     gmm_diag gmm;
+    // GLLiM is equivalent to a classic GMM on the joint law (X,Y). Applying the Armadillo built-in EM method is more efficient.
+    JGMM estimator;
+    this->theta = estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor); //  comment faire avec les paramètres ?
     // }
 }
+
+// void GLLiM::checkConstraints()
+// {
+// }
 
 GLLiMParameters GLLiM::getParams()
 {
@@ -80,37 +91,122 @@ cube GLLiM::getParamSigma()
 
 void GLLiM::setParams(const GLLiMParameters &theta)
 {
-    this->theta = theta;
+    std::string err = "";
+    if (!(theta.Pi.is_vec() && (theta.Pi.n_cols == this->theta.K)))
+    {
+        err += "Pi dimensions must be of shape (" + std::to_string(this->theta.K) + ")\n";
+    }
+    if (!(abs(accu(theta.Pi) - 1.0) < 1e-9))
+    {
+        err += "The sum of weights must be equal to 1\n";
+    }
+    if (!(arma::size(theta.A) == arma::SizeCube(this->theta.D, this->theta.L, this->theta.K)))
+    {
+        err += "A dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")\n";
+    }
+    if (!(arma::size(theta.C) == arma::SizeMat(this->theta.L, this->theta.K)))
+    {
+        err += "C dimensions must be of shape (" + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")\n";
+    }
+    if (!(arma::size(theta.Gamma) == arma::SizeCube(this->theta.L, this->theta.L, this->theta.K)))
+    {
+        err += "Gamma dimensions must be of shape (" + std::to_string(this->theta.L) + "," + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")\n";
+    }
+    if (!(arma::size(theta.B) == arma::SizeMat(this->theta.D, this->theta.K)))
+    {
+        err += "B dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.K) + ")\n";
+    }
+    if (!(arma::size(theta.Sigma) == arma::SizeCube(this->theta.D, this->theta.D, this->theta.K)))
+    {
+        err += "Sigma dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.D) + "," + std::to_string(this->theta.K) + ")\n";
+    }
+    if (err == "")
+    {
+        this->theta = theta;
+    }
+    else
+    {
+        throw std::invalid_argument(err);
+    }
 }
 
 void GLLiM::setParamPi(const rowvec &Pi)
 {
-    this->theta.Pi = Pi;
+    if (Pi.is_vec() && (Pi.n_cols == this->theta.K))
+    {
+        if ((abs(accu(theta.Pi) - 1.0) < 1e-9))
+        {
+            this->theta.Pi = Pi;
+        }
+        else
+        {
+            throw std::invalid_argument("The sum of weights must be equal to 1.");
+        }
+    }
+    else
+    {
+        throw std::invalid_argument("Pi dimensions must be of shape (" + std::to_string(this->theta.K) + ")");
+    }
 }
 
 void GLLiM::setParamA(const cube &A)
 {
-    this->theta.A = A;
+    if (arma::size(A) == arma::SizeCube(this->theta.D, this->theta.L, this->theta.K))
+    {
+        this->theta.A = A;
+    }
+    else
+    {
+        throw std::invalid_argument("A dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")");
+    }
 }
 
 void GLLiM::setParamC(const mat &C)
 {
-    this->theta.C = C;
+    if (arma::size(C) == arma::SizeMat(this->theta.L, this->theta.K))
+    {
+        this->theta.C = C;
+    }
+    else
+    {
+        throw std::invalid_argument("C dimensions must be of shape (" + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")");
+    }
 }
 
 void GLLiM::setParamGamma(const cube &Gamma)
 {
-    this->theta.Gamma = Gamma;
+    if (arma::size(Gamma) == arma::SizeCube(this->theta.L, this->theta.L, this->theta.K))
+    {
+        this->theta.Gamma = Gamma;
+    }
+    else
+    {
+        throw std::invalid_argument("Gamma dimensions must be of shape (" + std::to_string(this->theta.L) + "," + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")");
+    }
 }
 
 void GLLiM::setParamB(const mat &B)
 {
-    this->theta.B = B;
+    if (arma::size(B) == arma::SizeMat(this->theta.D, this->theta.K))
+    {
+        this->theta.B = B;
+    }
+    else
+    {
+        throw std::invalid_argument("B dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.K) + ")");
+    }
 }
 
 void GLLiM::setParamSigma(const cube &Sigma)
 {
-    this->theta.Sigma = Sigma;
+    if (arma::size(Sigma) == arma::SizeCube(this->theta.D, this->theta.D, this->theta.K))
+    {
+        this->theta.Sigma = Sigma;
+    }
+    else
+    {
+        throw std::invalid_argument("Sigma dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.D) + "," + std::to_string(this->theta.K) + ")");
+    }
 }
 
 GLLiMParameters GLLiM::getInverse()
