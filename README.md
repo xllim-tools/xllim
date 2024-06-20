@@ -1,10 +1,98 @@
-Here you will find instructions on how to compile and run Kernelo.
-You may skip to Running Kernelo in * if you don't intend to build the module from source.
-
 [[_TOC_]]
 
-# Building on Ubuntu 20.04
-1. Install dependecies
+
+# Description
+
+The Kernelo-GLLiM software is implemented in C++ with Python bindings written in Cython. 5.7k lines of C++
+code implements the GLLiM solver, including 2k lines of tests and 800 lines of Cython.
+It integrates features such as:
+1. Forward model functionnals. These can be implemented as C++ or as pure Python functions. The forward
+model can be used to generate data following a distribution and refine GLLiM results by sampling the PDF
+using various strategies.
+2. Multi-initialization options
+3. Post-GLLiM refinement methods such as Importance Sampling (IS) and Iterative Mixture Importance Sampling
+(IMIS)
+4. Post-processing analysis, including confidence quantification on predictions, detection of multiple solutions, and
+permutation of predictions in case of signal regularity.
+
+Kernelo-GLLiM is distributed as a compiled shared library in a Docker container, and is integrated in the [Planet-GLLiM](https://gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end) 
+astrophysics application, that is distributed as a Docker image for local use and as a data processing service
+on [Allgo-18](https://allgo18.inria.fr/).
+
+
+# Documentation and API reference
+
+The API reference of the Kernelo module is available [here](https://kernelo-mistis.gitlabpages.inria.fr/kernelo-gllim-is/). 
+For more information you can find a complete scientific documentation in the [Planet-GLLiM documentation](https://kernelo-mistis.gitlabpages.inria.fr/planet-gllim-front-end/)
+
+
+# How to run Kernelo-GLLiM ?
+
+Kernelo-GLLiM is distributed as a compiled shared library in a Docker container thus Docker is required. However is you are using Ubuntu 20.04 you can compile or run the module without Docker.
+
+## Using Docker
+
+### First steps
+
+1. Install Docker following [these instrucitons](https://docs.docker.com/engine/install/)
+2. Pull the docker image
+```
+$ docker pull registry.gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/kernelo_python_runner:master
+```
+3. Create your container
+```
+$ docker run -it --name [myContainer] registry.gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/kernelo_python_runner:master
+```
+Once inside the container you can manage your workspace, install dependencies, run commands... Enter *exit* to exit the container.
+
+### Use your container
+
+4. Copy local files into your container.
+```
+$ docker cp [myFile] [myContainer]:/home/
+```
+5. Start your container
+```
+$ docker start [myContainer]
+```
+6. Enter into your container in interactive mode
+```
+$ docker exec -it [myContainer] bash
+```
+7. Stop your container
+```
+$ docker stop [myContainer]
+```
+
+Note that changes made to the docker container (installing packages etc.) are **persistent**. However be careful not to delete your container, otherwise all modifications made within it would be lost. You can also bind your container to a volume with -v option. More details at docker [documentation](https://docs.docker.com/reference/cli/docker/).
+
+
+## Run on Ubuntu 20.04
+
+Kernelo is build on Ubuntu 20.04, so if it your OS you can run it without Docker. It may also work with other Linux distribution but it is not tested.
+1. Get the kernelo extension 
+The extension .so file is then stored as artifact, and can be downloaded from [GitLab's CI page](https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/pipelines). Click on the menu on the right side of the latest succesful job and select ``build_job:archive``. This will download an ``archive.zip`` file containing the extension ``.so`` file.
+2. Install dependecies
+```
+sudo apt install python3 python3-numpy libatlas3-base libarmadillo9
+```
+3. Copy the .so extension file into your working directory and start Python 3
+```
+$ python3
+>>> import kernelo
+```
+
+
+## Build on Ubuntu 20.04
+
+If you want to build the projet.
+
+1. Clone the projet.
+```
+$ git clone https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is.git
+$ cd kernelo-gllim-is
+```
+2. Install dependecies
 ```
 $ sudo apt update
 $ sudo apt-get install -y --no-install-recommends gcc g++ \
@@ -12,82 +100,26 @@ $ sudo apt-get install -y --no-install-recommends gcc g++ \
 	libatlas-base-dev libarmadillo-dev libboost-dev
 $ pip3 install -U pip wheel setuptools cyarma
 ```
-2. Install python requirements
+3. Install python requirements
 ```
 pip install -r requirements.txt
 ```
-3. Build the Python extension
+4. Build the Python extension
 ```
 $ python3 setup.py bdist_wheel -vvv
 ```
-4. Install the extension in your Python environnemnt.
+5. Install the extension in your Python environnemnt.
 Wheel file may have slightly different name.
 ```
 pip3 install --no-cache-dir dist/kernelo-0.1-cp38-cp38-linux_x86_64.whl
 ```
-5. Now you can import kernelo in Python 3:
+6. Now you can import kernelo in Python 3:
 ```
 >>> import kernelo
 ```
 
-# Running Kernelo without building it
-Python extensions are build by the Gitlab CI every time a commit is made.
-The extension .so file is then stored as artifact, and can be downloaded from
-[GitLab's CI page](https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/pipelines).
-Once you have the .so file you can import kernelo in Python 3:
-```
->>> import kernelo
-```
 
-### Download the pre-built Python extension
-1. Go to [GitLab's CI page](https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/pipelines).
-2. Click on the menu on the right side of the latest succesful job and select ``build_job:archive``.
-This will download an ``archive.zip`` file containing the extension ``.so`` file.
-
-## Running Kernelo on Ubuntu 20.04
-1. Install dependecies
-```
-$ sudo apt update
-$ sudo apt install python3 python3-numpy libatlas3-base libarmadillo9
-```
-2. Copy the .so extension file into your working directory and start Python 3
-TODO python3 setup.py install --user
-```
-$ python3
->>> import kernelo
-```
-
-## Running Kernelo on Windows or Mac
-Kernelo is build on Linux Ubuntu, but can be executed on other systems using virtualisation.
-Here we provide instructions how to do it using Docker and Vagrant.
-
-### Prerequisite
-1. Clone the Kernelo repository
-```
-$ git clone git@gitlab.inria.fr:kernelo-mistis/kernelo-gllim-is.git Kernelo_dir
-$ cd Kernelo_dir
-```
-2. Copy the .so extension file into ``Kernelo_dir``
-
-### Using Docker
-1. Install Docker following [these instrucitons]()
-2. Build the runner image
-```
-$ docker build -f Builder.dockerfile --target runner -t kernelo_runner .
-```
-3. Start the runner with the ``Kernelo_dir`` mounted at ``/kernelo``, and go to that directory
-```
-$ docker run -i -t -v "$(pwd)":/kernelo kernelo_runner
-root@kernelo_runner:/# cd kernelo/
-```
-4. Now you can import kernelo in Python 3:
-```
-root@kernelo_runner:/kernelo# python3
->>> import kernelo
-```
-Note that changes made to the docker image (installing packages etc.) are not persistent.
-
-### Using Vagrant
+## Using Vagrant *(not tested)*
 Vagrant allows to run processes in a VM provided run by VirtualBox.
 It simplifies the setup and configuration of the VM.
 By default when you start a vagrant box (the VM) from a folder, this folder is made available in the VM at ``/vagrant/``.
