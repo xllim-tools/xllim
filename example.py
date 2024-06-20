@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import kernelo as ker
+import logging
+logging.getLogger().setLevel(logging.INFO)
 
 
 def compute_reconstruction_error(reconstruction, observation):
