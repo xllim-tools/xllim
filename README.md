@@ -1,3 +1,5 @@
+# Summary
+
 [[_TOC_]]
 
 
@@ -37,11 +39,11 @@ Kernelo-GLLiM is distributed as a compiled shared library in a Docker container 
 1. Install Docker following [these instrucitons](https://docs.docker.com/engine/install/)
 2. Pull the docker image
 ```
-$ docker pull registry.gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/kernelo_python_runner:master
+docker pull registry.gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/kernelo_python_runner:master
 ```
 3. Create your container
 ```
-$ docker run -it --name [myContainer] registry.gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/kernelo_python_runner:master
+docker run -it --name [myContainer] registry.gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/kernelo_python_runner:master
 ```
 Once inside the container you can manage your workspace, install dependencies, run commands... Enter *exit* to exit the container.
 
@@ -49,19 +51,19 @@ Once inside the container you can manage your workspace, install dependencies, r
 
 4. Copy local files into your container.
 ```
-$ docker cp [myFile] [myContainer]:/home/
+docker cp [myFile] [myContainer]:/home/
 ```
 5. Start your container
 ```
-$ docker start [myContainer]
+docker start [myContainer]
 ```
 6. Enter into your container in interactive mode
 ```
-$ docker exec -it [myContainer] bash
+docker exec -it [myContainer] bash
 ```
 7. Stop your container
 ```
-$ docker stop [myContainer]
+docker stop [myContainer]
 ```
 
 Note that changes made to the docker container (installing packages etc.) are **persistent**. However be careful not to delete your container, otherwise all modifications made within it would be lost. You can also bind your container to a volume with -v option. More details at docker [documentation](https://docs.docker.com/reference/cli/docker/).
@@ -78,7 +80,7 @@ sudo apt install python3 python3-numpy libatlas3-base libarmadillo9
 ```
 3. Copy the .so extension file into your working directory and start Python 3
 ```
-$ python3
+python3
 >>> import kernelo
 ```
 
@@ -89,16 +91,16 @@ If you want to build the projet.
 
 1. Clone the projet.
 ```
-$ git clone https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is.git
-$ cd kernelo-gllim-is
+git clone https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is.git
+cd kernelo-gllim-is
 ```
 2. Install dependecies
 ```
-$ sudo apt update
-$ sudo apt-get install -y --no-install-recommends gcc g++ \
+sudo apt update
+sudo apt-get install -y --no-install-recommends gcc g++ \
 	python3-dev cython3 python3-numpy python3-pip \
 	libatlas-base-dev libarmadillo-dev libboost-dev
-$ pip3 install -U pip wheel setuptools cyarma
+pip3 install -U pip wheel setuptools cyarma
 ```
 3. Install python requirements
 ```
@@ -106,7 +108,7 @@ pip install -r requirements.txt
 ```
 4. Build the Python extension
 ```
-$ python3 setup.py bdist_wheel -vvv
+python3 setup.py bdist_wheel -vvv
 ```
 5. Install the extension in your Python environnemnt.
 Wheel file may have slightly different name.
@@ -115,6 +117,7 @@ pip3 install --no-cache-dir dist/kernelo-0.1-cp38-cp38-linux_x86_64.whl
 ```
 6. Now you can import kernelo in Python 3:
 ```
+python3
 >>> import kernelo
 ```
 
