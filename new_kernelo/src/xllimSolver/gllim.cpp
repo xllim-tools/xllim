@@ -134,7 +134,7 @@ void GLLiM::setParamPi(const rowvec &Pi)
 {
     if (Pi.is_vec() && (Pi.n_cols == this->theta.K))
     {
-        if ((abs(accu(theta.Pi) - 1.0) < 1e-9))
+        if ((abs(accu(Pi) - 1.0) < 1e-9))
         {
             this->theta.Pi = Pi;
         }
