@@ -37,11 +37,15 @@ Kernelo-GLLiM is distributed as a compiled shared library in a Docker container 
 ### First steps
 
 1. Install Docker following [these instrucitons](https://docs.docker.com/engine/install/)
-2. Pull the docker image
+2. Connect to Inria's GitLab
+```
+docker login registry.gitlab.inria.fr
+```
+3. Pull the docker image
 ```
 docker pull registry.gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/kernelo_python_runner:master
 ```
-3. Create your container
+4. Create your container
 ```
 docker run -it --name [myContainer] registry.gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/kernelo_python_runner:master
 ```
@@ -49,19 +53,19 @@ Once inside the container you can manage your workspace, install dependencies, r
 
 ### Use your container
 
-4. Copy local files into your container.
+5. Copy local files into your container.
 ```
 docker cp [myFile] [myContainer]:/home/
 ```
-5. Start your container
+6. Start your container
 ```
 docker start [myContainer]
 ```
-6. Enter into your container in interactive mode
+7. Enter into your container in interactive mode
 ```
 docker exec -it [myContainer] bash
 ```
-7. Stop your container
+8. Stop your container
 ```
 docker stop [myContainer]
 ```
