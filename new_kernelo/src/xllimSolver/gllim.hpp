@@ -24,6 +24,16 @@ struct GLLiMParameters
     GLLiMParameters(unsigned L, unsigned D, unsigned K) : L(L), D(D), K(K), Pi(K), A(D, L, K), C(L, K), Gamma(L, L, K), B(D, K), Sigma(D, D, K) {}
 };
 
+struct GLLiMConstraints
+{
+    // TODO : proper definitions and documentation
+    std::string gamma_type; // The Gamma covariance matrix type ('full', 'diag', 'iso')
+    std::string sigma_type; // The Sigma covariance matrix type ('full', 'diag', 'iso')
+    // ? complex formulation, latent space / hybrid gllim, 
+
+    GLLiMConstraints(std::string gamma_type, std::string sigma_type) : gamma_type(gamma_type), sigma_type(sigma_type) {}
+};
+
 struct MeanPredictionResult
 {
     mat mean;        // The mean of the GMM which stands for the prediction (N_obs, D)
@@ -56,8 +66,8 @@ public:
     /**
      * TODO
      */
-    // GLLiM(unsigned D, unsigned L, unsigned K, GLLiMParameters &theta, GLLiMConstraints &constraints);
-    GLLiM(unsigned L, unsigned D, unsigned K); // création de la classe (de theta)
+    GLLiM(unsigned D, unsigned L, unsigned K, std::string gamma_type, std::string sigma_type); // création de la classe (de theta)
+    // GLLiM(unsigned L, unsigned D, unsigned K); // création de la classe (de theta)
 
     // void initialize(
     //     const mat &x,
@@ -78,6 +88,7 @@ public:
 
     GLLiMParameters getParams();
     std::string getDimensions();
+    std::string getConstraints();
     rowvec getParamPi();
     cube getParamA();
     mat getParamC();
@@ -111,6 +122,7 @@ public:
 
 private:
     // TODO
+    GLLiMConstraints constraints;    // The constraints of GLLiM model
     GLLiMParameters theta;      // The parameters of the direct GLLiM model
     GLLiMParameters theta_star; // The parameters of the inverse GLLiM model
     GLLiMParameters inverse(GLLiMParameters &theta);

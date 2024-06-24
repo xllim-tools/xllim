@@ -42,6 +42,7 @@ set_target_properties(utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_library(gllim STATIC 
     src/xllimSolver/gllim.cpp
     src/xllimSolver/jgmm.cpp
+    src/xllimSolver/emEstimator.cpp
 )
 set_target_properties(gllim PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

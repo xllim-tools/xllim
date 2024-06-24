@@ -28,7 +28,7 @@ void bind_gllim(pybind11::module &m)
         .def_readwrite("gmm_weights", &MeanPredictionResult::gmm_weights)
         .def_readwrite("gmm_means", &MeanPredictionResult::gmm_means)
         .def_readwrite("gmm_covs", &MeanPredictionResult::gmm_covs);
-    
+
     py::class_<CenterPredictionResult>(m, "CenterPredictionResult")
         .def_readwrite("weights", &CenterPredictionResult::weights)
         .def_readwrite("means", &CenterPredictionResult::means)
@@ -39,7 +39,7 @@ void bind_gllim(pybind11::module &m)
         .def_readwrite("centerPredResult", &PredictionResult::centerPredResult);
 
     py::class_<GLLiM, std::shared_ptr<GLLiM>>(m, "GLLiM")
-        .def(py::init<unsigned, unsigned, unsigned>(), py::arg("L"), py::arg("D"), py::arg("K"))
+        .def(py::init<unsigned, unsigned, unsigned, std::string, std::string>(), py::arg("L"), py::arg("D"), py::arg("K"), py::arg("gamma_type"), py::arg("sigma_type"))
         .def("getParams", &GLLiM::getParams)
         .def("getDimensions", &GLLiM::getDimensions)
         .def("getParamPi", &GLLiM::getParamPi)
@@ -66,7 +66,8 @@ void bind_gllim(pybind11::module &m)
 
         .def("train", &GLLiM::train);
 
-        py::class_<JGMM, std::shared_ptr<JGMM>>(m, "JGMM")
+    // Do we need to expose this class ?
+    py::class_<JGMM, std::shared_ptr<JGMM>>(m, "JGMM")
         .def(py::init<>())
         .def("train", &JGMM::train)
         .def("getPosterior", &JGMM::getPosterior)

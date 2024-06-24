@@ -1,6 +1,7 @@
 #include "gllim.hpp"
 #include "../utils/utils.hpp"
 #include "jgmm.hpp"
+#include "emEstimator.hpp"
 
 // TODO
 
@@ -14,9 +15,11 @@
 // TODO Sinon on doit faire un check des matrices avant les calculs. On n'a pas de arma::is_isotropic(). Voir comment ça s'articule dans les calculs.
 // TODO En soit on a juste besoin de savoir les propriétées des matrices pour certains calculs. Mais dans la théorie, il est intéressant de savoir si on est en Full, Diag ou Iso ou fixed?
 // TODO utilisation mémoire à optimiser en cas de Diag ou iso ...
-GLLiM::GLLiM(unsigned L, unsigned D, unsigned K) : theta(L, D, K), theta_star(D, L, K) // Initialize GLLiMParameters with the required arguments
+GLLiM::GLLiM(unsigned L, unsigned D, unsigned K, std::string gamma_type, std::string sigma_type) : theta(L, D, K), theta_star(D, L, K), constraints(gamma_type, sigma_type) // Initialize GLLiMParameters with the required arguments
 {
     std::cout << "GLLiM Parameters initialized" << std::endl;
+    std::cout << GLLiM::getDimensions() << std::endl;
+    std::cout << GLLiM::getConstraints() << std::endl;
 }
 
 // void GLLiM::initialize(const mat &x, const mat &y, unsigned seed, unsigned nb_iter_EM, unsigned nb_experiences, unsigned max_iteration, double ratio_ll, double floor, unsigned kmeans_iteration, unsigned em_iteration, double floor)
@@ -31,17 +34,22 @@ void GLLiM::train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigne
     // this->checkConstraints(); // ? Check if Params are valid and update constraints
 
     // Full/Diag case
-    // if (this->sigma_cstr_type == 'full' && this->gamma_cstr_type == 'full')
-    // if (this->theta.Sigma.is_diagmat() || this->theta.Gamma.is_diagmat())
-    // {
-    //     // TODO
-    // }
-    // else
-    // {
-    // GLLiM is equivalent to a classic GMM on the joint law (X,Y). Applying the Armadillo built-in EM method is more efficient.
-    JGMM estimator;
-    this->theta = estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor); //  comment faire avec les paramètres ?
-    // }
+    if (this->constraints.gamma_type == "full" && this->constraints.sigma_type == "full")
+    {
+        std::cout << "Joint GMM training" << std::endl;
+        // GLLiM is equivalent to a classic GMM on the joint law (X,Y). Applying the Armadillo built-in EM method is more efficient.
+        JGMM estimator;
+        // ? Faire une static method car on a pas besoin d'instancier un "estimator" ex: JGMM::train(...)
+        this->theta = estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor); //  comment faire avec les paramètres ?
+    }
+    else
+    {
+        std::cout << "GLLiM training" << std::endl;
+        EmEstimator estimator;
+        double max_iteration = kmeans_iteration;
+        double ratio_ll = floor;
+        this->theta = estimator.train(x, y, this->theta, max_iteration, ratio_ll, floor); //  comment faire avec les paramètres ?
+    }
 }
 
 // void GLLiM::checkConstraints()
@@ -56,6 +64,12 @@ GLLiMParameters GLLiM::getParams()
 std::string GLLiM::getDimensions()
 {
     std::string str = "GLLiM dimensions are (L=" + std::to_string(this->theta.L) + ", D=" + std::to_string(this->theta.D) + ", K=" + std::to_string(this->theta.K) + ")";
+    return str;
+}
+
+std::string GLLiM::getConstraints()
+{
+    std::string str = "GLLiM constraints are :\n\tgamma_type = '" + this->constraints.gamma_type + "',\n\tsigma_type = '" + this->constraints.sigma_type + "'.";
     return str;
 }
 
