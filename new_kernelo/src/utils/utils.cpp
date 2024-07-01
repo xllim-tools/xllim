@@ -128,6 +128,22 @@ vec utils::MahalanobisWithInvertedCov(const mat &x, const vec &center, const mat
 //     return utils::mvnrm_arma_fast_chol(x.t(), mean.t(), chol, true);
 // }
 
+// // diag covariance
+// double utils::logDensity(const vec &x, const vec &mean, const vec &diag_covariance)
+// {
+//     using arma::uword;
+//     uword const xdim = x.n_cols;
+//     double out;
+//     arma::vec const rooti = 1/sqrt(diag_covariance);
+//     double const rootisum = arma::sum(log(rooti)),
+//                  constants = -(double)xdim / 2.0 * log2pi,
+//                  other_terms = rootisum + constants;
+
+//     vec z = (x - mean) % rooti;
+//     out = other_terms - 0.5 * arma::dot(z, z);
+//     return out;
+// }
+
 // double utils::logDensity(const vec &x, const vec &weight, const mat &mean, const cube &covariance)
 // {
 //     // TODO: check if diamat with .is_diagmat() and apply woodbury
@@ -139,10 +155,27 @@ vec utils::MahalanobisWithInvertedCov(const mat &x, const vec &center, const mat
 //     // TODO: check if diamat with .is_diagmat() and apply woodbury
 //     cube chol(covariance);
 //     mat results(x.n_cols, weight.n_cols);
+//     #pragma omp parallel for
 //     for (unsigned k = 0; k < weight.n_cols; k++)
 //     {
 //         vec density_k = utils::dmvnrm_arma_fast_chol(x.t(), mean.col(k).t(), chol.slice(k), true);
-//         density_k.print("density_k");
+//         results.col(k) = log(weight(k)) + density_k;
+//     }
+//     return results;
+// }
+
+// // diag covariance
+// mat utils::logDensity(const mat &x, const rowvec &weight, const mat &mean, const mat &covariance)
+// {
+//     // TODO: check if diamat with .is_diagmat() and apply woodbury
+//     // cube chol(covariance);
+//     mat results(x.n_cols, weight.n_cols);
+//     #pragma omp parallel for
+//     for (unsigned k = 0; k < weight.n_cols; k++)
+//     {
+//         // mat cov = arma::diagmat(covariance.col(k));
+//         vec density_k = utils::dmvnrm_arma_fast_chol_diag(x.t(), mean.col(k).t(), covariance.col(k), true);
+//         // density_k.print("density_k");
 //         results.col(k) = log(weight(k)) + density_k;
 //     }
 //     return results;
@@ -203,6 +236,33 @@ vec utils::MahalanobisWithInvertedCov(const mat &x, const vec &center, const mat
 //     {
 //         z = (x.row(i) - mean);
 //         inplace_tri_mat_mult(z, rooti);
+//         out(i) = other_terms - 0.5 * arma::dot(z, z);
+//     }
+
+//     if (logd)
+//         return out;
+//     return exp(out);
+// }
+
+// /* The Multivariate Normal density function */
+// vec utils::dmvnrm_arma_fast_chol_diag(arma::mat const &x, arma::rowvec const &mean, const arma::vec &chol, bool const logd /*= true*/)
+// {
+//     using arma::uword;
+//     uword const n = x.n_rows,
+//                 xdim = x.n_cols;
+//     arma::vec out(n);
+//     // arma::mat const rooti = arma::inv(trimatu(utils::safe_cholesky(chol)));
+//     arma::vec const rooti = 1/sqrt(chol);
+//     double const rootisum = arma::sum(log(rooti)),
+//                  constants = -(double)xdim / 2.0 * log2pi,
+//                  other_terms = rootisum + constants;
+
+//     arma::rowvec z;
+// #pragma omp parallel for// schedule(static) private(z)
+//     for (uword i = 0; i < n; i++)
+//     {
+//         z = (x.row(i) - mean) % rooti.t();
+//         // inplace_tri_mat_mult(z, rooti);
 //         out(i) = other_terms - 0.5 * arma::dot(z, z);
 //     }
 
