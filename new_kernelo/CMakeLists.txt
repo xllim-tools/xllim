@@ -39,12 +39,15 @@ add_library(utils STATIC
 )
 set_target_properties(utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-add_library(gllim STATIC 
+add_library(xllimSolver STATIC 
     src/xllimSolver/gllim.cpp
     src/xllimSolver/jgmm.cpp
     src/xllimSolver/emEstimator.cpp
+    src/xllimSolver/covariances/fullCovariance.cpp
+    src/xllimSolver/covariances/diagCovariance.cpp
+    src/xllimSolver/covariances/isoCovariance.cpp
 )
-set_target_properties(gllim PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(xllimSolver PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # 2 methodes pour inclure CARMA:
 #      soit C/C dans le code en dur carma/include et faire #include <carma.carma.h> dans le C++ pybind11
@@ -54,7 +57,7 @@ set_target_properties(gllim PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # find_package(pybind11 REQUIRED) # -- Found pybind11: /home/luc/.local/include (found version "2.11.1")
 add_subdirectory(extern/pybind11) # in subdirectory
 pybind11_add_module(newkernelo python/kernelo.cpp)
-target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration utils gllim)
+target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration utils xllimSolver)
 target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 target_link_libraries(dataGeneration PRIVATE pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 
@@ -93,6 +96,12 @@ add_executable(dataGeneration_test
     cpptest/dataGeneration/DependentGaussianStatModel_test.cpp)
 target_link_libraries(dataGeneration_test PRIVATE gtest_main pybind11::embed dataGeneration functionalModel) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
 
+add_executable(xllimSolver_test 
+    cpptest/xllimSolver/covariancesTest/fullCovarianceTest.cpp
+    cpptest/xllimSolver/covariancesTest/diagCovarianceTest.cpp
+    cpptest/xllimSolver/covariancesTest/isoCovarianceTest.cpp)
+target_link_libraries(xllimSolver_test PRIVATE gtest_main xllimSolver armadillo)
+
 add_executable(utils_test 
     cpptest/utils_test.cpp)
 target_link_libraries(utils_test PRIVATE gtest_main utils armadillo)
@@ -100,6 +109,7 @@ target_link_libraries(utils_test PRIVATE gtest_main utils armadillo)
 include(GoogleTest)
 gtest_discover_tests(functionalModel_test)
 gtest_discover_tests(dataGeneration_test)
+gtest_discover_tests(xllimSolver_test)
 gtest_discover_tests(utils_test)
 
 
