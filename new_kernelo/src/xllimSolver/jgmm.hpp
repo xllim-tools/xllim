@@ -7,7 +7,7 @@ class JGMM
 {
 public:
     JGMM();
-    GLLiMParameters train(const mat &x, const mat &y, GLLiMParameters &theta, unsigned kmeans_iteration, unsigned em_iteration, double floor);
+    GLLiMParameters<FullCovariance,FullCovariance> train(const mat &x, const mat &y, GLLiMParameters<FullCovariance,FullCovariance> &theta, unsigned kmeans_iteration, unsigned em_iteration, double floor);
     mat getPosterior();
 
 private:
@@ -20,8 +20,8 @@ private:
     // cube jgmm_covariances; // The covariance matrices of the GMM equivalent to the GLLiM model.
     mat posterior; // the posterior from the training of the GMM
 
-    void GLLiMParameterstoJGMM(GLLiMParameters &initial_theta);
-    GLLiMParameters JGMMtoGLLiMParameters();
+    void GLLiMParameterstoJGMM(GLLiMParameters<FullCovariance,FullCovariance> &initial_theta);
+    GLLiMParameters<FullCovariance,FullCovariance> JGMMtoGLLiMParameters();
 };
 
 #endif // JGMM_HPP

@@ -4,6 +4,8 @@
 
 DiagCovariance::DiagCovariance(const vec &var) : variances(var) {}
 
+DiagCovariance::DiagCovariance(const arma::subview_row<double> &var) : variances(var.t()) {}
+
 DiagCovariance::DiagCovariance(const mat &cov) : variances(cov.diag()) {}
 
 DiagCovariance::DiagCovariance(unsigned dimension) : variances(vec(dimension, fill::zeros)) {}

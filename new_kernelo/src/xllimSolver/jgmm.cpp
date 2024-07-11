@@ -9,7 +9,7 @@ mat JGMM::getPosterior()
     return this->posterior;
 }
 
-GLLiMParameters JGMM::train(const mat &x, const mat &y, GLLiMParameters &initial_theta, unsigned kmeans_iteration, unsigned em_iteration, double floor)
+GLLiMParameters<FullCovariance,FullCovariance> JGMM::train(const mat &x, const mat &y, GLLiMParameters<FullCovariance,FullCovariance> &initial_theta, unsigned kmeans_iteration, unsigned em_iteration, double floor)
 {
     this->GLLiMParameterstoJGMM(initial_theta); // transform GLLiM parameters to joint GMM parameters
 
@@ -33,7 +33,7 @@ GLLiMParameters JGMM::train(const mat &x, const mat &y, GLLiMParameters &initial
     return this->JGMMtoGLLiMParameters(); // transform joint GMM parameters to GLLiM parameters
 }
 
-void JGMM::GLLiMParameterstoJGMM(GLLiMParameters &initial_theta)
+void JGMM::GLLiMParameterstoJGMM(GLLiMParameters<FullCovariance,FullCovariance> &initial_theta)
 {
     this->L = initial_theta.L;
     this->D = initial_theta.D;
@@ -71,9 +71,9 @@ void JGMM::GLLiMParameterstoJGMM(GLLiMParameters &initial_theta)
     this->jgmm.set_fcovs(V);
 }
 
-GLLiMParameters JGMM::JGMMtoGLLiMParameters()
+GLLiMParameters<FullCovariance,FullCovariance> JGMM::JGMMtoGLLiMParameters()
 {
-    GLLiMParameters theta(L, D, K);
+    GLLiMParameters<FullCovariance,FullCovariance> theta(L, D, K);
 
     mat m_x = this->jgmm.means.submat(0, 0, L - 1, K - 1);
     mat m_y = this->jgmm.means.submat(L, 0, L + D - 1, K - 1);
@@ -91,10 +91,10 @@ GLLiMParameters JGMM::JGMMtoGLLiMParameters()
 
     for (unsigned k = 0; k < K; k++)
     {
-        theta.Gamma.slice(k) = v_xx.slice(k);
+        theta.Gamma[k] = v_xx.slice(k);
         theta.A.slice(k) = v_xy_t.slice(k) * v_xx_inv.slice(k);
         theta.B.col(k) = m_y.col(k) - v_xy_t.slice(k) * v_xx_inv.slice(k) * m_x.col(k);
-        theta.Sigma.slice(k) = v_yy.slice(k) - v_xy_t.slice(k) * v_xx_inv.slice(k) * v_xy.slice(k);
+        theta.Sigma[k] = v_yy.slice(k) - v_xy_t.slice(k) * v_xx_inv.slice(k) * v_xy.slice(k);
     }
     return theta;
 }

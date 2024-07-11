@@ -9,7 +9,7 @@ using namespace arma;
  * @class Icovariance
  * @brief This interface has been created for generalisation purpose
  */
-class Covariance
+class Covariance // TODO useful interface ?
 {
 public:
     virtual double log_det() const = 0;
@@ -18,7 +18,6 @@ public:
     virtual void print(const std::string &str) const = 0;
     virtual void print() const = 0;
     virtual mat get_mat() const = 0;
-
 };
 
 /**
@@ -45,6 +44,11 @@ public:
     void print(const std::string &str) const override;
     void print() const override;
     mat get_mat() const override;
+    mat get() const { return get_mat(); };
+
+    // Useful for conversion std::vector<Covariance> <=> Armadillo
+    using Type = cube;
+    static cube getTypeSize(unsigned K, unsigned dimension) { return cube(K, dimension, dimension); };
 
     // Assignement operators
     FullCovariance &operator=(const FullCovariance &cov);
@@ -70,6 +74,7 @@ class DiagCovariance : public Covariance
 public:
     // Constructors
     explicit DiagCovariance(const vec &var);
+    explicit DiagCovariance(const arma::subview_row<double> &var);
     explicit DiagCovariance(const mat &cov);
     explicit DiagCovariance(unsigned dimension);
     DiagCovariance() = default;
@@ -82,6 +87,11 @@ public:
     void print() const override;
     mat get_mat() const override;
     vec get_vec() const;
+    rowvec get() const { return get_vec().t(); };
+
+    // Useful for conversion std::vector<Covariance> <=> Armadillo
+    using Type = mat;
+    static mat getTypeSize(unsigned K, unsigned dimension) { return mat(K, dimension); };
 
     // Assignement operators
     DiagCovariance &operator=(const DiagCovariance &cov);
@@ -123,6 +133,11 @@ public:
     vec get_vec() const;
     double get_scalar() const;
     unsigned get_size() const;
+    double get() const { return get_scalar(); };
+
+    // Useful for conversion std::vector<Covariance> <=> Armadillo
+    using Type = vec;
+    static vec getTypeSize(unsigned K, unsigned dimension) { return vec(K); };
 
     // Assignement operators
     IsoCovariance &operator=(const IsoCovariance &cov);
