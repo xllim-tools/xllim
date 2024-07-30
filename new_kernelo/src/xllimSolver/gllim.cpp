@@ -1,7 +1,7 @@
 #include "gllim.hpp"
 #include "../utils/utils.hpp"
 #include "jgmm.hpp"
-// #include "emEstimator.hpp"
+#include "emEstimator.hpp"
 
 // ============================== Static methods ==============================
 
@@ -45,33 +45,31 @@ GLLiM<TGamma, TSigma>::GLLiM(unsigned L, unsigned D, unsigned K, const std::stri
 // {
 // }
 
+// void GLLiM<TGamma,TSigma>::train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor)
 // void GLLiM<TGamma,TSigma>::train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor)
 // {
 // }
 
 template <typename TGamma, typename TSigma>
-void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor)
+void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor)
 {
     // this->checkConstraints(); // ? Check if Params are valid and update constraints
 
-    // Full/Diag case
-    // TODO faire un this->estimator_ comme dans Old. dans factory.cpp
-    // if (this->constraints.gamma_type == "full" && this->constraints.sigma_type == "full")
-    if (std::is_same<TGamma, FullCovariance>::value && std::is_same<TSigma, FullCovariance>::value)
+    if constexpr (std::is_same<TGamma, FullCovariance>::value && std::is_same<TSigma, FullCovariance>::value) // C++17 improvment. "if constexpr" is evaluated at compile time.
     {
         std::cout << "Joint GMM training" << std::endl;
         // GLLiM is equivalent to a classic GMM on the joint law (X,Y). Applying the Armadillo built-in EM method is more efficient.
-        // JGMM estimator;
-        // // ? Faire une static method car on a pas besoin d'instancier un "estimator" ex: JGMM::train(...)
-        // this->theta = estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor); //  comment faire avec les paramètres ?
+
+        JGMM estimator;
+        unsigned kmeans_iteration = 10; // TODO set to 0 ? variable in arguments ?
+        unsigned em_iteration = max_iteration;
+        this->theta = estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor); //  comment faire avec les paramètres ?
     }
     else
     {
-        std::cout << "GLLiM<TGamma,TSigma> training" << std::endl;
-        // EmEstimator estimator;
-        // double max_iteration = kmeans_iteration;
-        // double ratio_ll = floor;
-        // this->theta = estimator.train(x, y, this->theta, max_iteration, ratio_ll, floor); //  comment faire avec les paramètres ?
+        std::cout << "GLLiM-EM training" << std::endl;
+        EmEstimator<TGamma, TSigma> estimator;
+        this->theta = estimator.train(x, y, this->theta, max_iteration, ratio_ll, floor); //  comment faire avec les paramètres ?
     }
 }
 

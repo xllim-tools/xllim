@@ -21,10 +21,14 @@ IsoCovariance IsoCovariance::inv() const
     return IsoCovariance(inv, this->size);
 }
 
-void IsoCovariance::rankOneUpdate(const vec &v, double alpha) const
+void IsoCovariance::rank_one_update(const vec &v, double alpha)
 {
-    // TODO
-    // scalar += accu(pow(v, 2) * alpha) / size;
+    this->scalar += alpha * accu(pow(v, 2)) / size;
+}
+
+void IsoCovariance::fill(const double scalar)
+{
+    this->scalar = scalar;
 }
 
 void IsoCovariance::print(const std::string &str) const

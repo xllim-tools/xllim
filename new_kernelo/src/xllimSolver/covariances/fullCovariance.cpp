@@ -19,13 +19,17 @@ FullCovariance FullCovariance::inv() const
     return FullCovariance(inv);
 }
 
-void FullCovariance::rankOneUpdate(const vec &v, double alpha) const
+void FullCovariance::rank_one_update(const vec &v, double alpha)
 {
-    // TODO
-    //  for (unsigned c = 0; c < v.n_rows; c++)
-    //  {
-    //      covariance.col(c) += v * v(c) * alpha;
-    //  }
+    for (unsigned i = 0; i < v.n_rows; i++)
+    {
+        this->covariances.col(i) += v * v(i) * alpha;
+    }
+}
+
+void FullCovariance::fill(const double scalar)
+{
+    this->covariances.fill(scalar);
 }
 
 void FullCovariance::print(const std::string &str) const

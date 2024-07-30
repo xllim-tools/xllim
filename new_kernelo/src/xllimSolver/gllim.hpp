@@ -39,8 +39,8 @@ public:
     //     unsigned kmeans_iteration,
     //     unsigned em_iteration,
     //     double floor);
-    // void train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor);
-    void train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor);
+    void train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor);
+    // void train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor);
 
     std::string getDimensions();
     std::string getConstraints();

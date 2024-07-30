@@ -23,10 +23,14 @@ DiagCovariance DiagCovariance::inv() const
     return DiagCovariance(inv);
 }
 
-void DiagCovariance::rankOneUpdate(const vec &v, double alpha) const
+void DiagCovariance::rank_one_update(const vec &v, double alpha)
 {
-    // TODO
-    // variances += pow(v, 2) * alpha;
+    this->variances += pow(v, 2) * alpha;
+}
+
+void DiagCovariance::fill(const double scalar)
+{
+    this->variances.fill(scalar);
 }
 
 void DiagCovariance::print(const std::string &str) const

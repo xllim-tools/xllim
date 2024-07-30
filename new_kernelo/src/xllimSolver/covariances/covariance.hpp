@@ -14,7 +14,8 @@ class Covariance // TODO useful interface ?
 public:
     virtual double log_det() const = 0;
     // virtual Covariance inv() const = 0; // error: invalid covariant return type
-    virtual void rankOneUpdate(const vec &v, double alpha) const = 0;
+    virtual void rank_one_update(const vec &v, double alpha) = 0;
+    virtual void fill(const double scalar) = 0;
     virtual void print(const std::string &str) const = 0;
     virtual void print() const = 0;
     virtual mat get_mat() const = 0;
@@ -40,7 +41,8 @@ public:
     // Class methods
     double log_det() const override;
     FullCovariance inv() const;
-    void rankOneUpdate(const vec &v, double alpha) const override;
+    void rank_one_update(const vec &v, double alpha) override;
+    void fill(const double scalar) override;
     void print(const std::string &str) const override;
     void print() const override;
     mat get_mat() const override;
@@ -82,7 +84,8 @@ public:
     // Class methods
     double log_det() const override;
     DiagCovariance inv() const;
-    void rankOneUpdate(const vec &v, double alpha) const override;
+    void rank_one_update(const vec &v, double alpha) override;
+    void fill(const double scalar) override;
     void print(const std::string &str) const override;
     void print() const override;
     mat get_mat() const override;
@@ -126,7 +129,8 @@ public:
     // Class methods
     double log_det() const override;
     IsoCovariance inv() const;
-    void rankOneUpdate(const vec &v, double alpha) const override;
+    void rank_one_update(const vec &v, double alpha) override;
+    void fill(const double scalar) override;
     void print(const std::string &str) const override;
     void print() const override;
     mat get_mat() const override;
