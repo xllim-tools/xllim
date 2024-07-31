@@ -99,8 +99,10 @@ target_link_libraries(dataGeneration_test PRIVATE gtest_main pybind11::embed dat
 add_executable(xllimSolver_test 
     cpptest/xllimSolver/covariancesTest/fullCovarianceTest.cpp
     cpptest/xllimSolver/covariancesTest/diagCovarianceTest.cpp
-    cpptest/xllimSolver/covariancesTest/isoCovarianceTest.cpp)
-target_link_libraries(xllimSolver_test PRIVATE gtest_main xllimSolver armadillo)
+    cpptest/xllimSolver/covariancesTest/isoCovarianceTest.cpp
+    # cpptest/xllimSolver/estimatorTest/jgmm_test.cpp
+    cpptest/xllimSolver/estimatorTest/emEstimator_test.cpp)
+target_link_libraries(xllimSolver_test PRIVATE gtest_main xllimSolver utils armadillo)
 
 add_executable(utils_test 
     cpptest/utils_test.cpp)

@@ -16,7 +16,7 @@ class EmEstimator
 {
 public:
     EmEstimator();
-    GLLiMParameters<TGamma, TSigma> train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor);
+    void train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor);
     // TODO
 
 private:

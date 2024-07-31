@@ -9,7 +9,7 @@ mat JGMM::getPosterior()
     return this->posterior;
 }
 
-GLLiMParameters<FullCovariance,FullCovariance> JGMM::train(const mat &x, const mat &y, GLLiMParameters<FullCovariance,FullCovariance> &initial_theta, unsigned kmeans_iteration, unsigned em_iteration, double floor)
+void JGMM::train(const mat &x, const mat &y, GLLiMParameters<FullCovariance,FullCovariance> &initial_theta, unsigned kmeans_iteration, unsigned em_iteration, double floor)
 {
     this->GLLiMParameterstoJGMM(initial_theta); // transform GLLiM parameters to joint GMM parameters
 
@@ -30,7 +30,8 @@ GLLiMParameters<FullCovariance,FullCovariance> JGMM::train(const mat &x, const m
     }
 
     // return the GLLiM from the GMM
-    return this->JGMMtoGLLiMParameters(); // transform joint GMM parameters to GLLiM parameters
+    initial_theta = this->JGMMtoGLLiMParameters();
+    // return this->JGMMtoGLLiMParameters(); // transform joint GMM parameters to GLLiM parameters
 }
 
 void JGMM::GLLiMParameterstoJGMM(GLLiMParameters<FullCovariance,FullCovariance> &initial_theta)

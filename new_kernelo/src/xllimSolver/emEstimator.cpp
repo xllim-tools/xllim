@@ -9,7 +9,7 @@ template <typename TGamma, typename TSigma>
 EmEstimator<TGamma, TSigma>::EmEstimator() {}
 
 template <typename TGamma, typename TSigma>
-GLLiMParameters<TGamma, TSigma> EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor)
+void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor)
 {
     mat log_r(t.n_cols, theta.Pi.n_cols, fill::value(-datum::inf)); // Posterior log probability (N, K)
 
@@ -56,7 +56,7 @@ GLLiMParameters<TGamma, TSigma> EmEstimator<TGamma, TSigma>::train(const mat &t,
 
     std::cout << "Finish GLLiM-EM Training" << std::endl;
     // Logging::Logger::GetInstance() -> log("Finish GLLiM-EM Training", Logging::Logger::level(Logging::INFO));
-    return theta;
+    // return theta;
 }
 
 // ============================== Private methods ==============================

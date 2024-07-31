@@ -63,13 +63,14 @@ void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_itera
         JGMM estimator;
         unsigned kmeans_iteration = 10; // TODO set to 0 ? variable in arguments ?
         unsigned em_iteration = max_iteration;
-        this->theta = estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor); //  comment faire avec les paramètres ?
+        estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor); //  comment faire avec les paramètres ?
     }
     else
     {
         std::cout << "GLLiM-EM training" << std::endl;
         EmEstimator<TGamma, TSigma> estimator;
-        this->theta = estimator.train(x, y, this->theta, max_iteration, ratio_ll, floor); //  comment faire avec les paramètres ?
+        // TODO estimator.train returnind void is better
+        estimator.train(x, y, this->theta, max_iteration, ratio_ll, floor); //  comment faire avec les paramètres ?
     }
 }
 

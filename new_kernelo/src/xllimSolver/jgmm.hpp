@@ -7,7 +7,7 @@ class JGMM
 {
 public:
     JGMM();
-    GLLiMParameters<FullCovariance,FullCovariance> train(const mat &x, const mat &y, GLLiMParameters<FullCovariance,FullCovariance> &theta, unsigned kmeans_iteration, unsigned em_iteration, double floor);
+    void train(const mat &x, const mat &y, GLLiMParameters<FullCovariance,FullCovariance> &theta, unsigned kmeans_iteration, unsigned em_iteration, double floor);
     mat getPosterior();
 
 private:
