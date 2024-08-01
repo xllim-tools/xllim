@@ -19,6 +19,14 @@ struct GLLiMParameters
     mat B;                     // A matrix of size (D,K)
     std::vector<TSigma> Sigma; // A vector of size K containing the covariance matrices (D,D) of the mixture of gaussian distribution that define high dimension data
 
+    // TODO 
+    // mat C_t; // observed (L_t,K)
+    // mat C_w; // latent (L_w,K)
+    // std::vector<TGamma> Gamma_t;
+    // std::vector<TGamma> Gamma_w;
+    // cube A_t;
+    // cube A_w;
+    
     // For more information on these parameters, see the formula 2 in Antoine Deleforge, Florence Forbes, and Radu Horaud.
     // High-Dimensional Regression with Gaussian Mixtures and Partially-Latent Response Variables. Statistics and Computing 25(5): 893-911, September 2015.
 

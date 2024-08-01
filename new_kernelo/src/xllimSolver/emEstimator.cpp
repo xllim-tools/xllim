@@ -12,6 +12,10 @@ template <typename TGamma, typename TSigma>
 void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor)
 {
     mat log_r(t.n_cols, theta.Pi.n_cols, fill::value(-datum::inf)); // Posterior log probability (N, K)
+    // μw = np.zeros((self.Lw, self.N, self.K))
+    // Sw = np.zeros((self.Lw, self.Lw, self.K))
+    cube mu_w(this->L_w, t.n_cols, theta.Pi.n_cols); // Gaussian mean of posterior probability r_W|Z (L_w, N, K)
+    cube S_w(this->L_w, this->L_w, theta.Pi.n_cols); // Gaussian covariance matrix of posterior probability r_W|Z (L_w, L_w, K)
 
     // mat x_t = x.t();
     // mat y_t = y.t();
@@ -60,6 +64,77 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
 }
 
 // ============================== Private methods ==============================
+
+
+// template <typename TGamma, typename TSigma>
+// void EmEstimator<TGamma, TSigma>::expectation_W_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r, mat &mu_w, mat &S_w)
+// {
+//     // TODO Clear mathematical description
+//     // The posterior probability reW |Z , given parameter estimates, is fully defined by computing
+//     // the distributions p(w_n |Z_n = k, t_n , y_n ; θ(i) ), for all n and all k, which can be shown to be Gaussian,
+//     // with mean µ_w(n,k) and covariance matrix S_w(k) given by
+
+//     // def _expectation_w(self, t, y, θ):
+//         // if self.Lw == 0:
+//         //     μw = np.zeros(0)
+//         //     Sw = np.zeros(0)
+//         //     return μw, Sw
+//     if (this->L_w == 0)
+//     {
+//         mu_w.zeros();
+//         S_w.zeros();
+//     }
+        
+//     // if self.verbose: print('Expectation W step')
+//     std::cout << "Finish GLLiM-EM Training" << std::endl;
+
+//     // μw = np.zeros((self.Lw, self.N, self.K))
+//     // Sw = np.zeros((self.Lw, self.Lw, self.K))
+
+//     // bar = progressbar.ProgressBar(widgets=['k = ', progressbar.SimpleProgress(), progressbar.Bar()])
+//     // for k in bar(range(self.K)):
+//     //     if self.verbose > 1:
+//     //         print('  - k = %d'%(k))
+
+//     for (unsigned k = 0; k < theta.K; k++)
+//     {
+//         std::cout << "\t k=" << k << std::endl;
+//         // # DEFINITION
+//         // Atk = np.reshape(θ['A'][:,0:self.Lt,k], (self.D, self.Lt), order = 'F') # DxLt
+//         // Awk = np.reshape(θ['A'][:,self.Lt:self.L,k], (self.D, self.Lw), order = 'F') # DxLw
+//         // bk = np.reshape(θ['b'][:,k], (self.D,1), order = 'F') # Dx1
+//         // Σk = np.reshape(θ['Σ'][:,:,k], (self.D, self.D), order = 'F') # DxD
+//         // Γwk = np.reshape(θ['Γ'][self.Lt:self.L, self.Lt:self.L, k], (self.Lw, self.Lw), order = 'F') # LwxLw
+//         // cwk = θ['c'][self.Lt:self.L, k] # Lwx1
+
+//         // invΓwk = np.linalg.inv(Γwk)
+//         // invΣk = np.linalg.inv(Σk)
+//         // invSwk = invΓwk + np.matmul(np.matmul(Awk.T, invΣk), Awk) # LwxLw
+
+//         TGamma inv_Gamma_w_k = theta.Gamma_w[k].inv(); // (L_w, L_w)
+//         TSigma inv_Sigma_k = theta.Sigma[k].inv(); // (D, D)
+
+//         mat inv_S_w_k = inv_Gamma_w_k + theta.A_w.slice(k).t() * inv_Sigma_k * theta.A_w.slice(k) // (L_w, L_w)
+
+//         // if not allnans(t):
+//         //     Atkt = np.dot(Atk, t) # DxLt
+//         // else:
+//         //     Atkt = 0
+
+//         // Sw[:,:,k] = np.linalg.inv(invSwk)
+//         // μw[:,:,k] = np.dot(
+//         //                 np.linalg.inv(np.dot(invSwk, Γwk)),
+//         //                 np.dot(np.dot(np.dot(Γwk,Awk.T),invΣk),
+//         //                 y - Atkt - bk) + cwk
+//         //             )
+//         // ! Fomulation différente du papier
+
+//         S_w.slice(k) = inv_S_w_k.inv();
+//         mu_w.slice(k) = S_w.slice(k) * (theta.A_w.slice(k).t() * inv_Sigma_k * ( y.col(n) - theta.A_t.slice(k) * t.col(n) - theta.B.col(k)) + inv_Gamma_w_k * theta.C_w.col(k));
+//     }
+//     // return μw, Sw
+// }
+
 
 template <typename TGamma, typename TSigma>
 void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r)
