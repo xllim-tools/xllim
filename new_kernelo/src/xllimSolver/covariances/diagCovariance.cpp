@@ -8,7 +8,7 @@ DiagCovariance::DiagCovariance(const arma::subview_row<double> &var) : variances
 
 DiagCovariance::DiagCovariance(const mat &cov) : variances(cov.diag()) {}
 
-DiagCovariance::DiagCovariance(unsigned dimension) : variances(vec(dimension, fill::zeros)) {}
+DiagCovariance::DiagCovariance(unsigned dimension) : variances(vec(dimension, fill::ones)) {}
 
 // ==================== Class methods ====================
 

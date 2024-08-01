@@ -14,8 +14,8 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     mat log_r(t.n_cols, theta.Pi.n_cols, fill::value(-datum::inf)); // Posterior log probability (N, K)
     // μw = np.zeros((self.Lw, self.N, self.K))
     // Sw = np.zeros((self.Lw, self.Lw, self.K))
-    cube mu_w(this->L_w, t.n_cols, theta.Pi.n_cols); // Gaussian mean of posterior probability r_W|Z (L_w, N, K)
-    cube S_w(this->L_w, this->L_w, theta.Pi.n_cols); // Gaussian covariance matrix of posterior probability r_W|Z (L_w, L_w, K)
+    // cube mu_w(this->L_w, t.n_cols, theta.Pi.n_cols); // Gaussian mean of posterior probability r_W|Z (L_w, N, K)
+    // cube S_w(this->L_w, this->L_w, theta.Pi.n_cols); // Gaussian covariance matrix of posterior probability r_W|Z (L_w, L_w, K)
 
     // mat x_t = x.t();
     // mat y_t = y.t();
@@ -61,6 +61,12 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     std::cout << "Finish GLLiM-EM Training" << std::endl;
     // Logging::Logger::GetInstance() -> log("Finish GLLiM-EM Training", Logging::Logger::level(Logging::INFO));
     // return theta;
+}
+
+template <typename TGamma, typename TSigma>
+vec EmEstimator<TGamma, TSigma>::get_log_likelihood()
+{
+    return this->log_likelihood;
 }
 
 // ============================== Private methods ==============================

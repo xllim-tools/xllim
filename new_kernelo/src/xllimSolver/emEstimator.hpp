@@ -17,7 +17,19 @@ class EmEstimator
 public:
     EmEstimator();
     void train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor);
-    // TODO
+    vec get_log_likelihood();
+    
+    /**
+     * @brief M-step method
+     * @details The methods performs the update of the parameters of the GLLim Model using the new value of the posterior rnk.
+     * See page 900 in Antoine Deleforge, Florence Forbes, and Radu Horaud. High-Dimensional Regression with Gaussian Mixtures and
+     * Partially-Latent Response Variables. Statistics and Computing 25(5): 893-911, September 2015.
+     * @param x : a matrix of low dimension data
+     * @param y : a matrix of high dimension data
+     * @param r_nk : the logarithm of the posterior
+     * @param next_theta : the new values of the GLLiM model parameters computed in this method
+     */
+    void maximization_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, const mat &log_r, double floor);  // mu, S
 
 private:
     vec log_likelihood; // log likelihood of the model at every step. Maximum vector length is max_iteration
@@ -34,18 +46,6 @@ private:
      * @param next_rnk : the new posterior computed by the E-step.
      */
     void expectation_Z_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r);
-
-    /**
-     * @brief M-step method
-     * @details The methods performs the update of the parameters of the GLLim Model using the new value of the posterior rnk.
-     * See page 900 in Antoine Deleforge, Florence Forbes, and Radu Horaud. High-Dimensional Regression with Gaussian Mixtures and
-     * Partially-Latent Response Variables. Statistics and Computing 25(5): 893-911, September 2015.
-     * @param x : a matrix of low dimension data
-     * @param y : a matrix of high dimension data
-     * @param r_nk : the logarithm of the posterior
-     * @param next_theta : the new values of the GLLiM model parameters computed in this method
-     */
-    void maximization_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, const mat &log_r, double floor);  // mu, S
 
     mat norm_log_r(const mat &log_r);
     double compute_log_likelihood(const mat &r);

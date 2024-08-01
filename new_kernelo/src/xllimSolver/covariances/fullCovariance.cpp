@@ -4,7 +4,7 @@
 
 FullCovariance::FullCovariance(const mat &cov) : covariances(cov) {}
 
-FullCovariance::FullCovariance(unsigned dimension) : covariances(mat(dimension, dimension, fill::zeros)) {}
+FullCovariance::FullCovariance(unsigned dimension) : covariances(mat(dimension, dimension, fill::eye)) {}
 
 // ==================== Class methods ====================
 

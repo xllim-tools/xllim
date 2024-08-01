@@ -41,9 +41,88 @@ GLLiM<TGamma, TSigma>::GLLiM(unsigned L, unsigned D, unsigned K, const std::stri
 
 // ============================== Main public methods ==============================
 
-// void GLLiM<TGamma,TSigma>::initialize(const mat &x, const mat &y, unsigned seed, unsigned nb_iter_EM, unsigned nb_experiences, unsigned max_iteration, double ratio_ll, double floor, unsigned kmeans_iteration, unsigned em_iteration, double floor)
-// {
-// }
+template <typename TGamma, typename TSigma>
+void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned gllim_em_iteration, double gllim_em_floor, unsigned gmm_kmeans_iteration, unsigned gmm_em_iteration, double gmm_floor, unsigned nb_experiences, unsigned seed)
+{
+    // TODO Hybrid ?
+
+    unsigned L = t.n_cols,
+             D = y.n_cols,
+             K = this->theta.K,
+             N = t.n_rows;
+
+    double best_log_likelihood = -(datum::inf);
+    double log_likelihood;
+    GLLiMParameters<TGamma, TSigma> best_theta(L, D, K);
+    GLLiMParameters<TGamma, TSigma> local_theta(L, D, K);
+    // mat best_log_rnk(N, K, fill::zeros);
+    mat log_r(N, K, fill::zeros);
+
+
+    rowvec gmm_weights(K);
+    mat gmm_means(L, K);
+    cube gmm_covs(L, L, K);
+    JGMM gmmEstimator;
+    EmEstimator<TGamma, TSigma> gllimEmEstimator;
+    DataGeneration::RandomGenerator randomGenerator(seed);
+
+
+    std::cout << "Start Initialization" << std::endl;
+    for (unsigned exp = 0; exp < nb_experiences; exp++)
+    {
+        std::cout << "Initialisation : " << std::to_string(exp + 1) << std::endl;
+
+        // generate a mean for the GMM using a data generator strategy
+        std::cout << "\tGenerate GMM means" << std::endl;
+        randomGenerator.execute(gmm_means);
+
+        // use the same weight for all the clusters
+        gmm_weights.ones();
+        gmm_weights /= K;
+
+        // Create a cube of K covariance matrices with a homothety constraint
+        std::cout << "\tGenerate GMM covariance matrices" << std::endl;
+        gmm_covs.zeros();
+        for (unsigned k = 0; k < K; k++)
+        {
+            gmm_covs.slice(k).diag() += sqrt(1.0 / (pow(K, 1.0 / L)));
+        }
+
+        // train a GMM over nb_iter iteration
+        std::cout << "\tTrain the GMM model" << std::endl;
+        gmm_full gmm;
+        gmm.set_params(gmm_means, gmm_covs, gmm_weights);
+        gmm.learn(t.t(), K, maha_dist, keep_existing, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, false);
+
+        // compute log_rnk using the posterior of the GMM after the training
+        for (unsigned k = 0; k < K; k++)
+        {
+            log_r.col(k) = gmm.log_p(t.t(), k).t();
+        }
+
+        std::cout << "\tCompute Initial theta vector of the GLLiM model from GMM" << std::endl;
+        gllimEmEstimator.maximization_step(t.t(), y.t(), local_theta, log_r, gllim_em_floor);
+
+        std::cout << "\tTrain the initial GLLiM model" << std::endl;
+        // ! Simplification : just use train() method. If ratio_ll is set to 0, the new version it is equivalent (must be verified) to the old version.
+        gllimEmEstimator.train(t.t(), y.t(), local_theta, gllim_em_iteration, -1.0, gllim_em_floor); // TODO verbose = 0,1,2..
+
+        vec log_likelihood_list = gllimEmEstimator.get_log_likelihood();      // log_likelihood for each iteration
+        log_likelihood = log_likelihood_list[log_likelihood_list.n_elem - 1]; // log_likelihood of last iteration
+
+
+        if (log_likelihood > best_log_likelihood)
+        {
+            best_theta = local_theta;
+            best_log_likelihood = log_likelihood;
+            // best_log_rnk = log_r;
+        }
+        std::cout << "\tCurrent log likelihood : " << std::to_string(log_likelihood) << ", Best log likelihood : " << std::to_string(best_log_likelihood) << std::endl;
+    }
+
+    this->theta = best_theta;
+    std::cout << "FinishInitialization" << std::endl;
+}
 
 // void GLLiM<TGamma,TSigma>::train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor)
 // void GLLiM<TGamma,TSigma>::train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor)

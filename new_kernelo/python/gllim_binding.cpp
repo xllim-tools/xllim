@@ -79,6 +79,7 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
         .def("inverseDensities", py::overload_cast<const mat &, const mat &>(&GLLiM<TGamma, TSigma>::inverseDensities))
         .def("inverseDensities", py::overload_cast<const mat &>(&GLLiM<TGamma, TSigma>::inverseDensities))
 
+        .def("initialize", &GLLiM<TGamma, TSigma>::initialize)
         .def("train", &GLLiM<TGamma, TSigma>::train)
 
         //    // Do we need to expose this class ?

@@ -6,7 +6,7 @@ IsoCovariance::IsoCovariance(double variance, unsigned dimension) : scalar(varia
 
 IsoCovariance::IsoCovariance(const mat &covariance) : scalar(accu(covariance.diag()) / covariance.n_cols), size(covariance.n_cols) {}
 
-IsoCovariance::IsoCovariance(unsigned dimension) : scalar(0), size(dimension) {}
+IsoCovariance::IsoCovariance(unsigned dimension) : scalar(1.0), size(dimension) {}
 
 // ==================== Class methods ====================
 
