@@ -111,7 +111,7 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         log_likelihood = log_likelihood_list[log_likelihood_list.n_elem - 1]; // log_likelihood of last iteration
 
 
-        if (log_likelihood > best_log_likelihood)
+        if (log_likelihood >= best_log_likelihood)
         {
             best_theta = local_theta;
             best_log_likelihood = log_likelihood;
