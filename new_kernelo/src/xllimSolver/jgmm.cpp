@@ -13,7 +13,7 @@ void JGMM::train(const mat &x, const mat &y, GLLiMParameters<FullCovariance,Full
 {
     this->GLLiMParameterstoJGMM(initial_theta); // transform GLLiM parameters to joint GMM parameters
 
-    mat training_data = join_cols(x.t(), y.t()); // create training data set by concatenating X and Y matrices
+    mat training_data = join_cols(x, y); // create training data set by concatenating X and Y matrices
 
     // train the GMM with the training data set
 

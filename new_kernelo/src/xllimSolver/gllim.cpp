@@ -46,10 +46,10 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
 {
     // TODO Hybrid ?
 
-    unsigned L = t.n_cols,
-             D = y.n_cols,
+    unsigned L = t.n_rows,
+             D = y.n_rows,
              K = this->theta.K,
-             N = t.n_rows;
+             N = t.n_cols;
 
     double best_log_likelihood = -(datum::inf);
     double log_likelihood;
@@ -92,20 +92,20 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         std::cout << "\tTrain the GMM model" << std::endl;
         gmm_full gmm;
         gmm.set_params(gmm_means, gmm_covs, gmm_weights);
-        gmm.learn(t.t(), K, maha_dist, keep_existing, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, false);
+        gmm.learn(t, K, maha_dist, keep_existing, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, false);
 
         // compute log_rnk using the posterior of the GMM after the training
         for (unsigned k = 0; k < K; k++)
         {
-            log_r.col(k) = gmm.log_p(t.t(), k).t();
+            log_r.col(k) = gmm.log_p(t, k).t();
         }
 
         std::cout << "\tCompute Initial theta vector of the GLLiM model from GMM" << std::endl;
-        gllimEmEstimator.maximization_step(t.t(), y.t(), local_theta, log_r, gllim_em_floor);
+        gllimEmEstimator.maximization_step(t, y, local_theta, log_r, gllim_em_floor);
 
         std::cout << "\tTrain the initial GLLiM model" << std::endl;
         // ! Simplification : just use train() method. If ratio_ll is set to 0, the new version it is equivalent (must be verified) to the old version.
-        gllimEmEstimator.train(t.t(), y.t(), local_theta, gllim_em_iteration, -1.0, gllim_em_floor); // TODO verbose = 0,1,2..
+        gllimEmEstimator.train(t, y, local_theta, gllim_em_iteration, -1.0, gllim_em_floor); // TODO verbose = 0,1,2..
 
         vec log_likelihood_list = gllimEmEstimator.get_log_likelihood();      // log_likelihood for each iteration
         log_likelihood = log_likelihood_list[log_likelihood_list.n_elem - 1]; // log_likelihood of last iteration
@@ -567,7 +567,9 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
     {
         // Compute the means for each k
         // Each column of 'x' is multiplied by A.slice(k) and then B.col(k) is added
-        means.slice(k) = (theta.A.slice(k) * x).t() + arma::repmat(theta.B.col(k).t(), N_obs, 1);
+        means.slice(k) = (theta.A.slice(k) * x).t();
+        means.slice(k).each_row() += theta.B.col(k).t();
+        // means.slice(k) = (theta.A.slice(k) * x).t() + arma::repmat(theta.B.col(k).t(), N_obs, 1);
     }
 
     // covariances
