@@ -16,7 +16,7 @@ class EmEstimator
 {
 public:
     EmEstimator();
-    void train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor);
+    void train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor, int verbose = 1);
     vec get_log_likelihood();
     
     /**
@@ -129,7 +129,7 @@ private:
      * @param current_iter : The current number of iteration passed so far
      * @return boolean
      */
-    bool has_converged(double old_log_likelihood, double new_log_likelihood, unsigned current_iter, unsigned max_iteration, double ratio_ll, double floor);
+    bool has_converged(double old_log_likelihood, double new_log_likelihood, unsigned current_iter, unsigned max_iteration, double ratio_ll, double floor, int verbose);
 
     /**
      * @brief Computation stability improvement fo the covariance matrix

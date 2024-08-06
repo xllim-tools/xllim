@@ -49,6 +49,11 @@ add_library(xllimSolver STATIC
 )
 set_target_properties(xllimSolver PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
+add_library(logging STATIC 
+    src/logging/logger.cpp
+)
+set_target_properties(logging PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 # 2 methodes pour inclure CARMA:
 #      soit C/C dans le code en dur carma/include et faire #include <carma.carma.h> dans le C++ pybind11
 #      soit comme dans la docu officiel avec cmake (instalation dans /usr/local/include/) ... mouais
@@ -57,7 +62,7 @@ set_target_properties(xllimSolver PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # find_package(pybind11 REQUIRED) # -- Found pybind11: /home/luc/.local/include (found version "2.11.1")
 add_subdirectory(extern/pybind11) # in subdirectory
 pybind11_add_module(newkernelo python/kernelo.cpp)
-target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration utils xllimSolver)
+target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration utils xllimSolver logging)
 target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 target_link_libraries(dataGeneration PRIVATE pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 
@@ -102,7 +107,7 @@ add_executable(xllimSolver_test
     cpptest/xllimSolver/covariancesTest/isoCovarianceTest.cpp
     # cpptest/xllimSolver/estimatorTest/jgmm_test.cpp
     cpptest/xllimSolver/estimatorTest/emEstimator_test.cpp)
-target_link_libraries(xllimSolver_test PRIVATE gtest_main xllimSolver utils armadillo)
+target_link_libraries(xllimSolver_test PRIVATE gtest_main xllimSolver utils logging armadillo)
 
 add_executable(utils_test 
     cpptest/utils_test.cpp)

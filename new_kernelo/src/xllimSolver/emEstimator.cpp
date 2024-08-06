@@ -1,7 +1,7 @@
 #include "omp.h"
-#include "../utils/utils.hpp"
 #include "emEstimator.hpp"
-// #include "../../logging/Logger.h"
+#include "../utils/utils.hpp"
+#include "../logging/logger.hpp"
 
 #define LOG_2_PI log(2 * datum::pi)
 
@@ -9,7 +9,7 @@ template <typename TGamma, typename TSigma>
 EmEstimator<TGamma, TSigma>::EmEstimator() {}
 
 template <typename TGamma, typename TSigma>
-void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor)
+void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor, int verbose)
 {
     mat log_r(t.n_cols, theta.Pi.n_cols, fill::value(-datum::inf)); // Posterior log probability (N, K)
     // μw = np.zeros((self.Lw, self.N, self.K))
@@ -27,9 +27,13 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     // double old_log_likelihood;
     // this->log_likelihood(iteration) = -datum::inf; // new_log_likelihood
 
-    std::cout << "Start GLLiM-EM Training" << std::endl;
-    // Logging::Logger::GetInstance()->log("Start GLLiM-EM Training", Logging::Logger::level(Logging::INFO));
-
+    // set a logger with a progress bar for GLLiM-EM training
+    Logger &logger = Logger::getInstance();
+    if (verbose >= 1)
+    {
+        logger.startProgressBar(max_iteration);
+        logger.log(INFO, "Start GLLiM-EM Training");
+    }
     do
     {
         iteration++;
@@ -51,15 +55,18 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
         this->maximization_step(t, y, theta, log_r, floor);
         this->log_likelihood(iteration) = this->compute_log_likelihood(log_r); // new_log_likelihood
 
-        std::cout << "Iteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(this->log_likelihood(iteration)) << std::endl;
-        // Logging::Logger::GetInstance() -> log("Iteration : " + std::to_string(iteration)
-        //                                          + ", log likelihood : " + std::to_string(new_log_likelihood),
-        //                                       Logging::Logger::level(Logging::INFO));
+        if (verbose >= 1)
+        {
+            logger.updateProgressBar(iteration);
+            logger.log(INFO, "Iteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(this->log_likelihood(iteration)));
+        }
 
-    } while (!this->has_converged(this->log_likelihood(iteration - 1), this->log_likelihood(iteration), iteration, max_iteration, ratio_ll, floor));
-
-    std::cout << "Finish GLLiM-EM Training" << std::endl;
-    // Logging::Logger::GetInstance() -> log("Finish GLLiM-EM Training", Logging::Logger::level(Logging::INFO));
+    } while (!this->has_converged(this->log_likelihood(iteration - 1), this->log_likelihood(iteration), iteration, max_iteration, ratio_ll, floor, verbose));
+    if (verbose >= 1)
+    {
+        logger.stopProgressBar();
+        logger.log(INFO, "Finish GLLiM-EM Training");
+    }
     // return theta;
 }
 
@@ -70,7 +77,6 @@ vec EmEstimator<TGamma, TSigma>::get_log_likelihood()
 }
 
 // ============================== Private methods ==============================
-
 
 // template <typename TGamma, typename TSigma>
 // void EmEstimator<TGamma, TSigma>::expectation_W_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r, mat &mu_w, mat &S_w)
@@ -90,9 +96,9 @@ vec EmEstimator<TGamma, TSigma>::get_log_likelihood()
 //         mu_w.zeros();
 //         S_w.zeros();
 //     }
-        
+
 //     // if self.verbose: print('Expectation W step')
-//     std::cout << "Finish GLLiM-EM Training" << std::endl;
+//     Logger::getInstance().log(INFO, "Finish GLLiM-EM Training");
 
 //     // μw = np.zeros((self.Lw, self.N, self.K))
 //     // Sw = np.zeros((self.Lw, self.Lw, self.K))
@@ -104,7 +110,7 @@ vec EmEstimator<TGamma, TSigma>::get_log_likelihood()
 
 //     for (unsigned k = 0; k < theta.K; k++)
 //     {
-//         std::cout << "\t k=" << k << std::endl;
+//         Logger::getInstance().log(INFO, "\t k=" << k);
 //         // # DEFINITION
 //         // Atk = np.reshape(θ['A'][:,0:self.Lt,k], (self.D, self.Lt), order = 'F') # DxLt
 //         // Awk = np.reshape(θ['A'][:,self.Lt:self.L,k], (self.D, self.Lw), order = 'F') # DxLw
@@ -140,7 +146,6 @@ vec EmEstimator<TGamma, TSigma>::get_log_likelihood()
 //     }
 //     // return μw, Sw
 // }
-
 
 template <typename TGamma, typename TSigma>
 void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r)
@@ -205,9 +210,7 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
         else
         {
             // set log_r = -inf if the determinent of the covariance is equal to zero which makes the log density to tend toward +infinity
-            std::cout << "\tTheta Component : " + std::to_string(k) + ", Sigma log determinant : " + std::to_string(log_det_sigma) + ", Gamma log determinant : " + std::to_string(log_det_gamma) << std::endl;
-            // Logging::Logger::GetInstance()->log("\tTheta Component : " + std::to_string(k) + ", Sigma log determinant : " + std::to_string(log_det_sigma) + ", Gamma log determinant : " + std::to_string(log_det_gamma),
-            //                                     Logging::Logger::level(Logging::WARNING));
+            Logger::getInstance().log(WARNING, "\tTheta Component : " + std::to_string(k) + ", Sigma log determinant : " + std::to_string(log_det_sigma) + ", Gamma log determinant : " + std::to_string(log_det_gamma));
             log_r.col(k).fill(-datum::inf);
         }
     }
@@ -359,24 +362,28 @@ double EmEstimator<TGamma, TSigma>::compute_log_likelihood(const mat &log_r)
 }
 
 template <typename TGamma, typename TSigma>
-bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, double new_log_likelihood, unsigned current_iter, unsigned max_iteration, double ratio_ll, double floor)
+bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, double new_log_likelihood, unsigned current_iter, unsigned max_iteration, double ratio_ll, double floor, int verbose)
 {
     double ratio_increase_likelihood = (exp(new_log_likelihood) - exp(old_log_likelihood)) / exp(old_log_likelihood);
     bool max_iter_condition = current_iter == max_iteration;
 
     if (max_iter_condition)
     {
-        std::cout << "Maximum iteration number reached" << std::endl;
-        // Logging::Logger::GetInstance() -> log("Maximum iteration number reached", Logging::Logger::level(Logging::INFO));
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "Maximum iteration number reached");
+        }
     }
 
     bool ratio_ll_condition = ratio_increase_likelihood <= ratio_ll / 100;
+    ratio_ll_condition = false; // TODO temporary for test. log likelihood is decreasing ?
 
     if (ratio_ll_condition)
     {
-        std::cout << "Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100) << std::endl;
-        // Logging::Logger::GetInstance() -> log("Likelihood increase threshold reached : " + std::to_string(config->ratio_ll/100),
-        //                                       Logging::Logger::level(Logging::INFO));
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100));
+        }
     }
     return max_iter_condition || ratio_ll_condition;
 }

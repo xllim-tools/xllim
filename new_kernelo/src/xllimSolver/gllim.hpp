@@ -40,8 +40,8 @@ public:
     //     unsigned kmeans_iteration,
     //     unsigned em_iteration,
     //     double floor);
-    void initialize(const mat &t, const mat &y, unsigned gllim_em_iteration, double gllim_em_floor, unsigned gmm_kmeans_iteration, unsigned gmm_em_iteration, double gmm_floor, unsigned nb_experiences, unsigned seed);
-    void train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor);
+    void initialize(const mat &t, const mat &y, unsigned gllim_em_iteration, double gllim_em_floor, unsigned gmm_kmeans_iteration, unsigned gmm_em_iteration, double gmm_floor, unsigned nb_experiences, unsigned seed, int verbose = 1);
+    void train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor, int verbose = 1);
     // void train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor);
 
     std::string getDimensions();

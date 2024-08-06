@@ -1,7 +1,8 @@
 #include "gllim.hpp"
-#include "../utils/utils.hpp"
 #include "jgmm.hpp"
 #include "emEstimator.hpp"
+#include "../utils/utils.hpp"
+#include "../logging/logger.hpp"
 
 // ============================== Static methods ==============================
 
@@ -34,15 +35,15 @@ static std::vector<TCov> convertArmaToVectorOfCov(unsigned &K, unsigned &dimensi
 template <typename TGamma, typename TSigma>
 GLLiM<TGamma, TSigma>::GLLiM(unsigned L, unsigned D, unsigned K, const std::string &gamma_type, const std::string &sigma_type) : theta(L, D, K), theta_star(D, L, K), constraints(gamma_type, sigma_type)
 {
-    std::cout << "GLLiM Parameters initialized" << std::endl;
-    std::cout << GLLiM<TGamma, TSigma>::getDimensions() << std::endl;
-    std::cout << GLLiM<TGamma, TSigma>::getConstraints() << std::endl;
+    Logger::getInstance().log(INFO, "GLLiM Parameters initialized");
+    Logger::getInstance().log(INFO, GLLiM<TGamma, TSigma>::getDimensions());
+    Logger::getInstance().log(INFO, GLLiM<TGamma, TSigma>::getConstraints());
 }
 
 // ============================== Main public methods ==============================
 
 template <typename TGamma, typename TSigma>
-void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned gllim_em_iteration, double gllim_em_floor, unsigned gmm_kmeans_iteration, unsigned gmm_em_iteration, double gmm_floor, unsigned nb_experiences, unsigned seed)
+void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned gllim_em_iteration, double gllim_em_floor, unsigned gmm_kmeans_iteration, unsigned gmm_em_iteration, double gmm_floor, unsigned nb_experiences, unsigned seed, int verbose)
 {
     // TODO Hybrid ?
 
@@ -58,7 +59,6 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
     // mat best_log_rnk(N, K, fill::zeros);
     mat log_r(N, K, fill::zeros);
 
-
     rowvec gmm_weights(K);
     mat gmm_means(L, K);
     cube gmm_covs(L, L, K);
@@ -66,14 +66,22 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
     EmEstimator<TGamma, TSigma> gllimEmEstimator;
     DataGeneration::RandomGenerator randomGenerator(seed);
 
-
-    std::cout << "Start Initialization" << std::endl;
+    if (verbose >= 1)
+    {
+        Logger::getInstance().log(INFO, "Start Initialization");
+    }
     for (unsigned exp = 0; exp < nb_experiences; exp++)
     {
-        std::cout << "Initialisation : " << std::to_string(exp + 1) << std::endl;
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "Initialisation : " + std::to_string(exp + 1));
+        }
 
         // generate a mean for the GMM using a data generator strategy
-        std::cout << "\tGenerate GMM means" << std::endl;
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "\tGenerate GMM means");
+        }
         randomGenerator.execute(gmm_means);
 
         // use the same weight for all the clusters
@@ -81,7 +89,10 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         gmm_weights /= K;
 
         // Create a cube of K covariance matrices with a homothety constraint
-        std::cout << "\tGenerate GMM covariance matrices" << std::endl;
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "\tGenerate GMM covariance matrices");
+        }
         gmm_covs.zeros();
         for (unsigned k = 0; k < K; k++)
         {
@@ -89,7 +100,10 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         }
 
         // train a GMM over nb_iter iteration
-        std::cout << "\tTrain the GMM model" << std::endl;
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "\tTrain the GMM model");
+        }
         gmm_full gmm;
         gmm.set_params(gmm_means, gmm_covs, gmm_weights);
         gmm.learn(t, K, maha_dist, keep_existing, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, false);
@@ -100,16 +114,21 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
             log_r.col(k) = gmm.log_p(t, k).t();
         }
 
-        std::cout << "\tCompute Initial theta vector of the GLLiM model from GMM" << std::endl;
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "\tCompute Initial theta vector of the GLLiM model from GMM");
+        }
         gllimEmEstimator.maximization_step(t, y, local_theta, log_r, gllim_em_floor);
 
-        std::cout << "\tTrain the initial GLLiM model" << std::endl;
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "\tTrain the initial GLLiM model");
+        }
         // ! Simplification : just use train() method. If ratio_ll is set to 0, the new version it is equivalent (must be verified) to the old version.
-        gllimEmEstimator.train(t, y, local_theta, gllim_em_iteration, -1.0, gllim_em_floor); // TODO verbose = 0,1,2..
+        gllimEmEstimator.train(t, y, local_theta, gllim_em_iteration, -1.0, gllim_em_floor, verbose); // TODO verbose = 0,1,2..
 
         vec log_likelihood_list = gllimEmEstimator.get_log_likelihood();      // log_likelihood for each iteration
         log_likelihood = log_likelihood_list[log_likelihood_list.n_elem - 1]; // log_likelihood of last iteration
-
 
         if (log_likelihood >= best_log_likelihood)
         {
@@ -117,11 +136,17 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
             best_log_likelihood = log_likelihood;
             // best_log_rnk = log_r;
         }
-        std::cout << "\tCurrent log likelihood : " << std::to_string(log_likelihood) << ", Best log likelihood : " << std::to_string(best_log_likelihood) << std::endl;
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "\tCurrent log likelihood : " + std::to_string(log_likelihood) + ", Best log likelihood : " + std::to_string(best_log_likelihood));
+        }
     }
 
     this->theta = best_theta;
-    std::cout << "FinishInitialization" << std::endl;
+    if (verbose >= 1)
+    {
+        Logger::getInstance().log(INFO, "FinishInitialization");
+    }
 }
 
 // void GLLiM<TGamma,TSigma>::train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor)
@@ -130,26 +155,28 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
 // }
 
 template <typename TGamma, typename TSigma>
-void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor)
+void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor, int verbose)
 {
     // this->checkConstraints(); // ? Check if Params are valid and update constraints
 
     if constexpr (std::is_same<TGamma, FullCovariance>::value && std::is_same<TSigma, FullCovariance>::value) // C++17 improvment. "if constexpr" is evaluated at compile time.
     {
-        std::cout << "Joint GMM training" << std::endl;
+        if (verbose >= 0)
+        {
+            Logger::getInstance().log(WARNING, "A classic GMM training is applied on the equivalent joint-GMM to GLLiM. The algorithm is provided by the Armadillo library. This option is only available whith 'full/full' constraints. The training is equivalent and faster than the GLLiM-EM algorithm.");
+        }
         // GLLiM is equivalent to a classic GMM on the joint law (X,Y). Applying the Armadillo built-in EM method is more efficient.
 
         JGMM estimator;
         unsigned kmeans_iteration = 10; // TODO set to 0 ? variable in arguments ?
         unsigned em_iteration = max_iteration;
-        estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor); //  comment faire avec les paramètres ?
+        estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor, verbose); //  comment faire avec les paramètres ?
     }
     else
     {
-        std::cout << "GLLiM-EM training" << std::endl;
         EmEstimator<TGamma, TSigma> estimator;
         // TODO estimator.train returnind void is better
-        estimator.train(x, y, this->theta, max_iteration, ratio_ll, floor); //  comment faire avec les paramètres ?
+        estimator.train(x, y, this->theta, max_iteration, ratio_ll, floor, verbose); //  comment faire avec les paramètres ?
     }
 }
 

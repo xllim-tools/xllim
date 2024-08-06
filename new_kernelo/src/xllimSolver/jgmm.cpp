@@ -9,7 +9,7 @@ mat JGMM::getPosterior()
     return this->posterior;
 }
 
-void JGMM::train(const mat &x, const mat &y, GLLiMParameters<FullCovariance,FullCovariance> &initial_theta, unsigned kmeans_iteration, unsigned em_iteration, double floor)
+void JGMM::train(const mat &x, const mat &y, GLLiMParameters<FullCovariance,FullCovariance> &initial_theta, unsigned kmeans_iteration, unsigned em_iteration, double floor, int verbose)
 {
     this->GLLiMParameterstoJGMM(initial_theta); // transform GLLiM parameters to joint GMM parameters
 
@@ -20,9 +20,10 @@ void JGMM::train(const mat &x, const mat &y, GLLiMParameters<FullCovariance,Full
     // gmm_full jgmm;
     // jgmm.set_params(this->jgmm_means, this->jgmm_covariances, this->jgmm_weights);
     unsigned n_gaus = this->jgmm.n_gaus();
+    bool print_mode = (verbose >= 1);
     posterior = mat(training_data.n_cols, n_gaus);
 
-    this->jgmm.learn(training_data, n_gaus, maha_dist, keep_existing, kmeans_iteration, em_iteration, floor, true);
+    this->jgmm.learn(training_data, n_gaus, maha_dist, keep_existing, kmeans_iteration, em_iteration, floor, print_mode);
 
     for (unsigned k = 0; k < n_gaus; k++)
     {
@@ -43,9 +44,6 @@ void JGMM::GLLiMParameterstoJGMM(GLLiMParameters<FullCovariance,FullCovariance> 
     // GMM weights
     // this->Rou = theta.Pi;
     this->jgmm.reset(L + D, K);
-    std::cout << "K=" << std::to_string(K) << std::endl;
-    std::cout << "n_dims=" << std::to_string(this->jgmm.n_dims()) << std::endl;
-    std::cout << "n_gaus=" << std::to_string(this->jgmm.n_gaus()) << std::endl;
     this->jgmm.set_hefts(initial_theta.Pi);
 
     // GMM means
@@ -55,7 +53,6 @@ void JGMM::GLLiMParameterstoJGMM(GLLiMParameters<FullCovariance,FullCovariance> 
         AC.col(k) = initial_theta.A.slice(k) * initial_theta.C.col(k);
     }
     mat M = join_cols(initial_theta.C, AC + initial_theta.B);
-    std::cout<< std::to_string(M.n_rows) << std::to_string(M.n_cols) << std::endl;
     this->jgmm.set_means(M);
 
     // GMM Covariances
@@ -68,7 +65,6 @@ void JGMM::GLLiMParameterstoJGMM(GLLiMParameters<FullCovariance,FullCovariance> 
             join_rows(initial_theta.A.slice(j) * initial_theta.Gamma[j],
                       initial_theta.Sigma[j] + initial_theta.A.slice(j) * initial_theta.Gamma[j] * initial_theta.A.slice(j).t()));
     }
-    std::cout<< std::to_string(V.n_rows) << std::to_string(V.n_cols) << std::to_string(V.n_slices) << std::endl;
     this->jgmm.set_fcovs(V);
 }
 
