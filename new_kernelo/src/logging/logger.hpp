@@ -5,7 +5,6 @@
 #include <string>
 #include <mutex>
 #include <memory>
-#include "progressBar.hpp"
 
 enum LogLevel
 {
@@ -39,18 +38,13 @@ public:
      * @param total The total value representing 100% completion.
      * @param width The width of the progress bar in characters.
      */
-    void setProgressBar(int total, int width = 50);
+    void startProgressBar(int total, int width = 50);
 
     /**
      * @brief Updates the current progress bar.
      * @param value The current progress value.
      */
     void updateProgressBar(int value);
-
-    /**
-     * @brief Clears the current progress bar from the console.
-     */
-    void clearProgressBar();
 
     /**
      * @brief Stops the current progress bar from the console and print its last update.
@@ -63,7 +57,7 @@ public:
     void showProgressBar();
 
 private:
-    Logger() {}
+    Logger();
     ~Logger() {}
     Logger(const Logger &) = delete;
     Logger &operator=(const Logger &) = delete;
@@ -82,9 +76,17 @@ private:
      */
     std::string getColor(LogLevel level);
 
-    std::mutex log_mutex;                     ///< Mutex to ensure thread-safety for logging.
-    std::mutex progress_mutex;                ///< Mutex to ensure thread-safety for the progress bar.
-    std::unique_ptr<ProgressBar> progressBar; ///< Pointer to the progress bar instance.
+    /**
+     * @brief Clears the current progress bar from the console.
+     */
+    void clearProgressBar();
+
+    std::mutex log_mutex;                                                   ///< Mutex to ensure thread-safety for logging.
+    int progress_bar_total_;                                                ///< Total value for 100% completion.
+    int progress_bar_width_;                                                ///< Width of the progress bar.
+    int progress_bar_progress_;                                             ///< Current progress value.
+    bool progress_bar_active_;                                              ///< Status of the progress bar (active or not).
+    std::chrono::time_point<std::chrono::steady_clock> progress_bar_start_; ///< Start time for the progress bar.
 };
 
 #endif // LOGGER_HPP
