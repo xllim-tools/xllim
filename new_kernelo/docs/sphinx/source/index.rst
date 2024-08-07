@@ -15,7 +15,8 @@ Contents:
    :maxdepth: 2
 
    introduction
-   kernelo
+   gllim
+   functional_model
    example
 
 
