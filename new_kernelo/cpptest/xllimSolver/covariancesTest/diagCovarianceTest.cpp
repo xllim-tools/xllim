@@ -26,7 +26,7 @@ TEST_F(DiagCovarianceTest, Constructor)
     ASSERT_EQ(accu(B_diag.get_mat() != A_mat), 0);
 
     DiagCovariance C_diag(5);
-    ASSERT_EQ(accu(C_diag.get_mat() != mat(5, 5, fill::zeros)), 0);
+    ASSERT_EQ(accu(C_diag.get_mat() != mat(5, 5, fill::eye)), 0);
 }
 
 TEST_F(DiagCovarianceTest, EqualOperator)

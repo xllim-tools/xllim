@@ -26,7 +26,7 @@ TEST_F(IsoCovarianceTest, Constructor)
     ASSERT_EQ(accu(A_iso.get_mat() != A_mat), 0);
 
     IsoCovariance B_iso(5);
-    ASSERT_EQ(accu(B_iso.get_mat() != mat(5, 5, fill::zeros)), 0);
+    ASSERT_EQ(accu(B_iso.get_mat() != mat(5, 5, fill::eye)), 0);
 
     IsoCovariance C_iso(A_scalar, 4);
     ASSERT_EQ(accu(C_iso.get_mat() != A_mat), 0);

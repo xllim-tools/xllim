@@ -26,7 +26,7 @@ TEST_F(FullCovarianceTest, Constructors)
     ASSERT_EQ(accu(A_full.get_mat() != A_arma), 0);
 
     FullCovariance B_full(5);
-    ASSERT_EQ(accu(B_full.get_mat() != mat(5, 5, fill::zeros)), 0);
+    ASSERT_EQ(accu(B_full.get_mat() != mat(5, 5, fill::eye)), 0);
 }
 
 TEST_F(FullCovarianceTest, EqualOperator)
