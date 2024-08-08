@@ -2,7 +2,6 @@
 #define KERNELO_SOBOLGENERATOR_H
 
 #include "Generator.hpp"
-// #include <armadillo>
 
 using namespace arma;
 
@@ -24,7 +23,6 @@ namespace DataGeneration{
         void execute(mat &x) final ;
     };
 }
-
 
 
 #endif //KERNELO_SOBOLGENERATOR_H

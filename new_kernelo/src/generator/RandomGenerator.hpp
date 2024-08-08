@@ -2,7 +2,6 @@
 #define KERNELO_RANDOMGENERATOR_H
 
 #include "Generator.hpp"
-// #include <armadillo>
 
 using namespace arma;
 

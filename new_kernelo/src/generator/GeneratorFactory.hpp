@@ -1,11 +1,14 @@
-#include "GeneratorFactory.hpp"
+// #ifndef KERNELO_GENERATORFACTORY_H
+// #define KERNELO_GENERATORFACTORY_H
+
+#include "Generator.hpp"
 #include "RandomGenerator.hpp"
 #include "SobolGenerator.hpp"
 #include "LatinCubeGenerator.hpp"
 
 using namespace DataGeneration;
 
-std::shared_ptr<Generator> GeneratorFactory::create(const std::string &generator_type, unsigned int seed)
+inline std::shared_ptr<Generator> createGenerator(const std::string &generator_type, unsigned int seed)
 {
     if (generator_type == "random")
     {
@@ -24,3 +27,5 @@ std::shared_ptr<Generator> GeneratorFactory::create(const std::string &generator
         throw "Invalid Generator type. It must be one of the following : 'random', 'sobol, 'latin'.";
     }
 }
+
+// #endif //KERNELO_GENERATORFACTORY_H

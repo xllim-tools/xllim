@@ -24,15 +24,12 @@ add_library(functionalModel STATIC
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-add_library(dataGeneration STATIC 
-    src/dataGeneration/generator/GeneratorFactory.cpp
-    src/dataGeneration/generator/RandomGenerator.cpp
-    src/dataGeneration/generator/SobolGenerator.cpp
-    src/dataGeneration/generator/LatinCubeGenerator.cpp
-    src/dataGeneration/statModel/GaussianStatModel.cpp
-    src/dataGeneration/statModel/DependentGaussianStatModel.cpp
+add_library(generator STATIC 
+    src/generator/RandomGenerator.cpp
+    src/generator/SobolGenerator.cpp
+    src/generator/LatinCubeGenerator.cpp
 )
-set_target_properties(dataGeneration PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(generator PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_library(utils STATIC 
     src/utils/utils.cpp
@@ -62,9 +59,8 @@ set_target_properties(logging PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # find_package(pybind11 REQUIRED) # -- Found pybind11: /home/luc/.local/include (found version "2.11.1")
 add_subdirectory(extern/pybind11) # in subdirectory
 pybind11_add_module(newkernelo python/kernelo.cpp)
-target_link_libraries(newkernelo PRIVATE functionalModel dataGeneration utils xllimSolver logging)
+target_link_libraries(newkernelo PRIVATE functionalModel generator utils xllimSolver logging)
 target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
-target_link_libraries(dataGeneration PRIVATE pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 
 find_package(carma CONFIG REQUIRED) # -- Found carma: /usr/local/include/carma (found version "0.6.7")
 target_link_libraries(newkernelo PRIVATE carma::carma OpenMP::OpenMP_CXX)
@@ -92,14 +88,13 @@ add_executable(functionalModel_test
     cpptest/functionalModel/ShkuratovModel_test.cpp
     cpptest/functionalModel/HapkeModel_test.cpp
     cpptest/functionalModel/ExternalPythonModel_test.cpp
+    cpptest/functionalModel/DataGeneration_test.cpp
     cpptest/functionalModel/ImportanceSampling_test.cpp)
-target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel dataGeneration) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
+target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel generator) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
 
-add_executable(dataGeneration_test 
-    cpptest/dataGeneration/Generator_test.cpp
-    cpptest/dataGeneration/GaussianStatModel_test.cpp
-    cpptest/dataGeneration/DependentGaussianStatModel_test.cpp)
-target_link_libraries(dataGeneration_test PRIVATE gtest_main pybind11::embed dataGeneration functionalModel) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
+add_executable(generator_test 
+    cpptest/generator/Generator_test.cpp)
+target_link_libraries(generator_test PRIVATE gtest_main generator)
 
 add_executable(xllimSolver_test 
     cpptest/xllimSolver/covariancesTest/fullCovarianceTest.cpp
@@ -115,7 +110,7 @@ target_link_libraries(utils_test PRIVATE gtest_main utils armadillo)
 
 include(GoogleTest)
 gtest_discover_tests(functionalModel_test)
-gtest_discover_tests(dataGeneration_test)
+gtest_discover_tests(generator_test)
 gtest_discover_tests(xllimSolver_test)
 gtest_discover_tests(utils_test)
 

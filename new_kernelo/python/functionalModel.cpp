@@ -3,7 +3,7 @@
 #include <carma>
 #include <armadillo>
 
-#include "../src/functionalModel/FunctionalModel.hpp"
+// #include "../src/functionalModel/FunctionalModel.hpp"
 #include "../src/functionalModel/TestModel.hpp"
 #include "../src/functionalModel/ShkuratovModel.hpp"
 #include "../src/functionalModel/HapkeModel.hpp"

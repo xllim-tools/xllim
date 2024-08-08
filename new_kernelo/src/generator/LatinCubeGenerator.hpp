@@ -1,8 +1,6 @@
 #ifndef KERNELO_LATINCUBEGENERATOR_H
 #define KERNELO_LATINCUBEGENERATOR_H
 
-// #include <string>
-// #include <armadillo>
 #include "Generator.hpp"
 
 using namespace arma;

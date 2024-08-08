@@ -1,6 +1,6 @@
 #include "FunctionalModel.hpp"
-#include "../dataGeneration/generator/GeneratorFactory.hpp"
-#include "../dataGeneration/generator/Generator.hpp"
+#include "../generator/GeneratorFactory.hpp"
+// #include "../dataGeneration/generator/Generator.hpp"
 #include "../utils/utils.hpp"
 #include <omp.h>
 
@@ -14,7 +14,7 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     mat y_gen = mat(N, dimension_D);
 
     // generate X
-    std::shared_ptr<DataGeneration::Generator> generator = DataGeneration::GeneratorFactory::create(generator_type, seed);
+    std::shared_ptr<DataGeneration::Generator> generator = createGenerator(generator_type, seed);
     generator->execute(x_gen);
 
     // create a vector of random values under a normal distribution with 0 mean and 1 variance
@@ -52,7 +52,7 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     mat y_gen = mat(N, dimension_D);
 
     // generate X
-    std::shared_ptr<DataGeneration::Generator> generator = DataGeneration::GeneratorFactory::create(generator_type, seed);
+    std::shared_ptr<DataGeneration::Generator> generator = createGenerator(generator_type, seed);
     generator->execute(x_gen);
 
     // create a vector of random values under a normal distribution with 0 mean and 1 variance

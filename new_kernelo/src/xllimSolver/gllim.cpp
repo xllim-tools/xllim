@@ -1,6 +1,7 @@
 #include "gllim.hpp"
 #include "jgmm.hpp"
 #include "emEstimator.hpp"
+#include "../generator/RandomGenerator.hpp"
 #include "../utils/utils.hpp"
 #include "../logging/logger.hpp"
 

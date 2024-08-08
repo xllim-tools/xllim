@@ -1,5 +1,5 @@
-// #include <memory>
 #include "RandomGenerator.hpp"
+#include <memory>
 
 DataGeneration::RandomGenerator::RandomGenerator(unsigned int seed) {
     this->seed = seed;

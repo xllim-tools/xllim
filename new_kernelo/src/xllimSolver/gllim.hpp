@@ -1,7 +1,6 @@
 #ifndef GLLIM_HPP
 #define GLLIM_HPP
 
-#include "../dataGeneration/generator/RandomGenerator.hpp"
 #include "covariances/covariance.hpp"
 #include "gllimStructures/gllimParameters.hpp"
 #include "gllimStructures/gllimParametersArma.hpp"
