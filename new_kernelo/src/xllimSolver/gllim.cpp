@@ -46,6 +46,7 @@ template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned gllim_em_iteration, double gllim_em_floor, unsigned gmm_kmeans_iteration, unsigned gmm_em_iteration, double gmm_floor, unsigned nb_experiences, unsigned seed, int verbose)
 {
     // TODO Hybrid ?
+    auto start = std::chrono::high_resolution_clock::now();
 
     unsigned L = t.n_rows,
              D = y.n_rows,
@@ -147,6 +148,11 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
     {
         Logger::getInstance().log(INFO, "FinishInitialization");
     }
+
+    // Save relevant information about initialisation within Insights structure
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+    insights_.initialisation = InitialisationInsights(duration, start, end, N, gllim_em_iteration, gllim_em_floor, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, nb_experiences);
 }
 
 // void GLLiM<TGamma,TSigma>::train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor)
@@ -158,6 +164,8 @@ template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor, int verbose)
 {
     // this->checkConstraints(); // ? Check if Params are valid and update constraints
+
+    auto start = std::chrono::high_resolution_clock::now();
 
     if constexpr (std::is_same<TGamma, FullCovariance>::value && std::is_same<TSigma, FullCovariance>::value) // C++17 improvment. "if constexpr" is evaluated at compile time.
     {
@@ -177,7 +185,13 @@ void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_itera
         EmEstimator<TGamma, TSigma> estimator;
         // TODO estimator.train returnind void is better
         estimator.train(x, y, this->theta, max_iteration, ratio_ll, floor, verbose); //  comment faire avec les paramètres ?
+        insights_.log_likelihood = estimator.get_log_likelihood();                   // Save relevant information about training within Insights structure
     }
+
+    // Save relevant information about training within Insights structure
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+    insights_.training = TrainingInsights(duration, start, end, x.n_cols, max_iteration, ratio_ll, floor);
 }
 
 // returns posterior mean estimates E[yn|xn;θ]
@@ -265,9 +279,28 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
     return result;
 }
 
-// void GLLiM<TGamma,TSigma>::getInsights()
-// {
-// }
+template <typename TGamma, typename TSigma>
+Insights GLLiM<TGamma, TSigma>::getInsights()
+{
+    insights_.time = std::chrono::seconds(0);
+    if (insights_.initialisation.N_obs != 0)
+    {
+        insights_.time += insights_.initialisation.time;
+    }
+    else
+    {
+        Logger::getInstance().log(WARNING, "GLLiM model has not been initialized");
+    }
+    if (insights_.training.N_obs != 0)
+    {
+        insights_.time += insights_.training.time;
+    }
+    else
+    {
+        Logger::getInstance().log(WARNING, "GLLiM model has not been trained");
+    }
+    return insights_;
+}
 
 // void GLLiM<TGamma,TSigma>::checkConstraints()
 // {

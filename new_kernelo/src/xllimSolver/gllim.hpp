@@ -7,6 +7,7 @@
 #include "gllimStructures/gllimParametersArma.hpp"
 #include "gllimStructures/gllimConstraints.hpp"
 #include "gllimStructures/predictionResults.hpp"
+#include "gllimStructures/insights.hpp"
 
 using namespace arma;
 
@@ -77,7 +78,7 @@ public:
     PredictionResult inverseDensities(const mat &y, const mat &y_incertitude);
     PredictionResult inverseDensities(const mat &y) { return inverseDensitiesOneInversion(y, vec(theta.D, fill::zeros)); };
 
-    // void getInsights();
+    Insights getInsights();
 
 private:
     // TODO : retirer L,D,K de GLLiMParameters et le mettre ici.
@@ -85,6 +86,7 @@ private:
     GLLiMConstraints constraints;                               // The constraints of GLLiM model
     GLLiMParameters<TGamma, TSigma> theta;                      // The parameters of the direct GLLiM model
     GLLiMParameters<FullCovariance, FullCovariance> theta_star; // The parameters of the inverse GLLiM model
+    Insights insights_;                                          // The relevant data on initialisation and training of GLLiM
 
     GLLiMParameters<FullCovariance, FullCovariance> inverse(GLLiMParameters<TGamma, TSigma> &theta);
     template <typename TGamma2, typename TSigma2>

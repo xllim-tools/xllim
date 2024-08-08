@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/chrono.h>
 #include <carma>
 #include <armadillo>
 
@@ -30,6 +31,33 @@ void bind_gllim(pybind11::module &m)
     py::class_<PredictionResult>(m, "PredictionResult")
         .def_readwrite("meanPredResult", &PredictionResult::meanPredResult)
         .def_readwrite("centerPredResult", &PredictionResult::centerPredResult);
+
+    py::class_<InitialisationInsights>(m, "InitialisationInsights")
+        .def_readwrite("time", &InitialisationInsights::time)
+        .def_readwrite("start_time", &InitialisationInsights::start_time)
+        .def_readwrite("end_time", &InitialisationInsights::end_time)
+        .def_readwrite("N_obs", &InitialisationInsights::N_obs)
+        .def_readwrite("gllim_em_iteration", &InitialisationInsights::gllim_em_iteration)
+        .def_readwrite("gllim_em_floor", &InitialisationInsights::gllim_em_floor)
+        .def_readwrite("gmm_kmeans_iteration", &InitialisationInsights::gmm_kmeans_iteration)
+        .def_readwrite("gmm_em_iteration", &InitialisationInsights::gmm_em_iteration)
+        .def_readwrite("gmm_floor", &InitialisationInsights::gmm_floor)
+        .def_readwrite("nb_experiences", &InitialisationInsights::nb_experiences);
+
+    py::class_<TrainingInsights>(m, "TrainingInsights")
+        .def_readwrite("time", &TrainingInsights::time)
+        .def_readwrite("start_time", &TrainingInsights::start_time)
+        .def_readwrite("end_time", &TrainingInsights::end_time)
+        .def_readwrite("N_obs", &TrainingInsights::N_obs)
+        .def_readwrite("max_iteration", &TrainingInsights::max_iteration)
+        .def_readwrite("ratio_ll", &TrainingInsights::ratio_ll)
+        .def_readwrite("floor", &TrainingInsights::floor);
+
+    py::class_<Insights>(m, "Insights")
+        .def_readwrite("time", &Insights::time)
+        .def_readwrite("log_likelihood", &Insights::log_likelihood)
+        .def_readwrite("initialisation", &Insights::initialisation)
+        .def_readwrite("training", &Insights::training);
 
     m.def("GLLiM", &create_gllim, "A function to create GLLiM instances",
           py::arg("L"), py::arg("D"), py::arg("K"), py::arg("gamma_type"), py::arg("sigma_type"));
@@ -73,6 +101,8 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
         .def("setParamSigma", &GLLiM<TGamma, TSigma>::setParamSigmaArma)
 
         .def("getInverse", &GLLiM<TGamma, TSigma>::getInverseArma)
+
+        .def("getInsights", &GLLiM<TGamma, TSigma>::getInsights)
 
         .def("directDensities", py::overload_cast<const mat &, const vec &>(&GLLiM<TGamma, TSigma>::directDensities))
         .def("directDensities", py::overload_cast<const mat &>(&GLLiM<TGamma, TSigma>::directDensities))
