@@ -75,7 +75,7 @@ public:
     PredictionResult directDensities(const mat &x) { return directDensities(x, vec(theta.L, fill::zeros)); };
 
     PredictionResult inverseDensities(const mat &y, const mat &y_incertitude);
-    PredictionResult inverseDensities(const mat &y) { return inverseDensitiesOneInversion(y, vec(theta.L, fill::zeros)); };
+    PredictionResult inverseDensities(const mat &y) { return inverseDensitiesOneInversion(y, vec(theta.D, fill::zeros)); };
 
     // void getInsights();
 
