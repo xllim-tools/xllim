@@ -90,7 +90,7 @@ add_executable(functionalModel_test
     cpptest/functionalModel/ExternalPythonModel_test.cpp
     cpptest/functionalModel/DataGeneration_test.cpp
     cpptest/functionalModel/ImportanceSampling_test.cpp)
-target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel generator) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
+target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel generator logging) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
 
 add_executable(generator_test 
     cpptest/generator/Generator_test.cpp)

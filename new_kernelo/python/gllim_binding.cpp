@@ -104,10 +104,10 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
 
         .def("getInsights", &GLLiM<TGamma, TSigma>::getInsights)
 
-        .def("directDensities", py::overload_cast<const mat &, const vec &>(&GLLiM<TGamma, TSigma>::directDensities))
-        .def("directDensities", py::overload_cast<const mat &>(&GLLiM<TGamma, TSigma>::directDensities))
-        .def("inverseDensities", py::overload_cast<const mat &, const mat &>(&GLLiM<TGamma, TSigma>::inverseDensities))
-        .def("inverseDensities", py::overload_cast<const mat &>(&GLLiM<TGamma, TSigma>::inverseDensities))
+        .def("directDensities", py::overload_cast<const mat &, const vec &, int>(&GLLiM<TGamma, TSigma>::directDensities), py::arg("x"), py::arg("x_incertitude"), py::arg("verbose") = 1)
+        .def("directDensities", py::overload_cast<const mat &, int>(&GLLiM<TGamma, TSigma>::directDensities), py::arg("x"), py::arg("verbose") = 1)
+        .def("inverseDensities", py::overload_cast<const mat &, const mat &, int>(&GLLiM<TGamma, TSigma>::inverseDensities), py::arg("y"), py::arg("y_incertitude"), py::arg("verbose") = 1)
+        .def("inverseDensities", py::overload_cast<const mat &, int>(&GLLiM<TGamma, TSigma>::inverseDensities), py::arg("y"), py::arg("verbose") = 1)
 
         .def("initialize", &GLLiM<TGamma, TSigma>::initialize)
         .def("train", &GLLiM<TGamma, TSigma>::train)

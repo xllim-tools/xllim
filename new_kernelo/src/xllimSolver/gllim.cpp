@@ -198,7 +198,7 @@ void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_itera
 // returns posterior mean estimates E[yn|xn;θ]
 // TODO write formula from Delaforge 2014
 template <typename TGamma, typename TSigma>
-PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec &x_incertitude)
+PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec &x_incertitude, int verbose)
 {
     unsigned N_obs = x.n_cols;
     PredictionResult result(N_obs, this->theta.D, this->theta.K);
@@ -206,13 +206,25 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
     // ==================== Alter theta covariance and inverse theta ====================
 
     GLLiMParameters<TGamma, TSigma> theta_altered = this->theta;
-    for (unsigned k = 0; k < theta_altered.K; ++k)
+
+    if (!x_incertitude.is_zero())
     {
-        theta_altered.Gamma[k] += diagmat(pow(x_incertitude, 2));
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "Alter theta covariance");
+        }
+        for (unsigned k = 0; k < theta_altered.K; ++k)
+        {
+            theta_altered.Gamma[k] += diagmat(pow(x_incertitude, 2));
+        }
     }
 
     // ==================== Construct the GMM of the forward conditional model ====================
 
+    if (verbose >= 1)
+    {
+        Logger::getInstance().log(INFO, "Construct the GMM of the forward conditional model");
+    }
     std::tuple<mat, cube, cube> GMMs = constructGMM(x, theta_altered);
     result.meanPredResult.gmm_weights = std::get<0>(GMMs); // (N_obs, K)
     result.meanPredResult.gmm_means = std::get<1>(GMMs);   // (N_obs, D, K)
@@ -221,13 +233,21 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
     // ============================= Prediction mean estimations ==================================
 
     // Compute the mean of the means in the mixture
+    if (verbose >= 1)
+    {
+        Logger::getInstance().log(INFO, "Compute the weighted mean of the means in the mixture");
+    }
     result.meanPredResult.mean = mat(N_obs, theta_altered.D);
     for (unsigned k = 0; k < theta_altered.K; ++k)
     {
         result.meanPredResult.mean += diagmat(result.meanPredResult.gmm_weights.col(k)) * result.meanPredResult.gmm_means.slice(k);
     }
 
-// Compute the mean of covariances in the mixture
+    // Compute the mean of covariances in the mixture
+    if (verbose >= 1)
+    {
+        Logger::getInstance().log(INFO, "Compute the weighted covariance of the covariances in the mixture");
+    }
 // TODO voir formule dans Kugler 2021. Can be simplified
 #pragma omp parallel
     result.meanPredResult.variance = cube(N_obs, theta_altered.D, theta_altered.D);
@@ -245,7 +265,7 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
 
 // returns prior mean estimates E[xn|yn;θ] when the observation incertitude is different for each observation (no parallelisation)
 template <typename TGamma, typename TSigma>
-PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat &y_incertitude)
+PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat &y_incertitude, int verbose)
 // TODO merge this method with directDensities. Check out the differences
 {
     unsigned N_obs = y.n_cols;
@@ -261,14 +281,14 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
     }
     else if (y_incertitude.n_cols == 1)
     {
-        result = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(y, vec(y_incertitude));
+        result = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(y, vec(y_incertitude), verbose);
     }
     else
     {
 #pragma omp parallel for
         for (size_t n = 0; n < N_obs; n++)
         {
-            PredictionResult res_n = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)));
+            PredictionResult res_n = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)), verbose);
             result.meanPredResult.gmm_weights.row(n) = res_n.meanPredResult.gmm_weights; // (N_obs, K)
             result.meanPredResult.gmm_means.row(n) = res_n.meanPredResult.gmm_means;     // (N_obs, D, K)
             result.meanPredResult.gmm_covs = res_n.meanPredResult.gmm_covs;              // (D, D, K) // TODO Problem because for this case gmm_covs = theta_star.Sigma and is different for each observation :/
@@ -645,7 +665,7 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
 
 // returns prior mean estimates E[xn|yn;θ]
 template <typename TGamma, typename TSigma>
-PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &y, const vec &y_incertitude)
+PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &y, const vec &y_incertitude, int verbose)
 // TODO merge this method with directDensities. Check out the differences
 {
     unsigned N_obs = y.n_cols;
@@ -654,14 +674,31 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     // ==================== Alter theta covariance and inverse theta ====================
 
     GLLiMParameters<TGamma, TSigma> theta_altered = this->theta;
-    for (unsigned k = 0; k < theta_altered.K; ++k)
+
+    if (!y_incertitude.is_zero())
     {
-        theta_altered.Sigma[k] += diagmat(pow(y_incertitude, 2));
+        if (verbose >= 1)
+        {
+            Logger::getInstance().log(INFO, "Alter theta covariance");
+        }
+        for (unsigned k = 0; k < theta_altered.K; ++k)
+        {
+            theta_altered.Sigma[k] += diagmat(pow(y_incertitude, 2));
+        }
+    }
+
+    if (verbose >= 1)
+    {
+        Logger::getInstance().log(INFO, "Inverse theta");
     }
     GLLiMParameters<FullCovariance, FullCovariance> theta_star_altered = inverse(theta_altered);
 
-    // ==================== Construct the GMM of the forward conditional model ====================
+    // ==================== Construct the GMM of the inverse conditional model ====================
 
+    if (verbose >= 1)
+    {
+        Logger::getInstance().log(INFO, "Construct the GMM of the inverse conditional model");
+    }
     std::tuple<mat, cube, cube> GMMs = constructGMM(y, theta_star_altered);
     result.meanPredResult.gmm_weights = std::get<0>(GMMs); // (N_obs, K)
     result.meanPredResult.gmm_means = std::get<1>(GMMs);   // (N_obs, D, K)
@@ -670,6 +707,10 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     // ============================= Prediction mean estimations ==================================
 
     // Compute the mean of the means in the mixture
+    if (verbose >= 1)
+    {
+        Logger::getInstance().log(INFO, "Compute the weighted mean of the means in the mixture");
+    }
     result.meanPredResult.mean = mat(N_obs, theta_star_altered.D); // theta_star_altered.D or theta_altered.L (the second one is more explicit. )
     for (unsigned k = 0; k < theta_star_altered.K; ++k)
     {
@@ -677,6 +718,10 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     }
 
     // Compute the mean of covariances in the mixture
+    if (verbose >= 1)
+    {
+        Logger::getInstance().log(INFO, "Compute the weighted covariance of the covariances in the mixture");
+    }
     // TODO voir formule dans Kugler 2021.  can be simplified
     result.meanPredResult.variance = cube(N_obs, theta_star_altered.D, theta_star_altered.D);
 #pragma omp parallel

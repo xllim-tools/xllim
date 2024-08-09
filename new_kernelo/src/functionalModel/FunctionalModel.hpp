@@ -93,7 +93,7 @@ public:
     return:
         results.predictions (L,N)
      */
-    ImportanceSamplingResult importanceSampling(std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0);
+    ImportanceSamplingResult importanceSampling(std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
     // NOTE: si on met "const vec/mat/cube &" on obtient une erreur avec CARMA/python "Memoryerror: std::bad_alloc"
 
 protected:

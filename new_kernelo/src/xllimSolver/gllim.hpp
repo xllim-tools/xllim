@@ -71,11 +71,11 @@ public:
     GLLiMParameters<FullCovariance, FullCovariance> getInverse();
     GLLiMParametersArma<FullCovariance, FullCovariance> getInverseArma();
 
-    PredictionResult directDensities(const mat &x, const vec &x_incertitude);
-    PredictionResult directDensities(const mat &x) { return directDensities(x, vec(theta.L, fill::zeros)); };
+    PredictionResult directDensities(const mat &x, const vec &x_incertitude, int verbose = 1);
+    PredictionResult directDensities(const mat &x, int verbose = 1) { return directDensities(x, vec(theta.L, fill::zeros), verbose); };
 
-    PredictionResult inverseDensities(const mat &y, const mat &y_incertitude);
-    PredictionResult inverseDensities(const mat &y) { return inverseDensitiesOneInversion(y, vec(theta.D, fill::zeros)); };
+    PredictionResult inverseDensities(const mat &y, const mat &y_incertitude, int verbose = 1);
+    PredictionResult inverseDensities(const mat &y, int verbose = 1) { return inverseDensitiesOneInversion(y, vec(theta.D, fill::zeros), verbose); };
 
     Insights getInsights();
 
@@ -85,12 +85,12 @@ private:
     GLLiMConstraints constraints;                               // The constraints of GLLiM model
     GLLiMParameters<TGamma, TSigma> theta;                      // The parameters of the direct GLLiM model
     GLLiMParameters<FullCovariance, FullCovariance> theta_star; // The parameters of the inverse GLLiM model
-    Insights insights_;                                          // The relevant data on initialisation and training of GLLiM
+    Insights insights_;                                         // The relevant data on initialisation and training of GLLiM
 
     GLLiMParameters<FullCovariance, FullCovariance> inverse(GLLiMParameters<TGamma, TSigma> &theta);
     template <typename TGamma2, typename TSigma2>
     std::tuple<mat, cube, cube> constructGMM(const mat &x, GLLiMParameters<TGamma2, TSigma2> &theta);
-    PredictionResult inverseDensitiesOneInversion(const mat &y, const vec &y_incertitude);
+    PredictionResult inverseDensitiesOneInversion(const mat &y, const vec &y_incertitude, int verbose = 1);
 };
 
 #endif // GLLIM_HPP
