@@ -15,7 +15,7 @@ Contents:
    :maxdepth: 2
 
    introduction
-   gllim
+   GLLiM <GLLiM/gllim_class_overall>
    functional_model
    example
 
