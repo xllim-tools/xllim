@@ -112,12 +112,6 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
         .def("initialize", &GLLiM<TGamma, TSigma>::initialize)
         .def("train", &GLLiM<TGamma, TSigma>::train)
 
-        //    // Do we need to expose this class ?
-        // py::class_<JGMM, std::shared_ptr<JGMM>>(m, "JGMM")
-        //     .def(py::init<>())
-        //     .def("train", &JGMM::train)
-        //     .def("getPosterior", &JGMM::getPosterior)
-
         .doc() = R"mydelimiter(
             GLLiM class
         )mydelimiter";
