@@ -108,11 +108,16 @@ add_executable(utils_test
     cpptest/utils_test.cpp)
 target_link_libraries(utils_test PRIVATE gtest_main utils armadillo)
 
+add_executable(integration_test 
+    cpptest/integration_test/performanceTests.cpp)
+target_link_libraries(integration_test PRIVATE gtest_main utils armadillo xllimSolver functionalModel generator logging)
+
 include(GoogleTest)
 gtest_discover_tests(functionalModel_test)
 gtest_discover_tests(generator_test)
 gtest_discover_tests(xllimSolver_test)
 gtest_discover_tests(utils_test)
+gtest_discover_tests(integration_test)
 
 
 
