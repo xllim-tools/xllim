@@ -29,9 +29,12 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
 
     // set a logger with a progress bar for GLLiM-EM training
     Logger &logger = Logger::getInstance();
-    if (verbose >= 1)
+    if (verbose >= 2)
     {
         logger.startProgressBar(max_iteration);
+    }
+    if (verbose >= 1)
+    {
         logger.log(INFO, "Start GLLiM-EM Training");
     }
     do
@@ -55,16 +58,22 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
         this->maximization_step(t, y, theta, log_r, floor);
         this->log_likelihood(iteration) = this->compute_log_likelihood(log_r); // new_log_likelihood
 
-        if (verbose >= 1)
+        if (verbose >= 2)
         {
             logger.updateProgressBar(iteration);
+        }
+        if (verbose >= 1)
+        {
             logger.log(INFO, "Iteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(this->log_likelihood(iteration)));
         }
 
     } while (!this->has_converged(this->log_likelihood(iteration - 1), this->log_likelihood(iteration), iteration, max_iteration, ratio_ll, floor, verbose));
-    if (verbose >= 1)
+    if (verbose >= 2)
     {
         logger.stopProgressBar();
+    }
+    if (verbose >= 1)
+    {
         logger.log(INFO, "Finish GLLiM-EM Training");
     }
     // return theta;
@@ -376,7 +385,7 @@ bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, doubl
     }
 
     bool ratio_ll_condition = ratio_increase_likelihood <= ratio_ll / 100;
-    ratio_ll_condition = false; // TODO temporary for test. log likelihood is decreasing ?
+    // ratio_ll_condition = false; // TODO temporary for test. log likelihood is decreasing ?
 
     if (ratio_ll_condition)
     {
