@@ -367,7 +367,7 @@ template <typename TGamma, typename TSigma>
 double EmEstimator<TGamma, TSigma>::compute_log_likelihood(const mat &log_r)
 {
     vec log_ll = utils::logSumExp(log_r, 0);
-    return accu(log_ll) / log_r.n_rows;
+    return accu(log_ll) / log_r.n_cols;
 }
 
 template <typename TGamma, typename TSigma>
