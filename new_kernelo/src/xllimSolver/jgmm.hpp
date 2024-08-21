@@ -21,7 +21,7 @@ private:
     mat posterior; // the posterior from the training of the GMM
 
     void GLLiMParameterstoJGMM(GLLiMParameters<FullCovariance,FullCovariance> &initial_theta);
-    GLLiMParameters<FullCovariance,FullCovariance> JGMMtoGLLiMParameters();
+    void JGMMtoGLLiMParameters(GLLiMParameters<FullCovariance, FullCovariance> &theta);
 };
 
 #endif // JGMM_HPP
