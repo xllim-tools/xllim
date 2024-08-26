@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include "../../src/functionalModel/ShkuratovModel.hpp"
+#include "../../../src/functionalModel/ShkuratovModel.hpp"
 
 namespace pt = boost::property_tree;
 
@@ -18,7 +18,7 @@ protected:
 
         // read geometries from dataset file
         pt::ptree root;
-        pt::read_json("../../cpptest/functionalModel/dataRef/Shkuratov5p_data_ref.json", root); // Load the json file in this ptree
+        pt::read_json("../../tests/dataRef/Shkuratov5p_data_ref.json", root); // Load the json file in this ptree
         std::string variables[3] = {"inc", "eme", "phi"};
         geometries = mat(D, 3);
         unsigned i = 0;
@@ -77,7 +77,7 @@ TEST_F(ShkuratovModelTest, FOnDataset)
     unsigned n;
     unsigned d;
     pt::ptree root;
-    pt::read_json("../../cpptest/functionalModel/dataRef/Shkuratov5p_data_ref.json", root);
+    pt::read_json("../../tests/dataRef/Shkuratov5p_data_ref.json", root);
 
     // Read photometries
     mat photometries = mat(L, N);

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/utils/utils.hpp"
+#include "../../src/utils/utils.hpp"
 
 using namespace utils;
 

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../../../src/xllimSolver/jgmm.hpp"
+#include "../../../../src/xllimSolver/jgmm.hpp"
 
 class JGMMTest : public ::testing::Test
 {

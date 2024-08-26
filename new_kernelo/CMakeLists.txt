@@ -84,32 +84,32 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 add_executable(functionalModel_test 
-    cpptest/functionalModel/TestModel_test.cpp
-    cpptest/functionalModel/ShkuratovModel_test.cpp
-    cpptest/functionalModel/HapkeModel_test.cpp
-    cpptest/functionalModel/ExternalPythonModel_test.cpp
-    cpptest/functionalModel/DataGeneration_test.cpp
-    cpptest/functionalModel/ImportanceSampling_test.cpp)
+    tests/cppTests/functionalModel/TestModel_test.cpp
+    tests/cppTests/functionalModel/ShkuratovModel_test.cpp
+    tests/cppTests/functionalModel/HapkeModel_test.cpp
+    tests/cppTests/functionalModel/ExternalPythonModel_test.cpp
+    tests/cppTests/functionalModel/DataGeneration_test.cpp
+    tests/cppTests/functionalModel/ImportanceSampling_test.cpp)
 target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel generator logging) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
 
 add_executable(generator_test 
-    cpptest/generator/Generator_test.cpp)
+    tests/cppTests/generator/Generator_test.cpp)
 target_link_libraries(generator_test PRIVATE gtest_main generator)
 
 add_executable(xllimSolver_test 
-    cpptest/xllimSolver/covariancesTest/fullCovarianceTest.cpp
-    cpptest/xllimSolver/covariancesTest/diagCovarianceTest.cpp
-    cpptest/xllimSolver/covariancesTest/isoCovarianceTest.cpp
-    # cpptest/xllimSolver/estimatorTest/jgmm_test.cpp
-    cpptest/xllimSolver/estimatorTest/emEstimator_test.cpp)
+    tests/cppTests/xllimSolver/covariancesTest/fullCovarianceTest.cpp
+    tests/cppTests/xllimSolver/covariancesTest/diagCovarianceTest.cpp
+    tests/cppTests/xllimSolver/covariancesTest/isoCovarianceTest.cpp
+    # tests/cppTests/xllimSolver/estimatorTest/jgmm_test.cpp
+    tests/cppTests/xllimSolver/estimatorTest/emEstimator_test.cpp)
 target_link_libraries(xllimSolver_test PRIVATE gtest_main xllimSolver utils logging armadillo)
 
 add_executable(utils_test 
-    cpptest/utils_test.cpp)
+    tests/cppTests/utils_test.cpp)
 target_link_libraries(utils_test PRIVATE gtest_main utils armadillo)
 
 add_executable(integration_test 
-    cpptest/integration_test/performanceTests.cpp)
+    tests/cppTests/integration_test/performanceTests.cpp)
 target_link_libraries(integration_test PRIVATE gtest_main utils armadillo xllimSolver functionalModel generator logging)
 
 include(GoogleTest)

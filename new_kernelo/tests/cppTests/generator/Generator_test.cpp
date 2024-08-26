@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "../../src/generator/Generator.hpp"
-#include "../../src/generator/RandomGenerator.hpp"
-#include "../../src/generator/SobolGenerator.hpp"
+#include "../../../src/generator/Generator.hpp"
+#include "../../../src/generator/RandomGenerator.hpp"
+#include "../../../src/generator/SobolGenerator.hpp"
 
 using namespace DataGeneration;
 

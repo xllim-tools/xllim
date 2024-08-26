@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include "../../src/functionalModel/TestModel.hpp"
-#include "../../src/generator/GeneratorFactory.hpp"
-// #include "../../src/dataGeneration/generator/Generator.hpp"
-// #include "../../src/dataGeneration/generator/RandomGenerator.hpp"
-// #include "../../src/dataGeneration/generator/SobolGenerator.hpp"
+#include "../../../src/functionalModel/TestModel.hpp"
+#include "../../../src/generator/GeneratorFactory.hpp"
+// #include "../../../src/dataGeneration/generator/Generator.hpp"
+// #include "../../../src/dataGeneration/generator/RandomGenerator.hpp"
+// #include "../../../src/dataGeneration/generator/SobolGenerator.hpp"
 
 using namespace DataGeneration;
 

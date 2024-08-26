@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <memory>
-#include "../../src/functionalModel/TestModel.hpp"
-#include "../../src/xllimSolver/gllim.hpp"
+#include "../../../src/functionalModel/TestModel.hpp"
+#include "../../../src/xllimSolver/gllim.hpp"
 
 // TODO
 // developper les tests d'intégration. S'inspirer de oldkernelo/cpptest/predictionTersts/PerformanceTests.cpp

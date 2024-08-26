@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../../../src/xllimSolver/covariances/covariance.hpp"
+#include "../../../../src/xllimSolver/covariances/covariance.hpp"
 
 class IsoCovarianceTest : public ::testing::Test
 {

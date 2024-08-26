@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../../src/functionalModel/TestModel.hpp"
+#include "../../../src/functionalModel/TestModel.hpp"
 
 class TestModelTest : public testing::TestWithParam<std::string>
 {
