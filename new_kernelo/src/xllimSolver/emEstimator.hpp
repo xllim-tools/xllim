@@ -18,7 +18,7 @@ public:
     EmEstimator();
     void train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor, int verbose = 1);
     vec get_log_likelihood();
-    
+
     /**
      * @brief M-step method
      * @details The methods performs the update of the parameters of the GLLim Model using the new value of the posterior rnk.
@@ -29,10 +29,10 @@ public:
      * @param r_nk : the logarithm of the posterior
      * @param next_theta : the new values of the GLLiM model parameters computed in this method
      */
-    void maximization_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, const mat &log_r, double floor);  // mu, S
+    void maximization_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, const mat &log_r, const cube &mu_w_k, const cube &S_w_k, double floor);
 
 private:
-    vec log_likelihood; // log likelihood of the model at every step. Maximum vector length is max_iteration
+    vec log_likelihood_; // log likelihood of the model at every step. Maximum vector length is max_iteration
 
     /**
      * @brief E-step method
@@ -47,11 +47,9 @@ private:
      */
     void expectation_Z_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r);
 
-    mat norm_log_r(const mat &log_r);
-    double compute_log_likelihood(const mat &r);
+    void expectation_W_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, cube &mu_w, cube &S_w);
 
-// private:
-//     std::shared_ptr<EMLearningConfig> config; /**< The estimator configuration parameters @see EMLearningConfig EMLearningConfig*/
+    double compute_log_likelihood(const mat &r);
 
     /**
      * @brief update of the parameter A of the GLLiM model
@@ -63,7 +61,7 @@ private:
      * @param y : a matrix of high dimension data
      * @param exp_avg_rnk : the mean of the posteriors
      */
-    void update_A_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &t, const mat &y, const vec &avg_r_k);
+    void update_A_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &t, const mat &y, const vec &avg_r_k, const mat &mu_w, const mat &S_w);
 
     /**
      * @brief update of the parameter B of the GLLiM model
@@ -85,7 +83,7 @@ private:
      * @param Y_AX : is the result of the computation of y - A * x
      * @param exp_avg_rnk : the mean of the posteriors
      */
-    void update_Sigma_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &Y_AX, const vec &avg_r_k);
+    void update_Sigma_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &Y_AX, const vec &avg_r_k, const mat &S_w);
 
     /**
      * @brief update of the parameter Gamma of the GLLiM model
@@ -143,6 +141,5 @@ private:
     template <typename TCov>
     void improve_covariance_stability(TCov &covariance, unsigned dimension, double floor);
 };
-
 
 #endif // EMESTIMATOR_HPP

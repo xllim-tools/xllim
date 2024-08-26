@@ -23,26 +23,10 @@ public:
     /**
      * TODO
      */
-    GLLiM(unsigned L, unsigned D, unsigned K, const std::string &gamma_type, const std::string &sigma_type); // création de la classe (de theta)
-    // GLLiM(unsigned L, unsigned D, unsigned K); // création de la classe (de theta)
+    GLLiM(unsigned K, unsigned D, unsigned L, const std::string &gamma_type, const std::string &sigma_type, unsigned n_hidden_variables = 0);
 
-    // void initialize(
-    //     const mat &x,
-    //     const mat &y,
-    //     unsigned seed,
-    //     unsigned nb_iter_EM = 1,     // default = FixedInit
-    //     unsigned nb_experiences = 1, // default = FixedInit
-    //     // EMLearningConfig (for diagonal cov)
-    //     unsigned max_iteration,
-    //     double ratio_ll,
-    //     double floor,
-    //     // GMMLearningConfig (for full cov)
-    //     unsigned kmeans_iteration,
-    //     unsigned em_iteration,
-    //     double floor);
     void initialize(const mat &t, const mat &y, unsigned gllim_em_iteration, double gllim_em_floor, unsigned gmm_kmeans_iteration, unsigned gmm_em_iteration, double gmm_floor, unsigned nb_experiences, unsigned seed, int verbose = 1);
     void train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor, int verbose = 1);
-    // void train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor);
 
     std::string getDimensions();
     std::string getConstraints();
@@ -72,20 +56,18 @@ public:
     GLLiMParametersArma<FullCovariance, FullCovariance> getInverseArma();
 
     PredictionResult directDensities(const mat &x, const vec &x_incertitude, int verbose = 1);
-    PredictionResult directDensities(const mat &x, int verbose = 1) { return directDensities(x, vec(theta.L, fill::zeros), verbose); };
+    PredictionResult directDensities(const mat &x, int verbose = 1) { return directDensities(x, vec(theta_.L, fill::zeros), verbose); };
 
     PredictionResult inverseDensities(const mat &y, const mat &y_incertitude, int verbose = 1);
-    PredictionResult inverseDensities(const mat &y, int verbose = 1) { return inverseDensitiesOneInversion(y, vec(theta.D, fill::zeros), verbose); };
+    PredictionResult inverseDensities(const mat &y, int verbose = 1) { return inverseDensitiesOneInversion(y, vec(theta_.D, fill::zeros), verbose); };
 
     Insights getInsights();
 
 private:
-    // TODO : retirer L,D,K de GLLiMParameters et le mettre ici.
     // TODO : Google convention: attribute_
-    GLLiMConstraints constraints;                               // The constraints of GLLiM model
-    GLLiMParameters<TGamma, TSigma> theta;                      // The parameters of the direct GLLiM model
-    GLLiMParameters<FullCovariance, FullCovariance> theta_star; // The parameters of the inverse GLLiM model
-    Insights insights_;                                         // The relevant data on initialisation and training of GLLiM
+    GLLiMConstraints constraints_;          // The constraints of GLLiM model
+    GLLiMParameters<TGamma, TSigma> theta_; // The parameters of the direct GLLiM model
+    Insights insights_;                     // The relevant data on initialisation and training of GLLiM
 
     GLLiMParameters<FullCovariance, FullCovariance> inverse(GLLiMParameters<TGamma, TSigma> &theta);
     template <typename TGamma2, typename TSigma2>

@@ -34,7 +34,7 @@ static std::vector<TCov> convertArmaToVectorOfCov(unsigned &K, unsigned &dimensi
 // GLLiM<TGamma,TSigma>::GLLiM<TGamma,TSigma>(unsigned D, unsigned L, unsigned K, GLLiMParameters<TGamma,TSigma> &theta, GLLiMConstraints &constraints) {}
 
 template <typename TGamma, typename TSigma>
-GLLiM<TGamma, TSigma>::GLLiM(unsigned L, unsigned D, unsigned K, const std::string &gamma_type, const std::string &sigma_type) : theta(L, D, K), theta_star(D, L, K), constraints(gamma_type, sigma_type)
+GLLiM<TGamma, TSigma>::GLLiM(unsigned K, unsigned D, unsigned L, const std::string &gamma_type, const std::string &sigma_type, unsigned n_hidden_variables) : theta_(K, D, L - n_hidden_variables, n_hidden_variables), constraints_(gamma_type, sigma_type)
 {
     Logger::getInstance().log(INFO, "GLLiM Parameters initialized");
     Logger::getInstance().log(INFO, GLLiM<TGamma, TSigma>::getDimensions());
@@ -46,24 +46,37 @@ GLLiM<TGamma, TSigma>::GLLiM(unsigned L, unsigned D, unsigned K, const std::stri
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned gllim_em_iteration, double gllim_em_floor, unsigned gmm_kmeans_iteration, unsigned gmm_em_iteration, double gmm_floor, unsigned nb_experiences, unsigned seed, int verbose)
 {
-    // TODO Hybrid ?
     auto start = std::chrono::high_resolution_clock::now();
 
-    unsigned L = t.n_rows,
+    unsigned L_t = t.n_rows,
+             L_w = theta_.L_w,
              D = y.n_rows,
-             K = this->theta.K,
+             K = theta_.K,
              N = t.n_cols;
+
+    // Dimension checking
+    if (L_t != theta_.L_t)
+    {
+        throw std::invalid_argument("The input matrix t must be of dimension L_t = L - n_hidden_variables = " + std::to_string(theta_.L_t));
+    }
+    if (D != theta_.D)
+    {
+        throw std::invalid_argument("The output matrix y must be of dimension D = " + std::to_string(theta_.D));
+    }
+    if (N != y.n_cols)
+    {
+        throw std::invalid_argument("The input and output matrices must have same number of observations N.");
+    }
 
     double best_log_likelihood = -(datum::inf);
     double log_likelihood;
-    GLLiMParameters<TGamma, TSigma> best_theta(L, D, K);
-    GLLiMParameters<TGamma, TSigma> local_theta(L, D, K);
-    // mat best_log_rnk(N, K, fill::zeros);
+    GLLiMParameters<TGamma, TSigma> best_theta(K, D, L_t, L_w);
+    GLLiMParameters<TGamma, TSigma> local_theta(K, D, L_t, L_w);
     mat log_r(N, K, fill::zeros);
 
     rowvec gmm_weights(K);
-    mat gmm_means(L, K);
-    cube gmm_covs(L, L, K);
+    mat gmm_means(L_t, K);
+    cube gmm_covs(L_t, L_t, K);
     JGMM gmmEstimator;
     EmEstimator<TGamma, TSigma> gllimEmEstimator;
     DataGeneration::RandomGenerator randomGenerator(seed);
@@ -98,7 +111,7 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         gmm_covs.zeros();
         for (unsigned k = 0; k < K; k++)
         {
-            gmm_covs.slice(k).diag() += sqrt(1.0 / (pow(K, 1.0 / L)));
+            gmm_covs.slice(k).diag() += sqrt(1.0 / (pow(K, 1.0 / L_t)));
         }
 
         // train a GMM over nb_iter iteration
@@ -120,7 +133,11 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         {
             Logger::getInstance().log(INFO, "\tCompute Initial theta vector of the GLLiM model from GMM");
         }
-        gllimEmEstimator.maximization_step(t, y, local_theta, log_r, gllim_em_floor);
+        // Hybrid model : latent variables follow a normal distribution
+        cube mu_w_normal_distr(L_w, N, K, fill::zeros);
+        cube S_w_normal_distr(L_w, L_w, K, fill::zeros);
+        S_w_normal_distr.each_slice() = mat(L_w, L_w, fill::eye);
+        gllimEmEstimator.maximization_step(t, y, local_theta, log_r, mu_w_normal_distr, S_w_normal_distr, gllim_em_floor);
 
         if (verbose >= 1)
         {
@@ -136,7 +153,6 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         {
             best_theta = local_theta;
             best_log_likelihood = log_likelihood;
-            // best_log_rnk = log_r;
         }
         if (verbose >= 1)
         {
@@ -144,7 +160,8 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         }
     }
 
-    this->theta = best_theta;
+    theta_ = best_theta;
+
     if (verbose >= 1)
     {
         Logger::getInstance().log(INFO, "FinishInitialization");
@@ -179,14 +196,14 @@ void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_itera
         JGMM estimator;
         unsigned kmeans_iteration = 10; // TODO set to 0 ? variable in arguments ?
         unsigned em_iteration = max_iteration;
-        estimator.train(x, y, this->theta, kmeans_iteration, em_iteration, floor, verbose); //  comment faire avec les paramètres ?
+        estimator.train(x, y, theta_, kmeans_iteration, em_iteration, floor, verbose); //  comment faire avec les paramètres ?
     }
     else
     {
         EmEstimator<TGamma, TSigma> estimator;
         // TODO estimator.train returnind void is better
-        estimator.train(x, y, this->theta, max_iteration, ratio_ll, floor, verbose); //  comment faire avec les paramètres ?
-        insights_.log_likelihood = estimator.get_log_likelihood();                   // Save relevant information about training within Insights structure
+        estimator.train(x, y, theta_, max_iteration, ratio_ll, floor, verbose); //  comment faire avec les paramètres ?
+        insights_.log_likelihood = estimator.get_log_likelihood();              // Save relevant information about training within Insights structure
     }
 
     // Save relevant information about training within Insights structure
@@ -201,11 +218,11 @@ template <typename TGamma, typename TSigma>
 PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec &x_incertitude, int verbose)
 {
     unsigned N_obs = x.n_cols;
-    PredictionResult result(N_obs, this->theta.D, this->theta.K);
+    PredictionResult result(N_obs, theta_.D, theta_.K);
 
     // ==================== Alter theta covariance and inverse theta ====================
 
-    GLLiMParameters<TGamma, TSigma> theta_altered = this->theta;
+    GLLiMParameters<TGamma, TSigma> theta_altered = theta_;
 
     if (!x_incertitude.is_zero())
     {
@@ -213,7 +230,7 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
         {
             Logger::getInstance().log(INFO, "Alter theta covariance");
         }
-        for (unsigned k = 0; k < theta_altered.K; ++k)
+        for (unsigned k = 0; k < theta_.K; ++k)
         {
             theta_altered.Gamma[k] += diagmat(pow(x_incertitude, 2));
         }
@@ -237,8 +254,8 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
     {
         Logger::getInstance().log(INFO, "Compute the weighted mean of the means in the mixture");
     }
-    result.meanPredResult.mean = mat(N_obs, theta_altered.D);
-    for (unsigned k = 0; k < theta_altered.K; ++k)
+    result.meanPredResult.mean = mat(N_obs, theta_.D);
+    for (unsigned k = 0; k < theta_.K; ++k)
     {
         result.meanPredResult.mean += diagmat(result.meanPredResult.gmm_weights.col(k)) * result.meanPredResult.gmm_means.slice(k);
     }
@@ -250,10 +267,10 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
     }
 // TODO voir formule dans Kugler 2021. Can be simplified
 #pragma omp parallel
-    result.meanPredResult.variance = cube(N_obs, theta_altered.D, theta_altered.D);
+    result.meanPredResult.variance = cube(N_obs, theta_.D, theta_.D);
     for (unsigned n = 0; n < N_obs; ++n)
     {
-        for (unsigned k = 0; k < theta_altered.K; ++k)
+        for (unsigned k = 0; k < theta_.K; ++k)
         {
             rowvec mean_diff = result.meanPredResult.gmm_means.slice(k).row(n) - result.meanPredResult.mean.row(n);
             result.meanPredResult.variance.row(n) += result.meanPredResult.gmm_weights(n, k) * (result.meanPredResult.gmm_covs.slice(k) + mean_diff.t() * mean_diff);
@@ -269,7 +286,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
 // TODO merge this method with directDensities. Check out the differences
 {
     unsigned N_obs = y.n_cols;
-    PredictionResult result(N_obs, this->theta.L, this->theta.K);
+    PredictionResult result(N_obs, theta_.L, theta_.K);
 
     if (y_incertitude.n_rows != y.n_rows)
     {
@@ -332,102 +349,101 @@ Insights GLLiM<TGamma, TSigma>::getInsights()
 template <typename TGamma, typename TSigma>
 std::string GLLiM<TGamma, TSigma>::getDimensions()
 {
-    std::string str = "GLLiM dimensions are (L=" + std::to_string(this->theta.L) + ", D=" + std::to_string(this->theta.D) + ", K=" + std::to_string(this->theta.K) + ")";
+    std::string str = "GLLiM dimensions are (L=" + std::to_string(theta_.L) + ", D=" + std::to_string(theta_.D) + ", K=" + std::to_string(theta_.K) + ")";
     return str;
 }
 
 template <typename TGamma, typename TSigma>
 std::string GLLiM<TGamma, TSigma>::getConstraints()
 {
-    std::string str = "GLLiM constraints are :\n\tgamma_type = '" + this->constraints.gamma_type + "',\n\tsigma_type = '" + this->constraints.sigma_type + "'.";
+    std::string str = "GLLiM constraints are :\n\tgamma_type = '" + constraints_.gamma_type + "',\n\tsigma_type = '" + constraints_.sigma_type + "'.";
     return str;
 }
 
 template <typename TGamma, typename TSigma>
 GLLiMParameters<TGamma, TSigma> GLLiM<TGamma, TSigma>::getParams()
 {
-    return this->theta;
+    return theta_;
 }
 
 template <typename TGamma, typename TSigma>
 GLLiMParametersArma<TGamma, TSigma> GLLiM<TGamma, TSigma>::getParamsArma()
 {
-    GLLiMParametersArma<TGamma, TSigma> theta_arma(theta.L, theta.D, theta.K);
-    theta_arma.Pi = this->theta.Pi;
-    theta_arma.A = this->theta.A;
-    theta_arma.B = this->theta.B;
-    theta_arma.C = this->theta.C;
-    theta_arma.Gamma = convertVectorOfCovToArma<TGamma>(this->theta.K, this->theta.L, theta.Gamma);
-    theta_arma.Sigma = convertVectorOfCovToArma<TSigma>(this->theta.K, this->theta.D, theta.Sigma);
+    GLLiMParametersArma<TGamma, TSigma> theta_arma(theta_.K, theta_.D, theta_.L);
+    theta_arma.Pi = theta_.Pi;
+    theta_arma.A = theta_.A;
+    theta_arma.B = theta_.B;
+    theta_arma.C = theta_.C;
+    theta_arma.Gamma = convertVectorOfCovToArma<TGamma>(theta_.K, theta_.L, theta_.Gamma);
+    theta_arma.Sigma = convertVectorOfCovToArma<TSigma>(theta_.K, theta_.D, theta_.Sigma);
     return theta_arma;
 }
 
 template <typename TGamma, typename TSigma>
 rowvec GLLiM<TGamma, TSigma>::getParamPi()
 {
-    return this->theta.Pi;
+    return theta_.Pi;
 }
 
 template <typename TGamma, typename TSigma>
 cube GLLiM<TGamma, TSigma>::getParamA()
 {
-    return this->theta.A;
+    return theta_.A;
 }
 
 template <typename TGamma, typename TSigma>
 mat GLLiM<TGamma, TSigma>::getParamB()
 {
-    return this->theta.B;
+    return theta_.B;
 }
 
 template <typename TGamma, typename TSigma>
 mat GLLiM<TGamma, TSigma>::getParamC()
 {
-    return this->theta.C;
+    return theta_.C;
 }
 
 template <typename TGamma, typename TSigma>
 std::vector<TGamma> GLLiM<TGamma, TSigma>::getParamGamma()
 {
-    return this->theta.Gamma;
+    return theta_.Gamma;
 }
 
 template <typename TGamma, typename TSigma>
 typename TGamma::Type GLLiM<TGamma, TSigma>::getParamGammaArma()
 {
-    return convertVectorOfCovToArma<TGamma>(theta.K, theta.L, theta.Gamma);
+    return convertVectorOfCovToArma<TGamma>(theta_.K, theta_.L, theta_.Gamma);
 }
 
 template <typename TGamma, typename TSigma>
 std::vector<TSigma> GLLiM<TGamma, TSigma>::getParamSigma()
 {
-    return this->theta.Sigma;
+    return theta_.Sigma;
 }
 
 template <typename TGamma, typename TSigma>
 typename TSigma::Type GLLiM<TGamma, TSigma>::getParamSigmaArma()
 {
-    return convertVectorOfCovToArma(theta.K, theta.D, theta.Sigma);
+    return convertVectorOfCovToArma(theta_.K, theta_.D, theta_.Sigma);
 }
 
 template <typename TGamma, typename TSigma>
 GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::getInverse()
 {
-    this->theta_star = this->inverse(this->theta);
-    return this->theta_star;
+    return inverse(theta_);
 }
 
 template <typename TGamma, typename TSigma>
 GLLiMParametersArma<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::getInverseArma()
 {
     GLLiMParameters<FullCovariance, FullCovariance> theta_star = getInverse();
-    GLLiMParametersArma<FullCovariance, FullCovariance> theta_star_arma(theta_star.L, theta_star.D, theta_star.K);
+    GLLiMParametersArma<FullCovariance, FullCovariance> theta_star_arma(theta_.K, theta_.D, theta_.L);
     theta_star_arma.Pi = theta_star.Pi;
     theta_star_arma.A = theta_star.A;
     theta_star_arma.B = theta_star.B;
     theta_star_arma.C = theta_star.C;
-    theta_star_arma.Gamma = convertVectorOfCovToArma<FullCovariance>(theta_star.K, theta_star.L, theta_star.Gamma);
-    theta_star_arma.Sigma = convertVectorOfCovToArma<FullCovariance>(theta_star.K, theta_star.D, theta_star.Sigma);
+    theta_star_arma.Gamma = convertVectorOfCovToArma<FullCovariance>(theta_.K, theta_.D, theta_star.Gamma);
+    theta_star_arma.Sigma = convertVectorOfCovToArma<FullCovariance>(theta_.K, theta_.L, theta_star.Sigma);
     return theta_star_arma;
 }
 // TODO Is the theta_star attribute really useful if it is recalculated every time and is differring from theta_star_altered
@@ -437,49 +453,49 @@ GLLiMParametersArma<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::getIn
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParams(const GLLiMParameters<TGamma, TSigma> &theta)
 {
-    this->theta = theta;
+    theta_ = theta;
 }
 
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamsArma(const GLLiMParametersArma<TGamma, TSigma> &theta)
 {
     std::string err = "";
-    if (!(theta.Pi.is_vec() && (theta.Pi.n_cols == this->theta.K)))
+    if (!(theta.Pi.is_vec() && (theta.Pi.n_cols == theta_.K)))
     {
-        err += "Pi dimensions must be of shape (" + std::to_string(this->theta.K) + ")\n";
+        err += "Pi dimensions must be of shape (" + std::to_string(theta_.K) + ")\n";
     }
     if (!(abs(accu(theta.Pi) - 1.0) < 1e-9))
     {
         err += "The sum of weights must be equal to 1\n";
     }
-    if (!(arma::size(theta.A) == arma::SizeCube(this->theta.D, this->theta.L, this->theta.K)))
+    if (!(arma::size(theta.A) == arma::SizeCube(theta_.D, theta_.L, theta_.K)))
     {
-        err += "A dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")\n";
+        err += "A dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.L) + "," + std::to_string(theta_.K) + ")\n";
     }
-    if (!(arma::size(theta.C) == arma::SizeMat(this->theta.L, this->theta.K)))
+    if (!(arma::size(theta.C) == arma::SizeMat(theta_.L, theta_.K)))
     {
-        err += "C dimensions must be of shape (" + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")\n";
+        err += "C dimensions must be of shape (" + std::to_string(theta_.L) + "," + std::to_string(theta_.K) + ")\n";
     }
-    if (!(arma::size(theta.Gamma) == arma::size(TGamma::getTypeSize(this->theta.K, this->theta.L))))
+    if (!(arma::size(theta.Gamma) == arma::size(TGamma::getTypeSize(theta_.K, theta_.L))))
     {
-        err += "Gamma dimensions must be of shape (" + std::to_string(this->theta.L) + "," + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")\n";
+        err += "Gamma dimensions must be of shape (" + std::to_string(theta_.L) + "," + std::to_string(theta_.L) + "," + std::to_string(theta_.K) + ")\n";
     }
-    if (!(arma::size(theta.B) == arma::SizeMat(this->theta.D, this->theta.K)))
+    if (!(arma::size(theta.B) == arma::SizeMat(theta_.D, theta_.K)))
     {
-        err += "B dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.K) + ")\n";
+        err += "B dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.K) + ")\n";
     }
-    if (!(arma::size(theta.Sigma) == arma::size(TSigma::getTypeSize(this->theta.K, this->theta.D))))
+    if (!(arma::size(theta.Sigma) == arma::size(TSigma::getTypeSize(theta_.K, theta_.D))))
     {
-        err += "Sigma dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.D) + "," + std::to_string(this->theta.K) + ")\n";
+        err += "Sigma dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.D) + "," + std::to_string(theta_.K) + ")\n";
     }
     if (err == "")
     {
-        this->theta.Pi = theta.Pi;
-        this->theta.A = theta.A;
-        this->theta.B = theta.B;
-        this->theta.C = theta.C;
-        this->theta.Gamma = convertArmaToVectorOfCov<TGamma>(this->theta.K, this->theta.L, theta.Gamma);
-        this->theta.Sigma = convertArmaToVectorOfCov<TSigma>(this->theta.K, this->theta.D, theta.Sigma);
+        theta_.Pi = theta.Pi;
+        theta_.A = theta.A;
+        theta_.B = theta.B;
+        theta_.C = theta.C;
+        theta_.Gamma = convertArmaToVectorOfCov<TGamma>(theta_.K, theta_.L, theta.Gamma);
+        theta_.Sigma = convertArmaToVectorOfCov<TSigma>(theta_.K, theta_.D, theta.Sigma);
     }
     else
     {
@@ -490,11 +506,11 @@ void GLLiM<TGamma, TSigma>::setParamsArma(const GLLiMParametersArma<TGamma, TSig
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamPi(const rowvec &Pi)
 {
-    if (Pi.is_vec() && (Pi.n_cols == this->theta.K))
+    if (Pi.is_vec() && (Pi.n_cols == theta_.K))
     {
         if ((abs(accu(Pi) - 1.0) < 1e-9))
         {
-            this->theta.Pi = Pi;
+            theta_.Pi = Pi;
         }
         else
         {
@@ -503,46 +519,46 @@ void GLLiM<TGamma, TSigma>::setParamPi(const rowvec &Pi)
     }
     else
     {
-        throw std::invalid_argument("Pi dimensions must be of shape (" + std::to_string(this->theta.K) + ")");
+        throw std::invalid_argument("Pi dimensions must be of shape (" + std::to_string(theta_.K) + ")");
     }
 }
 
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamA(const cube &A)
 {
-    if (arma::size(A) == arma::SizeCube(this->theta.D, this->theta.L, this->theta.K))
+    if (arma::size(A) == arma::SizeCube(theta_.D, theta_.L, theta_.K))
     {
-        this->theta.A = A;
+        theta_.A = A;
     }
     else
     {
-        throw std::invalid_argument("A dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")");
+        throw std::invalid_argument("A dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.L) + "," + std::to_string(theta_.K) + ")");
     }
 }
 
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamB(const mat &B)
 {
-    if (arma::size(B) == arma::SizeMat(this->theta.D, this->theta.K))
+    if (arma::size(B) == arma::SizeMat(theta_.D, theta_.K))
     {
-        this->theta.B = B;
+        theta_.B = B;
     }
     else
     {
-        throw std::invalid_argument("B dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.K) + ")");
+        throw std::invalid_argument("B dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.K) + ")");
     }
 }
 
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamC(const mat &C)
 {
-    if (arma::size(C) == arma::SizeMat(this->theta.L, this->theta.K))
+    if (arma::size(C) == arma::SizeMat(theta_.L, theta_.K))
     {
-        this->theta.C = C;
+        theta_.C = C;
     }
     else
     {
-        throw std::invalid_argument("C dimensions must be of shape (" + std::to_string(this->theta.L) + "," + std::to_string(this->theta.K) + ")");
+        throw std::invalid_argument("C dimensions must be of shape (" + std::to_string(theta_.L) + "," + std::to_string(theta_.K) + ")");
     }
 }
 
@@ -550,38 +566,38 @@ template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamGamma(const std::vector<TGamma> &Gamma)
 {
 
-    this->theta.Gamma = Gamma;
+    theta_.Gamma = Gamma;
 }
 
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamGammaArma(const typename TGamma::Type &Gamma)
 {
-    if (arma::size(Gamma) == arma::size(TGamma::getTypeSize(this->theta.K, this->theta.L)))
+    if (arma::size(Gamma) == arma::size(TGamma::getTypeSize(theta_.K, theta_.L)))
     {
-        this->theta.Gamma = convertArmaToVectorOfCov<TGamma>(this->theta.K, this->theta.L, Gamma);
+        theta_.Gamma = convertArmaToVectorOfCov<TGamma>(theta_.K, theta_.L, Gamma);
     }
     else
     {
-        throw std::invalid_argument("Gamma dimensions must be of shape (" + std::to_string(this->theta.K) + "," + std::to_string(this->theta.L) + "," + std::to_string(this->theta.L) + ")\n");
+        throw std::invalid_argument("Gamma dimensions must be of shape (" + std::to_string(theta_.K) + "," + std::to_string(theta_.L) + "," + std::to_string(theta_.L) + ")\n");
     }
 }
 
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamSigma(const std::vector<TSigma> &Sigma)
 {
-    this->theta.Sigma = Sigma;
+    theta_.Sigma = Sigma;
 }
 
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamSigmaArma(const typename TSigma::Type &Sigma)
 {
-    if (arma::size(Sigma) == arma::size(TSigma::getTypeSize(this->theta.K, this->theta.D)))
+    if (arma::size(Sigma) == arma::size(TSigma::getTypeSize(theta_.K, theta_.D)))
     {
-        this->theta.Sigma = convertArmaToVectorOfCov<TSigma>(this->theta.K, this->theta.D, Sigma);
+        theta_.Sigma = convertArmaToVectorOfCov<TSigma>(theta_.K, theta_.D, Sigma);
     }
     else
     {
-        throw std::invalid_argument("Sigma dimensions must be of shape (" + std::to_string(this->theta.D) + "," + std::to_string(this->theta.D) + "," + std::to_string(this->theta.K) + ")\n");
+        throw std::invalid_argument("Sigma dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.D) + "," + std::to_string(theta_.K) + ")\n");
     }
 }
 
@@ -590,8 +606,8 @@ void GLLiM<TGamma, TSigma>::setParamSigmaArma(const typename TSigma::Type &Sigma
 template <typename TGamma, typename TSigma>
 GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(GLLiMParameters<TGamma, TSigma> &theta)
 {
-    GLLiMParameters<FullCovariance, FullCovariance> theta_star(theta.D, theta.L, theta.K);
-    for (unsigned k = 0; k < theta.K; k++)
+    GLLiMParameters<FullCovariance, FullCovariance> theta_star(theta.K, theta.L, theta.D, theta.L_w);
+    for (unsigned k = 0; k < theta_.K; k++)
     {
         if (theta.Pi(k) != 0)
         {
@@ -669,11 +685,11 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
 // TODO merge this method with directDensities. Check out the differences
 {
     unsigned N_obs = y.n_cols;
-    PredictionResult result(N_obs, this->theta.L, this->theta.K);
+    PredictionResult result(N_obs, theta_.L, theta_.K);
 
     // ==================== Alter theta covariance and inverse theta ====================
 
-    GLLiMParameters<TGamma, TSigma> theta_altered = this->theta;
+    GLLiMParameters<TGamma, TSigma> theta_altered = theta_;
 
     if (!y_incertitude.is_zero())
     {

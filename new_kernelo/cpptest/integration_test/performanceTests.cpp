@@ -22,7 +22,7 @@ TEST_F(PerformanceTest, TestModel)
 {
 
     std::unique_ptr<FunctionalModel> physical_model = std::unique_ptr<TestModel>((new TestModel()));
-    std::unique_ptr<GLLiM<FullCovariance, DiagCovariance>> gllim = std::unique_ptr<GLLiM<FullCovariance, DiagCovariance>>(new GLLiM<FullCovariance, DiagCovariance>(4, 9, 10, "full", "diag"));
+    std::unique_ptr<GLLiM<FullCovariance, DiagCovariance>> gllim = std::unique_ptr<GLLiM<FullCovariance, DiagCovariance>>(new GLLiM<FullCovariance, DiagCovariance>(10, 9, 4, "full", "diag"));
 
     std::cout << "Generate test data :" << std::endl;
     std::tuple<mat, mat> data = physical_model->genData(1000, "sobol", 0.1, 1234);

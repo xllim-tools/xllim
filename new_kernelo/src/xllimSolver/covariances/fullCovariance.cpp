@@ -42,6 +42,16 @@ void FullCovariance::print() const
     this->covariances.print();
 }
 
+FullCovariance FullCovariance::head(unsigned L_t) const
+{
+    return FullCovariance(covariances.submat(0, 0, L_t - 1, L_t - 1));
+}
+
+FullCovariance FullCovariance::tail(unsigned L_w) const
+{
+    return FullCovariance(covariances.submat(covariances.n_rows - L_w, covariances.n_rows - L_w, covariances.n_rows - 1, covariances.n_rows - 1));
+}
+
 mat FullCovariance::get_mat() const
 {
     return this->covariances;
@@ -98,6 +108,12 @@ mat operator-(const FullCovariance &x, const mat &y)
 }
 
 mat operator*(const mat &y, const FullCovariance &x)
+{
+    mat result = y * x.get_mat();
+    return result;
+}
+
+mat operator*(const arma::subview_cols<double> &y, const FullCovariance &x)
 {
     mat result = y * x.get_mat();
     return result;

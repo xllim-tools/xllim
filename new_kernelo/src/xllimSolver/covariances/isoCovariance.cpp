@@ -41,6 +41,16 @@ void IsoCovariance::print() const
     std::cout << "Variance = " << std::to_string(this->scalar) << ", Dimension = " << std::to_string(this->size) << std::endl;
 }
 
+IsoCovariance IsoCovariance::head(unsigned L_t) const
+{
+    return IsoCovariance(scalar, L_t);
+}
+
+IsoCovariance IsoCovariance::tail(unsigned L_w) const
+{
+    return IsoCovariance(scalar, L_w);
+}
+
 mat IsoCovariance::get_mat() const
 {
     vec diag(this->size, fill::value(this->scalar));
@@ -124,6 +134,12 @@ mat operator-(const IsoCovariance &x, const mat &y)
 }
 
 mat operator*(const mat &y, const IsoCovariance &x)
+{
+    mat result = y * x.get_scalar();
+    return result;
+}
+
+mat operator*(const arma::subview_cols<double> &y, const IsoCovariance &x)
 {
     mat result = y * x.get_scalar();
     return result;

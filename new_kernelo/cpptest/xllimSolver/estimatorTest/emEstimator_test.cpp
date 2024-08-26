@@ -5,7 +5,7 @@ class EmEstimatorTest : public ::testing::Test
 {
 protected:
     // Constructor for initializing theta
-    EmEstimatorTest() : theta(L, D, K) {}
+    EmEstimatorTest() : theta(K, D, L, 0) {}
 
     void SetUp() override
     {
@@ -66,7 +66,7 @@ protected:
         }
     };
 
-    const unsigned K = 2, N = 10000, L = 2, D = 5;
+    const unsigned K = 2, N = 10000, L = 4, D = 5;
     GLLiMParameters<FullCovariance, FullCovariance> theta;
     EmEstimator<FullCovariance, FullCovariance> estimator;
     mat X, Y;

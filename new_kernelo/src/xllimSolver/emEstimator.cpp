@@ -3,6 +3,9 @@
 #include "../utils/utils.hpp"
 #include "../logging/logger.hpp"
 
+// ! Useful notation
+// A_w_k = theta.A.slice(k).tail_cols(theta.L_w) // TODO is it possible to do an alias ?
+
 #define LOG_2_PI log(2 * datum::pi)
 
 template <typename TGamma, typename TSigma>
@@ -12,20 +15,10 @@ template <typename TGamma, typename TSigma>
 void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, unsigned max_iteration, double ratio_ll, double floor, int verbose)
 {
     mat log_r(t.n_cols, theta.Pi.n_cols, fill::value(-datum::inf)); // Posterior log probability (N, K)
-    // μw = np.zeros((self.Lw, self.N, self.K))
-    // Sw = np.zeros((self.Lw, self.Lw, self.K))
-    // cube mu_w(this->L_w, t.n_cols, theta.Pi.n_cols); // Gaussian mean of posterior probability r_W|Z (L_w, N, K)
-    // cube S_w(this->L_w, this->L_w, theta.Pi.n_cols); // Gaussian covariance matrix of posterior probability r_W|Z (L_w, L_w, K)
+    cube mu_w(theta.L_w, t.n_cols, theta.Pi.n_cols);                // Gaussian mean of posterior probability r_W|Z (L_w, N, K)
+    cube S_w(theta.L_w, theta.L_w, theta.Pi.n_cols);                // Gaussian covariance matrix of posterior probability r_W|Z (L_w, L_w, K)
 
-    // mat x_t = x.t();
-    // mat y_t = y.t();
-
-    // double old_log_likelihood;
-    // double new_log_likelihood = -datum::inf;
-    unsigned iteration = 0;
-    this->log_likelihood = vec(max_iteration + 1, fill::value(-datum::inf)); // on fait une liste des log_ll pour garder ces données en mémoire et pouvoir les retrouver avec insights()
-    // double old_log_likelihood;
-    // this->log_likelihood(iteration) = -datum::inf; // new_log_likelihood
+    log_likelihood_ = vec(max_iteration + 1, fill::value(-datum::inf)); // A list of log-likelihood at each iteration
 
     // set a logger with a progress bar for GLLiM-EM training
     Logger &logger = Logger::getInstance();
@@ -37,6 +30,8 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     {
         logger.log(INFO, "Start GLLiM-EM Training");
     }
+
+    unsigned iteration = 0;
     do
     {
         iteration++;
@@ -49,14 +44,10 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
         // θ, cstr = self._remove_empty_clusters(θ,cstr,ec)
         // μw, Sw = self._expectation_w(t, y, θ)
 
-        // old_log_likelihood = new_log_likelihood;
-
-        // expectation_W_step(t, y, theta, r);
-
-        this->expectation_Z_step(t, y, theta, log_r); // on veut un void ave shared ptr sur theta ou bien un truc qui renvoie theta ?
-
-        this->maximization_step(t, y, theta, log_r, floor);
-        this->log_likelihood(iteration) = this->compute_log_likelihood(log_r); // new_log_likelihood
+        this->expectation_W_step(t, y, theta, mu_w, S_w);
+        this->expectation_Z_step(t, y, theta, log_r);
+        this->maximization_step(t, y, theta, log_r, mu_w, S_w, floor);
+        log_likelihood_(iteration) = this->compute_log_likelihood(log_r);
 
         if (verbose >= 2)
         {
@@ -64,10 +55,11 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
         }
         if (verbose >= 1)
         {
-            logger.log(INFO, "Iteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(this->log_likelihood(iteration)));
+            logger.log(INFO, "Iteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(log_likelihood_(iteration)));
         }
 
-    } while (!this->has_converged(this->log_likelihood(iteration - 1), this->log_likelihood(iteration), iteration, max_iteration, ratio_ll, floor, verbose));
+    } while (!this->has_converged(log_likelihood_(iteration - 1), log_likelihood_(iteration), iteration, max_iteration, ratio_ll, floor, verbose));
+
     if (verbose >= 2)
     {
         logger.stopProgressBar();
@@ -76,97 +68,55 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     {
         logger.log(INFO, "Finish GLLiM-EM Training");
     }
-    // return theta;
 }
 
 template <typename TGamma, typename TSigma>
 vec EmEstimator<TGamma, TSigma>::get_log_likelihood()
 {
-    return this->log_likelihood;
+    return log_likelihood_;
 }
 
 // ============================== Private methods ==============================
 
-// template <typename TGamma, typename TSigma>
-// void EmEstimator<TGamma, TSigma>::expectation_W_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r, mat &mu_w, mat &S_w)
-// {
-//     // TODO Clear mathematical description
-//     // The posterior probability reW |Z , given parameter estimates, is fully defined by computing
-//     // the distributions p(w_n |Z_n = k, t_n , y_n ; θ(i) ), for all n and all k, which can be shown to be Gaussian,
-//     // with mean µ_w(n,k) and covariance matrix S_w(k) given by
+template <typename TGamma, typename TSigma>
+void EmEstimator<TGamma, TSigma>::expectation_W_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, cube &mu_w, cube &S_w)
+{
+    // The posterior probability r (W |Z) , given parameter estimates, is fully defined by computing
+    // the distributions p(w_n |Z_n = k, t_n , y_n ; θ(i) ), for all n and all k, which can be shown to be Gaussian,
+    // with mean µ_w(n,k) and covariance matrix S_w(k) given by (see paper)
 
-//     // def _expectation_w(self, t, y, θ):
-//         // if self.Lw == 0:
-//         //     μw = np.zeros(0)
-//         //     Sw = np.zeros(0)
-//         //     return μw, Sw
-//     if (this->L_w == 0)
-//     {
-//         mu_w.zeros();
-//         S_w.zeros();
-//     }
+    if (theta.L_w > 0)
+    {
+        for (unsigned k = 0; k < theta.K; k++)
+        {
+            TGamma inv_Gamma_w_k = theta.Gamma[k].tail(theta.L_w).inv(); // (L_w, L_w)
+            TSigma inv_Sigma_k = theta.Sigma[k].inv();                   // (D, D)
 
-//     // if self.verbose: print('Expectation W step')
-//     Logger::getInstance().log(INFO, "Finish GLLiM-EM Training");
+            // compute S_w
+            mat inv_S_w_k = inv_Gamma_w_k.get_mat() + mat(theta.A.slice(k).tail_cols(theta.L_w).t()) * inv_Sigma_k * theta.A.slice(k).tail_cols(theta.L_w); // (L_w, L_w)
+            S_w.slice(k) = inv(inv_S_w_k);                                                                                                                  // Armadillo inv() method
 
-//     // μw = np.zeros((self.Lw, self.N, self.K))
-//     // Sw = np.zeros((self.Lw, self.Lw, self.K))
-
-//     // bar = progressbar.ProgressBar(widgets=['k = ', progressbar.SimpleProgress(), progressbar.Bar()])
-//     // for k in bar(range(self.K)):
-//     //     if self.verbose > 1:
-//     //         print('  - k = %d'%(k))
-
-//     for (unsigned k = 0; k < theta.K; k++)
-//     {
-//         Logger::getInstance().log(INFO, "\t k=" << k);
-//         // # DEFINITION
-//         // Atk = np.reshape(θ['A'][:,0:self.Lt,k], (self.D, self.Lt), order = 'F') # DxLt
-//         // Awk = np.reshape(θ['A'][:,self.Lt:self.L,k], (self.D, self.Lw), order = 'F') # DxLw
-//         // bk = np.reshape(θ['b'][:,k], (self.D,1), order = 'F') # Dx1
-//         // Σk = np.reshape(θ['Σ'][:,:,k], (self.D, self.D), order = 'F') # DxD
-//         // Γwk = np.reshape(θ['Γ'][self.Lt:self.L, self.Lt:self.L, k], (self.Lw, self.Lw), order = 'F') # LwxLw
-//         // cwk = θ['c'][self.Lt:self.L, k] # Lwx1
-
-//         // invΓwk = np.linalg.inv(Γwk)
-//         // invΣk = np.linalg.inv(Σk)
-//         // invSwk = invΓwk + np.matmul(np.matmul(Awk.T, invΣk), Awk) # LwxLw
-
-//         TGamma inv_Gamma_w_k = theta.Gamma_w[k].inv(); // (L_w, L_w)
-//         TSigma inv_Sigma_k = theta.Sigma[k].inv(); // (D, D)
-
-//         mat inv_S_w_k = inv_Gamma_w_k + theta.A_w.slice(k).t() * inv_Sigma_k * theta.A_w.slice(k) // (L_w, L_w)
-
-//         // if not allnans(t):
-//         //     Atkt = np.dot(Atk, t) # DxLt
-//         // else:
-//         //     Atkt = 0
-
-//         // Sw[:,:,k] = np.linalg.inv(invSwk)
-//         // μw[:,:,k] = np.dot(
-//         //                 np.linalg.inv(np.dot(invSwk, Γwk)),
-//         //                 np.dot(np.dot(np.dot(Γwk,Awk.T),invΣk),
-//         //                 y - Atkt - bk) + cwk
-//         //             )
-//         // ! Fomulation différente du papier
-
-//         S_w.slice(k) = inv_S_w_k.inv();
-//         mu_w.slice(k) = S_w.slice(k) * (theta.A_w.slice(k).t() * inv_Sigma_k * ( y.col(n) - theta.A_t.slice(k) * t.col(n) - theta.B.col(k)) + inv_Gamma_w_k * theta.C_w.col(k));
-//     }
-//     // return μw, Sw
-// }
+            // compute mu_w
+            // ! Fomulation papier et pyGLLiM différente
+            // Sw[:,:,k] = np.linalg.inv(invSwk)
+            // μw[:,:,k] = np.dot(  np.linalg.inv( np.dot(invSwk, Γwk)), np.dot( np.dot( np.dot(Γwk,Awk.T), invΣk),   y - Atkt - bk) + cwk )
+            for (size_t n = 0; n < mu_w.n_cols; n++)
+            {
+                mu_w.slice(k).col(n) = S_w.slice(k) * (mat(theta.A.slice(k).tail_cols(theta.L_w).t()) * inv_Sigma_k * (y.col(n) - theta.A.slice(k).head_cols(theta.L_t) * t.col(n) - theta.B.col(k)) + inv_Gamma_w_k * vec(theta.C.col(k).tail(theta.L_w)));
+            }
+        }
+    }
+}
 
 template <typename TGamma, typename TSigma>
 void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r)
 {
-    // TODO Hybrid
-
-    // TODO Clear mathematical description
-    // log_r(n,k) = Pi(k) p(y_n,t_n|Z_n=k;θ) / Σ(j=1:K)[Pi(j) p(y_n,t_n|Z_n=j;θ)]
-    // p(y_n,t_n|Z_n=k;θ) = p(y_n|t_n,Z_n=k;θ) p(t_n|Z_n=k;θ)
-    // p(y_n|t_n,Z_n=k;θ) = gaussianDensity(Y_n; A_k * X_n + B_k, Sigma_k)      (supervised formulation)
-    // p(t_n|Z_n=k;θ) = gaussianDensity(X_n; C_k, Gamma_k))                     (supervised formulation)
-    //  => compute log_r = log(Pi_k * gaussianDensity(Y_n; A_k * X_n + B_k, Sigma_k) * gaussianDensity(X_n; C_k, Gamma_k)) (supervised formulation)
+    // The posterior probability r (r_Z in the paper) is defined by:
+    // r(n,k)               = Pi(k) p(y_n,t_n|Z_n=k;θ) / Σ(j=1:K)[Pi(j) p(y_n,t_n|Z_n=j;θ)]
+    // p(y_n,t_n|Z_n=k;θ)   = p(y_n|t_n,Z_n=k;θ) p(t_n|Z_n=k;θ)
+    // p(y_n|t_n,Z_n=k;θ)   = gaussianDensity(y_n; A_k * [t_n;C_w_k] + B_k, Sigma_k + A_w_k * Gamma_w_k * A_w_k^T)  = "density_t"
+    // p(t_n|Z_n=k;θ)       = gaussianDensity(t_n; C_t_k, Gamma_t_k))                                               = "density_y"
+    // => Finally     log_r = log(Pi_k) + log(density_t) + log(density_y)
 
     unsigned N = t.n_cols;
     double D_log_2_pi = theta.D * LOG_2_PI;
@@ -175,52 +125,51 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
     // #pragma omp parallel for shared(N,K,L,D,x,y,theta,D_log_2_pi, L_log_2_pi,temp_density_y,temp_density_x,log_Pi_K,next_rnk)
     for (unsigned k = 0; k < theta.K; k++)
     {
-        double log_det_gamma = theta.Gamma[k].log_det();
-        double log_det_sigma = theta.Sigma[k].log_det();
-
-        // compute log_r only if both the covariances have non zero determinants
-        if (log_det_sigma != -datum::inf && log_det_gamma != -datum::inf)
+        // compute log_r only if the the weight of the k_th gaussian in the mixture is not zero
+        if (theta.Pi(k) != 0)
         {
-            // compute log_r only if the the weight of the k_th gaussian in the mixture is not zero
-            if (theta.Pi(k) != 0)
+            double log_det_Gamma_t_k = theta.Gamma[k].head(theta.L_t).log_det();
+            double log_det_Sigma_k;
+            if (theta.L_w > 0)
             {
-                // compute the vector (Y - A.X - B)
-                mat y_u(theta.D, N);
-                y_u = y - theta.A.slice(k) * t;
-                y_u.each_col() -= theta.B.col(k);
+                log_det_Sigma_k = log_det(theta.A.slice(k).tail_cols(theta.L_w) * theta.Gamma[k].tail(theta.L_w) * theta.A.slice(k).tail_cols(theta.L_w).t() + theta.Sigma[k]).real(); // Armadillo log_det() method
+            }
+            else
+            {
+                log_det_Sigma_k = theta.Sigma[k].log_det(); // xCovariance log_det() method
+            }
 
-                // compute the vector (X - C)
-                mat x_u(theta.L, N);
-                x_u = t;
-                x_u.each_col() -= theta.C.col(k);
-
-                double temp_density_y = D_log_2_pi + log_det_sigma;
-                double temp_density_x = L_log_2_pi + log_det_gamma;
-                // sigma_inv = inv(theta.Sigma.slice(k));
-                // gamma_inv = inv(theta.Gamma.slice(k));
-                TGamma gamma_inv = theta.Gamma[k].inv();
-                TSigma sigma_inv = theta.Sigma[k].inv();
-
+            // compute log_r only if both the covariances have non zero determinants
+            if (log_det_Sigma_k != -datum::inf && log_det_Gamma_t_k != -datum::inf)
+            {
                 double log_Pi_k = log(theta.Pi(k));
+                double const_density_t = L_log_2_pi + log_det_Gamma_t_k;
+                double const_density_y = D_log_2_pi + log_det_Sigma_k;
 
-                // compute log(Pi_k * gaussianDensity(Y_n; A_k * X_n + B_k, Sigma_k) * gaussianDensity(X_n; C_k, Gamma_k))
+                TGamma Gamma_t_k_inv = theta.Gamma[k].head(theta.L_t).inv();
+                TSigma Sigma_k_inv(theta.D);
+                if (theta.L_w > 0)
+                {
+                    Sigma_k_inv = TSigma(mat(inv(theta.A.slice(k).tail_cols(theta.L_w) * theta.Gamma[k].tail(theta.L_w) * theta.A.slice(k).tail_cols(theta.L_w).t() + theta.Sigma[k]))); // Armadillo inv() method //! if TSigma is Diag or Iso and L_w > 0, Sigma_k_inv should be of type mat !
+                }
+                else
+                {
+                    Sigma_k_inv = theta.Sigma[k].inv(); // xCovariance inv() method
+                }
+
                 for (unsigned n = 0; n < N; n++)
                 {
-                    log_r(n, k) = log_Pi_k - 0.5 * (temp_density_x + dot(x_u.col(n), gamma_inv * vec(x_u.col(n)))) - 0.5 * (temp_density_y + dot(y_u.col(n), sigma_inv * vec(y_u.col(n))));
-
-                    // need to test if this condition is impossible !!
-                    if (log_r(n, k) == (datum::inf))
-                    {
-                        log_r(n, k) = -datum::inf;
-                    }
+                    vec y_u = y.col(n) - theta.A.slice(k) * join_cols(t.col(n), theta.C.col(k).tail(theta.L_w)) - theta.B.col(k);                             // compute the vector (y_n - A_k*[t_n;C_w_k] - B_k)
+                    vec x_u = t.col(n) - theta.C.col(k).head(theta.L_t);                                                                                      // compute the vector (t_n - C_t_k)
+                    log_r(n, k) = log_Pi_k - 0.5 * (const_density_t + dot(x_u, Gamma_t_k_inv * x_u)) - 0.5 * (const_density_y + dot(y_u, Sigma_k_inv * y_u)); // log_r = log(Pi_k) + log(density_t) + log(density_y)
                 }
             }
-        }
-        else
-        {
-            // set log_r = -inf if the determinent of the covariance is equal to zero which makes the log density to tend toward +infinity
-            Logger::getInstance().log(WARNING, "\tTheta Component : " + std::to_string(k) + ", Sigma log determinant : " + std::to_string(log_det_sigma) + ", Gamma log determinant : " + std::to_string(log_det_gamma));
-            log_r.col(k).fill(-datum::inf);
+            else
+            {
+                // set log_r = -inf if the determinent of the covariance is equal to zero which makes the log density to tend toward +infinity
+                Logger::getInstance().log(WARNING, "\tTheta Component : " + std::to_string(k) + ", Sigma log determinant : " + std::to_string(log_det_Sigma_k) + ", Gamma log determinant : " + std::to_string(log_det_Gamma_t_k));
+                log_r.col(k).fill(-datum::inf);
+            }
         }
     }
 
@@ -232,7 +181,7 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
 }
 
 template <typename TGamma, typename TSigma>
-void EmEstimator<TGamma, TSigma>::maximization_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, const mat &log_r, double floor) // mu, S
+void EmEstimator<TGamma, TSigma>::maximization_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, const mat &log_r, const cube &mu_w, const cube &S_w, double floor)
 {
     // TODO Clear mathematical description
 
@@ -258,15 +207,16 @@ void EmEstimator<TGamma, TSigma>::maximization_step(const mat &t, const mat &y, 
             this->improve_covariance_stability(theta.Gamma[k], theta.L, floor);
 
             // Update A
-            this->update_A_k(theta, k, t, y, avg_r_k);
+            this->update_A_k(theta, k, t, y, avg_r_k, mu_w.slice(k), S_w.slice(k));
             mat Y_AX(theta.D, N);
-            Y_AX = y - theta.A.slice(k) * t;
+            mat x = join_cols(t, mu_w.slice(k));
+            Y_AX = y - theta.A.slice(k) * x;
 
             // update B
             this->update_B_k(theta, k, Y_AX, avg_r_k);
 
             // update Sigma
-            this->update_Sigma_k(theta, k, Y_AX, avg_r_k);
+            this->update_Sigma_k(theta, k, Y_AX, avg_r_k, S_w.slice(k));
             this->improve_covariance_stability(theta.Sigma[k], theta.D, floor);
         }
     }
@@ -281,57 +231,65 @@ void EmEstimator<TGamma, TSigma>::update_Pi_k(GLLiMParameters<TGamma, TSigma> &t
 template <typename TGamma, typename TSigma>
 void EmEstimator<TGamma, TSigma>::update_C_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &t, const vec &avg_r_k)
 {
-    theta.C.col(k).fill(0.0);
+    theta.C.col(k).head(theta.L_t).fill(0.0);
     for (unsigned n = 0; n < t.n_cols; n++)
     {
-        theta.C.col(k) += t.col(n) * avg_r_k(n);
+        theta.C.col(k).head(theta.L_t) += t.col(n) * avg_r_k(n);
     }
 }
 
 template <typename TGamma, typename TSigma>
 void EmEstimator<TGamma, TSigma>::update_Gamma_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &t, const vec &avg_r_k)
 {
-    theta.Gamma[k].fill(0.0);
+    theta.Gamma[k].head(theta.L_t).fill(0.0);
     for (unsigned n = 0; n < t.n_cols; n++)
     {
-        // theta.Gamma[k] += avg_r_k(n) * (t.col(n) - theta.C.col(k)) * (t.col(n) - theta.C.col(k)).t();
-        theta.Gamma[k].rank_one_update(t.col(n) - theta.C.col(k), avg_r_k(n)); // efficient computation
+        theta.Gamma[k].head(theta.L_t).rank_one_update(t.col(n) - theta.C.col(k).head(theta.L_t), avg_r_k(n)); // efficient computation
     }
 }
 
 template <typename TGamma, typename TSigma>
-void EmEstimator<TGamma, TSigma>::update_A_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &t, const mat &y, const vec &avg_r_k)
+void EmEstimator<TGamma, TSigma>::update_A_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &t, const mat &y, const vec &avg_r_k, const mat &mu_w_k, const mat &S_w_k)
 {
-    // TODO Hybrid
-    // TODO improve with mu and S (voir pyGLLiM)
-    // NOTE: X = {T; W}
-    mat x = t;
+    mat x_k = join_cols(t, mu_w_k); // X = {T; W} and then the estimated x(k) is {t; mu_w(k)}  (L,N)
 
-    mat X_k(x.n_rows, x.n_cols);
-    mat Y_k(y.n_rows, y.n_cols);
-    vec x_k(x.n_rows); // useless if x=t (supervised model/ W = 0)
-    vec y_k(y.n_rows);
+    mat X_k(x_k.n_rows, x_k.n_cols); // (L,N)
+    mat Y_k(y.n_rows, y.n_cols);     // (D,N)
+    vec x_k_mean(x_k.n_rows);        // (L)
+    vec y_k_mean(y.n_rows);          // (D)
 
-    for (unsigned n = 0; n < x.n_cols; n++) // useless if x=t (supervised model/ W = 0)
+    // compute x_k weighted mean
+    x_k_mean.head(theta.L_t) = theta.C.col(k).head(theta.L_t); // This sum has already been computed for the observed part (L_t first elements)
+    if (theta.L_w > 0)
     {
-        x_k += avg_r_k(n) * x.col(n);
+        for (unsigned n = 0; n < x_k.n_cols; n++)
+        {
+            x_k_mean.tail(theta.L_w) += avg_r_k(n) * mu_w_k.col(n);
+        }
     }
 
-    for (unsigned n = 0; n < x.n_cols; n++)
+    // compute y_k weighted mean
+    for (unsigned n = 0; n < x_k.n_cols; n++)
     {
-        y_k += avg_r_k(n) * y.col(n);
+        y_k_mean += avg_r_k(n) * y.col(n);
     }
 
-    for (unsigned n = 0; n < x.n_cols; n++)
+    // build X_k and Y_k matrices
+    for (unsigned n = 0; n < x_k.n_cols; n++)
     {
-        // X_k.col(n) = sqrt(avg_r_k(n)) * (x.col(n) - theta.C.col(k)); // only if x=t (supervised model/ W = 0)
-        X_k.col(n) = sqrt(avg_r_k(n)) * (x.col(n) - x_k); // useless if x=t (supervised model/ W = 0)
-        Y_k.col(n) = sqrt(avg_r_k(n)) * (y.col(n) - y_k);
+        X_k.col(n) = sqrt(avg_r_k(n)) * (x_k.col(n) - x_k_mean);
+        Y_k.col(n) = sqrt(avg_r_k(n)) * (y.col(n) - y_k_mean);
     }
 
+    // construct A_k
+    mat X_k_quadratic = X_k * X_k.t(); // (L,L)
+    if (theta.L_w > 0)
+    {
+        X_k_quadratic.submat(theta.L_t, theta.L_t, theta.L - 1, theta.L - 1) += S_w_k;
+    }
     if (accu(Y_k) != 0 && accu(X_k) != 0)
     {
-        theta.A.slice(k) = Y_k * X_k.t() * pinv(X_k * X_k.t());
+        theta.A.slice(k) = Y_k * X_k.t() * pinv(X_k_quadratic); // TODO it should be inv_sympd
     }
 }
 
@@ -346,12 +304,11 @@ void EmEstimator<TGamma, TSigma>::update_B_k(GLLiMParameters<TGamma, TSigma> &th
 }
 
 template <typename TGamma, typename TSigma>
-void EmEstimator<TGamma, TSigma>::update_Sigma_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &Y_AX, const vec &avg_r_k)
+void EmEstimator<TGamma, TSigma>::update_Sigma_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &Y_AX, const vec &avg_r_k, const mat &S_w_k)
 {
-    theta.Sigma[k].fill(0.0);
+    theta.Sigma[k] = mat(theta.A.slice(k).tail_cols(theta.L_w) * S_w_k * theta.A.slice(k).tail_cols(theta.L_w).t());
     for (unsigned n = 0; n < avg_r_k.n_rows; n++)
     {
-        // theta.Sigma[k] += avg_r_k(n) * (Y_AX.col(n) - theta.B.col(k)) * (Y_AX.col(n) - theta.B.col(k)).t();
         theta.Sigma[k].rank_one_update(Y_AX.col(n) - theta.B.col(k), avg_r_k(n)); // efficient computation
     }
 }
@@ -380,7 +337,7 @@ bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, doubl
     {
         if (verbose >= 1)
         {
-            Logger::getInstance().log(INFO, "Maximum iteration number reached");
+            Logger::getInstance().log(WARNING, "Maximum iteration number reached");
         }
     }
 
@@ -391,7 +348,7 @@ bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, doubl
     {
         if (verbose >= 1)
         {
-            Logger::getInstance().log(INFO, "Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100));
+            Logger::getInstance().log(WARNING, "Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100));
         }
     }
     return max_iter_condition || ratio_ll_condition;

@@ -60,9 +60,9 @@ void bind_gllim(pybind11::module &m)
         .def_readwrite("training", &Insights::training);
 
     m.def("GLLiM", &create_gllim, "A function to create GLLiM instances",
-          py::arg("L"), py::arg("D"), py::arg("K"), py::arg("gamma_type"), py::arg("sigma_type"));
+          py::arg("K"), py::arg("D"), py::arg("L"), py::arg("gamma_type"), py::arg("sigma_type"), py::arg("n_hidden_variables") = 0);
     m.def("GLLiMParameters", &create_gllim_parameters, "A function to create a GLLiM parameters structure",
-          py::arg("L"), py::arg("D"), py::arg("K"), py::arg("gamma_type"), py::arg("sigma_type"));
+          py::arg("K"), py::arg("D"), py::arg("L"), py::arg("gamma_type"), py::arg("sigma_type"));
 }
 
 template <typename TGamma, typename TSigma>
@@ -80,7 +80,7 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
 
     std::string GLLiM_pyname = std::string("_GLLiM") + str;
     py::class_<GLLiM<TGamma, TSigma>, std::shared_ptr<GLLiM<TGamma, TSigma>>>(m, GLLiM_pyname.c_str()) // exposed to Pybind11 and hide in Python with the underscore
-        .def(py::init<unsigned, unsigned, unsigned, std::string, std::string>(), py::arg("L"), py::arg("D"), py::arg("K"), py::arg("gamma_type"), py::arg("sigma_type"))
+        .def(py::init<unsigned, unsigned, unsigned, std::string, std::string, unsigned>(), py::arg("K"), py::arg("D"), py::arg("L"), py::arg("gamma_type"), py::arg("sigma_type"), py::arg("n_hidden_variables") = 0)
 
         .def("getDimensions", &GLLiM<TGamma, TSigma>::getDimensions, "some info :)")
         .def("getConstraints", &GLLiM<TGamma, TSigma>::getConstraints)

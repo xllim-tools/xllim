@@ -45,6 +45,8 @@ public:
     void fill(const double scalar) override;
     void print(const std::string &str) const override;
     void print() const override;
+    FullCovariance head(unsigned L_t) const;
+    FullCovariance tail(unsigned L_w) const;
     mat get_mat() const override;
     mat get() const { return get_mat(); };
 
@@ -76,6 +78,7 @@ class DiagCovariance : public Covariance
 public:
     // Constructors
     explicit DiagCovariance(const vec &var);
+    explicit DiagCovariance(const arma::subview_col<double> &var);
     explicit DiagCovariance(const arma::subview_row<double> &var);
     explicit DiagCovariance(const mat &cov);
     explicit DiagCovariance(unsigned dimension);
@@ -88,6 +91,8 @@ public:
     void fill(const double scalar) override;
     void print(const std::string &str) const override;
     void print() const override;
+    DiagCovariance head(unsigned L_t) const;
+    DiagCovariance tail(unsigned L_w) const;
     mat get_mat() const override;
     vec get_vec() const;
     rowvec get() const { return get_vec().t(); };
@@ -133,6 +138,8 @@ public:
     void fill(const double scalar) override;
     void print(const std::string &str) const override;
     void print() const override;
+    IsoCovariance head(unsigned L_t) const;
+    IsoCovariance tail(unsigned L_w) const;
     mat get_mat() const override;
     vec get_vec() const;
     double get_scalar() const;
@@ -211,6 +218,17 @@ mat operator-(const IsoCovariance &x, const mat &y);
 mat operator*(const mat &y, const FullCovariance &x);
 mat operator*(const mat &y, const DiagCovariance &x);
 mat operator*(const mat &y, const IsoCovariance &x);
+
+/**
+ * @brief Multiplication operator redefinition
+ * @details The method performs C = A * B where C and A are armadillo subview_cols<double> and B is of type Covariance.
+ * @param y : armadillo::Mat<double>
+ * @param x : Covariance
+ * @return : armadillo::Mat<double>
+ */
+mat operator*(const arma::subview_cols<double> &y, const FullCovariance &x);
+mat operator*(const arma::subview_cols<double> &y, const DiagCovariance &x);
+mat operator*(const arma::subview_cols<double> &y, const IsoCovariance &x);
 
 /**
  * @brief Multiplication operator redefinition

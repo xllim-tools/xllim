@@ -4,6 +4,8 @@
 
 DiagCovariance::DiagCovariance(const vec &var) : variances(var) {}
 
+DiagCovariance::DiagCovariance(const arma::subview_col<double> &var) : variances(var) {}
+
 DiagCovariance::DiagCovariance(const arma::subview_row<double> &var) : variances(var.t()) {}
 
 DiagCovariance::DiagCovariance(const mat &cov) : variances(cov.diag()) {}
@@ -41,6 +43,16 @@ void DiagCovariance::print(const std::string &str) const
 void DiagCovariance::print() const
 {
     variances.t().print();
+}
+
+DiagCovariance DiagCovariance::head(unsigned L_t) const
+{
+    return DiagCovariance(variances.head(L_t));
+}
+
+DiagCovariance DiagCovariance::tail(unsigned L_w) const
+{
+    return DiagCovariance(variances.tail(L_w));
 }
 
 mat DiagCovariance::get_mat() const
@@ -113,6 +125,16 @@ mat operator-(const DiagCovariance &x, const mat &y)
 }
 
 mat operator*(const mat &y, const DiagCovariance &x)
+{
+    mat result = mat(y.n_rows, y.n_cols);
+    for (unsigned i = 0; i < y.n_rows; i++)
+    {
+        result.row(i) = y.row(i) % x.get_vec().t();
+    }
+    return result;
+}
+
+mat operator*(const arma::subview_cols<double> &y, const DiagCovariance &x)
 {
     mat result = mat(y.n_rows, y.n_cols);
     for (unsigned i = 0; i < y.n_rows; i++)
