@@ -1,4 +1,5 @@
-from Cython.Distutils import build_ext
+# from Cython.Distutils import build_ext
+from setuptools.command.build_ext import build_ext
 from numpy import get_include
 import cyarma
 from setuptools import find_packages, Extension, setup
@@ -19,8 +20,8 @@ setup(name='kernelo',
                                libraries=["armadillo", "lapack_atlas", "blas"],
                                language='c++',
                                compiler_directives={'embedsignature': True},
-                               extra_compile_args=["-Ofast", "-DARMA_NO_DEBUG", "-std=c++11"], # optimized
-                              #  extra_compile_args=["-O0", "-DARMA_NO_DEBUG", "-std=c++11"], # for debug
+                              #  extra_compile_args=["-Ofast", "-DARMA_NO_DEBUG", "-std=c++11"], # optimized
+                               extra_compile_args=["-O0", "-DARMA_NO_DEBUG", "-std=c++11", "-DPYTHON_LIBRARY_DIR='/home/luc/.local/lib/python3.10/site-packages'", "-DPYTHON_EXECUTABLE='/usr/bin/python3'"], # for debug
                                ),
                      ]
       )
