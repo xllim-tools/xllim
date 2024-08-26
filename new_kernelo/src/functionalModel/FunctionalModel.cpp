@@ -9,8 +9,8 @@
 
 std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &generator_type, vec &covariance, unsigned seed)
 {
-    unsigned dimension_D = this->getDimensionY();
-    unsigned dimension_L = this->getDimensionX();
+    unsigned dimension_D = getDimensionY();
+    unsigned dimension_L = getDimensionX();
     mat x_gen = mat(N, dimension_L);
     mat y_gen = mat(N, dimension_D);
 
@@ -32,7 +32,7 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     for (unsigned i = 0; i < N; i++)
     {
         // calculate F(X)
-        this->F(x_gen.row(i).t(), y_temp);
+        F(x_gen.row(i).t(), y_temp);
 
         // add noise
         for (unsigned j = 0; j < dimension_D; j++)
@@ -47,8 +47,8 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
 
 std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &generator_type, double noise_ratio, unsigned seed)
 {
-    unsigned dimension_D = this->getDimensionY();
-    unsigned dimension_L = this->getDimensionX();
+    unsigned dimension_D = getDimensionY();
+    unsigned dimension_L = getDimensionX();
     mat x_gen = mat(N, dimension_L);
     mat y_gen = mat(N, dimension_D);
 
@@ -70,7 +70,7 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     for (unsigned i = 0; i < N; i++)
     {
         // calculate F(X)
-        this->F(x_gen.row(i).t(), y_temp);
+        F(x_gen.row(i).t(), y_temp);
 
         // add noise
         for (unsigned j = 0; j < dimension_D; j++)
@@ -100,7 +100,7 @@ vec FunctionalModel::targetDensity(const mat &x, const vec &y, const vec &y_err,
         }
         else
         {
-            this->F(x.col(n), F_on_x);
+            F(x.col(n), F_on_x);
             F_on_x_mat.col(0) = F_on_x;
             gmm.set_params(F_on_x_mat, covariance_matrix, weight);
             densities(n) = gmm.log_p(y);

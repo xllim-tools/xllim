@@ -11,14 +11,14 @@ public:
     mat getPosterior();
 
 private:
-    unsigned L;
-    unsigned D;
-    unsigned K;
-    gmm_full jgmm; // better than (weights + covs + means) ?
+    unsigned L_;
+    unsigned D_;
+    unsigned K_;
+    gmm_full jgmm_; // better than (weights + covs + means) ?
     // vec jgmm_weights;      // The weights of the GMM equivalent to the GLLiM model.
     // mat jgmm_means;        // The means of the GMM equivalent to the GLLiM model.
     // cube jgmm_covariances; // The covariance matrices of the GMM equivalent to the GLLiM model.
-    mat posterior; // the posterior from the training of the GMM
+    mat posterior_; // the posterior from the training of the GMM
 
     void GLLiMParameterstoJGMM(GLLiMParameters<FullCovariance,FullCovariance> &initial_theta);
     void JGMMtoGLLiMParameters(GLLiMParameters<FullCovariance, FullCovariance> &theta);

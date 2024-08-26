@@ -2,107 +2,107 @@
 
 // ==================== Constructors ====================
 
-IsoCovariance::IsoCovariance(double variance, unsigned dimension) : scalar(variance), size(dimension) {}
+IsoCovariance::IsoCovariance(double variance, unsigned dimension) : scalar_(variance), size_(dimension) {}
 
-IsoCovariance::IsoCovariance(const mat &covariance) : scalar(accu(covariance.diag()) / covariance.n_cols), size(covariance.n_cols) {}
+IsoCovariance::IsoCovariance(const mat &covariance) : scalar_(accu(covariance.diag()) / covariance.n_cols), size_(covariance.n_cols) {}
 
-IsoCovariance::IsoCovariance(unsigned dimension) : scalar(1.0), size(dimension) {}
+IsoCovariance::IsoCovariance(unsigned dimension) : scalar_(1.0), size_(dimension) {}
 
 // ==================== Class methods ====================
 
 double IsoCovariance::log_det() const
 {
-    return log(this->scalar * this->size);
+    return log(scalar_ * size_);
 }
 
 IsoCovariance IsoCovariance::inv() const
 {
-    double inv = 1.0 / this->scalar;
-    return IsoCovariance(inv, this->size);
+    double inv = 1.0 / scalar_;
+    return IsoCovariance(inv, size_);
 }
 
 void IsoCovariance::rank_one_update(const vec &v, double alpha)
 {
-    this->scalar += alpha * accu(pow(v, 2)) / size;
+    scalar_ += alpha * accu(pow(v, 2)) / size_;
 }
 
 void IsoCovariance::fill(const double scalar)
 {
-    this->scalar = scalar;
+    scalar_ = scalar;
 }
 
 void IsoCovariance::print(const std::string &str) const
 {
-    std::cout << str << "\n\tVariance = " << std::to_string(this->scalar) << ", Dimension = " << std::to_string(this->size) << std::endl;
+    std::cout << str << "\n\tVariance = " << std::to_string(scalar_) << ", Dimension = " << std::to_string(size_) << std::endl;
 }
 
 void IsoCovariance::print() const
 {
-    std::cout << "Variance = " << std::to_string(this->scalar) << ", Dimension = " << std::to_string(this->size) << std::endl;
+    std::cout << "Variance = " << std::to_string(scalar_) << ", Dimension = " << std::to_string(size_) << std::endl;
 }
 
 IsoCovariance IsoCovariance::head(unsigned L_t) const
 {
-    return IsoCovariance(scalar, L_t);
+    return IsoCovariance(scalar_, L_t);
 }
 
 IsoCovariance IsoCovariance::tail(unsigned L_w) const
 {
-    return IsoCovariance(scalar, L_w);
+    return IsoCovariance(scalar_, L_w);
 }
 
 mat IsoCovariance::get_mat() const
 {
-    vec diag(this->size, fill::value(this->scalar));
+    vec diag(size_, fill::value(scalar_));
     return diagmat(diag);
 }
 
 vec IsoCovariance::get_vec() const
 {
-    return vec(this->size, fill::value(this->scalar));
+    return vec(size_, fill::value(scalar_));
 }
 
 double IsoCovariance::get_scalar() const
 {
-    return this->scalar;
+    return scalar_;
 }
 
 unsigned IsoCovariance::get_size() const
 {
-    return this->size;
+    return size_;
 }
 
 // ==================== Assignement operators ====================
 
 IsoCovariance &IsoCovariance::operator=(const IsoCovariance &cov)
 {
-    this->scalar = cov.scalar;
-    this->size = cov.size;
+    scalar_ = cov.scalar_;
+    size_ = cov.size_;
     return *this;
 }
 
 IsoCovariance &IsoCovariance::operator=(const mat &cov)
 {
-    this->scalar = accu(cov.diag()) / cov.n_cols;
-    this->size = cov.n_cols;
+    scalar_ = accu(cov.diag()) / cov.n_cols;
+    size_ = cov.n_cols;
     return *this;
 }
 
 IsoCovariance &IsoCovariance::operator=(double scalar)
 {
-    this->scalar = scalar;
+    scalar_ = scalar;
     return *this;
 }
 
 IsoCovariance &IsoCovariance::operator+=(const mat &cov)
 {
-    this->scalar += accu(cov.diag()) / cov.n_cols;
+    scalar_ += accu(cov.diag()) / cov.n_cols;
     return *this;
 }
 
 IsoCovariance &IsoCovariance::operator+=(double scalar)
 {
-    this->scalar += scalar;
+    scalar_ += scalar;
     return *this;
 }
 

@@ -10,7 +10,7 @@ Logger::Logger() : progress_bar_active_(false) {}
 
 void Logger::log(LogLevel level, const std::string &message)
 {
-    std::lock_guard<std::mutex> guard(log_mutex);
+    std::lock_guard<std::mutex> guard(log_mutex_);
     clearProgressBar();
     std::cout << getColor(level) << getLabel(level) << ": " << message << "\033[0m" << std::endl;
     showProgressBar();
@@ -29,7 +29,7 @@ void Logger::updateProgressBar(int value)
 {
     if (progress_bar_active_)
     {
-        std::lock_guard<std::mutex> guard(log_mutex);
+        std::lock_guard<std::mutex> guard(log_mutex_);
         progress_bar_progress_ = value;
     }
 }
@@ -47,7 +47,7 @@ void Logger::stopProgressBar()
 {
     if (progress_bar_active_)
     {
-        std::lock_guard<std::mutex> guard(log_mutex);
+        std::lock_guard<std::mutex> guard(log_mutex_);
         progress_bar_active_ = false;
         std::cout << std::endl;
     }

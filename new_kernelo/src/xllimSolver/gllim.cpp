@@ -181,7 +181,7 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor, int verbose)
 {
-    // this->checkConstraints(); // ? Check if Params are valid and update constraints
+    // checkConstraints(); // ? Check if Params are valid and update constraints
 
     auto start = std::chrono::high_resolution_clock::now();
 

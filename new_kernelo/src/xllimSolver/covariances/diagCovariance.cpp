@@ -2,98 +2,98 @@
 
 // ==================== Constructors ====================
 
-DiagCovariance::DiagCovariance(const vec &var) : variances(var) {}
+DiagCovariance::DiagCovariance(const vec &var) : variances_(var) {}
 
-DiagCovariance::DiagCovariance(const arma::subview_col<double> &var) : variances(var) {}
+DiagCovariance::DiagCovariance(const arma::subview_col<double> &var) : variances_(var) {}
 
-DiagCovariance::DiagCovariance(const arma::subview_row<double> &var) : variances(var.t()) {}
+DiagCovariance::DiagCovariance(const arma::subview_row<double> &var) : variances_(var.t()) {}
 
-DiagCovariance::DiagCovariance(const mat &cov) : variances(cov.diag()) {}
+DiagCovariance::DiagCovariance(const mat &cov) : variances_(cov.diag()) {}
 
-DiagCovariance::DiagCovariance(unsigned dimension) : variances(vec(dimension, fill::ones)) {}
+DiagCovariance::DiagCovariance(unsigned dimension) : variances_(vec(dimension, fill::ones)) {}
 
 // ==================== Class methods ====================
 
 double DiagCovariance::log_det() const
 {
-    return sum(log(this->variances));
+    return sum(log(variances_));
 }
 
 DiagCovariance DiagCovariance::inv() const
 {
-    vec inv = 1.0 / this->variances;
+    vec inv = 1.0 / variances_;
     return DiagCovariance(inv);
 }
 
 void DiagCovariance::rank_one_update(const vec &v, double alpha)
 {
-    this->variances += pow(v, 2) * alpha;
+    variances_ += pow(v, 2) * alpha;
 }
 
 void DiagCovariance::fill(const double scalar)
 {
-    this->variances.fill(scalar);
+    variances_.fill(scalar);
 }
 
 void DiagCovariance::print(const std::string &str) const
 {
-    variances.t().print(str);
+    variances_.t().print(str);
 }
 
 void DiagCovariance::print() const
 {
-    variances.t().print();
+    variances_.t().print();
 }
 
 DiagCovariance DiagCovariance::head(unsigned L_t) const
 {
-    return DiagCovariance(variances.head(L_t));
+    return DiagCovariance(variances_.head(L_t));
 }
 
 DiagCovariance DiagCovariance::tail(unsigned L_w) const
 {
-    return DiagCovariance(variances.tail(L_w));
+    return DiagCovariance(variances_.tail(L_w));
 }
 
 mat DiagCovariance::get_mat() const
 {
-    return diagmat(this->variances);
+    return diagmat(variances_);
 }
 
 vec DiagCovariance::get_vec() const
 {
-    return this->variances;
+    return variances_;
 }
 
 // ==================== Assignement operators ====================
 
 DiagCovariance &DiagCovariance::operator=(const DiagCovariance &cov)
 {
-    this->variances = cov.variances;
+    variances_ = cov.variances_;
     return *this;
 }
 
 DiagCovariance &DiagCovariance::operator=(const mat &cov)
 {
-    this->variances = cov.diag();
+    variances_ = cov.diag();
     return *this;
 }
 
 DiagCovariance &DiagCovariance::operator=(const vec &var)
 {
-    this->variances = var;
+    variances_ = var;
     return *this;
 }
 
 DiagCovariance &DiagCovariance::operator+=(const mat &cov)
 {
-    this->variances += cov.diag();
+    variances_ += cov.diag();
     return *this;
 }
 
 DiagCovariance &DiagCovariance::operator+=(double scalar)
 {
-    this->variances += scalar;
+    variances_ += scalar;
     return *this;
 }
 

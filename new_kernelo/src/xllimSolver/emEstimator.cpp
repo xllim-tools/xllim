@@ -44,10 +44,10 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
         // θ, cstr = self._remove_empty_clusters(θ,cstr,ec)
         // μw, Sw = self._expectation_w(t, y, θ)
 
-        this->expectation_W_step(t, y, theta, mu_w, S_w);
-        this->expectation_Z_step(t, y, theta, log_r);
-        this->maximization_step(t, y, theta, log_r, mu_w, S_w, floor);
-        log_likelihood_(iteration) = this->compute_log_likelihood(log_r);
+        expectation_W_step(t, y, theta, mu_w, S_w);
+        expectation_Z_step(t, y, theta, log_r);
+        maximization_step(t, y, theta, log_r, mu_w, S_w, floor);
+        log_likelihood_(iteration) = compute_log_likelihood(log_r);
 
         if (verbose >= 2)
         {
@@ -58,7 +58,7 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
             logger.log(INFO, "Iteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(log_likelihood_(iteration)));
         }
 
-    } while (!this->has_converged(log_likelihood_(iteration - 1), log_likelihood_(iteration), iteration, max_iteration, ratio_ll, floor, verbose));
+    } while (!has_converged(log_likelihood_(iteration - 1), log_likelihood_(iteration), iteration, max_iteration, ratio_ll, floor, verbose));
 
     if (verbose >= 2)
     {
@@ -193,31 +193,31 @@ void EmEstimator<TGamma, TSigma>::maximization_step(const mat &t, const mat &y, 
         double log_r_k = utils::logSumExp(log_r.col(k)); // r(k) = Σ(n=1:N)[r(n,k)]
 
         // update Pi
-        this->update_Pi_k(theta, k, N, log_r_k);
+        update_Pi_k(theta, k, N, log_r_k);
 
         if (log_r_k != (-datum::inf)) // equivalent to (theta.Pi(k) != 0)
         {
             vec avg_r_k = exp(log_r.col(k) - log_r_k); // vector of r(n,k)/r(k)
 
             // update C
-            this->update_C_k(theta, k, t, avg_r_k);
+            update_C_k(theta, k, t, avg_r_k);
 
             // update Gamma
-            this->update_Gamma_k(theta, k, t, avg_r_k);
-            this->improve_covariance_stability(theta.Gamma[k], theta.L, floor);
+            update_Gamma_k(theta, k, t, avg_r_k);
+            improve_covariance_stability(theta.Gamma[k], theta.L, floor);
 
             // Update A
-            this->update_A_k(theta, k, t, y, avg_r_k, mu_w.slice(k), S_w.slice(k));
+            update_A_k(theta, k, t, y, avg_r_k, mu_w.slice(k), S_w.slice(k));
             mat Y_AX(theta.D, N);
             mat x = join_cols(t, mu_w.slice(k));
             Y_AX = y - theta.A.slice(k) * x;
 
             // update B
-            this->update_B_k(theta, k, Y_AX, avg_r_k);
+            update_B_k(theta, k, Y_AX, avg_r_k);
 
             // update Sigma
-            this->update_Sigma_k(theta, k, Y_AX, avg_r_k, S_w.slice(k));
-            this->improve_covariance_stability(theta.Sigma[k], theta.D, floor);
+            update_Sigma_k(theta, k, Y_AX, avg_r_k, S_w.slice(k));
+            improve_covariance_stability(theta.Sigma[k], theta.D, floor);
         }
     }
 }

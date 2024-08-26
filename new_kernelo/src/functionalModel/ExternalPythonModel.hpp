@@ -32,8 +32,8 @@ public:
     void fromPhysic(vec &x) final;
 
 private:
-    py::module_ pModule;
-    py::object pObj;
+    py::module_ pModule_;
+    py::object pObj_;
 };
 
 #endif // KERNELO_EXTERNALPYTHONMODEL_H

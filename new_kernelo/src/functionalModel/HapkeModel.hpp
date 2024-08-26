@@ -42,15 +42,15 @@ public:
     void fromPhysic(vec &x) final;
 
 protected:
-    mat geom_helper_mat;      /**< A matrix containing intermediate results in relation to geometries */
-    mat configuredGeometries; /**< A matrix of the configured geometries */
-    std::string variant;      /**< A shared pointer to the @ref HapkeAdapter "adapter" */
-    std::string adapter;      /**< A shared pointer to the @ref HapkeAdapter "adapter" */
-    double theta_bar_scaling; /**< A value used to transform theta_bar between physical and mathematical spaces */
-    unsigned int L_dimension; /** The dimension corresponds the the model variant */
-    double b0;
-    double h;
-    double c;
+    mat geom_helper_mat_;      /**< A matrix containing intermediate results in relation to geometries */
+    mat configuredGeometries_; /**< A matrix of the configured geometries */
+    std::string variant_;      /**< A shared pointer to the @ref HapkeAdapter "adapter" */
+    std::string adapter_;      /**< A shared pointer to the @ref HapkeAdapter "adapter" */
+    double theta_bar_scaling_; /**< A value used to transform theta_bar between physical and mathematical spaces */
+    unsigned int L_dimension_; /** The dimension corresponds the the model variant */
+    double b0_;
+    double h_;
+    double c_;
 
     // // FRIEND_TEST(Hapke02ModelTest, CalculateP);
     // // FRIEND_TEST(Hapke02ModelTest, CalculateX);

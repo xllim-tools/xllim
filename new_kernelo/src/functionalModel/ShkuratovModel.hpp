@@ -31,11 +31,11 @@ public:
     void fromPhysic(vec &x) final;
 
 protected:
-    mat configuredGeometries; /** A matrix of the configured geometries */
-    vec scalingCoeffs;        /** A set of coefficients used in the transformation between physical and mathematical spaces. */
-    vec offset;               /** Offsets used in the transformation between physical and mathematical spaces */
-    vec cos_i;                /** cos_i  directly computed from incidence angle */
-    unsigned int L_dimension; /** The dimension corresponds the the model variant */
+    mat configuredGeometries_; /** A matrix of the configured geometries */
+    vec scalingCoeffs_;        /** A set of coefficients used in the transformation between physical and mathematical spaces. */
+    vec offset_;               /** Offsets used in the transformation between physical and mathematical spaces */
+    vec cos_i_;                /** cos_i  directly computed from incidence angle */
+    unsigned int L_dimension_; /** The dimension corresponds the the model variant */
 
 private:
     /**

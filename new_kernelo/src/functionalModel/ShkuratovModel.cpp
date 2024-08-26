@@ -4,16 +4,16 @@ ShkuratovModel::ShkuratovModel(mat geometries, std::string variant, vec scalingC
 {
     if (variant == "5p")
     {
-        this->L_dimension = 5;
+        L_dimension_ = 5;
     }
     else if (variant == "3p")
     {
-        this->L_dimension = 3;
+        L_dimension_ = 3;
     }
-    this->scalingCoeffs = scalingCoeffs;
-    this->offset = offset;
+    scalingCoeffs_ = scalingCoeffs;
+    offset_ = offset;
     setupGeometries(geometries);
-    this->cos_i = cos(geometries.col(INC) * datum::pi / DEGREE_180);
+    cos_i_ = cos(geometries.col(INC) * datum::pi / DEGREE_180);
 }
 
 void ShkuratovModel::F(vec photometry, vec &reflectances)
@@ -21,51 +21,51 @@ void ShkuratovModel::F(vec photometry, vec &reflectances)
     toPhysic(photometry);
 
     vec f;
-    if (this->L_dimension == 5)
+    if (L_dimension_ == 5)
     {
-        f = (exp(-photometry(MU_1) * configuredGeometries.col(ALPHA)) + photometry(M) * exp(-photometry(MU_2) * configuredGeometries.col(ALPHA))) / (1 + photometry(M));
+        f = (exp(-photometry(MU_1) * configuredGeometries_.col(ALPHA)) + photometry(M) * exp(-photometry(MU_2) * configuredGeometries_.col(ALPHA))) / (1 + photometry(M));
     }
-    else if (this->L_dimension == 3)
+    else if (L_dimension_ == 3)
     {
-        f = exp(-photometry(MU_1) * configuredGeometries.col(ALPHA));
+        f = exp(-photometry(MU_1) * configuredGeometries_.col(ALPHA));
     }
-    vec d = cos(configuredGeometries.col(ALPHA) / 2.0) % cos(datum::pi * (configuredGeometries.col(GAMMA) - configuredGeometries.col(ALPHA) / 2.0) / (datum::pi - configuredGeometries.col(ALPHA))) / cos(configuredGeometries.col(GAMMA));
+    vec d = cos(configuredGeometries_.col(ALPHA) / 2.0) % cos(datum::pi * (configuredGeometries_.col(GAMMA) - configuredGeometries_.col(ALPHA) / 2.0) / (datum::pi - configuredGeometries_.col(ALPHA))) / cos(configuredGeometries_.col(GAMMA));
     for (unsigned i = 0; i < d.n_rows; i++)
     {
-        d(i) *= pow(cos(configuredGeometries(i, BETA)), photometry(NU) * configuredGeometries(i, ALPHA) * (datum::pi - configuredGeometries(i, ALPHA)));
+        d(i) *= pow(cos(configuredGeometries_(i, BETA)), photometry(NU) * configuredGeometries_(i, ALPHA) * (datum::pi - configuredGeometries_(i, ALPHA)));
     }
-    reflectances = photometry(AN) * d % f / cos_i;
+    reflectances = photometry(AN) * d % f / cos_i_;
 }
 
 unsigned ShkuratovModel::getDimensionY()
 {
-    return configuredGeometries.n_rows;
+    return configuredGeometries_.n_rows;
 }
 
 unsigned ShkuratovModel::getDimensionX()
 {
-    return L_dimension;
+    return L_dimension_;
 }
 
 void ShkuratovModel::toPhysic(vec &x)
 {
-    x = x % scalingCoeffs + offset;
+    x = x % scalingCoeffs_ + offset_;
 }
 
 void ShkuratovModel::fromPhysic(vec &x)
 {
-    x = (x - offset) / scalingCoeffs;
+    x = (x - offset_) / scalingCoeffs_;
 }
 
 void ShkuratovModel::setupGeometries(const mat &geometries)
 {
-    configuredGeometries = mat(geometries.n_rows, geometries.n_cols, fill::zeros);
+    configuredGeometries_ = mat(geometries.n_rows, geometries.n_cols, fill::zeros);
     mat geomsGrad = geometries;
     geomsGrad.transform([](double val)
                         { return degToGrad(val); });
 
     // compute Alpha
-    configuredGeometries.col(ALPHA) = acos(cos(geomsGrad.col(INC)) % cos(geomsGrad.col(EME)) + sin(geomsGrad.col(INC)) % sin(geomsGrad.col(EME)) % cos(geomsGrad.col(PHI)));
+    configuredGeometries_.col(ALPHA) = acos(cos(geomsGrad.col(INC)) % cos(geomsGrad.col(EME)) + sin(geomsGrad.col(INC)) % sin(geomsGrad.col(EME)) % cos(geomsGrad.col(PHI)));
 
     // compute Beta
     vec sin_i_e_2 = pow(sin(geomsGrad.col(INC) + geomsGrad.col(EME)), 2);
@@ -75,10 +75,10 @@ void ShkuratovModel::setupGeometries(const mat &geometries)
     vec cos_beta = sqrt(
         (sin_i_e_2 - cos_phiDiv2_2 % sin_2_i % sin_2_e) /
         (sin_i_e_2 - cos_phiDiv2_2 % sin_2_i % sin_2_e + pow(sin(geomsGrad.col(EME)), 2) % pow(sin(geomsGrad.col(INC)), 2) % pow(sin(geomsGrad.col(PHI)), 2)));
-    configuredGeometries.col(BETA) = acos(cos_beta);
+    configuredGeometries_.col(BETA) = acos(cos_beta);
 
     // compute Gamma
-    configuredGeometries.col(GAMMA) = atan((cos(geomsGrad.col(INC)) / cos(geomsGrad.col(EME)) - cos(configuredGeometries.col(ALPHA))) / sin(configuredGeometries.col(ALPHA)));
+    configuredGeometries_.col(GAMMA) = atan((cos(geomsGrad.col(INC)) / cos(geomsGrad.col(EME)) - cos(configuredGeometries_.col(ALPHA))) / sin(configuredGeometries_.col(ALPHA)));
 }
 
 double ShkuratovModel::degToGrad(double degree)

@@ -2,20 +2,20 @@
 
 // ==================== Constructors ====================
 
-FullCovariance::FullCovariance(const mat &cov) : covariances(cov) {}
+FullCovariance::FullCovariance(const mat &cov) : covariances_(cov) {}
 
-FullCovariance::FullCovariance(unsigned dimension) : covariances(mat(dimension, dimension, fill::eye)) {}
+FullCovariance::FullCovariance(unsigned dimension) : covariances_(mat(dimension, dimension, fill::eye)) {}
 
 // ==================== Class methods ====================
 
 double FullCovariance::log_det() const
 {
-    return log_det_sympd(this->covariances);
+    return log_det_sympd(covariances_);
 }
 
 FullCovariance FullCovariance::inv() const
 {
-    mat inv = inv_sympd(this->covariances);
+    mat inv = inv_sympd(covariances_);
     return FullCovariance(inv);
 }
 
@@ -23,63 +23,63 @@ void FullCovariance::rank_one_update(const vec &v, double alpha)
 {
     for (unsigned i = 0; i < v.n_rows; i++)
     {
-        this->covariances.col(i) += v * v(i) * alpha;
+        covariances_.col(i) += v * v(i) * alpha;
     }
 }
 
 void FullCovariance::fill(const double scalar)
 {
-    this->covariances.fill(scalar);
+    covariances_.fill(scalar);
 }
 
 void FullCovariance::print(const std::string &str) const
 {
-    this->covariances.print(str);
+    covariances_.print(str);
 }
 
 void FullCovariance::print() const
 {
-    this->covariances.print();
+    covariances_.print();
 }
 
 FullCovariance FullCovariance::head(unsigned L_t) const
 {
-    return FullCovariance(covariances.submat(0, 0, L_t - 1, L_t - 1));
+    return FullCovariance(covariances_.submat(0, 0, L_t - 1, L_t - 1));
 }
 
 FullCovariance FullCovariance::tail(unsigned L_w) const
 {
-    return FullCovariance(covariances.submat(covariances.n_rows - L_w, covariances.n_rows - L_w, covariances.n_rows - 1, covariances.n_rows - 1));
+    return FullCovariance(covariances_.submat(covariances_.n_rows - L_w, covariances_.n_rows - L_w, covariances_.n_rows - 1, covariances_.n_rows - 1));
 }
 
 mat FullCovariance::get_mat() const
 {
-    return this->covariances;
+    return covariances_;
 }
 
 // ==================== Assignement operators ====================
 
 FullCovariance &FullCovariance::operator=(const FullCovariance &cov)
 {
-    this->covariances = cov.covariances;
+    covariances_ = cov.covariances_;
     return *this;
 }
 
 FullCovariance &FullCovariance::operator=(const mat &cov)
 {
-    this->covariances = cov;
+    covariances_ = cov;
     return *this;
 }
 
 FullCovariance &FullCovariance::operator+=(const mat &cov)
 {
-    this->covariances += cov;
+    covariances_ += cov;
     return *this;
 }
 
 FullCovariance &FullCovariance::operator+=(double scalar)
 {
-    this->covariances += scalar;
+    covariances_ += scalar;
     return *this;
 }
 

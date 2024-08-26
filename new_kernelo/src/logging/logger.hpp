@@ -81,7 +81,7 @@ private:
      */
     void clearProgressBar();
 
-    std::mutex log_mutex;                                                   ///< Mutex to ensure thread-safety for logging.
+    std::mutex log_mutex_;                                                   ///< Mutex to ensure thread-safety for logging.
     int progress_bar_total_;                                                ///< Total value for 100% completion.
     int progress_bar_width_;                                                ///< Width of the progress bar.
     int progress_bar_progress_;                                             ///< Current progress value.

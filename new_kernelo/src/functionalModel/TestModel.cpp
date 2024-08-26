@@ -7,8 +7,8 @@
 
 TestModel::TestModel()
 {
-    this->A = mat(TestModel_D_dimension, TestModel_L_dimension, fill::zeros);
-    this->A = {{1, 2, 2, 1},
+    A_ = mat(TestModel_D_dimension, TestModel_L_dimension, fill::zeros);
+    A_ = {{1, 2, 2, 1},
                {0, 0.5, 0, 0},
                {0, 0, 1, 0},
                {0, 0, 0, 3},
@@ -17,7 +17,7 @@ TestModel::TestModel()
                {-0.2, 0, -1, 0},
                {-1, 0, 2, 0},
                {0, 0, 0, -0.7}};
-    this->A *= 0.5;
+    A_ *= 0.5;
 }
 
 void TestModel::F(vec x, vec &y)
@@ -38,7 +38,7 @@ void TestModel::F(vec x, vec &y)
     Gx(3) = exp(Hx(3));
 
     // compute y
-    y = this->A * Gx;
+    y = A_ * Gx;
 }
 
 unsigned TestModel::getDimensionY()

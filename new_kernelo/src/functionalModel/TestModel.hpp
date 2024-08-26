@@ -26,7 +26,7 @@ public:
     void fromPhysic(vec &x) final;
 
 private:
-    mat A;
+    mat A_;
 };
 
 #endif // KERNELO_TESTMODEL_H

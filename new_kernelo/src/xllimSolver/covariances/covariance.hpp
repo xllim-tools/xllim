@@ -61,7 +61,7 @@ public:
     FullCovariance &operator+=(double scalar);
 
 private:
-    mat covariances;
+    mat covariances_;
 };
 
 /**
@@ -109,7 +109,7 @@ public:
     DiagCovariance &operator+=(double scalar);
 
 private:
-    vec variances;
+    vec variances_;
 };
 
 /**
@@ -158,8 +158,8 @@ public:
     IsoCovariance &operator+=(double scalar);
 
 private:
-    double scalar;
-    double size;
+    double scalar_;
+    double size_;
 };
 
 // =================== Operator overload declarations ===================
