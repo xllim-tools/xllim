@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Examples &mdash; Kernelo 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2709fde1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="FunctionalModel Class" href="functional_model.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Kernelo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+    
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GLLiM/gllim_class_overall.html">GLLiM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functional_model.html">FunctionalModel Class</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation-usage">Installation/Usage:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#code-example">Code example</a></li>
+</ul>
+</li>
+</ul>
+
+    <a href="genindex.html">Index</a>
+  
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Kernelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Examples</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/example.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h1>
+<section id="installation-usage">
+<h2>Installation/Usage:<a class="headerlink" href="#installation-usage" title="Link to this heading"></a></h2>
+<p>As the package has not been published on PyPi yet, it CANNOT be install using pip.
+For instructions about how to install, as well as the full documentation of, <code class="docutils literal notranslate"><span class="pre">kernelo</span></code> please refer <a class="reference external" href="https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is">here</a></p>
+</section>
+<section id="code-example">
+<h2>Code example<a class="headerlink" href="#code-example" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">kernelo</span> <span class="k">as</span> <span class="nn">ker</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+
+<span class="k">def</span> <span class="nf">compute_reconstruction_error</span><span class="p">(</span><span class="n">reconstruction</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">observation</span> <span class="o">-</span> <span class="n">reconstruction</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+
+
+<span class="c1"># Create &quot;physical&quot; model</span>
+<span class="c1"># dir_path = os.path.dirname(os.path.realpath(__file__))</span>
+<span class="c1"># print(dir_path+&quot;/pytest/models&quot;)</span>
+<span class="c1"># physical_model = ker.ExternalModelConfig(&quot;RPVModel&quot;, &quot;rpv_model&quot;, dir_path + &quot;/pytest/models&quot;).create()</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../../Downloads/nontronite_geometries.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">geometries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;sza&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vza&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;phi&quot;</span><span class="p">]])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">geometries</span><span class="p">)</span>
+<span class="n">adapter_config</span> <span class="o">=</span> <span class="n">ker</span><span class="o">.</span><span class="n">FourParamsHapkeAdapterConfig</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>  <span class="c1"># b0, h</span>
+<span class="n">myModel</span> <span class="o">=</span> <span class="n">ker</span><span class="o">.</span><span class="n">HapkeModelConfig</span><span class="p">(</span><span class="s2">&quot;2002&quot;</span><span class="p">,</span> <span class="n">adapter_config</span><span class="p">,</span> <span class="n">geometries</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.584</span><span class="p">,</span> <span class="mf">0.296</span><span class="p">,</span> <span class="mf">0.201</span><span class="p">,</span> <span class="mf">0.143</span><span class="p">],</span>
+        <span class="c1"># [0.585, 0.297, 0.202, 0.144],</span>
+        <span class="p">[</span><span class="mf">0.676</span><span class="p">,</span> <span class="mf">0.317</span><span class="p">,</span> <span class="mf">0.627</span><span class="p">,</span> <span class="mf">0.030</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.583</span><span class="p">,</span> <span class="mf">0.309</span><span class="p">,</span> <span class="mf">0.017</span><span class="p">,</span> <span class="mf">0.614</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.729</span><span class="p">,</span> <span class="mf">0.232</span><span class="p">,</span> <span class="mf">0.992</span><span class="p">,</span> <span class="mf">0.159</span><span class="p">],</span>
+        <span class="c1"># [0.59, 0.42, 0.14, 0.006],</span>
+        <span class="c1"># [0.59, 0.15, 0.14, 0.006]</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="n">y_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.3107142</span><span class="p">,</span> <span class="mf">0.3035887</span><span class="p">,</span> <span class="mf">0.2927552</span><span class="p">,</span> <span class="mf">0.2949195</span><span class="p">,</span> <span class="mf">0.2736513</span><span class="p">,</span> <span class="mf">0.2791479</span><span class="p">,</span> <span class="mf">0.3128349</span><span class="p">,</span> <span class="mf">0.3380720</span><span class="p">,</span> <span class="mf">0.3793729</span><span class="p">,</span> <span class="mf">0.3862630</span><span class="p">])</span>
+<span class="n">y_all</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">err_y_all</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y_obs</span><span class="p">,</span> <span class="s1">&#39;k:&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;ref&#39;</span><span class="p">)</span>
+
+<span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.59</span><span class="p">,</span> <span class="mf">0.42</span><span class="p">,</span> <span class="mf">0.14</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">])</span>
+<span class="n">y1</span> <span class="o">=</span> <span class="n">myModel</span><span class="o">.</span><span class="n">F</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y1</span><span class="p">)</span>
+<span class="n">y_obs1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.343595</span><span class="p">,</span> <span class="mf">0.323993</span><span class="p">,</span> <span class="mf">0.284616</span><span class="p">,</span> <span class="mf">0.276913</span><span class="p">,</span> <span class="mf">0.277209</span><span class="p">,</span> <span class="mf">0.286020</span> <span class="p">,</span><span class="mf">0.304590</span><span class="p">,</span> <span class="mf">0.335094</span><span class="p">,</span> <span class="mf">0.380764</span><span class="p">,</span> <span class="mf">0.421559</span><span class="p">])</span>
+
+<span class="n">x2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.59</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.14</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">])</span>
+<span class="n">y2</span> <span class="o">=</span> <span class="n">myModel</span><span class="o">.</span><span class="n">F</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y2</span><span class="p">)</span>
+<span class="n">y_obs2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.338851</span><span class="p">,</span> <span class="mf">0.315779</span><span class="p">,</span> <span class="mf">0.275857</span><span class="p">,</span> <span class="mf">0.268493</span><span class="p">,</span> <span class="mf">0.268899</span><span class="p">,</span> <span class="mf">0.277580</span><span class="p">,</span> <span class="mf">0.295785</span><span class="p">,</span> <span class="mf">0.325652</span><span class="p">,</span> <span class="mf">0.365386</span><span class="p">,</span> <span class="mf">0.388834</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y_obs1</span><span class="p">,</span> <span class="s1">&#39;k:&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;ref1&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y_obs2</span><span class="p">,</span> <span class="s1">&#39;b:&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;ref2&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y1</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;obs2&#39;</span><span class="p">)</span>
+
+<span class="c1"># for i in range(x.shape[0]):</span>
+<span class="c1">#     print(&quot;\nExperience for obs {}&quot;.format(i))</span>
+<span class="c1">#     print(x[i])</span>
+
+<span class="c1">#     y = myModel.F(x[i])</span>
+<span class="c1">#     print(y)</span>
+<span class="c1">#     myModel.from_physic(y)</span>
+<span class="c1">#     print(y)</span>
+<span class="c1">#     y_all.append(y)</span>
+
+<span class="c1">#     err_y = compute_reconstruction_error(y,y_obs)</span>
+<span class="c1">#     print(err_y)</span>
+<span class="c1">#     err_y_all.append(err_y)</span>
+<span class="c1">#     plt.plot(y, label=str(x[i]))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># plt.plot()</span>
+
+
+
+<span class="c1"># # Create StatModel</span>
+<span class="c1"># covariances = np.random.uniform(0, 0.0001, physical_model.get_D_dimension())</span>
+<span class="c1"># stat_model = ker.GaussianStatModelConfig(&quot;sobol&quot;, physical_model, covariances, 12345).create()</span>
+
+<span class="c1"># # Create GLLIM model, including its initialization and training configuration</span>
+<span class="c1"># learningConfig = ker.EMLearningConfig(200, 1e-5, 1e-12)</span>
+<span class="c1"># initConfig = ker.MultInitConfig(seed=123456789, nb_iter_EM=10, nb_experiences=10, gmmLearningConfig=ker.GMMLearningConfig(15, 10, 1e-12))</span>
+<span class="c1"># gllim= ker.GLLiM(physical_model.get_D_dimension(), physical_model.get_L_dimension(), 50, &quot;Full&quot;, &quot;Diag&quot;, initConfig, learningConfig)</span>
+
+<span class="c1"># gllim_model_file_name = &quot;pytest/savedFiles/&quot; + &quot;gllim_RPV_example.file&quot;</span>
+<span class="c1"># if not os.path.isfile(gllim_model_file_name):  # This is very useful to not train Gllim model at every simulation</span>
+
+<span class="c1">#     # Initialize and train GLLIM model</span>
+<span class="c1">#     print(&quot;Generating dataset&quot;)</span>
+<span class="c1">#     x_gen, y_gen = stat_model.gen_data(50000)</span>
+<span class="c1">#     print(&quot;Initializing GLLIM model&quot;)</span>
+<span class="c1">#     gllim.initialize(x_gen, y_gen)</span>
+<span class="c1">#     print(&quot;Training model&quot;)</span>
+<span class="c1">#     gllim.train(x_gen, y_gen)</span>
+
+<span class="c1">#     gllim_parameters = gllim.exportModel() # you can export your gllim model parameters</span>
+<span class="c1">#     with open(gllim_model_file_name, &quot;wb&quot;) as f:</span>
+<span class="c1">#         pickle.dump(gllim_parameters, f, pickle.HIGHEST_PROTOCOL)</span>
+<span class="c1">#     f.close()</span>
+<span class="c1">#     print(&quot;GLLIM model saved&quot;)</span>
+<span class="c1"># else:</span>
+<span class="c1">#     with open(gllim_model_file_name, &quot;rb&quot;) as f:</span>
+<span class="c1">#         gllim_parameters = pickle.load(f)</span>
+<span class="c1">#         gllim.importModel(gllim_parameters)</span>
+<span class="c1">#     print(&quot;GLLIM model loaded&quot;)</span>
+
+
+<span class="c1"># ### Load your data ###</span>
+<span class="c1"># print(&quot;Generating observations for example&quot;)</span>
+<span class="c1"># n_observations = 100</span>
+<span class="c1"># x_obs = np.zeros((n_observations, physical_model.get_L_dimension()))</span>
+<span class="c1"># y_obs = np.zeros((n_observations, physical_model.get_D_dimension()))</span>
+<span class="c1"># y_obs_noised = np.zeros((n_observations, physical_model.get_D_dimension()))</span>
+<span class="c1"># y_obs_noise = np.zeros((n_observations, physical_model.get_D_dimension()))</span>
+
+<span class="c1"># for i in range(n_observations):</span>
+<span class="c1">#     for j in range(physical_model.get_L_dimension()):</span>
+<span class="c1">#         x_obs[i, j] = 0.4 * math.sin(2.*math.pi*i/n_observations + (j * math.pi/4.)) + 0.5</span>
+<span class="c1"># for i in range(n_observations):</span>
+<span class="c1">#     y_obs[i] = physical_model.F(x_obs[i])</span>
+<span class="c1">#     # Add noise for each Y component</span>
+<span class="c1">#     for j in range(physical_model.get_D_dimension()):</span>
+<span class="c1">#         y_obs_noise[i][j] = (y_obs[i][j]/1000.) * np.random.normal(0, math.pow(y_obs[i][j]/1000., 2), 1)</span>
+<span class="c1"># y_obs_noised = y_obs + y_obs_noise</span>
+
+
+<span class="c1"># ### Predictions ###</span>
+<span class="c1"># nb_centers = 2</span>
+
+<span class="c1"># # Gllim</span>
+<span class="c1"># predicator = ker.PredictionConfig(nb_centers, nb_centers, 1e-10, gllim).create()</span>
+<span class="c1"># prediction_means = [[] for i in range(nb_centers+1)] # list[0] is the list for mean ; list[1] is the list for center1 ; list[2] is the list for center2</span>
+<span class="c1"># prediction_reconstruction_error = [[] for i in range(nb_centers+1)]</span>
+<span class="c1"># mean_prop_laws = [] # Proposition laws for IS and IMIS</span>
+<span class="c1"># center_prop_laws = []</span>
+<span class="c1"># print(&quot;Computing predictions&quot;)</span>
+<span class="c1"># for i in range(n_observations):</span>
+<span class="c1">#     prediction = predicator.predict(y_obs_noised[i], y_obs_noise[i])</span>
+<span class="c1">#     x_pred = prediction.meansPred.mean</span>
+<span class="c1">#     y_pred = physical_model.F(x_pred)</span>
+<span class="c1">#     prediction_means[0].append(x_pred)</span>
+<span class="c1">#     prediction_reconstruction_error[0].append(compute_reconstruction_error(y_pred, y_obs_noised[i]))</span>
+<span class="c1">#     mean_prop_law = ker.GaussianMixturePropositionConfig( # Proposition law for IS and IMIS</span>
+<span class="c1">#         prediction.meansPred.gmm_weights,</span>
+<span class="c1">#         prediction.meansPred.gmm_means,</span>
+<span class="c1">#         prediction.meansPred.gmm_covs).create()</span>
+<span class="c1">#     mean_prop_laws.append(mean_prop_law)</span>
+
+<span class="c1">#     for center in range(1, nb_centers+1):</span>
+<span class="c1">#         x_pred = prediction.centersPred.means[:, center-1]</span>
+<span class="c1">#         y_pred = physical_model.F(x_pred)</span>
+<span class="c1">#         prediction_means[center].append(x_pred)</span>
+<span class="c1">#         prediction_reconstruction_error[center].append(compute_reconstruction_error(y_pred, y_obs_noised[i]))</span>
+<span class="c1">#         center_prop_law = ker.GaussianRegularizedPropositionConfig(</span>
+<span class="c1">#             prediction.centersPred.means[:, center-1],</span>
+<span class="c1">#             prediction.centersPred.covs[center-1, :, :]).create()</span>
+<span class="c1">#         center_prop_laws.append(center_prop_law)</span>
+
+<span class="c1"># # Gllim-IS</span>
+<span class="c1"># sampler_is = ker.ImportanceSamplingConfig(1000, stat_model).create()</span>
+<span class="c1"># is_means = [[] for i in range(nb_centers+1)]</span>
+<span class="c1"># is_reconstruction_error = [[] for i in range(nb_centers+1)]</span>
+<span class="c1"># print(&quot;Computing IS&quot;)</span>
+<span class="c1"># for i in range(n_observations):</span>
+<span class="c1">#     result = sampler_is.execute(mean_prop_laws[i], y_obs_noised[i], y_obs_noise[i])</span>
+<span class="c1">#     x_pred = result.mean</span>
+<span class="c1">#     y_pred = physical_model.F(x_pred)</span>
+<span class="c1">#     is_means[0].append(x_pred)</span>
+<span class="c1">#     is_reconstruction_error[0].append(compute_reconstruction_error(y_pred, y_obs_noised[i]))</span>
+
+<span class="c1">#     for center in range(1, nb_centers+1):</span>
+<span class="c1">#         result = sampler_is.execute(center_prop_laws[i], y_obs_noised[i], y_obs_noise[i])</span>
+<span class="c1">#         x_pred = result.mean</span>
+<span class="c1">#         y_pred = physical_model.F(x_pred)</span>
+<span class="c1">#         is_means[center].append(x_pred)</span>
+<span class="c1">#         is_reconstruction_error[center].append(compute_reconstruction_error(y_pred, y_obs_noised[i]))</span>
+
+<span class="c1"># # Gllim-IMIS</span>
+<span class="c1"># sampler_imis = ker.ImisConfig(100, 50, 18, stat_model).create()</span>
+<span class="c1"># imis_means = [[] for i in range(nb_centers+1)]</span>
+<span class="c1"># imis_reconstruction_error = [[] for i in range(nb_centers+1)]</span>
+<span class="c1"># print(&quot;Computing IMIS&quot;)</span>
+<span class="c1"># for i in range(n_observations):</span>
+<span class="c1">#     result = sampler_imis.execute(mean_prop_laws[i], y_obs_noised[i], y_obs_noise[i])</span>
+<span class="c1">#     x_pred = result.mean</span>
+<span class="c1">#     y_pred = physical_model.F(x_pred)</span>
+<span class="c1">#     imis_means[0].append(x_pred)</span>
+<span class="c1">#     imis_reconstruction_error[0].append(compute_reconstruction_error(y_pred, y_obs_noised[i]))</span>
+
+<span class="c1">#     for center in range(1, nb_centers+1):</span>
+<span class="c1">#         result = sampler_imis.execute(center_prop_laws[i], y_obs_noised[i], y_obs_noise[i])</span>
+<span class="c1">#         x_pred = result.mean</span>
+<span class="c1">#         y_pred = physical_model.F(x_pred)</span>
+<span class="c1">#         imis_means[center].append(x_pred)</span>
+<span class="c1">#         imis_reconstruction_error[center].append(compute_reconstruction_error(y_pred, y_obs_noised[i]))</span>
+
+
+<span class="c1"># ### Plot results ###</span>
+<span class="c1"># print(&quot;Plotting results&quot;)</span>
+<span class="c1"># fig, axs = plt.subplots(2, 2, num=&quot;Graphs : RPV model Example&quot;)</span>
+<span class="c1"># fig.suptitle(&quot;Parameters estimation and reconstruction error&quot;, fontsize=16)</span>
+<span class="c1"># n_observations_list = np.arange(1, n_observations + 1)</span>
+
+<span class="c1"># for l in range(physical_model.get_L_dimension()):</span>
+<span class="c1">#     i = 0 if (l&lt;2) else 1</span>
+<span class="c1">#     j = l if (l&lt;2) else l-2</span>
+
+<span class="c1">#     axs[i,j].plot(n_observations_list, x_obs[:,l], &#39;k-&#39;, label=&#39;observation&#39;)</span>
+<span class="c1">#     axs[i,j].plot(n_observations_list, [x[l] for x in prediction_means[0]], &#39;b.&#39;, label=&#39;prediction mean&#39;)</span>
+<span class="c1">#     axs[i,j].plot(n_observations_list, [x[l] for x in is_means[0]], &#39;r.&#39;, label=&#39;is mean&#39;)</span>
+<span class="c1">#     axs[i,j].plot(n_observations_list, [x[l] for x in imis_means[0]], &#39;g.&#39;, label=&#39;imis mean&#39;)</span>
+<span class="c1">#     # axs[i,j].plot(n_observations_list, [x[l] for x in prediction_means[1]], &#39;b.&#39;, label=&#39;prediction center_1&#39;)</span>
+<span class="c1">#     # axs[i,j].plot(n_observations_list, [x[l] for x in is_means[1]], &#39;r.&#39;, label=&#39;is center_1&#39;)</span>
+<span class="c1">#     # axs[i,j].plot(n_observations_list, [x[l] for x in imis_means[1]], &#39;g.&#39;, label=&#39;imis center_1&#39;)</span>
+<span class="c1">#     # axs[i,j].plot(n_observations_list, [x[l] for x in prediction_means[2]], &#39;b.&#39;, label=&#39;prediction center_2&#39;)</span>
+<span class="c1">#     # axs[i,j].plot(n_observations_list, [x[l] for x in is_means[2]], &#39;r.&#39;, label=&#39;is center_2&#39;)</span>
+<span class="c1">#     # axs[i,j].plot(n_observations_list, [x[l] for x in imis_means[2]], &#39;g.&#39;, label=&#39;imis center_2&#39;)</span>
+<span class="c1">#     axs[i,j].set_xlabel(&quot;Observations&quot;)</span>
+<span class="c1">#     axs[i,j].set_title(&#39;X_&#39;+ str(l))</span>
+<span class="c1">#     axs[i,j].legend()</span>
+
+<span class="c1"># # axs[1,1].plot(n_observations_list, prediction_reconstruction_error[0], &#39;b--&#39;, label=&#39;prediction mean&#39;)</span>
+<span class="c1"># # axs[1,1].plot(n_observations_list, is_reconstruction_error[0], &#39;r--&#39;, label=&#39;is mean&#39;)</span>
+<span class="c1"># axs[1,1].plot(n_observations_list, imis_reconstruction_error[0], &#39;g--&#39;, label=&#39;imis mean&#39;)</span>
+<span class="c1"># # axs[1,1].plot(n_observations_list, prediction_reconstruction_error[1], &#39;b--&#39;, label=&#39;prediction center_1&#39;)</span>
+<span class="c1"># # axs[1,1].plot(n_observations_list, is_reconstruction_error[1], &#39;r--&#39;, label=&#39;is center_1&#39;)</span>
+<span class="c1"># # axs[1,1].plot(n_observations_list, imis_reconstruction_error[1], &#39;g--&#39;, label=&#39;imis center_1&#39;)</span>
+<span class="c1"># # axs[1,1].plot(n_observations_list, prediction_reconstruction_error[2], &#39;b--&#39;, label=&#39;prediction center_2&#39;)</span>
+<span class="c1"># # axs[1,1].plot(n_observations_list, is_reconstruction_error[2], &#39;r--&#39;, label=&#39;is center_2&#39;)</span>
+<span class="c1"># # axs[1,1].plot(n_observations_list, imis_reconstruction_error[2], &#39;g--&#39;, label=&#39;imis center_2&#39;)</span>
+<span class="c1"># axs[1,1].set_xlabel(&quot;Observations&quot;)</span>
+<span class="c1"># # axs[1,1].set_yscale(&#39;log&#39;)</span>
+<span class="c1"># axs[1,1].set_title(&#39;Reconstruction error&#39;)</span>
+<span class="c1"># axs[1,1].legend()</span>
+
+<span class="c1"># plt.show()</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="functional_model.html" class="btn btn-neutral float-left" title="FunctionalModel Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Luc Meyer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

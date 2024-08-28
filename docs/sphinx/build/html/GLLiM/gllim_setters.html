@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setters &mdash; Kernelo 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Structures" href="gllim_structures.html" />
+    <link rel="prev" title="Getters" href="gllim_getters.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Kernelo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+    
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gllim_class_overall.html">GLLiM</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gllim_class_overall.html#GLLiM"><code class="docutils literal notranslate"><span class="pre">GLLiM</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="gllim_main_methods.html">Main methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gllim_getters.html">Getters</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Setters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setParams"><code class="docutils literal notranslate"><span class="pre">setParams()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setParamPi"><code class="docutils literal notranslate"><span class="pre">setParamPi()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setParamA"><code class="docutils literal notranslate"><span class="pre">setParamA()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setParamB"><code class="docutils literal notranslate"><span class="pre">setParamB()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setParamC"><code class="docutils literal notranslate"><span class="pre">setParamC()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setParamGamma"><code class="docutils literal notranslate"><span class="pre">setParamGamma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setParamSigma"><code class="docutils literal notranslate"><span class="pre">setParamSigma()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gllim_structures.html">Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../functional_model.html">FunctionalModel Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../example.html">Examples</a></li>
+</ul>
+
+    <a href="genindex.html">Index</a>
+  
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Kernelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="gllim_class_overall.html">GLLiM class overall</a></li>
+      <li class="breadcrumb-item active">Setters</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/GLLiM/gllim_setters.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div style="text-align: center; font-size: 36px; font-weight: bold;">GLLiM</div><p>This page describes the <a class="reference internal" href="gllim_class_overall.html#gllim-class"><span class="std std-ref">GLLiM</span></a> methods implying setting <span class="xref std std-ref">GLLiMParameters</span>.</p>
+<section id="setters">
+<span id="id1"></span><h1>Setters<a class="headerlink" href="#setters" title="Link to this heading"></a></h1>
+<blockquote id="set-params-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="setParams">
+<span class="sig-name descname"><span class="pre">setParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#setParams" title="Link to this definition"></a></dt>
+<dd><p>Set the parameters of the GLLiM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>theta</strong> (<a class="reference internal" href="gllim_structures.html#GLLiMParameters" title="GLLiMParameters"><em>GLLiMParameters</em></a>) – The model parameters to set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="set-param-pi-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="setParamPi">
+<span class="sig-name descname"><span class="pre">setParamPi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Pi</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#setParamPi" title="Link to this definition"></a></dt>
+<dd><p>Set the mixture coefficients <cite>Pi</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Pi</strong> (<em>ndarray</em>) – The mixture coefficients to set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="set-param-a-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="setParamA">
+<span class="sig-name descname"><span class="pre">setParamA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#setParamA" title="Link to this definition"></a></dt>
+<dd><p>Set the parameter matrix <cite>A</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>A</strong> (<em>ndarray</em>) – The parameter matrix to set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="set-param-b-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="setParamB">
+<span class="sig-name descname"><span class="pre">setParamB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#setParamB" title="Link to this definition"></a></dt>
+<dd><p>Set the parameter matrix <cite>B</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>B</strong> (<em>ndarray</em>) – The parameter matrix to set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="set-param-c-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="setParamC">
+<span class="sig-name descname"><span class="pre">setParamC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#setParamC" title="Link to this definition"></a></dt>
+<dd><p>Set the parameter matrix <cite>C</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>C</strong> (<em>ndarray</em>) – The parameter matrix to set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="set-param-gamma-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="setParamGamma">
+<span class="sig-name descname"><span class="pre">setParamGamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Gamma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#setParamGamma" title="Link to this definition"></a></dt>
+<dd><p>Set the gamma parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Gamma</strong> (<em>ndarray</em>) – The gamma parameters to set. Shape depends on Gamma constraints.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="set-param-sigma-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="setParamSigma">
+<span class="sig-name descname"><span class="pre">setParamSigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Sigma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#setParamSigma" title="Link to this definition"></a></dt>
+<dd><p>Set the sigma parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Sigma</strong> (<em>ndarray</em>) – The sigma parameters to set. Shape depends on Sigma constraints.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gllim_getters.html" class="btn btn-neutral float-left" title="Getters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gllim_structures.html" class="btn btn-neutral float-right" title="Structures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Luc Meyer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

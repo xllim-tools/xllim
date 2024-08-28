@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FunctionalModel Class &mdash; Kernelo 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2709fde1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="example.html" />
+    <link rel="prev" title="Structures" href="GLLiM/gllim_structures.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Kernelo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+    
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GLLiM/gllim_class_overall.html">GLLiM</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">FunctionalModel Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#derived-classes"><span class="xref std std-ref">Derived classes</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#methods"><span class="xref std std-ref">Methods</span></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#F"><code class="docutils literal notranslate"><span class="pre">F()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#getDimensionY"><code class="docutils literal notranslate"><span class="pre">getDimensionY()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#getDimensionX"><code class="docutils literal notranslate"><span class="pre">getDimensionX()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#toPhysic"><code class="docutils literal notranslate"><span class="pre">toPhysic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fromPhysic"><code class="docutils literal notranslate"><span class="pre">fromPhysic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#genData"><code class="docutils literal notranslate"><span class="pre">genData()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#importanceSampling"><code class="docutils literal notranslate"><span class="pre">importanceSampling()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Derived classes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#hapke-model">Hapke Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#HapkeModel"><code class="docutils literal notranslate"><span class="pre">HapkeModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#shkuratov-model">Shkuratov Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ShkuratovModel"><code class="docutils literal notranslate"><span class="pre">ShkuratovModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#external-python-model">External Python Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ExternalPythonModel"><code class="docutils literal notranslate"><span class="pre">ExternalPythonModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#test-model">Test Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#TestModel"><code class="docutils literal notranslate"><span class="pre">TestModel</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Examples</a></li>
+</ul>
+
+    <a href="genindex.html">Index</a>
+  
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Kernelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">FunctionalModel Class</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/functional_model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="functionalmodel-class">
+<h1>FunctionalModel Class<a class="headerlink" href="#functionalmodel-class" title="Link to this heading"></a></h1>
+<p>The base class <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionalModel</span></code> is an abstract class representing the functional model.
+It offers the functional method “F” which requires that the parameters of X be
+in mathematical space. It contains normalization methods to transform
+X from and to physical space. It also allows to retrieve the dimensions
+of the problem.</p>
+<section id="derived-classes">
+<h2><a class="reference internal" href="#id3"><span class="std std-ref">Derived classes</span></a><a class="headerlink" href="#derived-classes" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><span class="xref std std-ref">HapkeModel</span></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">HapkeModel</span></code> class describes the Hapke photometric model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#shkuratov-model"><span class="std std-ref">ShkuratovModel</span></a></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">ShkuratovModel</span></code> class describes the Shkuratov photometric model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="xref std std-ref">ExternalPythonModel</span></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">ExternalPythonModel</span></code> class allows to import a python script in order to use your own functional model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test-model"><span class="std std-ref">TestModel</span></a></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">TestModel</span></code> class describes a simple non-linear model</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="methods">
+<h2><a class="reference internal" href="#id1"><span class="std std-ref">Methods</span></a><a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#f-method"><span class="std std-ref">F</span></a> (<em>x</em>)</p></td>
+<td><p>Apply the model function on vector <em>x</em></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#get-dimension-y-method"><span class="std std-ref">getDimensionY</span></a> ()</p></td>
+<td><p>Get the dimension <strong>D</strong> of the model - ie. dim(<em>Y</em>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#get-dimension-x-method"><span class="std std-ref">getDimensionX</span></a> ()</p></td>
+<td><p>Get the dimension <strong>L</strong> of the model - ie. dim(<em>X</em>)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#to-physic-method"><span class="std std-ref">toPhysic</span></a> (<em>x</em>)</p></td>
+<td><p>Transform the values of x from the mathematical space to the physical.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#from-physic-method"><span class="std std-ref">fromPhysic</span></a> (<em>x</em>)</p></td>
+<td><p>Transform the values of x from the physical space to the mathematical.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gen-data-method"><span class="std std-ref">genData</span></a> (<em>N</em>, <em>generator_type</em>, <em>covariance</em>, <em>seed</em>)</p></td>
+<td><p>Generate a complete learning dataset with given covariance or noise ratio.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#importance-sampling-method"><span class="std std-ref">importanceSampling</span></a> (<em>proposition_gmms</em>, <em>y</em>, <em>y_err</em>, <em>covariance</em>, <em>N_0</em>, <em>B=0</em>, <em>J=0</em>)</p></td>
+<td><p>Perform importance sampling with given parameters.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="id1">
+<span id="id2"></span><h3>Methods<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<dl class="py method" id="f-method">
+<dt class="sig sig-object py" id="F">
+<span class="sig-name descname"><span class="pre">F</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#F" title="Link to this definition"></a></dt>
+<dd><p>Calculate y = F(x) using armadillo library and write results to y without allocating new memory. This method is used only by the other components of the kernel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em>) – Vector of the functional model parameters (L dimension).</p></li>
+<li><p><strong>y</strong> (<em>ndarray</em>) – Vector of results (D dimension).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method" id="get-dimension-y-method">
+<dt class="sig sig-object py" id="getDimensionY">
+<span class="sig-name descname"><span class="pre">getDimensionY</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#getDimensionY" title="Link to this definition"></a></dt>
+<dd><p>Return the D dimension of the problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The dimension D of the problem.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method" id="get-dimension-x-method">
+<dt class="sig sig-object py" id="getDimensionX">
+<span class="sig-name descname"><span class="pre">getDimensionX</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#getDimensionX" title="Link to this definition"></a></dt>
+<dd><p>Return the L dimension of the problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The dimension L of the problem.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method" id="to-physic-method">
+<dt class="sig sig-object py" id="toPhysic">
+<span class="sig-name descname"><span class="pre">toPhysic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#toPhysic" title="Link to this definition"></a></dt>
+<dd><p>Transform the values of x from the mathematical space to the physical space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>ndarray</em>) – The vector to normalize.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method" id="from-physic-method">
+<dt class="sig sig-object py" id="fromPhysic">
+<span class="sig-name descname"><span class="pre">fromPhysic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fromPhysic" title="Link to this definition"></a></dt>
+<dd><p>Transform the values of x from the physical space to the mathematical space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>ndarray</em>) – The vector to normalize.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method" id="gen-data-method">
+<dt class="sig sig-object py" id="genData">
+<span class="sig-name descname"><span class="pre">genData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#genData" title="Link to this definition"></a></dt>
+<dd><p>Generate a complete learning dataset from the generator type and the FunctionalModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – Number of generated observations.</p></li>
+<li><p><strong>generator_type</strong> (<em>str</em>) – The type of the generator used to generate x_gen matrix values.</p></li>
+<li><p><strong>noise</strong> (<em>float</em><em>, </em><em>ndarray</em>) – Vector of dimension D corresponding to the y_i variances.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Seed number for random generators.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A generated dataset composed of a pair (x_gen, y_gen) with x_gen of shape (N, L) and y_gen of shape (N, D).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method" id="importance-sampling-method">
+<dt class="sig sig-object py" id="importanceSampling">
+<span class="sig-name descname"><span class="pre">importanceSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proposition_gmms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_err</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">J</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#importanceSampling" title="Link to this definition"></a></dt>
+<dd><p>Perform importance sampling with given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>proposition_gmms</strong> (<em>list</em><em>[</em><em>1-D ndarray</em><em>, </em><em>2-D ndarray</em><em>, </em><em>3-D ndarray</em><em>]</em>) – List of GMM propositions.</p></li>
+<li><p><strong>y</strong> (<em>mat</em>) – Matrix y.</p></li>
+<li><p><strong>y_err</strong> (<em>mat</em>) – Matrix of y errors.</p></li>
+<li><p><strong>covariance</strong> (<em>ndarray</em>) – Covariance vector.</p></li>
+<li><p><strong>N_0</strong> (<em>int</em>) – Initial number of samples.</p></li>
+<li><p><strong>B</strong> (<em>int</em>) – (optional) Parameter B.</p></li>
+<li><p><strong>J</strong> (<em>int</em>) – (optional) Parameter J.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An instance of <cite>ImportanceSamplingResult</cite> containing the importance sampling results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="id3">
+<span id="id4"></span><h3>Derived classes<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="hapke-model">
+<span id="id5"></span><h2>Hapke Model<a class="headerlink" href="#hapke-model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="HapkeModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HapkeModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_bar_scaling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#HapkeModel" title="Link to this definition"></a></dt>
+<dd><p>The class <a class="reference internal" href="#HapkeModel" title="HapkeModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HapkeModel</span></code></a> is a representation of the Hapke’s photometric model.
+For more details check the scientific <span class="xref std std-ref">documentation</span>.</p>
+<p>There are two variants of the Hapke’s formulation, the initial 1993 version and the 2002 version.
+The calculation in the class are initially designed for a 4 parameters model. The class can
+use a adapter to adapt different variants of the model for example : the model with 3 or 6 parameters.</p>
+<p>See : Hapke B. 1993 Theory of Reflectance and Emittance Spectroscopy. Topics in Remote Sensing.
+Cambridge University Press, Cambridge, UK.</p>
+<p>See : Schmidt F. and Fernando J. 2015 Realistic uncertainties on Hapke model parameters from
+photometric measurement. Icarus, 260 :73 - 93, 2015.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geometries</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_geometries</em><em>,</em><em>3</em><em>)</em>) – <p>The matrix of geometries that will be used by the model. The shape of the Numpy array should be (n_geometries,3).
+The three geometric angles must be this particular order :</p>
+<blockquote>
+<div><ul>
+<li><p>At [:,0] the incidence angle (<em>inc</em>) also called the solar zenith angle (<em>sza</em>)</p></li>
+<li><p>At [:,1] the emergence angle (<em>eme</em>) also called the vertical zenith angle (<em>vza</em>)</p></li>
+<li><p>At [:,2] the phi angle (<em>phi</em>)</p></li>
+</ul>
+</div></blockquote>
+<p>Thus the geometries matrix should look like this</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">geometries</span>
+<span class="go">array([ [inc_0, eme_0, phi_0],</span>
+<span class="go">        [inc_1, eme_1, phi_1],</span>
+<span class="go">        [inc_2, eme_2, phi_2],</span>
+<span class="go">                ...</span>
+<span class="go">        [inc_n, eme_n, phi_n]])</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>variant</strong> (<em>string</em>) – The variant a the Hapke’s model among {‘1993’, ‘2002’}.</p></li>
+<li><p><strong>adapter</strong> (<em>string</em>) – This argument allows to adapt the Hapke’s model parameter number among {‘three’, ‘four’, ‘six’}.</p></li>
+<li><p><strong>theta_bar_scaling</strong> (<em>float</em>) – Value used to transform theta_bar between physical and mathematical spaces.</p></li>
+<li><p><strong>b0</strong> (<em>float</em>) – The amplitude of the opposition effect</p></li>
+<li><p><strong>h</strong> (<em>float</em>) – The angular width of the opposition effect</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="shkuratov-model">
+<span id="id6"></span><h2>Shkuratov Model<a class="headerlink" href="#shkuratov-model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ShkuratovModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ShkuratovModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ShkuratovModel" title="Link to this definition"></a></dt>
+<dd><p>The class <a class="reference internal" href="#ShkuratovModel" title="ShkuratovModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShkuratovModel</span></code></a> is a representation of the Shkuratov’s photometric model.
+For more details check the scientific <span class="xref std std-ref">documentation</span>.</p>
+<p>There are two variants of the Shkuratov’s formulation, the original model with 5 parameters and a reduced model with 3 parameters.
+The <em>scaling_coeffs</em> and <em>offset</em> arguments are  to perform affine transformation between the physical space and the mathematical space, such as,
+<span class="math notranslate nohighlight">\((\text{toPhysic}(x))_{1 \leq i \leq L} = (\text{scaling_coeffs}_i x_i + \text{offset}_i)_{1 \leq i \leq L}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geometries</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_geometries</em><em>,</em><em>3</em><em>)</em>) – <p>The matrix of geometries that will be used by the model. The shape of the Numpy array should be (n_geometries,3).
+The three geometric angles must be this particular order :</p>
+<blockquote>
+<div><ul>
+<li><p>At [:,0] the incidence angle (<em>inc</em>) also called the solar zenith angle (<em>sza</em>)</p></li>
+<li><p>At [:,1] the emergence angle (<em>eme</em>) also called the vertical zenith angle (<em>vza</em>)</p></li>
+<li><p>At [:,2] the phi angle (<em>phi</em>)</p></li>
+</ul>
+</div></blockquote>
+<p>Thus the geometries matrix should look like this</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">geometries</span>
+<span class="go">array([ [inc_0, eme_0, phi_0],</span>
+<span class="go">        [inc_1, eme_1, phi_1],</span>
+<span class="go">        [inc_2, eme_2, phi_2],</span>
+<span class="go">                ...</span>
+<span class="go">        [inc_n, eme_n, phi_n]])</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>variant</strong> (<em>string</em>) – The variant a the Hapke’s model among {‘3p’, ‘5p’}. ‘3p’ refers to the 3-parameters variant- and ‘5p’ refers to the original 5-parameters model.</p></li>
+<li><p><strong>scaling_coeffs</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>L</em><em>,</em><em>)</em>) – A set of coefficients used in the transformation between physical and mathematical spaces.</p></li>
+<li><p><strong>offset</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>L</em><em>,</em><em>)</em>) – A set of offsets used in the transformation between physical and mathematical spaces</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="external-python-model">
+<span id="id7"></span><h2>External Python Model<a class="headerlink" href="#external-python-model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ExternalPythonModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExternalPythonModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">className</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filePath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ExternalPythonModel" title="Link to this definition"></a></dt>
+<dd><p>The PlanetGLLiM software allows you to edit your own physical model. To do so you must provide a Python file (.py)
+describing your physical model as a Python class. The template of such python module is described below.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># IMPORTS</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">PhysicalModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="w">   </span><span class="sd">&quot;&quot;&quot; This is a python class defining a functional model.</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">   This class is composed of 5 mandatory functions:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">       - F: the functional model F describing the physical model. F takes photometries as arguments and return reflectances</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">       - getDimensionY: returns the dimension of Y (reflectances)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">       - getDimensionX: return de dimension of X (photometries)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">       - toPhysic: converts the X data from mathematical framework (0&lt;X&lt;1) to physical framework</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">       - fromPhysic: converts the X data from physical framework to mathematical framework (0&lt;X&lt;1)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">   Note that some class constants, other functions and class constructors can be declared.</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">   Geometries : if your physical model requires geometries as with Shkuratov, the structure and the values of the geometries</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">       must be declared within this Python file.</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">   See the Planet-Gllim documentation for more informations (https://gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/-/wikis/home)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">   &quot;&quot;&quot;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="c1">#################################################################################################</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="c1">##                          CLASS CONSTANTS (OPTIONAL)                                         ##</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="c1">#################################################################################################</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="c1"># Geometries of the physical model MUST be declared here - directly in the python file.</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="c1">#################################################################################################</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="c1">##                          CORE FUNCTIONS (MANDATORY)                                         ##</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="c1">#################################################################################################</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">def</span> <span class="nf">F</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">def</span> <span class="nf">getDimensionY</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">def</span> <span class="nf">getDimensionX</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">def</span> <span class="nf">toPhysic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">def</span> <span class="nf">fromPhysic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="c1">#################################################################################################</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="c1">##                          OTHER FUNCTIONS (OPTIONAL)                                         ##</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="c1">#################################################################################################</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">def</span> <span class="nf">optional_but_useful_function</span><span class="p">():</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="k">pass</span>
+</pre></div>
+</div>
+<p>If the functional model shows interest it can be added in further development in Kernelo as a built-in class to
+improve speed performance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>className</strong> (<em>string</em>) – The exact name of the python class.</p></li>
+<li><p><strong>fileName</strong> (<em>string</em>) – The exact name of the python module without the .py extension.</p></li>
+<li><p><strong>filePath</strong> (<em>string</em>) – The directory path of the python module.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="test-model">
+<span id="id8"></span><h2>Test Model<a class="headerlink" href="#test-model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="TestModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestModel</span></span><a class="headerlink" href="#TestModel" title="Link to this definition"></a></dt>
+<dd><p>The class <a class="reference internal" href="#TestModel" title="TestModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">TestModel</span></code></a> is low-dimensional functional model implemented in order to test the GLLiM method with simple but not trivial example.
+The functional F is designed so as to exhibit 2 solutions with D=9 and L=4. <span class="math notranslate nohighlight">\(F = A ◦ G ◦ H\)</span>, where</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(A\)</span> is a (DxL) injective matrix,</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A = \frac{1}{2} \begin{pmatrix}
+    1 &amp; 2 &amp; 2 &amp; 1 \\
+    0 &amp; 0.5 &amp; 0 &amp; 0 \\
+    0 &amp; 0 &amp; 1 &amp; 0 \\
+    0 &amp; 0 &amp; 0 &amp; 3 \\
+    0.2 &amp; 0 &amp; 0 &amp; 0 \\
+    0 &amp; -0.5 &amp; 0 &amp; 0 \\
+    -0.2 &amp; 0 &amp; -1 &amp; 0 \\
+    -1 &amp; 0 &amp; 2 &amp; 0 \\
+    0 &amp; 0 &amp; 0 &amp; -0.7
+\end{pmatrix}\end{split}\]</div>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(G(x)\)</span> = <span class="math notranslate nohighlight">\((exp(x_1), exp(x_2), exp(x_3), exp(x_4))\)</span> and</p></li>
+<li><p><span class="math notranslate nohighlight">\(H(x)\)</span> = <span class="math notranslate nohighlight">\((x_1, x_2, 4(x_3-0.5)^2, x_4)\)</span>.</p></li>
+</ul>
+</div></blockquote>
+<p>The resulting F is therefore non-linear and yields two solutions for each observation, denoted by xobs,1 and xobs,2 = 1 - xobs,1.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="GLLiM/gllim_structures.html" class="btn btn-neutral float-left" title="Structures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Luc Meyer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

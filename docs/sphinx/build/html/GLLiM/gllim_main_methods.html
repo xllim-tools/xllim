@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Main methods &mdash; Kernelo 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Getters" href="gllim_getters.html" />
+    <link rel="prev" title="GLLiM class overall" href="gllim_class_overall.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Kernelo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+    
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gllim_class_overall.html">GLLiM</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gllim_class_overall.html#GLLiM"><code class="docutils literal notranslate"><span class="pre">GLLiM</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Main methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initialize"><code class="docutils literal notranslate"><span class="pre">initialize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#train"><code class="docutils literal notranslate"><span class="pre">train()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getInverse"><code class="docutils literal notranslate"><span class="pre">getInverse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#directDensities"><code class="docutils literal notranslate"><span class="pre">directDensities()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inverseDensities"><code class="docutils literal notranslate"><span class="pre">inverseDensities()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getInsights"><code class="docutils literal notranslate"><span class="pre">getInsights()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gllim_getters.html">Getters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gllim_setters.html">Setters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gllim_structures.html">Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../functional_model.html">FunctionalModel Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../example.html">Examples</a></li>
+</ul>
+
+    <a href="genindex.html">Index</a>
+  
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Kernelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="gllim_class_overall.html">GLLiM class overall</a></li>
+      <li class="breadcrumb-item active">Main methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/GLLiM/gllim_main_methods.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div style="text-align: center; font-size: 36px; font-weight: bold;">GLLiM</div><p>This page describes the <a class="reference internal" href="gllim_class_overall.html#gllim-class"><span class="std std-ref">GLLiM</span></a> main methods.</p>
+<section id="main-methods">
+<span id="id1"></span><h1>Main methods<a class="headerlink" href="#main-methods" title="Link to this heading"></a></h1>
+<blockquote id="initialize-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gllim_em_iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gllim_em_floor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gmm_kmeans_iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gmm_em_iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gmm_floor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_experiences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span> <span class="pre">*=</span> <span class="pre">None*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span> <span class="pre">=</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#initialize" title="Link to this definition"></a></dt>
+<dd><p>Initialize the GLLiM model with given data and parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>ndarray</em>) – Input matrix <cite>t</cite>.</p></li>
+<li><p><strong>y</strong> (<em>ndarray</em>) – Input matrix <cite>y</cite>.</p></li>
+<li><p><strong>gllim_em_iteration</strong> (<em>int</em>) – Number of EM iterations for GLLiM.</p></li>
+<li><p><strong>gllim_em_floor</strong> (<em>float</em>) – Floor value for EM iterations in GLLiM.</p></li>
+<li><p><strong>gmm_kmeans_iteration</strong> (<em>int</em>) – Number of k-means iterations for GMM.</p></li>
+<li><p><strong>gmm_em_iteration</strong> (<em>int</em>) – Number of EM iterations for GMM.</p></li>
+<li><p><strong>gmm_floor</strong> (<em>float</em>) – Floor value for EM iterations in GMM.</p></li>
+<li><p><strong>nb_experiences</strong> (<em>int</em>) – Number of experiences.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Random seed for initialization.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em>) – Verbosity level (default is 1).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="train-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratio_ll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train" title="Link to this definition"></a></dt>
+<dd><p>Train the GLLiM model with given data and parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em>) – Input matrix <cite>x</cite>.</p></li>
+<li><p><strong>y</strong> (<em>ndarray</em>) – Input matrix <cite>y</cite>.</p></li>
+<li><p><strong>max_iteration</strong> (<em>int</em>) – Maximum number of iterations.</p></li>
+<li><p><strong>ratio_ll</strong> (<em>float</em>) – Ratio for log-likelihood convergence.</p></li>
+<li><p><strong>floor</strong> (<em>float</em>) – Floor value for the training process.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em>) – Verbosity level (default is 1).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="get-inverse-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="getInverse">
+<span class="sig-name descname"><span class="pre">getInverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#getInverse" title="Link to this definition"></a></dt>
+<dd><p>Get the inverse parameters of the GLLiM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An instance of <cite>GLLiMParameters</cite> containing the inverse parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="direct-densities-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="directDensities">
+<span class="sig-name descname"><span class="pre">directDensities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_incertitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#directDensities" title="Link to this definition"></a></dt>
+<dd><p>Compute the direct densities given input matrix <cite>x</cite> and its uncertainties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em>) – Input matrix <cite>x</cite>.</p></li>
+<li><p><strong>x_incertitude</strong> (<em>ndarray</em><em>, </em><em>optional</em>) – Uncertainty in <cite>x</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An instance of <cite>PredictionResult</cite> containing the direct densities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="inverse-densities-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="inverseDensities">
+<span class="sig-name descname"><span class="pre">inverseDensities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_incertitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#inverseDensities" title="Link to this definition"></a></dt>
+<dd><p>Compute the inverse densities given input matrix <cite>y</cite> and its uncertainties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>ndarray</em>) – Input matrix <cite>y</cite>.</p></li>
+<li><p><strong>y_incertitude</strong> (<em>ndarray</em><em>, </em><em>optional</em>) – Uncertainty in <cite>y</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An instance of <cite>PredictionResult</cite> containing the inverse densities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+<blockquote id="get-insights-method">
+<div><dl class="py method">
+<dt class="sig sig-object py" id="getInsights">
+<span class="sig-name descname"><span class="pre">getInsights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#getInsights" title="Link to this definition"></a></dt>
+<dd><p>Returns ann Insights structure with informations about initialisation and training time, log-likelihood and arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An instance of <cite>Insights</cite> containing total initialisation and trining time, training log-likelihood, initialisation specific infirmation and training specific information.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gllim_class_overall.html" class="btn btn-neutral float-left" title="GLLiM class overall" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gllim_getters.html" class="btn btn-neutral float-right" title="Getters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Luc Meyer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

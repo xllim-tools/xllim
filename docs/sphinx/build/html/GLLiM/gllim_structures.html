@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Structures &mdash; Kernelo 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="FunctionalModel Class" href="../functional_model.html" />
+    <link rel="prev" title="Setters" href="gllim_setters.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Kernelo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+    
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gllim_class_overall.html">GLLiM</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gllim_class_overall.html#GLLiM"><code class="docutils literal notranslate"><span class="pre">GLLiM</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="gllim_main_methods.html">Main methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gllim_getters.html">Getters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gllim_setters.html">Setters</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Structures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#GLLiMParameters"><code class="docutils literal notranslate"><span class="pre">GLLiMParameters</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#GLLiMParameters.Pi"><code class="docutils literal notranslate"><span class="pre">GLLiMParameters.Pi</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GLLiMParameters.A"><code class="docutils literal notranslate"><span class="pre">GLLiMParameters.A</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GLLiMParameters.B"><code class="docutils literal notranslate"><span class="pre">GLLiMParameters.B</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GLLiMParameters.C"><code class="docutils literal notranslate"><span class="pre">GLLiMParameters.C</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GLLiMParameters.Gamma"><code class="docutils literal notranslate"><span class="pre">GLLiMParameters.Gamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GLLiMParameters.Sigma"><code class="docutils literal notranslate"><span class="pre">GLLiMParameters.Sigma</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#GLLiMConstraints"><code class="docutils literal notranslate"><span class="pre">GLLiMConstraints</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#GLLiMConstraints.gamma_type"><code class="docutils literal notranslate"><span class="pre">GLLiMConstraints.gamma_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GLLiMConstraints.sigma_type"><code class="docutils literal notranslate"><span class="pre">GLLiMConstraints.sigma_type</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#PredictionResult"><code class="docutils literal notranslate"><span class="pre">PredictionResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#PredictionResult.meanPredResult"><code class="docutils literal notranslate"><span class="pre">PredictionResult.meanPredResult</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#PredictionResult.centerPredResult"><code class="docutils literal notranslate"><span class="pre">PredictionResult.centerPredResult</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#MeanPredictionResult"><code class="docutils literal notranslate"><span class="pre">MeanPredictionResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MeanPredictionResult.mean"><code class="docutils literal notranslate"><span class="pre">MeanPredictionResult.mean</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MeanPredictionResult.variance"><code class="docutils literal notranslate"><span class="pre">MeanPredictionResult.variance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MeanPredictionResult.gmm_weights"><code class="docutils literal notranslate"><span class="pre">MeanPredictionResult.gmm_weights</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MeanPredictionResult.gmm_means"><code class="docutils literal notranslate"><span class="pre">MeanPredictionResult.gmm_means</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MeanPredictionResult.gmm_covs"><code class="docutils literal notranslate"><span class="pre">MeanPredictionResult.gmm_covs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#CenterPredictionResult"><code class="docutils literal notranslate"><span class="pre">CenterPredictionResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#CenterPredictionResult.weights"><code class="docutils literal notranslate"><span class="pre">CenterPredictionResult.weights</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#CenterPredictionResult.means"><code class="docutils literal notranslate"><span class="pre">CenterPredictionResult.means</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#CenterPredictionResult.covs"><code class="docutils literal notranslate"><span class="pre">CenterPredictionResult.covs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Insights"><code class="docutils literal notranslate"><span class="pre">Insights</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Insights.time"><code class="docutils literal notranslate"><span class="pre">Insights.time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Insights.log_likelihood"><code class="docutils literal notranslate"><span class="pre">Insights.log_likelihood</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Insights.initialisation"><code class="docutils literal notranslate"><span class="pre">Insights.initialisation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Insights.training"><code class="docutils literal notranslate"><span class="pre">Insights.training</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#InitialisationInsights"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#InitialisationInsights.time"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights.time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#InitialisationInsights.start_time"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights.start_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#InitialisationInsights.end_time"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights.end_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#InitialisationInsights.N_obs"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights.N_obs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#InitialisationInsights.gllim_em_iteration"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights.gllim_em_iteration</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#InitialisationInsights.gllim_em_floor"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights.gllim_em_floor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#InitialisationInsights.gmm_kmeans_iteration"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights.gmm_kmeans_iteration</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#InitialisationInsights.gmm_em_iteration"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights.gmm_em_iteration</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#InitialisationInsights.gmm_floor"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights.gmm_floor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#InitialisationInsights.nb_experiences"><code class="docutils literal notranslate"><span class="pre">InitialisationInsights.nb_experiences</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#TrainingInsights"><code class="docutils literal notranslate"><span class="pre">TrainingInsights</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#TrainingInsights.time"><code class="docutils literal notranslate"><span class="pre">TrainingInsights.time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#TrainingInsights.start_time"><code class="docutils literal notranslate"><span class="pre">TrainingInsights.start_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#TrainingInsights.end_time"><code class="docutils literal notranslate"><span class="pre">TrainingInsights.end_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#TrainingInsights.N_obs"><code class="docutils literal notranslate"><span class="pre">TrainingInsights.N_obs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#TrainingInsights.max_iteration"><code class="docutils literal notranslate"><span class="pre">TrainingInsights.max_iteration</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#TrainingInsights.ratio_ll"><code class="docutils literal notranslate"><span class="pre">TrainingInsights.ratio_ll</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#TrainingInsights.floor"><code class="docutils literal notranslate"><span class="pre">TrainingInsights.floor</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../functional_model.html">FunctionalModel Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../example.html">Examples</a></li>
+</ul>
+
+    <a href="genindex.html">Index</a>
+  
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Kernelo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="gllim_class_overall.html">GLLiM class overall</a></li>
+      <li class="breadcrumb-item active">Structures</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/GLLiM/gllim_structures.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div style="text-align: center; font-size: 36px; font-weight: bold;">GLLiM</div><p>This page describes the <a class="reference internal" href="gllim_class_overall.html#gllim-class"><span class="std std-ref">GLLiM</span></a> structures.</p>
+<section id="structures">
+<span id="id1"></span><h1>Structures<a class="headerlink" href="#structures" title="Link to this heading"></a></h1>
+<dl class="py class" id="gllim-parameters-struct">
+<dt class="sig sig-object py" id="GLLiMParameters">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GLLiMParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GLLiMParameters" title="Link to this definition"></a></dt>
+<dd><p>A template structure representing the parameters of the GLLiM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>L</strong> (<em>int</em>) – The dimension of the model input (number of features) corresponding to the low-dimensional value.</p></li>
+<li><p><strong>D</strong> (<em>int</em>) – The dimension of the model output corresponding to the high-dimensional value.</p></li>
+<li><p><strong>K</strong> (<em>int</em>) – The number of affine transformations, corresponding to the number of Gaussian distributions in the mixture.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="GLLiMParameters.Pi">
+<span class="sig-name descname"><span class="pre">Pi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">rowvec</span></em><a class="headerlink" href="#GLLiMParameters.Pi" title="Link to this definition"></a></dt>
+<dd><p>A row vector of size K containing the weights of the Gaussian distributions in the mixture.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="GLLiMParameters.A">
+<span class="sig-name descname"><span class="pre">A</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span> <span class="pre">of</span> <span class="pre">shape</span> <span class="pre">()</span></em><a class="headerlink" href="#GLLiMParameters.A" title="Link to this definition"></a></dt>
+<dd><p>A ndarray of shape (D, L, K) representing the parameters of the affine transformations.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="GLLiMParameters.B">
+<span class="sig-name descname"><span class="pre">B</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span> <span class="pre">of</span> <span class="pre">shape</span> <span class="pre">()</span></em><a class="headerlink" href="#GLLiMParameters.B" title="Link to this definition"></a></dt>
+<dd><p>A matrix of size (D, K) representing additional model parameters.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="GLLiMParameters.C">
+<span class="sig-name descname"><span class="pre">C</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span> <span class="pre">of</span> <span class="pre">shape</span> <span class="pre">()</span></em><a class="headerlink" href="#GLLiMParameters.C" title="Link to this definition"></a></dt>
+<dd><p>A matrix of size (L, K) containing the means of the mixture of Gaussian distributions that define the low-dimensional data.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="GLLiMParameters.Gamma">
+<span class="sig-name descname"><span class="pre">Gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#GLLiMParameters.Gamma" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>A vector of size K containing the covariance matrices (L, L) of the mixture of Gaussian distributions that define the low-dimensional data.</dt><dd><ul class="simple">
+<li><p>In the case of Full covariance matrix (<em>gamma_type = `’full’`</em>), Gamma is of shape (K,L,L).</p></li>
+<li><p>In the case of Diagonal covariance matrix (<em>gamma_type = `’diag’`</em>), Gamma is of shape (K,L) with Gamma[k] representing the variances vector of the k^{th} gaussian.</p></li>
+<li><p>In the case of Isotropic covariance matrix (<em>gamma_type = `’iso’`</em>), Gamma is of shape (K) with Gamma[k] representing the unique variance of the k^{th} gaussian.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="GLLiMParameters.Sigma">
+<span class="sig-name descname"><span class="pre">Sigma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#GLLiMParameters.Sigma" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>A vector of size K containing the covariance matrices (D, D) of the mixture of Gaussian distributions that define the high-dimensional data.</dt><dd><ul class="simple">
+<li><p>In the case of Full covariance matrix (<em>gamma_type = `’full’`</em>), Sigma is of shape (K,L,L).</p></li>
+<li><p>In the case of Diagonal covariance matrix (<em>gamma_type = `’diag’`</em>), Sigma is of shape (K,L) with Sigma[k] representing the variances vector of the k^{th} gaussian.</p></li>
+<li><p>In the case of Isotropic covariance matrix (<em>gamma_type = `’iso’`</em>), Sigma is of shape (K) with Sigma[k] representing the unique variance of the k^{th} gaussian.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more detailed information on these parameters, refer to the formula in the paper: “High-Dimensional Regression with Gaussian Mixtures and Partially-Latent Response Variables” by Antoine Deleforge, Florence Forbes, and Radu Horaud, published in <em>Statistics and Computing</em> 25(5): 893-911, September 2015.</p>
+</div>
+</dd></dl>
+
+<dl class="py class" id="gllim-constraints-struct">
+<dt class="sig sig-object py" id="GLLiMConstraints">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GLLiMConstraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GLLiMConstraints" title="Link to this definition"></a></dt>
+<dd><p>A structure representing the constraints on the covariance matrices in the GLLiM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gamma_type</strong> (<em>str</em>) – The type of the Gamma covariance matrix. It can be one of the following:
+- <cite>‘full’</cite>: Full covariance matrix.
+- <cite>‘diag’</cite>: Diagonal covariance matrix.
+- <cite>‘iso’</cite>: Isotropic covariance matrix.</p></li>
+<li><p><strong>sigma_type</strong> (<em>str</em>) – The type of the Sigma covariance matrix. It can be one of the following:
+- <cite>‘full’</cite>: Full covariance matrix.
+- <cite>‘diag’</cite>: Diagonal covariance matrix.
+- <cite>‘iso’</cite>: Isotropic covariance matrix.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="GLLiMConstraints.gamma_type">
+<span class="sig-name descname"><span class="pre">gamma_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">const</span> <span class="pre">std::string</span></em><a class="headerlink" href="#GLLiMConstraints.gamma_type" title="Link to this definition"></a></dt>
+<dd><p>The Gamma covariance matrix type, indicating the structure of the covariance matrix in the low-dimensional space.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="GLLiMConstraints.sigma_type">
+<span class="sig-name descname"><span class="pre">sigma_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">const</span> <span class="pre">std::string</span></em><a class="headerlink" href="#GLLiMConstraints.sigma_type" title="Link to this definition"></a></dt>
+<dd><p>The Sigma covariance matrix type, indicating the structure of the covariance matrix in the high-dimensional space.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="prediction-result-struct">
+<dt class="sig sig-object py" id="PredictionResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PredictionResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PredictionResult" title="Link to this definition"></a></dt>
+<dd><p>This structure combines the results from both the mean prediction and center prediction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N_obs</strong> (<em>int</em>) – Number of observations.</p></li>
+<li><p><strong>D</strong> (<em>int</em>) – Dimensionality of each observation.</p></li>
+<li><p><strong>K</strong> (<em>int</em>) – Number of components in the GMM.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PredictionResult.meanPredResult">
+<span class="sig-name descname"><span class="pre">meanPredResult</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#MeanPredictionResult" title="MeanPredictionResult"><span class="pre">MeanPredictionResult</span></a></em><a class="headerlink" href="#PredictionResult.meanPredResult" title="Link to this definition"></a></dt>
+<dd><p>The result of the mean prediction.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PredictionResult.centerPredResult">
+<span class="sig-name descname"><span class="pre">centerPredResult</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#CenterPredictionResult" title="CenterPredictionResult"><span class="pre">CenterPredictionResult</span></a></em><a class="headerlink" href="#PredictionResult.centerPredResult" title="Link to this definition"></a></dt>
+<dd><p>The result of the center prediction.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="mean-prediction-result-struct">
+<dt class="sig sig-object py" id="MeanPredictionResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MeanPredictionResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MeanPredictionResult" title="Link to this definition"></a></dt>
+<dd><p>This structure holds the results of the mean predictions for a Gaussian Mixture Model (GMM).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N_obs</strong> (<em>int</em>) – Number of observations.</p></li>
+<li><p><strong>D</strong> (<em>int</em>) – Dimensionality of each observation.</p></li>
+<li><p><strong>K</strong> (<em>int</em>) – Number of components in the GMM.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MeanPredictionResult.mean">
+<span class="sig-name descname"><span class="pre">mean</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span> <span class="pre">of</span> <span class="pre">shape</span> <span class="pre">()</span></em><a class="headerlink" href="#MeanPredictionResult.mean" title="Link to this definition"></a></dt>
+<dd><p>The mean of the GMM prediction (N_obs, D).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MeanPredictionResult.variance">
+<span class="sig-name descname"><span class="pre">variance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span> <span class="pre">of</span> <span class="pre">shape</span> <span class="pre">()</span></em><a class="headerlink" href="#MeanPredictionResult.variance" title="Link to this definition"></a></dt>
+<dd><p>The variance of the GMM prediction (N_obs, D, D).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MeanPredictionResult.gmm_weights">
+<span class="sig-name descname"><span class="pre">gmm_weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span> <span class="pre">of</span> <span class="pre">shape</span> <span class="pre">()</span></em><a class="headerlink" href="#MeanPredictionResult.gmm_weights" title="Link to this definition"></a></dt>
+<dd><p>The weights of the components of the GMM (N_obs, K).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MeanPredictionResult.gmm_means">
+<span class="sig-name descname"><span class="pre">gmm_means</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span> <span class="pre">of</span> <span class="pre">shape</span> <span class="pre">()</span></em><a class="headerlink" href="#MeanPredictionResult.gmm_means" title="Link to this definition"></a></dt>
+<dd><p>The means of each component in the GMM (N_obs, D, K).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MeanPredictionResult.gmm_covs">
+<span class="sig-name descname"><span class="pre">gmm_covs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span> <span class="pre">of</span> <span class="pre">shape</span> <span class="pre">()</span></em><a class="headerlink" href="#MeanPredictionResult.gmm_covs" title="Link to this definition"></a></dt>
+<dd><p>The covariance matrices of each component in the GMM (D, D, K).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="center-prediction-result-struct">
+<dt class="sig sig-object py" id="CenterPredictionResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CenterPredictionResult</span></span><a class="headerlink" href="#CenterPredictionResult" title="Link to this definition"></a></dt>
+<dd><p>This structure holds the results of the center predictions for a Gaussian Mixture Model (GMM).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="CenterPredictionResult.weights">
+<span class="sig-name descname"><span class="pre">weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">vec</span></em><a class="headerlink" href="#CenterPredictionResult.weights" title="Link to this definition"></a></dt>
+<dd><p>The weights of the centers.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="CenterPredictionResult.means">
+<span class="sig-name descname"><span class="pre">means</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span> <span class="pre">of</span> <span class="pre">shape</span> <span class="pre">()</span></em><a class="headerlink" href="#CenterPredictionResult.means" title="Link to this definition"></a></dt>
+<dd><p>The centers that represent the predictions.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="CenterPredictionResult.covs">
+<span class="sig-name descname"><span class="pre">covs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span> <span class="pre">of</span> <span class="pre">shape</span> <span class="pre">()</span></em><a class="headerlink" href="#CenterPredictionResult.covs" title="Link to this definition"></a></dt>
+<dd><p>The covariance matrices of the centers.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="insights-struct">
+<dt class="sig sig-object py" id="Insights">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Insights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_likelihood</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initialisation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Insights" title="Link to this definition"></a></dt>
+<dd><p>This structure holds combined insights from both the initialization and training phases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>datetime.timedelta</em>) – The total time associated with the insights.</p></li>
+<li><p><strong>log_likelihood</strong> (<em>vec</em>) – The log-likelihood values associated with the model.</p></li>
+<li><p><strong>initialisation</strong> (<a class="reference internal" href="#InitialisationInsights" title="InitialisationInsights"><em>InitialisationInsights</em></a>) – Insights from the initialization phase.</p></li>
+<li><p><strong>training</strong> (<a class="reference internal" href="#TrainingInsights" title="TrainingInsights"><em>TrainingInsights</em></a>) – Insights from the training phase.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Insights.time">
+<span class="sig-name descname"><span class="pre">time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.timedelta</span></em><a class="headerlink" href="#Insights.time" title="Link to this definition"></a></dt>
+<dd><p>The total time associated with the insights.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Insights.log_likelihood">
+<span class="sig-name descname"><span class="pre">log_likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">vec</span></em><a class="headerlink" href="#Insights.log_likelihood" title="Link to this definition"></a></dt>
+<dd><p>The log-likelihood values associated with the model.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Insights.initialisation">
+<span class="sig-name descname"><span class="pre">initialisation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#InitialisationInsights" title="InitialisationInsights"><span class="pre">InitialisationInsights</span></a></em><a class="headerlink" href="#Insights.initialisation" title="Link to this definition"></a></dt>
+<dd><p>Insights from the initialization phase.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Insights.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#TrainingInsights" title="TrainingInsights"><span class="pre">TrainingInsights</span></a></em><a class="headerlink" href="#Insights.training" title="Link to this definition"></a></dt>
+<dd><p>Insights from the training phase.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="initialisation-insights-struct">
+<dt class="sig sig-object py" id="InitialisationInsights">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">InitialisationInsights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gllim_em_iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gllim_em_floor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gmm_kmeans_iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gmm_em_iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gmm_floor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_experiences</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#InitialisationInsights" title="Link to this definition"></a></dt>
+<dd><p>This structure holds insights into the initialization phase of the model training.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>datetime.timedelta</em>) – The total time taken for initialization.</p></li>
+<li><p><strong>start_time</strong> (<em>datetime.datetime</em>) – The start time of the initialization.</p></li>
+<li><p><strong>end_time</strong> (<em>datetime.datetime</em>) – The end time of the initialization.</p></li>
+<li><p><strong>N_obs</strong> (<em>int</em>) – Number of observations.</p></li>
+<li><p><strong>gllim_em_iteration</strong> (<em>int</em>) – Number of GLLiM EM iterations during initialization.</p></li>
+<li><p><strong>gllim_em_floor</strong> (<em>float</em>) – The floor value for GLLiM EM.</p></li>
+<li><p><strong>gmm_kmeans_iteration</strong> (<em>int</em>) – Number of GMM k-means iterations.</p></li>
+<li><p><strong>gmm_em_iteration</strong> (<em>int</em>) – Number of GMM EM iterations during initialization.</p></li>
+<li><p><strong>gmm_floor</strong> (<em>float</em>) – The floor value for GMM.</p></li>
+<li><p><strong>nb_experiences</strong> (<em>int</em>) – Number of experiences considered during initialization.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="InitialisationInsights.time">
+<span class="sig-name descname"><span class="pre">time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.timedelta</span></em><a class="headerlink" href="#InitialisationInsights.time" title="Link to this definition"></a></dt>
+<dd><p>The total time taken for initialization.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="InitialisationInsights.start_time">
+<span class="sig-name descname"><span class="pre">start_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></em><a class="headerlink" href="#InitialisationInsights.start_time" title="Link to this definition"></a></dt>
+<dd><p>The start time of the initialization.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="InitialisationInsights.end_time">
+<span class="sig-name descname"><span class="pre">end_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></em><a class="headerlink" href="#InitialisationInsights.end_time" title="Link to this definition"></a></dt>
+<dd><p>The end time of the initialization.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="InitialisationInsights.N_obs">
+<span class="sig-name descname"><span class="pre">N_obs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#InitialisationInsights.N_obs" title="Link to this definition"></a></dt>
+<dd><p>Number of observations.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="InitialisationInsights.gllim_em_iteration">
+<span class="sig-name descname"><span class="pre">gllim_em_iteration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#InitialisationInsights.gllim_em_iteration" title="Link to this definition"></a></dt>
+<dd><p>Number of GLLiM EM iterations during initialization.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="InitialisationInsights.gllim_em_floor">
+<span class="sig-name descname"><span class="pre">gllim_em_floor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#InitialisationInsights.gllim_em_floor" title="Link to this definition"></a></dt>
+<dd><p>The floor value for GLLiM EM.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="InitialisationInsights.gmm_kmeans_iteration">
+<span class="sig-name descname"><span class="pre">gmm_kmeans_iteration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#InitialisationInsights.gmm_kmeans_iteration" title="Link to this definition"></a></dt>
+<dd><p>Number of GMM k-means iterations.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="InitialisationInsights.gmm_em_iteration">
+<span class="sig-name descname"><span class="pre">gmm_em_iteration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#InitialisationInsights.gmm_em_iteration" title="Link to this definition"></a></dt>
+<dd><p>Number of GMM EM iterations during initialization.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="InitialisationInsights.gmm_floor">
+<span class="sig-name descname"><span class="pre">gmm_floor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#InitialisationInsights.gmm_floor" title="Link to this definition"></a></dt>
+<dd><p>The floor value for GMM.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="InitialisationInsights.nb_experiences">
+<span class="sig-name descname"><span class="pre">nb_experiences</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#InitialisationInsights.nb_experiences" title="Link to this definition"></a></dt>
+<dd><p>Number of experiences considered during initialization.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="training-insights-struct">
+<dt class="sig sig-object py" id="TrainingInsights">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TrainingInsights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratio_ll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrainingInsights" title="Link to this definition"></a></dt>
+<dd><p>This structure holds insights into the training phase of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>datetime.timedelta</em>) – The total time taken for training.</p></li>
+<li><p><strong>start_time</strong> (<em>datetime.datetime</em>) – The start time of the training.</p></li>
+<li><p><strong>end_time</strong> (<em>datetime.datetime</em>) – The end time of the training.</p></li>
+<li><p><strong>N_obs</strong> (<em>int</em>) – Number of observations.</p></li>
+<li><p><strong>max_iteration</strong> (<em>int</em>) – The maximum number of iterations during training.</p></li>
+<li><p><strong>ratio_ll</strong> (<em>float</em>) – The ratio of log-likelihood improvement.</p></li>
+<li><p><strong>floor</strong> (<em>float</em>) – The floor value used during training.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="TrainingInsights.time">
+<span class="sig-name descname"><span class="pre">time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.timedelta</span></em><a class="headerlink" href="#TrainingInsights.time" title="Link to this definition"></a></dt>
+<dd><p>The total time taken for training.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="TrainingInsights.start_time">
+<span class="sig-name descname"><span class="pre">start_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></em><a class="headerlink" href="#TrainingInsights.start_time" title="Link to this definition"></a></dt>
+<dd><p>The start time of the training.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="TrainingInsights.end_time">
+<span class="sig-name descname"><span class="pre">end_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></em><a class="headerlink" href="#TrainingInsights.end_time" title="Link to this definition"></a></dt>
+<dd><p>The end time of the training.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="TrainingInsights.N_obs">
+<span class="sig-name descname"><span class="pre">N_obs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#TrainingInsights.N_obs" title="Link to this definition"></a></dt>
+<dd><p>Number of observations.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="TrainingInsights.max_iteration">
+<span class="sig-name descname"><span class="pre">max_iteration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#TrainingInsights.max_iteration" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of iterations during training.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="TrainingInsights.ratio_ll">
+<span class="sig-name descname"><span class="pre">ratio_ll</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#TrainingInsights.ratio_ll" title="Link to this definition"></a></dt>
+<dd><p>The ratio of log-likelihood improvement.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="TrainingInsights.floor">
+<span class="sig-name descname"><span class="pre">floor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#TrainingInsights.floor" title="Link to this definition"></a></dt>
+<dd><p>The floor value used during training.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gllim_setters.html" class="btn btn-neutral float-left" title="Setters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../functional_model.html" class="btn btn-neutral float-right" title="FunctionalModel Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Luc Meyer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

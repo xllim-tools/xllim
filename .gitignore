@@ -1,26 +1,11 @@
-.scannerwork/
 .vscode/
-.idea/
-.vagrant/
-Vagrantfile
+.devcontainer/
 
-# kernelo module cpp code generated with python setup.py build_ext --inplace -vvv
-CMakeFiles/
-cython/kernelo.cpp
-build/
-*.so
-dist/
-kernelo.egg-info/
+build/debug/*
+build/release/*
 
-##### Windows
-# Windows thumbnail cache files
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-.DS_Store
-.AppleDouble
-.LSOverride
+local_test/*
+
 
 __pycache__/
 test
