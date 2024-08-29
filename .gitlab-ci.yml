@@ -31,6 +31,9 @@ test_job:
         - ls
         - pwd
         - rm -rf build && mkdir build && cd build
+        # On est censé build ici et dans build_job... redondant !
+        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="." -DCMAKE_BUILD_TYPE=Release
+        - make install
         - ctest
 
 build_job:
