@@ -28,6 +28,8 @@ test_job:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
+        - ls
+        - pwd
         - cd /home/build
         - ctest
 
@@ -42,6 +44,8 @@ build_job:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
+        - ls
+        - pwd
         - cd /home/build
         - cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release
         - make install
