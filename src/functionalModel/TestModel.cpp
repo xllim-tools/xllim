@@ -7,7 +7,7 @@
 
 TestModel::TestModel()
 {
-    A_ = mat(TestModel_D_dimension, TestModel_L_dimension, fill::zeros);
+    A_ = mat(TestModel_D_dimension, TestModel_L_dimension, fill::zeros); //! Seg fault on this line when calling ctest (checked with address sanitizer)
     A_ = {{1, 2, 2, 1},
                {0, 0.5, 0, 0},
                {0, 0, 1, 0},
