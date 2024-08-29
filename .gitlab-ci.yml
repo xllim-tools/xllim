@@ -6,7 +6,7 @@ stages:
 
 dockers:
     stage: build_dockers
-    # when: manual
+    when: manual
     tags:
         - ci.inria.fr
         - small
@@ -22,6 +22,7 @@ dockers:
     
 test_job:
     stage: test
+    when: manual
     tags:
         - ci.inria.fr
         - small
@@ -32,6 +33,7 @@ test_job:
 
 build_job:
     stage: deploy
+    when: manual
     artifacts:
         paths:
             - xllim*.so
@@ -46,6 +48,7 @@ build_job:
 
 pages:
     stage: documentation
+    when: manual
     tags:
         - ci.inria.fr
         - small
