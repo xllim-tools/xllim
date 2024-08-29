@@ -12,62 +12,47 @@ dockers:
         - small
     image: docker:stable
     script:
-        - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_runner" --target runner .
-        - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_builder" --target builder .
-        - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_coverage" --target coveragetester .
+        - docker build -t "$CI_REGISTRY_IMAGE/xllim_runner" --target runner .
+        - docker build -t "$CI_REGISTRY_IMAGE/xllim_builder" --target builder .
+        # - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_coverage" --target coveragetester .
         - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
-        - docker push "$CI_REGISTRY_IMAGE/kernelo_runner"
-        - docker push "$CI_REGISTRY_IMAGE/kernelo_builder"
-        - docker push "$CI_REGISTRY_IMAGE/kernelo_coverage"
+        - docker push "$CI_REGISTRY_IMAGE/xllim_runner"
+        - docker push "$CI_REGISTRY_IMAGE/xllim_builder"
+        # - docker push "$CI_REGISTRY_IMAGE/kernelo_coverage"
     
 test_job:
     stage: test
     tags:
         - ci.inria.fr
         - small
-    image: "$CI_REGISTRY_IMAGE/kernelo_coverage"
+    image: "$CI_REGISTRY_IMAGE/kernelo_builder"
     script:
-        - echo "Setting up symbolic links to test data"
-        - ln -sf cpptest/functionalModel_tests/test_hapke.json .
-        - ln -sf cpptest/functionalModel_tests/test_shkuratov.json .
-        - echo "Bulding cpp tests ---------"
-        - mkdir -p build; cd build
-        - cmake -DCMAKE_BUILD_TYPE=Coverage ../
-        - cmake --build .
-        - echo "Running cpp tests ----------"
-        - ./generation_test > /dev/null
-        - ./learning_test > /dev/null
-        - ./main_test > /dev/null
-        - cd - ; echo "Cpp tests completed --------"
-        - echo "Building Python module -----"
-        - python3 setup.py build_ext --inplace -vvv
-        - echo "Running Python tests -------"
-        - python3 run.py
-        - echo "Python tests completed -----"
-        - cd build; gcovr -r ../ . --sonarqube coverage.xml ; cd ..
-        - sonar-scanner
+        - cd /home/build
+        - ctest
 
 build_job:
     stage: deploy
     artifacts:
         paths:
-            - kernelo*.so
+            - xllim*.so
     tags:
         - ci.inria.fr
         - small
-    image: "$CI_REGISTRY_IMAGE/kernelo_builder"
+    image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
-        - python3 setup.py build_ext --inplace -vvv
+        - cd /home/build
+        - cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release
+        - make install
 
 pages:
     stage: documentation
     tags:
         - ci.inria.fr
         - small
-    image: "$CI_REGISTRY_IMAGE/kernelo_builder"
+    image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
         - pip install -U sphinx sphinx-rtd-theme
-        - sphinx-build -b html docs/source public
+        - sphinx-build -b html docs/sphinx/source public
     artifacts:
         paths:
             - public
