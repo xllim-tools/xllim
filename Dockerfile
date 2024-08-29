@@ -1,14 +1,14 @@
-FROM ubuntu:noble AS runner
+FROM ubuntu:jammy AS runner
 RUN apt-get update
 # install kernelo dependencies
 # RUN apt-get install -y --no-install-recommends \
 # 	python3 python3-numpy \
 # 	libatlas3-base libarmadillo9
-RUN apt-get install -y --no-install-recommends python3.12
+RUN apt-get install -y --no-install-recommends python3
 RUN apt-get install -y --no-install-recommends python3-numpy
 RUN apt-get install -y --no-install-recommends python3-pybind11
 # RUN apt-get install -y --no-install-recommends libatlas3-base
-RUN apt-get install -y --no-install-recommends libarmadillo12
+RUN apt-get install -y --no-install-recommends libarmadillo10
 RUN apt-get install -y --no-install-recommends libgomp1
 COPY *.so /usr/lib/python3/dist-packages/
 # Copy  some python script to test xllim in docker container

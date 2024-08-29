@@ -5,6 +5,7 @@
 #include "RandomGenerator.hpp"
 #include "SobolGenerator.hpp"
 #include "LatinCubeGenerator.hpp"
+#include <memory>
 
 using namespace DataGeneration;
 

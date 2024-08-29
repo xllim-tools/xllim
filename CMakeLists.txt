@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set compiler flags for different build types
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g") # -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -DARMA_EXTRA_DEBUG
+# ! les ctest dans le docker (xllim_v2_test_builder) fonctionnent en mode Deug !!!
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address")# -fsanitize=undefined -fno-omit-frame-pointer -DARMA_EXTRA_DEBUG
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 
 #################################################################
@@ -17,6 +18,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 find_package(OpenMP REQUIRED)
 find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
+# find_package(PythonLibs)
+# find_package(Python3 COMPONENTS Interpreter Development.Module NumPy REQUIRED)
+# include_directories(${Python3_INCLUDE_DIRS})
+# set(Python3_ROOT_DIR /usr/lib/python3.10)
+# set(Python3_INCLUDE_DIR /usr/include/python3.10)
 
 # 2 methodes pour inclure CARMA:
 #      soit C/C dans le code en dur carma/include et faire #include <carma.carma.h> dans le C++ pybind11
@@ -45,7 +51,6 @@ add_library(functionalModel STATIC
     src/functionalModel/ShkuratovModel.cpp
     src/functionalModel/HapkeModel.cpp
     src/functionalModel/ExternalPythonModel.cpp
-    # src/utils/utils.cpp
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -80,7 +85,6 @@ set_target_properties(logging PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 target_link_libraries(xllim PRIVATE functionalModel generator utils xllimSolver logging carma::carma OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES})
-target_link_libraries(xllim PRIVATE ${ARMADILLO_LIBRARIES})
 # target_link_libraries(xllim PRIVATE ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 #################################################################

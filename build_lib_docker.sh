@@ -7,7 +7,7 @@ echo "\033[35m \n-> Remove previous xllim libraries \033[0m"
 rm -rf $1/xllim*.so -v
 
 echo "\033[35m \n-> Run the builder docker container bounded to xllim app \033[0m"
-docker run -it -d --rm --name xllim_builder_temp_container -v $(pwd):/home xllim_v2_test_builder
+docker run -it -d --rm --name xllim_builder_temp_container -v $(pwd):/home xllim_v2_jammy_builder
 
 # Idée pour artefact CI : faire sortir la library .so dans .
 # on a bien build/ qui est modifié dans host donc pourquoi pas la lib ?
@@ -19,12 +19,12 @@ docker exec -i xllim_builder_temp_container bash -c "\
     make install "
 
 echo "\033[35m \n-> Copy xllim library to host\033[0m"
-docker cp xllim_builder_temp_container:/usr/lib/python3/dist-packages/xllim.cpython-312-x86_64-linux-gnu.so .
+docker cp xllim_builder_temp_container:/usr/lib/python3/dist-packages/xllim.cpython-310-x86_64-linux-gnu.so .
 
 echo "\033[35m \n-> Rename library and move it to python host site-packages ($1) and back-up ($2) directories \033[0m"
-mv xllim*.so xllim.$(date +%F_%T).so -v
-cp *.so $1 -v
-cp *.so $2 -v
+# mv xllim*.so xllim.$(date +%F_%T).so -v
+cp *.so $1/xllim.so -v
+cp *.so $2/xllim.$(date +%F_%T).so -v
 rm -rf *.so -v
 
 BACK_UP_LIBS=$(ls $2 | wc -l)

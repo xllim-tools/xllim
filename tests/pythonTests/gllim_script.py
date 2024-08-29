@@ -1,6 +1,5 @@
-import kernelo as ker
-import xllim as lib
 import numpy as np
+import xllim as lib
 import numpy.matlib
 import time
 import logging
