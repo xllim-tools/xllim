@@ -49,6 +49,8 @@ build_job:
     script:
         - ls
         - pwd
+        - apt-get install git-all
+        - git submodule update --init
         - ls extern
         - ls extern/carma
         - ls extern/pybind11
