@@ -28,7 +28,11 @@ RUN apt-get install -y --no-install-recommends cmake
 RUN apt-get install -y --no-install-recommends make
 RUN apt-get install -y --no-install-recommends python3-dev
 RUN apt-get install -y --no-install-recommends python3-numpy
-# RUN apt-get install -y --no-install-recommends python3-pip
+
+# python3-pip is for documention and pip install sphinx
+RUN apt-get install -y --no-install-recommends python3-pip
+RUN pip3 install -U sphinx sphinx-rtd-theme
+
 RUN apt-get install -y --no-install-recommends python3-pybind11
 # RUN apt-get install -y --no-install-recommends libatlas-base-dev
 RUN apt-get install -y --no-install-recommends libopenblas-dev liblapack-dev libarpack2-dev libsuperlu-dev
