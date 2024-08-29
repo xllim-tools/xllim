@@ -46,6 +46,8 @@ build_job:
     script:
         - ls
         - pwd
+        - ls extern
+        - ls extern/carma
         - rm -rf build && mkdir build && cd build
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="." -DCMAKE_BUILD_TYPE=Release
         - make install
