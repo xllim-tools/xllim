@@ -49,7 +49,7 @@ build_job:
     script:
         - ls
         - pwd
-        - apt-get install git-all
+        - apt-get install -y --no-install-recommends git-all
         - git submodule update --init
         - ls extern
         - ls extern/carma
