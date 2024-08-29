@@ -48,6 +48,7 @@ build_job:
         - pwd
         - ls extern
         - ls extern/carma
+        - ls extern/pybind11
         - rm -rf build && mkdir build && cd build
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="." -DCMAKE_BUILD_TYPE=Release
         - make install
@@ -60,7 +61,7 @@ pages:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
-        - pip install -U sphinx sphinx-rtd-theme
+        - pip install -U sphinx sphinx-rtd-theme myst_parser
         - sphinx-build -b html docs/sphinx/source public
     artifacts:
         paths:
