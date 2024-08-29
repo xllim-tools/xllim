@@ -6,7 +6,7 @@ stages:
 
 dockers:
     stage: build_dockers
-    when: manual
+    # when: manual
     tags:
         - ci.inria.fr
         - small

@@ -14,7 +14,7 @@ RUN ls
 # COPY *.so /usr/lib/python3/dist-packages/
 # Copy  some python script to test xllim in docker container
 RUN mkdir /home/pythonTests && mkdir /home/dataRef
-COPY tests/pythonTests/*_script.py /home/pythonTests
+COPY tests/pythonTests/*_script.py /home/pythonTests/
 COPY tests/dataRef /home/dataRef
 RUN ls /home/pythonTests
 
