@@ -30,7 +30,7 @@ test_job:
     script:
         - ls
         - pwd
-        - cd /home/build
+        - rm -rf build && mkdir build && cd build
         - ctest
 
 build_job:
@@ -46,7 +46,7 @@ build_job:
     script:
         - ls
         - pwd
-        - cd /home/build
+        - rm -rf build && mkdir build && cd build
         - cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release
         - make install
 
