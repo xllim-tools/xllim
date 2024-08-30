@@ -148,7 +148,7 @@ gtest_discover_tests(integration_test)
 #                         Installation                          #
 #################################################################
 
-
+message("PYTHON_LIBRARY_DIR = ${PYTHON_LIBRARY_DIR}")
 install(TARGETS xllim
   COMPONENT python
   LIBRARY DESTINATION "${PYTHON_LIBRARY_DIR}"

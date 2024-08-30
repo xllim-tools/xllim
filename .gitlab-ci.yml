@@ -58,7 +58,7 @@ build_job:
         - cat extern/carma/carma_config.cmake
         - cat extern/carma/CMakeLists.txt
         - rm -rf build && mkdir build && cd build
-        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/" -DCMAKE_BUILD_TYPE=Release
+        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)" -DCMAKE_BUILD_TYPE=Release
         - pwd
         - ls
         - make install
