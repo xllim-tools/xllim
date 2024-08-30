@@ -42,6 +42,19 @@ add_subdirectory(extern/carma) # in subdirectory
 # Fetch CARMA v0.6.7
 # target_link_libraries(xllim PRIVATE carma::carma OpenMP::OpenMP_CXX)
 
+file(READ "${carma_SOURCE_DIR}/CMakeLists.txt" ver)
+
+string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${ver})
+set(ver_major ${CMAKE_MATCH_1})
+
+string(REGEX MATCH "VERSION_MINOR ([0-9]*)" _ ${ver})
+set(ver_minor ${CMAKE_MATCH_1})
+
+string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${ver})
+set(ver_patch ${CMAKE_MATCH_1})
+
+message("-- carma version: ${ver_major}.${ver_minor}.${ver_patch}")
+
 
 #################################################################
 #                   Compile xllim library                       #
