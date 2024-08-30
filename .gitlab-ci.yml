@@ -32,7 +32,7 @@ test_job:
         - pwd
         - rm -rf build && mkdir build && cd build
         # On est censé build ici et dans build_job... redondant !
-        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="." -DCMAKE_BUILD_TYPE=Release
+        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
         - make install
         - ctest
 
@@ -47,24 +47,13 @@ build_job:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
-        - ls
-        - pwd
         - apt-get install -y --no-install-recommends git
         - git submodule init
         - git submodule update
-        - ls extern
-        - ls extern/carma
-        - ls extern/pybind11
-        - cat extern/carma/carma_config.cmake
-        - cat extern/carma/CMakeLists.txt
+        - git submodule
         - rm -rf build && mkdir build && cd build
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
-        - pwd
-        - ls
         - make install
-        - pwd
-        - ls
-        - cd .. && ls
 
 pages:
     stage: documentation
