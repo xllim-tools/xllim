@@ -27,6 +27,8 @@ include_directories(${ARMADILLO_INCLUDE_DIRS})
 # Extract version of a sub-project, which was previously included with add_subdirectory().
 function(subproject_version subproject_name VERSION_VAR)
     # Read CMakeLists.txt for subproject and extract project() call(s) from it.
+    message("${subproject_name}")
+    message("${${subproject_name}_SOURCE_DIR}")
     file(STRINGS "${${subproject_name}_SOURCE_DIR}/CMakeLists.txt" project_calls REGEX "[ \t]*project\\(")
     # For every project() call try to extract its VERSION option
     foreach(project_call ${project_calls})
@@ -61,7 +63,7 @@ subproject_version(pybind11 pybind11_version)
 message("VERSION for pybind11: ${pybind11_version}")
 
 # find_package(carma CONFIG REQUIRED) # -- Found carma: /usr/local/include/carma (found version "0.6.7")
-# set(ARMADILLO_ROOT_DIR "/path/to/armadillo/root/directory")
+set(ARMADILLO_ROOT_DIR "/usr/include")
 add_subdirectory(extern/carma) # in subdirectory
 # Fetch CARMA v0.6.7
 # target_link_libraries(xllim PRIVATE carma::carma OpenMP::OpenMP_CXX)
