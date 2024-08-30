@@ -1,46 +1,48 @@
-cmake_minimum_required(VERSION 3.4...3.18) # check version
-project(xllim)
+cmake_minimum_required(VERSION 3.4...3.18)
 
+set(XLLIM_VERSION_MAJOR 2)
+set(XLLIM_VERSION_MINOR 0)
+set(XLLIM_VERSION_PATCH 0)
+set(XLLIM_VERSION_INFO "${XLLIM_VERSION_MAJOR}.${XLLIM_VERSION_MINOR}.${XLLIM_VERSION_PATCH}")
+
+project(
+  pybind11
+  LANGUAGES CXX
+  VERSION ${XLLIM_VERSION_INFO})
+
+
+# ##############################################################################
+#                                   SETTINGS                                   #
+# ##############################################################################
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set compiler flags for different build types
-# ! les ctest dans le docker (xllim_v2_test_builder) fonctionnent en mode Deug !!!
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address")# -fsanitize=undefined -fno-omit-frame-pointer -DARMA_EXTRA_DEBUG
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address") # -fsanitize=undefined -fno-omit-frame-pointer -DARMA_EXTRA_DEBUG
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 
-#################################################################
-#               Import third-party libraries                    #
-#################################################################
-# (OpenMP, Armadillo, pybind11, CARMA)
 
+# ##############################################################################
+#                                 REQUIREMENTS                                 #
+# ##############################################################################
+# (OpenMP, Armadillo, pybind11, carma)
+
+# OpenMP
 find_package(OpenMP REQUIRED)
+
+# Armadillo
 find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
-# find_package(PythonLibs)
+
 # find_package(Python3 COMPONENTS Interpreter Development.Module NumPy REQUIRED)
-# include_directories(${Python3_INCLUDE_DIRS})
-# set(Python3_ROOT_DIR /usr/lib/python3.10)
-# set(Python3_INCLUDE_DIR /usr/include/python3.10)
 
+# pybind11
+add_subdirectory(extern/pybind11)
 
-# 2 methodes pour inclure CARMA:
-#      soit C/C dans le code en dur carma/include et faire #include <carma.carma.h> dans le C++ pybind11
-#      soit comme dans la docu officiel avec cmake (instalation dans /usr/local/include/) ... mouais
-#  -> c'est plus clair si le carma est directement dans le code, discretmement dans python/carma, à côté des binding files
-# Même "problème" avec pybind11 (submodule or pip/cmake installation)
-# find_package(pybind11 REQUIRED) # -- Found pybind11: /home/luc/.local/include (found version "2.11.1") # can be installed with pip
-add_subdirectory(extern/pybind11) # in subdirectory
-pybind11_add_module(xllim bindings/xllim_bindings.cpp)
-# target_link_libraries(xllim PRIVATE functionalModel generator utils xllimSolver logging)
-# target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
-
-# find_package(carma CONFIG REQUIRED) # -- Found carma: /usr/local/include/carma (found version "0.6.7")
-set(ARMADILLO_ROOT_DIR "/usr/include")
-add_subdirectory(extern/carma) # in subdirectory
-# Fetch CARMA v0.6.7
-# target_link_libraries(xllim PRIVATE carma::carma OpenMP::OpenMP_CXX)
+# carma
+set(ARMADILLO_ROOT_DIR "/usr/include") # to help carma finding Armadillo
+add_subdirectory(extern/carma)
 
 file(READ "${carma_SOURCE_DIR}/CMakeLists.txt" ver)
 
@@ -53,12 +55,31 @@ set(ver_minor ${CMAKE_MATCH_1})
 string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${ver})
 set(ver_patch ${CMAKE_MATCH_1})
 
-message("-- carma version: ${ver_major}.${ver_minor}.${ver_patch}")
+message("-- carma version: ${ver_major}.${ver_minor}.${ver_patch}") # print carma version as it is not print by their cmake project
 
 
-#################################################################
-#                   Compile xllim library                       #
-#################################################################
+
+# ##############################################################################
+#                                   TARGETS                                    #
+# ##############################################################################
+
+add_library(utils STATIC 
+    src/utils/utils.cpp
+)
+set_target_properties(utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(utils PRIVATE OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES})
+
+add_library(logging STATIC 
+    src/logging/logger.cpp
+)
+set_target_properties(logging PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+add_library(generator STATIC 
+    src/generator/RandomGenerator.cpp
+    src/generator/SobolGenerator.cpp
+    src/generator/LatinCubeGenerator.cpp
+)
+set_target_properties(generator PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_library(functionalModel STATIC 
     src/functionalModel/FunctionalModel.cpp
@@ -68,18 +89,7 @@ add_library(functionalModel STATIC
     src/functionalModel/ExternalPythonModel.cpp
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
-
-add_library(generator STATIC 
-    src/generator/RandomGenerator.cpp
-    src/generator/SobolGenerator.cpp
-    src/generator/LatinCubeGenerator.cpp
-)
-set_target_properties(generator PROPERTIES POSITION_INDEPENDENT_CODE ON)
-
-add_library(utils STATIC 
-    src/utils/utils.cpp
-)
-set_target_properties(utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 
 add_library(xllimSolver STATIC 
     src/xllimSolver/gllim.cpp
@@ -91,20 +101,14 @@ add_library(xllimSolver STATIC
 )
 set_target_properties(xllimSolver PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-add_library(logging STATIC 
-    src/logging/logger.cpp
-)
-set_target_properties(logging PROPERTIES POSITION_INDEPENDENT_CODE ON)
+pybind11_add_module(xllim bindings/xllim_bindings.cpp)
+target_link_libraries(xllim PRIVATE functionalModel xllimSolver generator utils logging carma::carma OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES})
 
 
 
-target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
-target_link_libraries(xllim PRIVATE functionalModel generator utils xllimSolver logging carma::carma OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES})
-# target_link_libraries(xllim PRIVATE ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-
-#################################################################
-#                    Compile Google Test                        #
-#################################################################
+# ##############################################################################
+#                                    TESTS                                     #
+# ##############################################################################
 
 ### get Google test
 include(FetchContent)
@@ -119,6 +123,15 @@ FetchContent_MakeAvailable(googletest)
 
 
 enable_testing()
+
+add_executable(utils_test 
+    tests/cppTests/utils_test.cpp)
+target_link_libraries(utils_test PRIVATE gtest_main utils ${ARMADILLO_LIBRARIES})
+
+add_executable(generator_test 
+    tests/cppTests/generator/Generator_test.cpp)
+target_link_libraries(generator_test PRIVATE gtest_main generator)
+
 add_executable(functionalModel_test 
     tests/cppTests/functionalModel/TestModel_test.cpp
     tests/cppTests/functionalModel/ShkuratovModel_test.cpp
@@ -126,11 +139,7 @@ add_executable(functionalModel_test
     tests/cppTests/functionalModel/ExternalPythonModel_test.cpp
     tests/cppTests/functionalModel/DataGeneration_test.cpp
     tests/cppTests/functionalModel/ImportanceSampling_test.cpp)
-target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel generator logging ${ARMADILLO_LIBRARIES}) # gtest ${ARMADILLO_LIBRARIES} # link pybind11::embed to ExternalModel
-
-add_executable(generator_test 
-    tests/cppTests/generator/Generator_test.cpp)
-target_link_libraries(generator_test PRIVATE gtest_main generator)
+target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel generator logging ${ARMADILLO_LIBRARIES})
 
 add_executable(xllimSolver_test 
     tests/cppTests/xllimSolver/covariancesTest/fullCovarianceTest.cpp
@@ -139,10 +148,6 @@ add_executable(xllimSolver_test
     # tests/cppTests/xllimSolver/estimatorTest/jgmm_test.cpp
     tests/cppTests/xllimSolver/estimatorTest/emEstimator_test.cpp)
 target_link_libraries(xllimSolver_test PRIVATE gtest_main xllimSolver utils logging ${ARMADILLO_LIBRARIES})
-
-add_executable(utils_test 
-    tests/cppTests/utils_test.cpp)
-target_link_libraries(utils_test PRIVATE gtest_main utils ${ARMADILLO_LIBRARIES})
 
 add_executable(integration_test 
     tests/cppTests/integration_test/performanceTests.cpp)
@@ -157,21 +162,11 @@ gtest_discover_tests(integration_test)
 
 
 
-#################################################################
-#                         Installation                          #
-#################################################################
+# ##############################################################################
+#                               INSTALLATION                                   #
+# ##############################################################################
 
-message("PYTHON_LIBRARY_DIR = ${PYTHON_LIBRARY_DIR}")
 install(TARGETS xllim
   COMPONENT python
   LIBRARY DESTINATION "${PYTHON_LIBRARY_DIR}"
   )
-
-# Release compilation
-# $ cmake -S . -B build/release/ -DPYTHON_LIBRARY_DIR="/home/luc/.local/lib/python3.10/site-packages" -DPYTHON_EXECUTABLE="/usr/bin/python3" -DCMAKE_BUILD_TYPE=Release
-# (/build/release/)$ make install
-
-# Debug release / ctest
-# $ cmake -S . -B build/debug/ -DCMAKE_BUILD_TYPE=Debug
-# (/build/debug/)$ cmake --build . -j
-# (/build/debug)$ ctest

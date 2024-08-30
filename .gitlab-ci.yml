@@ -19,7 +19,7 @@ dockers:
         - docker push "$CI_REGISTRY_IMAGE/xllim_runner"
         - docker push "$CI_REGISTRY_IMAGE/xllim_builder"
         # - docker push "$CI_REGISTRY_IMAGE/kernelo_coverage"
-    
+
 test_job:
     stage: test
     when: manual
@@ -28,8 +28,6 @@ test_job:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
-        - ls
-        - pwd
         - rm -rf build && mkdir build && cd build
         # On est censé build ici et dans build_job... redondant !
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
