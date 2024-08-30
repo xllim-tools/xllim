@@ -28,6 +28,10 @@ test_job:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
+        - apt-get install -y --no-install-recommends git
+        - git submodule init
+        - git submodule update
+        - git submodule
         - rm -rf build && mkdir build && cd build
         # On est censé build ici et dans build_job... redondant !
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
