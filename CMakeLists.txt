@@ -24,6 +24,29 @@ include_directories(${ARMADILLO_INCLUDE_DIRS})
 # set(Python3_ROOT_DIR /usr/lib/python3.10)
 # set(Python3_INCLUDE_DIR /usr/include/python3.10)
 
+# Extract version of a sub-project, which was previously included with add_subdirectory().
+function(subproject_version subproject_name VERSION_VAR)
+    # Read CMakeLists.txt for subproject and extract project() call(s) from it.
+    file(STRINGS "${${subproject_name}_SOURCE_DIR}/CMakeLists.txt" project_calls REGEX "[ \t]*project\\(")
+    # For every project() call try to extract its VERSION option
+    foreach(project_call ${project_calls})
+        string(REGEX MATCH "VERSION[ ]+([^ )]+)" version_param "${project_call}")
+        if(version_param)
+            set(version_value "${CMAKE_MATCH_1}")
+        endif()
+    endforeach()
+    if(version_value)
+        set(${VERSION_VAR} "${version_value}" PARENT_SCOPE)
+    else()
+        message("WARNING: Cannot extract version for subproject '${subproject_name}'")
+    endif()
+
+endfunction(subproject_version)
+
+# The function's usage:    
+# subproject_version(gtest gtest_version)
+# message("VERSION for gtest: ${gtest_version}")
+
 # 2 methodes pour inclure CARMA:
 #      soit C/C dans le code en dur carma/include et faire #include <carma.carma.h> dans le C++ pybind11
 #      soit comme dans la docu officiel avec cmake (instalation dans /usr/local/include/) ... mouais
@@ -34,12 +57,16 @@ add_subdirectory(extern/pybind11) # in subdirectory
 pybind11_add_module(xllim bindings/xllim_bindings.cpp)
 # target_link_libraries(xllim PRIVATE functionalModel generator utils xllimSolver logging)
 # target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
+subproject_version(pybind11 pybind11_version)
+message("VERSION for pybind11: ${pybind11_version}")
 
 # find_package(carma CONFIG REQUIRED) # -- Found carma: /usr/local/include/carma (found version "0.6.7")
-set(ARMADILLO_ROOT_DIR "/path/to/armadillo/root/directory")
+# set(ARMADILLO_ROOT_DIR "/path/to/armadillo/root/directory")
 add_subdirectory(extern/carma) # in subdirectory
 # Fetch CARMA v0.6.7
 # target_link_libraries(xllim PRIVATE carma::carma OpenMP::OpenMP_CXX)
+subproject_version(carma carma_version)
+message("VERSION for carma: ${carma_version}")
 
 
 #################################################################
