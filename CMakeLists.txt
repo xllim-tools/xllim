@@ -36,6 +36,7 @@ pybind11_add_module(xllim bindings/xllim_bindings.cpp)
 # target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
 
 # find_package(carma CONFIG REQUIRED) # -- Found carma: /usr/local/include/carma (found version "0.6.7")
+set(ARMADILLO_ROOT_DIR "/path/to/armadillo/root/directory")
 add_subdirectory(extern/carma) # in subdirectory
 # Fetch CARMA v0.6.7
 # target_link_libraries(xllim PRIVATE carma::carma OpenMP::OpenMP_CXX)
