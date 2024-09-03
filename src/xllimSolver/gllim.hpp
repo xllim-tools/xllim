@@ -3,7 +3,7 @@
 
 #include "covariances/covariance.hpp"
 #include "gllimStructures/gllimParameters.hpp"
-#include "gllimStructures/gllimParametersArma.hpp"
+#include "gllimStructures/gllimParametersArray.hpp"
 #include "gllimStructures/gllimConstraints.hpp"
 #include "gllimStructures/predictionResults.hpp"
 #include "gllimStructures/insights.hpp"
@@ -31,29 +31,29 @@ public:
     std::string getDimensions();
     std::string getConstraints();
     GLLiMParameters<TGamma, TSigma> getParams();
-    GLLiMParametersArma<TGamma, TSigma> getParamsArma();
+    GLLiMParametersArray<TGamma, TSigma> getParamsArray();
     rowvec getParamPi();
     cube getParamA();
     mat getParamB();
     mat getParamC();
     std::vector<TGamma> getParamGamma();
-    typename TGamma::Type getParamGammaArma();
+    typename TGamma::Type getParamGammaArray();
     std::vector<TSigma> getParamSigma();
-    typename TSigma::Type getParamSigmaArma();
+    typename TSigma::Type getParamSigmaArray();
 
     void setParams(const GLLiMParameters<TGamma, TSigma> &theta);
-    void setParamsArma(const GLLiMParametersArma<TGamma, TSigma> &theta);
+    void setParamsArray(const GLLiMParametersArray<TGamma, TSigma> &theta);
     void setParamPi(const rowvec &Pi);
     void setParamA(const cube &A);
     void setParamB(const mat &B);
     void setParamC(const mat &C);
     void setParamGamma(const std::vector<TGamma> &Gamma);
-    void setParamGammaArma(const typename TGamma::Type &Gamma);
+    void setParamGammaArray(const typename TGamma::Type &Gamma);
     void setParamSigma(const std::vector<TSigma> &Sigma);
-    void setParamSigmaArma(const typename TSigma::Type &Sigma);
+    void setParamSigmaArray(const typename TSigma::Type &Sigma);
 
     GLLiMParameters<FullCovariance, FullCovariance> getInverse();
-    GLLiMParametersArma<FullCovariance, FullCovariance> getInverseArma();
+    GLLiMParametersArray<FullCovariance, FullCovariance> getInverseArray();
 
     PredictionResult directDensities(const mat &x, const vec &x_incertitude, int verbose = 1);
     PredictionResult directDensities(const mat &x, int verbose = 1) { return directDensities(x, vec(theta_.L, fill::zeros), verbose); };

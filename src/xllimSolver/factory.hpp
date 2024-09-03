@@ -71,15 +71,15 @@ std::shared_ptr<GLLiMParametersBase> create_gllim_parameters(unsigned K, unsigne
     {
         if (sigma_type == "full")
         {
-            return std::make_shared<GLLiMParametersArma<FullCovariance, FullCovariance>>(K, D, L);
+            return std::make_shared<GLLiMParametersArray<FullCovariance, FullCovariance>>(K, D, L);
         }
         else if (sigma_type == "diag")
         {
-            return std::make_shared<GLLiMParametersArma<FullCovariance, DiagCovariance>>(K, D, L);
+            return std::make_shared<GLLiMParametersArray<FullCovariance, DiagCovariance>>(K, D, L);
         }
         else if (sigma_type == "iso")
         {
-            return std::make_shared<GLLiMParametersArma<FullCovariance, IsoCovariance>>(K, D, L);
+            return std::make_shared<GLLiMParametersArray<FullCovariance, IsoCovariance>>(K, D, L);
         }
         else
         {
@@ -90,15 +90,15 @@ std::shared_ptr<GLLiMParametersBase> create_gllim_parameters(unsigned K, unsigne
     {
         if (sigma_type == "full")
         {
-            return std::make_shared<GLLiMParametersArma<DiagCovariance, FullCovariance>>(K, D, L);
+            return std::make_shared<GLLiMParametersArray<DiagCovariance, FullCovariance>>(K, D, L);
         }
         else if (sigma_type == "diag")
         {
-            return std::make_shared<GLLiMParametersArma<DiagCovariance, DiagCovariance>>(K, D, L);
+            return std::make_shared<GLLiMParametersArray<DiagCovariance, DiagCovariance>>(K, D, L);
         }
         else if (sigma_type == "iso")
         {
-            return std::make_shared<GLLiMParametersArma<DiagCovariance, IsoCovariance>>(K, D, L);
+            return std::make_shared<GLLiMParametersArray<DiagCovariance, IsoCovariance>>(K, D, L);
         }
         else
         {
@@ -109,15 +109,15 @@ std::shared_ptr<GLLiMParametersBase> create_gllim_parameters(unsigned K, unsigne
     {
         if (sigma_type == "full")
         {
-            return std::make_shared<GLLiMParametersArma<IsoCovariance, FullCovariance>>(K, D, L);
+            return std::make_shared<GLLiMParametersArray<IsoCovariance, FullCovariance>>(K, D, L);
         }
         else if (sigma_type == "diag")
         {
-            return std::make_shared<GLLiMParametersArma<IsoCovariance, DiagCovariance>>(K, D, L);
+            return std::make_shared<GLLiMParametersArray<IsoCovariance, DiagCovariance>>(K, D, L);
         }
         else if (sigma_type == "iso")
         {
-            return std::make_shared<GLLiMParametersArma<IsoCovariance, IsoCovariance>>(K, D, L);
+            return std::make_shared<GLLiMParametersArray<IsoCovariance, IsoCovariance>>(K, D, L);
         }
         else
         {

@@ -7,7 +7,7 @@
 #include "../src/xllimSolver/gllim.hpp"
 #include "../src/xllimSolver/jgmm.hpp"
 #include "../src/xllimSolver/factory.hpp"
-#include "../src/xllimSolver/gllimStructures/gllimParametersArma.hpp"
+#include "../src/xllimSolver/gllimStructures/gllimParametersArray.hpp"
 
 namespace py = pybind11;
 void bind_gllim(pybind11::module &m)
@@ -69,14 +69,14 @@ template <typename TGamma, typename TSigma>
 void bind_gllim_templates(pybind11::module &m, const std::string &str)
 {
     std::string GLLiMParameters_pyname = std::string("_GLLiMParameters") + str;
-    py::class_<GLLiMParametersArma<TGamma, TSigma>, std::shared_ptr<GLLiMParametersArma<TGamma, TSigma>>>(m, GLLiMParameters_pyname.c_str())
+    py::class_<GLLiMParametersArray<TGamma, TSigma>, std::shared_ptr<GLLiMParametersArray<TGamma, TSigma>>>(m, GLLiMParameters_pyname.c_str())
         .def(py::init<unsigned, unsigned, unsigned>())
-        .def_readwrite("Pi", &GLLiMParametersArma<TGamma, TSigma>::Pi)
-        .def_readwrite("A", &GLLiMParametersArma<TGamma, TSigma>::A)
-        .def_readwrite("B", &GLLiMParametersArma<TGamma, TSigma>::B)
-        .def_readwrite("C", &GLLiMParametersArma<TGamma, TSigma>::C)
-        .def_readwrite("Gamma", &GLLiMParametersArma<TGamma, TSigma>::Gamma)
-        .def_readwrite("Sigma", &GLLiMParametersArma<TGamma, TSigma>::Sigma);
+        .def_readwrite("Pi", &GLLiMParametersArray<TGamma, TSigma>::Pi)
+        .def_readwrite("A", &GLLiMParametersArray<TGamma, TSigma>::A)
+        .def_readwrite("B", &GLLiMParametersArray<TGamma, TSigma>::B)
+        .def_readwrite("C", &GLLiMParametersArray<TGamma, TSigma>::C)
+        .def_readwrite("Gamma", &GLLiMParametersArray<TGamma, TSigma>::Gamma)
+        .def_readwrite("Sigma", &GLLiMParametersArray<TGamma, TSigma>::Sigma);
 
     std::string GLLiM_pyname = std::string("_GLLiM") + str;
     py::class_<GLLiM<TGamma, TSigma>, std::shared_ptr<GLLiM<TGamma, TSigma>>>(m, GLLiM_pyname.c_str()) // exposed to Pybind11 and hide in Python with the underscore
@@ -84,23 +84,23 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
 
         .def("getDimensions", &GLLiM<TGamma, TSigma>::getDimensions, "some info :)")
         .def("getConstraints", &GLLiM<TGamma, TSigma>::getConstraints)
-        .def("getParams", &GLLiM<TGamma, TSigma>::getParamsArma)
+        .def("getParams", &GLLiM<TGamma, TSigma>::getParamsArray)
         .def("getParamPi", &GLLiM<TGamma, TSigma>::getParamPi)
         .def("getParamA", &GLLiM<TGamma, TSigma>::getParamA)
         .def("getParamB", &GLLiM<TGamma, TSigma>::getParamB)
         .def("getParamC", &GLLiM<TGamma, TSigma>::getParamC)
-        .def("getParamGamma", &GLLiM<TGamma, TSigma>::getParamGammaArma)
-        .def("getParamSigma", &GLLiM<TGamma, TSigma>::getParamSigmaArma)
+        .def("getParamGamma", &GLLiM<TGamma, TSigma>::getParamGammaArray)
+        .def("getParamSigma", &GLLiM<TGamma, TSigma>::getParamSigmaArray)
 
-        .def("setParams", &GLLiM<TGamma, TSigma>::setParamsArma)
+        .def("setParams", &GLLiM<TGamma, TSigma>::setParamsArray)
         .def("setParamPi", &GLLiM<TGamma, TSigma>::setParamPi)
         .def("setParamA", &GLLiM<TGamma, TSigma>::setParamA)
         .def("setParamB", &GLLiM<TGamma, TSigma>::setParamB)
         .def("setParamC", &GLLiM<TGamma, TSigma>::setParamC)
-        .def("setParamGamma", &GLLiM<TGamma, TSigma>::setParamGammaArma)
-        .def("setParamSigma", &GLLiM<TGamma, TSigma>::setParamSigmaArma)
+        .def("setParamGamma", &GLLiM<TGamma, TSigma>::setParamGammaArray)
+        .def("setParamSigma", &GLLiM<TGamma, TSigma>::setParamSigmaArray)
 
-        .def("getInverse", &GLLiM<TGamma, TSigma>::getInverseArma)
+        .def("getInverse", &GLLiM<TGamma, TSigma>::getInverseArray)
 
         .def("getInsights", &GLLiM<TGamma, TSigma>::getInsights)
 

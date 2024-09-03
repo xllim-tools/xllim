@@ -40,13 +40,15 @@ Y_gen = np.random.rand(D, N)
 
 
 ################## setters ####################
-gllim = lib.GLLiM(K, D, L, gamma_type="full", sigma_type="diag", n_hidden_variables=n_hidden_variables)
+gllim = lib.GLLiM(
+    K, D, L, gamma_type="full", sigma_type="diag", n_hidden_variables=n_hidden_variables
+)
 
 Pi = np.ones(K) * 1 / K
-A = np.ones((D, L, K))
-C = np.ones((L, K)) * 2
+A = np.ones((K, D, L))
+C = np.ones((K, L)) * 2
 Gamma = np.ones((K, L, L)) * 0.2
-B = np.ones((D, K)) * 3
+B = np.ones((K, D)) * 3
 Sigma_diag = np.ones((K, D)) * 0.3
 gllim.setParamPi(Pi)
 gllim.setParamA(A)
@@ -93,9 +95,21 @@ for gamma_type in covariance_type_list:
         gllim.getParamB()
         gllim.getParamSigma()
 
-        gllim.initialize(X_gen, Y_gen,gllim_em_iteration,gllim_em_floor,gmm_kmeans_iteration,gmm_em_iteration,gmm_floor,nb_experiences,seed,verbose)
-        gllim.train(X_gen, Y_gen, train_max_iteration, train_ratio_ll, train_floor, verbose)
-
+        gllim.initialize(
+            X_gen,
+            Y_gen,
+            gllim_em_iteration,
+            gllim_em_floor,
+            gmm_kmeans_iteration,
+            gmm_em_iteration,
+            gmm_floor,
+            nb_experiences,
+            seed,
+            verbose,
+        )
+        gllim.train(
+            X_gen, Y_gen, train_max_iteration, train_ratio_ll, train_floor, verbose
+        )
 
         theta_star = gllim.getInverse()
 
@@ -103,13 +117,11 @@ for gamma_type in covariance_type_list:
         x_incertitudes = np.random.rand(L) * 0.02
         prediction_direct_results = gllim.directDensities(x, x_incertitudes)
 
-
         y = np.random.rand(D, 40)
         y_incertitudes = np.random.rand(D, 1) * 0.01
         tic = time.time()
         prediction_results = gllim.inverseDensities(y, y_incertitudes)
         print("Time One inversion = {}".format(time.time() - tic))
-
 
         y_incertitudes_temp = np.matlib.repmat(y_incertitudes, 1, 40)
         y_incertitudes_mat = np.copy(y_incertitudes_temp)

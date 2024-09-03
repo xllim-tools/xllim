@@ -8,23 +8,23 @@
 // ============================== Static methods ==============================
 
 template <typename TCov>
-static typename TCov::Type convertVectorOfCovToArma(unsigned K, unsigned dimension, std::vector<TCov> cov_vector)
+static typename TCov::Type convertVectorOfCovToArray(unsigned K, unsigned dimension, std::vector<TCov> cov_vector)
 {
-    typename TCov::Type cov_arma(TCov::getTypeSize(K, dimension));
+    typename TCov::Type cov_array(TCov::getTypeSize(K, dimension));
     for (unsigned k = 0; k < K; k++)
     {
-        cov_arma.row(k) = cov_vector[k].get();
+        cov_array.row(k) = cov_vector[k].get();
     }
-    return cov_arma;
+    return cov_array;
 }
 
 template <typename TCov>
-static std::vector<TCov> convertArmaToVectorOfCov(unsigned &K, unsigned &dimension, const typename TCov::Type &cov_arma)
+static std::vector<TCov> convertArrayToVectorOfCov(unsigned &K, unsigned &dimension, const typename TCov::Type &cov_array)
 {
     std::vector<TCov> cov_vector(K, TCov(dimension));
     for (unsigned k = 0; k < K; k++)
     {
-        cov_vector[k] = TCov(cov_arma.row(k));
+        cov_vector[k] = TCov(cov_array.row(k));
     }
     return cov_vector;
 }
@@ -367,15 +367,18 @@ GLLiMParameters<TGamma, TSigma> GLLiM<TGamma, TSigma>::getParams()
 }
 
 template <typename TGamma, typename TSigma>
-GLLiMParametersArma<TGamma, TSigma> GLLiM<TGamma, TSigma>::getParamsArma()
+GLLiMParametersArray<TGamma, TSigma> GLLiM<TGamma, TSigma>::getParamsArray()
 {
-    GLLiMParametersArma<TGamma, TSigma> theta_arma(theta_.K, theta_.D, theta_.L);
+    GLLiMParametersArray<TGamma, TSigma> theta_arma(theta_.K, theta_.D, theta_.L);
     theta_arma.Pi = theta_.Pi;
-    theta_arma.A = theta_.A;
-    theta_arma.B = theta_.B;
-    theta_arma.C = theta_.C;
-    theta_arma.Gamma = convertVectorOfCovToArma<TGamma>(theta_.K, theta_.L, theta_.Gamma);
-    theta_arma.Sigma = convertVectorOfCovToArma<TSigma>(theta_.K, theta_.D, theta_.Sigma);
+    theta_arma.B = theta_.B.t();
+    theta_arma.C = theta_.C.t();
+    theta_arma.Gamma = convertVectorOfCovToArray<TGamma>(theta_.K, theta_.L, theta_.Gamma);
+    theta_arma.Sigma = convertVectorOfCovToArray<TSigma>(theta_.K, theta_.D, theta_.Sigma);
+    for (size_t i = 0; i < theta_.A.n_slices; ++i)
+    {
+        theta_arma.A.row(i) = theta_.A.slice(i);
+    }
     return theta_arma;
 }
 
@@ -388,19 +391,24 @@ rowvec GLLiM<TGamma, TSigma>::getParamPi()
 template <typename TGamma, typename TSigma>
 cube GLLiM<TGamma, TSigma>::getParamA()
 {
-    return theta_.A;
+    cube A(theta_.A.n_slices, theta_.A.n_rows, theta_.A.n_cols);
+    for (size_t i = 0; i < A.n_rows; ++i)
+    {
+        A.row(i) = theta_.A.slice(i);
+    }
+    return A;
 }
 
 template <typename TGamma, typename TSigma>
 mat GLLiM<TGamma, TSigma>::getParamB()
 {
-    return theta_.B;
+    return theta_.B.t();
 }
 
 template <typename TGamma, typename TSigma>
 mat GLLiM<TGamma, TSigma>::getParamC()
 {
-    return theta_.C;
+    return theta_.C.t();
 }
 
 template <typename TGamma, typename TSigma>
@@ -410,9 +418,9 @@ std::vector<TGamma> GLLiM<TGamma, TSigma>::getParamGamma()
 }
 
 template <typename TGamma, typename TSigma>
-typename TGamma::Type GLLiM<TGamma, TSigma>::getParamGammaArma()
+typename TGamma::Type GLLiM<TGamma, TSigma>::getParamGammaArray()
 {
-    return convertVectorOfCovToArma<TGamma>(theta_.K, theta_.L, theta_.Gamma);
+    return convertVectorOfCovToArray<TGamma>(theta_.K, theta_.L, theta_.Gamma);
 }
 
 template <typename TGamma, typename TSigma>
@@ -422,9 +430,9 @@ std::vector<TSigma> GLLiM<TGamma, TSigma>::getParamSigma()
 }
 
 template <typename TGamma, typename TSigma>
-typename TSigma::Type GLLiM<TGamma, TSigma>::getParamSigmaArma()
+typename TSigma::Type GLLiM<TGamma, TSigma>::getParamSigmaArray()
 {
-    return convertVectorOfCovToArma(theta_.K, theta_.D, theta_.Sigma);
+    return convertVectorOfCovToArray(theta_.K, theta_.D, theta_.Sigma);
 }
 
 template <typename TGamma, typename TSigma>
@@ -434,17 +442,23 @@ GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::getInvers
 }
 
 template <typename TGamma, typename TSigma>
-GLLiMParametersArma<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::getInverseArma()
+GLLiMParametersArray<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::getInverseArray()
 {
     GLLiMParameters<FullCovariance, FullCovariance> theta_star = getInverse();
-    GLLiMParametersArma<FullCovariance, FullCovariance> theta_star_arma(theta_.K, theta_.D, theta_.L);
-    theta_star_arma.Pi = theta_star.Pi;
-    theta_star_arma.A = theta_star.A;
-    theta_star_arma.B = theta_star.B;
-    theta_star_arma.C = theta_star.C;
-    theta_star_arma.Gamma = convertVectorOfCovToArma<FullCovariance>(theta_.K, theta_.D, theta_star.Gamma);
-    theta_star_arma.Sigma = convertVectorOfCovToArma<FullCovariance>(theta_.K, theta_.L, theta_star.Sigma);
-    return theta_star_arma;
+    GLLiMParametersArray<FullCovariance, FullCovariance> theta_star_array(theta_star.K, theta_star.D, theta_star.L);
+    theta_star_array.Pi = theta_star.Pi;
+    theta_star_array.B = theta_star.B.t();
+    theta_star_array.C = theta_star.C.t();
+    theta_star_array.Gamma = convertVectorOfCovToArray<FullCovariance>(theta_star.K, theta_star.L, theta_star.Gamma);
+    theta_star_array.Sigma = convertVectorOfCovToArray<FullCovariance>(theta_star.K, theta_star.D, theta_star.Sigma);
+    std::cout << theta_star.A.n_rows << std::endl;
+    std::cout << theta_star.A.n_cols << std::endl;
+    std::cout << theta_star.A.n_slices << std::endl;
+    for (size_t i = 0; i < theta_star.A.n_slices; ++i)
+    {
+        theta_star_array.A.row(i) = theta_star.A.slice(i);
+    }
+    return theta_star_array;
 }
 // TODO Is the theta_star attribute really useful if it is recalculated every time and is differring from theta_star_altered
 
@@ -457,7 +471,7 @@ void GLLiM<TGamma, TSigma>::setParams(const GLLiMParameters<TGamma, TSigma> &the
 }
 
 template <typename TGamma, typename TSigma>
-void GLLiM<TGamma, TSigma>::setParamsArma(const GLLiMParametersArma<TGamma, TSigma> &theta)
+void GLLiM<TGamma, TSigma>::setParamsArray(const GLLiMParametersArray<TGamma, TSigma> &theta)
 {
     std::string err = "";
     if (!(theta.Pi.is_vec() && (theta.Pi.n_cols == theta_.K)))
@@ -468,34 +482,37 @@ void GLLiM<TGamma, TSigma>::setParamsArma(const GLLiMParametersArma<TGamma, TSig
     {
         err += "The sum of weights must be equal to 1\n";
     }
-    if (!(arma::size(theta.A) == arma::SizeCube(theta_.D, theta_.L, theta_.K)))
+    if (!(arma::size(theta.A) == arma::SizeCube(theta_.K, theta_.D, theta_.L)))
     {
-        err += "A dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.L) + "," + std::to_string(theta_.K) + ")\n";
+        err += "A dimensions must be of shape (" + std::to_string(theta_.K) + "," + std::to_string(theta_.D) + "," + std::to_string(theta_.L) + ")\n";
     }
-    if (!(arma::size(theta.C) == arma::SizeMat(theta_.L, theta_.K)))
+    if (!(arma::size(theta.C) == arma::SizeMat(theta_.K, theta_.L)))
     {
-        err += "C dimensions must be of shape (" + std::to_string(theta_.L) + "," + std::to_string(theta_.K) + ")\n";
+        err += "C dimensions must be of shape (" + std::to_string(theta_.K) + "," + std::to_string(theta_.L) + ")\n";
     }
     if (!(arma::size(theta.Gamma) == arma::size(TGamma::getTypeSize(theta_.K, theta_.L))))
     {
-        err += "Gamma dimensions must be of shape (" + std::to_string(theta_.L) + "," + std::to_string(theta_.L) + "," + std::to_string(theta_.K) + ")\n";
+        err += "Gamma dimensions must be of shape (" + std::to_string(theta_.K) + "," + std::to_string(theta_.L) + "," + std::to_string(theta_.L) + ")\n";
     }
-    if (!(arma::size(theta.B) == arma::SizeMat(theta_.D, theta_.K)))
+    if (!(arma::size(theta.B) == arma::SizeMat(theta_.K, theta_.D)))
     {
-        err += "B dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.K) + ")\n";
+        err += "B dimensions must be of shape (" + std::to_string(theta_.K) + "," + std::to_string(theta_.D) + ")\n";
     }
     if (!(arma::size(theta.Sigma) == arma::size(TSigma::getTypeSize(theta_.K, theta_.D))))
     {
-        err += "Sigma dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.D) + "," + std::to_string(theta_.K) + ")\n";
+        err += "Sigma dimensions must be of shape (" + std::to_string(theta_.K) + "," + std::to_string(theta_.D) + "," + std::to_string(theta_.D) + ")\n";
     }
     if (err == "")
     {
         theta_.Pi = theta.Pi;
-        theta_.A = theta.A;
-        theta_.B = theta.B;
-        theta_.C = theta.C;
-        theta_.Gamma = convertArmaToVectorOfCov<TGamma>(theta_.K, theta_.L, theta.Gamma);
-        theta_.Sigma = convertArmaToVectorOfCov<TSigma>(theta_.K, theta_.D, theta.Sigma);
+        theta_.B = theta.B.t();
+        theta_.C = theta.C.t();
+        theta_.Gamma = convertArrayToVectorOfCov<TGamma>(theta_.K, theta_.L, theta.Gamma);
+        theta_.Sigma = convertArrayToVectorOfCov<TSigma>(theta_.K, theta_.D, theta.Sigma);
+        for (size_t i = 0; i < theta.A.n_rows; ++i)
+        {
+            theta_.A.slice(i) = theta.A.row(i);
+        }
     }
     else
     {
@@ -526,39 +543,42 @@ void GLLiM<TGamma, TSigma>::setParamPi(const rowvec &Pi)
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamA(const cube &A)
 {
-    if (arma::size(A) == arma::SizeCube(theta_.D, theta_.L, theta_.K))
+    if (arma::size(A) == arma::SizeCube(theta_.K, theta_.D, theta_.L))
     {
-        theta_.A = A;
+        for (size_t i = 0; i < A.n_rows; ++i)
+        {
+            theta_.A.slice(i) = A.row(i);
+        }
     }
     else
     {
-        throw std::invalid_argument("A dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.L) + "," + std::to_string(theta_.K) + ")");
+        throw std::invalid_argument("A dimensions must be of shape (" + std::to_string(theta_.K) + "," + std::to_string(theta_.D) + "," + std::to_string(theta_.L) + ")");
     }
 }
 
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamB(const mat &B)
 {
-    if (arma::size(B) == arma::SizeMat(theta_.D, theta_.K))
+    if (arma::size(B) == arma::SizeMat(theta_.K, theta_.D))
     {
-        theta_.B = B;
+        theta_.B = B.t();
     }
     else
     {
-        throw std::invalid_argument("B dimensions must be of shape (" + std::to_string(theta_.D) + "," + std::to_string(theta_.K) + ")");
+        throw std::invalid_argument("B dimensions must be of shape (" + std::to_string(theta_.K) + "," + std::to_string(theta_.D) + ")");
     }
 }
 
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::setParamC(const mat &C)
 {
-    if (arma::size(C) == arma::SizeMat(theta_.L, theta_.K))
+    if (arma::size(C) == arma::SizeMat(theta_.K, theta_.L))
     {
-        theta_.C = C;
+        theta_.C = C.t();
     }
     else
     {
-        throw std::invalid_argument("C dimensions must be of shape (" + std::to_string(theta_.L) + "," + std::to_string(theta_.K) + ")");
+        throw std::invalid_argument("C dimensions must be of shape (" + std::to_string(theta_.K) + "," + std::to_string(theta_.D) + ")");
     }
 }
 
@@ -570,11 +590,11 @@ void GLLiM<TGamma, TSigma>::setParamGamma(const std::vector<TGamma> &Gamma)
 }
 
 template <typename TGamma, typename TSigma>
-void GLLiM<TGamma, TSigma>::setParamGammaArma(const typename TGamma::Type &Gamma)
+void GLLiM<TGamma, TSigma>::setParamGammaArray(const typename TGamma::Type &Gamma)
 {
     if (arma::size(Gamma) == arma::size(TGamma::getTypeSize(theta_.K, theta_.L)))
     {
-        theta_.Gamma = convertArmaToVectorOfCov<TGamma>(theta_.K, theta_.L, Gamma);
+        theta_.Gamma = convertArrayToVectorOfCov<TGamma>(theta_.K, theta_.L, Gamma);
     }
     else
     {
@@ -589,11 +609,11 @@ void GLLiM<TGamma, TSigma>::setParamSigma(const std::vector<TSigma> &Sigma)
 }
 
 template <typename TGamma, typename TSigma>
-void GLLiM<TGamma, TSigma>::setParamSigmaArma(const typename TSigma::Type &Sigma)
+void GLLiM<TGamma, TSigma>::setParamSigmaArray(const typename TSigma::Type &Sigma)
 {
     if (arma::size(Sigma) == arma::size(TSigma::getTypeSize(theta_.K, theta_.D)))
     {
-        theta_.Sigma = convertArmaToVectorOfCov<TSigma>(theta_.K, theta_.D, Sigma);
+        theta_.Sigma = convertArrayToVectorOfCov<TSigma>(theta_.K, theta_.D, Sigma);
     }
     else
     {
