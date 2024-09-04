@@ -29,6 +29,7 @@ void bind_gllim(pybind11::module &m)
         .def_readwrite("covs", &CenterPredictionResult::covs);
 
     py::class_<PredictionResult>(m, "PredictionResult")
+        .def(py::init<unsigned, unsigned, unsigned>(), py::arg("N_obs"), py::arg("D"), py::arg("K"))
         .def_readwrite("meanPredResult", &PredictionResult::meanPredResult)
         .def_readwrite("centerPredResult", &PredictionResult::centerPredResult);
 
