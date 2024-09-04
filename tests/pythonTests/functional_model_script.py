@@ -422,5 +422,7 @@ print(results.nb_effective_sample.shape)
 print(results.nb_effective_sample)
 print(results.effective_sample_size)
 print(results.qn)
-
+print(results.nb_effective_sample.shape)
+print(results.effective_sample_size.shape)
+print(results.qn.shape)
 

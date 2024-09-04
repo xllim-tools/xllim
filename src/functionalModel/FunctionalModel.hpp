@@ -9,9 +9,9 @@ struct ImportanceSamplingResult
 {
     mat predictions;
     mat predictions_variance;
-    vec nb_effective_sample;
-    vec effective_sample_size;
-    vec qn;
+    rowvec nb_effective_sample;
+    rowvec effective_sample_size;
+    rowvec qn;
 
     ImportanceSamplingResult(unsigned L, unsigned N_obs) : predictions(L, N_obs), predictions_variance(L, N_obs), nb_effective_sample(N_obs), effective_sample_size(N_obs), qn(N_obs) {}
 };
