@@ -451,9 +451,6 @@ GLLiMParametersArray<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::getI
     theta_star_array.C = theta_star.C.t();
     theta_star_array.Gamma = convertVectorOfCovToArray<FullCovariance>(theta_star.K, theta_star.L, theta_star.Gamma);
     theta_star_array.Sigma = convertVectorOfCovToArray<FullCovariance>(theta_star.K, theta_star.D, theta_star.Sigma);
-    std::cout << theta_star.A.n_rows << std::endl;
-    std::cout << theta_star.A.n_cols << std::endl;
-    std::cout << theta_star.A.n_slices << std::endl;
     for (size_t i = 0; i < theta_star.A.n_slices; ++i)
     {
         theta_star_array.A.row(i) = theta_star.A.slice(i);

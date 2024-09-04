@@ -18,9 +18,11 @@ struct MeanPredictionResult
 
 struct CenterPredictionResult
 {
-    vec weights; // The weights of the centers
-    mat means;   // The centers that stands for the predictions
+    mat weights; // The weights of the centers
+    cube means;   // The centers that stands for the predictions
     cube covs;   // The covariance matrices of the centers
+
+    CenterPredictionResult(unsigned N_obs, unsigned D, unsigned K) : weights(N_obs, K), means(N_obs, D, K), covs(D, D, K) {}
 };
 
 struct PredictionResult
@@ -28,7 +30,7 @@ struct PredictionResult
     MeanPredictionResult meanPredResult;     // @see MeanPredictionResult MeanPredictionResult
     CenterPredictionResult centerPredResult; // @see CenterPredictionResult CenterPredictionResult
 
-    PredictionResult(unsigned N_obs, unsigned D, unsigned K) : meanPredResult(N_obs, D, K) {}
+    PredictionResult(unsigned N_obs, unsigned D, unsigned K) : meanPredResult(N_obs, D, K), centerPredResult(N_obs, D, K) {}
 };
 
 #endif // PREDICTIONRESULTS_HPP
