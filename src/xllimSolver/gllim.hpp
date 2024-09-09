@@ -55,10 +55,10 @@ public:
     GLLiMParameters<FullCovariance, FullCovariance> getInverse();
     GLLiMParametersArray<FullCovariance, FullCovariance> getInverseArray();
 
-    PredictionResult directDensities(const mat &x, const vec &x_incertitude, int verbose = 1);
+    PredictionResult directDensities(const mat &x, const vec &x_incertitude, int verbose = 0);
     PredictionResult directDensities(const mat &x, int verbose = 1) { return directDensities(x, vec(theta_.L, fill::zeros), verbose); };
 
-    PredictionResult inverseDensities(const mat &y, const mat &y_incertitude, int verbose = 1);
+    PredictionResult inverseDensities(const mat &y, const mat &y_incertitude, int verbose = 0);
     PredictionResult inverseDensities(const mat &y, int verbose = 1) { return inverseDensitiesOneInversion(y, vec(theta_.D, fill::zeros), verbose); };
 
     Insights getInsights();
