@@ -5,6 +5,7 @@
 
 echo "\033[35m \n-> Remove previous xllim libraries \033[0m"
 rm -rf $1/xllim*.so -v
+rm -rf *.so -v
 
 echo "\033[35m \n-> Run the builder docker container bounded to xllim app \033[0m"
 docker run -it -d --rm --name xllim_builder_temp_container -v $(pwd):/home xllim_v2_jammy_builder

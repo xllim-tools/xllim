@@ -34,4 +34,12 @@ cd ~/Documents/dev/kernelo-gllim-is/tests/pythonTests
 
 # Run tests within docker image
 cd ~/Documents/dev/kernelo-gllim-is
-sh build_lib_docker.sh /home/luc/.local/lib/python3.10/site-packages /home/luc/Documents/kernelo/libraries_backup/
+sh test_lib_docker.sh /home/luc/.local/lib/python3.10/site-packages /home/luc/Documents/kernelo/libraries_backup/
+
+
+# Jupyter notebook
+docker build -f jupyter.Dockerfile -t "xllim_jupyter_notebook" . --progress=plain
+docker run -it --name xllim_notebook --detach -p 8888:8888 -v "${PWD}":/home/jovyan/work xllim_jupyter_notebook
+docker logs xllim_notebook | grep -oP 'http://127.0.0.1:8888/lab\?token=\w+' | head -n 1
+docker stop xllim_notebook
+docker start xllim_notebook
