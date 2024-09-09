@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM quay.io/jupyter/scipy-notebook:ubuntu-22.04 AS jupyter_notebook
+FROM quay.io/jupyter/scipy-notebook:x86_64-ubuntu-22.04 AS jupyter_notebook
 
 # Adjust the Jupyter image to xLLiM dependencies
 RUN conda install -y --no-pin python=3.10.12
