@@ -111,7 +111,7 @@ docker login registry.gitlab.inria.fr
 ```
 2. Get the Dockerfile. You achieve this by using curl or wget.
 ```
-curl "https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/raw/v2/jupyter.Dockerfile?ref_type=heads&inline=false"
+curl --location -o jupyter.Dockerfile "https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/raw/v2/jupyter.Dockerfile?ref_type=heads&inline=false"
 ```
 3. Build the docker image named *xllim_jupyter_notebook*
 ```
