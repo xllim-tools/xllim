@@ -1,7 +1,8 @@
 .vscode/
 .devcontainer/
 
-build/*
+# builds directories
+**/build
 
 local_test/*
 
