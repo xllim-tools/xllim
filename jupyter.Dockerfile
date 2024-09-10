@@ -14,5 +14,5 @@ RUN unzip artefact.zip
 RUN rm artefact.zip
 RUN mv *.so /home/jovyan/.local/lib/python3.10/site-packages/xllim.so
 
-# Copy the example notebook
-RUN curl --location -o /home/jovyan/example.ipynb "https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/raw/v2/tests/pythonTests/example.ipynb?ref_type=heads&inline=false"
+# Copy the examples directory notebook
+RUN curl --location -o /home/jovyan/example.ipynb "https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/raw/v2/examples?ref_type=heads&inline=false"
