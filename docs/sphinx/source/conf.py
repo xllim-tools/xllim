@@ -47,10 +47,11 @@ extensions = [
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.mathjax',
     'sphinx_rtd_theme',
+    'sphinx_copybutton',
     'myst_parser'
 ]
 
-# autosectionlabel_prefix_document = True # If True references must be with full path, ie. :ref:`Hapke <kernelo:HapkeModel>`. It can be useful to use this option if there is several section with the same name.
+# autosectionlabel_prefix_document = True # If True references must be with full path, ie. :ref:`Hapke <xllim:HapkeModel>`. It can be useful to use this option if there is several section with the same name.
 autoclass_content = 'both' # This helps compiling __init__ 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -260,7 +261,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'kernelo', 'Kernelo Documentation',
+    (master_doc, 'xllim', 'xLLiM Documentation',
      [author], 1)
 ]
 
