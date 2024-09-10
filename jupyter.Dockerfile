@@ -15,4 +15,8 @@ RUN rm artefact.zip
 RUN mv *.so /home/jovyan/.local/lib/python3.10/site-packages/xllim.so
 
 # Copy the examples directory notebook
-RUN curl --location -o /home/jovyan/example.ipynb "https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/raw/v2/examples?ref_type=heads&inline=false"
+RUN curl --location -o examples.zip  "https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/archive/v2/kernelo-gllim-is-v2.zip?path=examples"
+RUN unzip examples.zip
+RUN mv kernelo-gllim-is-v2-examples/examples .
+RUN rm examples.zip
+RUN rmdir kernelo-gllim-is-v2-examples
