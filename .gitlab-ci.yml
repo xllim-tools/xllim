@@ -65,7 +65,7 @@ pages:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
-        - pip install -U sphinx sphinx-rtd-theme myst_parser
+        - pip install -U sphinx sphinx-rtd-theme myst_parser sphinx-copybutton
         - sphinx-build -b html docs/sphinx/source public
     artifacts:
         paths:
