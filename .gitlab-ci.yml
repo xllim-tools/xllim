@@ -28,6 +28,7 @@ test_job:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
+        - apt-get update
         - apt-get install -y --no-install-recommends git
         - git submodule init
         - git submodule update
@@ -49,6 +50,7 @@ build_job:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
+        - apt-get update
         - apt-get install -y --no-install-recommends git
         - git submodule init
         - git submodule update
