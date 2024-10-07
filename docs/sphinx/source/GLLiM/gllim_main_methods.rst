@@ -17,8 +17,8 @@ Main methods
 
         Initialize the GLLiM model with given data and parameters.
 
-        :param ndarray t: Input matrix `t`.
-        :param ndarray y: Input matrix `y`.
+        :param ndarray t: Input matrix `t` with shape (N, L).
+        :param ndarray y: Input matrix `y` with shape (N, D).
         :param int gllim_em_iteration: Number of EM iterations for GLLiM.
         :param float gllim_em_floor: Floor value for EM iterations in GLLiM.
         :param int gmm_kmeans_iteration: Number of k-means iterations for GMM.
@@ -35,8 +35,8 @@ Main methods
 
         Train the GLLiM model with given data and parameters.
 
-        :param ndarray x: Input matrix `x`.
-        :param ndarray y: Input matrix `y`.
+        :param ndarray x: Input matrix `x` with shape (N, L).
+        :param ndarray y: Input matrix `y` with shape (N, D).
         :param int max_iteration: Maximum number of iterations.
         :param float ratio_ll: Ratio for log-likelihood convergence.
         :param float floor: Floor value for the training process.
@@ -58,8 +58,8 @@ Main methods
 
         Compute the direct densities given input matrix `x` and its uncertainties.
 
-        :param ndarray x: Input matrix `x`.
-        :param ndarray, optional x_incertitude: Uncertainty in `x`.
+        :param ndarray x: Input matrix `x` with shape (N_obs, L).
+        :param ndarray, optional x_incertitude: Uncertainty in `x` with shape (N_obs, L).
         :returns: An instance of `PredictionResult` containing the direct densities.
 
 
@@ -69,8 +69,8 @@ Main methods
 
         Compute the inverse densities given input matrix `y` and its uncertainties.
 
-        :param ndarray y: Input matrix `y`.
-        :param ndarray, optional y_incertitude: Uncertainty in `y`.
+        :param ndarray y: Input matrix `y` with shape (N_obs, D).
+        :param ndarray, optional y_incertitude: Uncertainty in `y` with shape (N_obs, D).
         :returns: An instance of `PredictionResult` containing the inverse densities.
 
 

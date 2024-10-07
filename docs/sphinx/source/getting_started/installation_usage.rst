@@ -1,8 +1,7 @@
-Examples
-=============
+.. _installation-usage:
 
-Installation/Usage:
--------------------
+Installation and Usage
+----------------------
 
 xLLiM is distributed as a compiled shared library in a Docker container thus Docker is required. For this example we suggest you build the **Jupyter notebook image**.
 The image is built from the offical [jupyter/scipy-notebook](https://jupyter-docker-stacks.readthedocs.io/en/latest/) image adapted to xLLiM dependencies. 
@@ -69,3 +68,7 @@ Go on the JupyterLab web-based user interface. Here is your personal workspace t
 
 
 You can now open the *example.ipynb* notebook and try it !
+
+
+
+:ref:`Main methods <main-methods>`

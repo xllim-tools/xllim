@@ -15,9 +15,9 @@ Contents:
    :maxdepth: 2
 
    introduction
+   getting_started/getting_started
    GLLiM <GLLiM/gllim_class_overall>
    functional_model
-   example
 
 
 Indices and tables

@@ -24,39 +24,39 @@ Structures
     :param int K: The number of affine transformations, corresponding to the number of Gaussian distributions in the mixture.
 
     .. attribute:: Pi
-        :type: rowvec
+        :type: ndarray of shape (K,)
 
-        A row vector of size K containing the weights of the Gaussian distributions in the mixture.
+        A vector of size K containing the weights of the Gaussian distributions in the mixture.
 
     .. attribute:: A
-        :type: ndarray of shape ()
+        :type: ndarray of shape (K, D, L)
 
-        A ndarray of shape (D, L, K) representing the parameters of the affine transformations.
+        A cube of shape (K, D, L) representing the parameters of the affine transformations.
     
     .. attribute:: B
-        :type: ndarray of shape ()
+        :type: ndarray of shape (K, D)
 
-        A matrix of size (D, K) representing additional model parameters.
+        A matrix of shape (K, D) representing additional model parameters.
 
     .. attribute:: C
-        :type: ndarray of shape ()
+        :type: ndarray of shape (K, L)
 
-        A matrix of size (L, K) containing the means of the mixture of Gaussian distributions that define the low-dimensional data.
+        A matrix of shape (K, L) containing the means of the mixture of Gaussian distributions that define the low-dimensional data.
 
     .. attribute:: Gamma
-        :type: ndarray
+        :type: ndarray of shape (K, *L*, *L*)
 
-        A vector of size K containing the covariance matrices (L, L) of the mixture of Gaussian distributions that define the low-dimensional data.
-            - In the case of Full covariance matrix (*gamma_type = `'full'`*), Gamma is of shape (K,L,L).
-            - In the case of Diagonal covariance matrix (*gamma_type = `'diag'`*), Gamma is of shape (K,L) with Gamma[k] representing the variances vector of the k^{th} gaussian.
+        Gamma is a ndarray containing the K covariance matrices of the mixture of Gaussian distributions that define the low-dimensional data.
+            - In the case of Full covariance matrix (*gamma_type = `'full'`*), Gamma is of shape (K, L, L).
+            - In the case of Diagonal covariance matrix (*gamma_type = `'diag'`*), Gamma is of shape (K, L) with Gamma[k] representing the variances vector of the k^{th} gaussian.
             - In the case of Isotropic covariance matrix (*gamma_type = `'iso'`*), Gamma is of shape (K) with Gamma[k] representing the unique variance of the k^{th} gaussian.
 
     .. attribute:: Sigma
-        :type: ndarray
+        :type: ndarray of shape (K, *D*, *D*)
 
-        A vector of size K containing the covariance matrices (D, D) of the mixture of Gaussian distributions that define the high-dimensional data.
-            - In the case of Full covariance matrix (*gamma_type = `'full'`*), Sigma is of shape (K,L,L).
-            - In the case of Diagonal covariance matrix (*gamma_type = `'diag'`*), Sigma is of shape (K,L) with Sigma[k] representing the variances vector of the k^{th} gaussian.
+        Sigma is a ndarray containing the K covariance matrices of the mixture of Gaussian distributions that define the high-dimensional data.
+            - In the case of Full covariance matrix (*gamma_type = `'full'`*), Sigma is of shape (K, D, D).
+            - In the case of Diagonal covariance matrix (*gamma_type = `'diag'`*), Sigma is of shape (K, D) with Sigma[k] representing the variances vector of the k^{th} gaussian.
             - In the case of Isotropic covariance matrix (*gamma_type = `'iso'`*), Sigma is of shape (K) with Sigma[k] representing the unique variance of the k^{th} gaussian.
 
 
@@ -123,29 +123,29 @@ Structures
     :param int K: Number of components in the GMM.
 
     .. attribute:: mean
-        :type: ndarray of shape ()
+        :type: ndarray of shape (N_obs, D)
 
         The mean of the GMM prediction (N_obs, D).
 
     .. attribute:: variance
-        :type: ndarray of shape ()
+        :type: ndarray of shape (N_obs, D, D)
 
         The variance of the GMM prediction (N_obs, D, D).
 
     .. attribute:: gmm_weights
-        :type: ndarray of shape ()
+        :type: ndarray of shape (N_obs, K)
 
         The weights of the components of the GMM (N_obs, K).
 
     .. attribute:: gmm_means
-        :type: ndarray of shape ()
+        :type: ndarray of shape (N_obs, D, K)
 
         The means of each component in the GMM (N_obs, D, K).
 
     .. attribute:: gmm_covs
-        :type: ndarray of shape ()
+        :type: ndarray of shape (N_obs, D, D, K)
 
-        The covariance matrices of each component in the GMM (D, D, K).
+        The covariance matrices of each component in the GMM (N_obs, D, D, K).
 
 
 .. _center-prediction-result-struct:
