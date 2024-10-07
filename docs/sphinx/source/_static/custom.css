@@ -1,0 +1,4 @@
+/* Ensure content width expands to the screen size */
+.wy-nav-content {
+    max-width: 100% !important;
+}
