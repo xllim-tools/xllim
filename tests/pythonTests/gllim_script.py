@@ -129,3 +129,53 @@ for gamma_type in covariance_type_list:
         tic = time.time()
         prediction_results_all = gllim.inverseDensities(y, y_incertitudes_mat)
         print("Time Multi inversion = {}".format(time.time() - tic))
+
+
+################## GLLiM Full model JGMM training ####################
+
+kmeans_iteration = 10
+em_iteration = 100
+gllim = lib.GLLiM(K, D, L, "full", "full")
+
+gllim.initialize(
+    X_gen,
+    Y_gen,
+    gllim_em_iteration,
+    gllim_em_floor,
+    gmm_kmeans_iteration,
+    gmm_em_iteration,
+    gmm_floor,
+    nb_experiences,
+    seed,
+    verbose,
+)
+
+gllim.trainJGMM(
+    X_gen, Y_gen, kmeans_iteration, em_iteration, train_floor, verbose
+)
+
+theta_star = gllim.getInverse()
+
+x = np.random.rand(L, 40)
+x_incertitudes = np.random.rand(L) * 0.02
+prediction_direct_results = gllim.directDensities(x, x_incertitudes)
+
+y = np.random.rand(D, 40)
+y_incertitudes = np.random.rand(D, 1) * 0.01
+tic = time.time()
+prediction_results = gllim.inverseDensities(y, y_incertitudes)
+print("Time One inversion = {}".format(time.time() - tic))
+
+y_incertitudes_temp = np.matlib.repmat(y_incertitudes, 1, 40)
+y_incertitudes_mat = np.copy(y_incertitudes_temp)
+
+tic = time.time()
+prediction_results_all = gllim.inverseDensities(y, y_incertitudes_mat)
+print("Time Multi inversion = {}".format(time.time() - tic))
+
+
+
+gllim = lib.GLLiM(K, D, L, "full", "diag")
+gllim.trainJGMM(
+    X_gen, Y_gen, kmeans_iteration, em_iteration, train_floor, verbose
+)

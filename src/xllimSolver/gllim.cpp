@@ -173,10 +173,29 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
     insights_.initialisation = InitialisationInsights(duration, start, end, N, gllim_em_iteration, gllim_em_floor, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, nb_experiences);
 }
 
-// void GLLiM<TGamma,TSigma>::train(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor)
-// void GLLiM<TGamma,TSigma>::train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor)
-// {
-// }
+template <typename TGamma, typename TSigma>
+void GLLiM<TGamma, TSigma>::trainJGMM(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor, int verbose)
+{
+    Logger::getInstance().log(ERROR, "This method is only available with gamma_type = 'full' and sigma_type = 'full'");
+}
+
+template <>
+void GLLiM<FullCovariance, FullCovariance>::trainJGMM(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor, int verbose)
+{
+    if (verbose >= 1)
+    {
+        Logger::getInstance().log(WARNING, "A classic GMM training is applied on the equivalent joint-GMM to GLLiM. The algorithm is provided by the Armadillo library. This option is only available whith 'full/full' constraints. The training is equivalent and faster than the GLLiM-EM algorithm.");
+    }
+
+    auto start = std::chrono::high_resolution_clock::now();
+    JGMM estimator;
+    estimator.train(x, y, theta_, kmeans_iteration, em_iteration, floor, verbose);
+
+    // Save relevant information about training within Insights structure
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+    insights_.training = TrainingInsights(duration, start, end, x.n_cols, kmeans_iteration, em_iteration, floor);
+}
 
 template <typename TGamma, typename TSigma>
 void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_iteration, double ratio_ll, double floor, int verbose)
@@ -185,26 +204,9 @@ void GLLiM<TGamma, TSigma>::train(const mat &x, const mat &y, unsigned max_itera
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    if constexpr (std::is_same<TGamma, FullCovariance>::value && std::is_same<TSigma, FullCovariance>::value) // C++17 improvment. "if constexpr" is evaluated at compile time.
-    {
-        if (verbose >= 0)
-        {
-            Logger::getInstance().log(WARNING, "A classic GMM training is applied on the equivalent joint-GMM to GLLiM. The algorithm is provided by the Armadillo library. This option is only available whith 'full/full' constraints. The training is equivalent and faster than the GLLiM-EM algorithm.");
-        }
-        // GLLiM is equivalent to a classic GMM on the joint law (X,Y). Applying the Armadillo built-in EM method is more efficient.
-
-        JGMM estimator;
-        unsigned kmeans_iteration = 10; // TODO set to 0 ? variable in arguments ?
-        unsigned em_iteration = max_iteration;
-        estimator.train(x, y, theta_, kmeans_iteration, em_iteration, floor, verbose); //  comment faire avec les paramètres ?
-    }
-    else
-    {
-        EmEstimator<TGamma, TSigma> estimator;
-        // TODO estimator.train returnind void is better
-        estimator.train(x, y, theta_, max_iteration, ratio_ll, floor, verbose); //  comment faire avec les paramètres ?
-        insights_.log_likelihood = estimator.get_log_likelihood();              // Save relevant information about training within Insights structure
-    }
+    EmEstimator<TGamma, TSigma> estimator;
+    estimator.train(x, y, theta_, max_iteration, ratio_ll, floor, verbose);
+    insights_.log_likelihood = estimator.get_log_likelihood();
 
     // Save relevant information about training within Insights structure
     auto end = std::chrono::high_resolution_clock::now();

@@ -112,6 +112,7 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
 
         .def("initialize", &GLLiM<TGamma, TSigma>::initialize)
         .def("train", &GLLiM<TGamma, TSigma>::train)
+        .def("trainJGMM", &GLLiM<TGamma, TSigma>::trainJGMM)
 
         .doc() = R"mydelimiter(
             GLLiM class
