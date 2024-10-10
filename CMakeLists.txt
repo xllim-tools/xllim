@@ -86,10 +86,18 @@ add_library(functionalModel STATIC
     src/functionalModel/TestModel.cpp
     src/functionalModel/ShkuratovModel.cpp
     src/functionalModel/HapkeModel.cpp
-    src/functionalModel/ExternalPythonModel.cpp
+    # src/functionalModel/ExternalPythonModel.cpp
 )
 set_target_properties(functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(functionalModel PRIVATE utils pybind11::embed carma::carma OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
+target_link_libraries(functionalModel PRIVATE utils OpenMP::OpenMP_CXX) # link pybind11::embed and carma::carma to ExternalModel
+
+add_library(pythonEmbed STATIC 
+    src/functionalModel/FunctionalModel.cpp
+    src/functionalModel/ExternalPythonModel.cpp
+)
+set_target_properties(pythonEmbed PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(pythonEmbed PRIVATE utils pybind11::embed carma::carma) # link pybind11::embed and carma::carma to ExternalModel
+
 
 add_library(xllimSolver STATIC 
     src/xllimSolver/gllim.cpp
@@ -102,7 +110,7 @@ add_library(xllimSolver STATIC
 set_target_properties(xllimSolver PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 pybind11_add_module(xllim bindings/xllim_bindings.cpp)
-target_link_libraries(xllim PRIVATE functionalModel xllimSolver generator utils logging carma::carma OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES})
+target_link_libraries(xllim PRIVATE functionalModel pythonEmbed xllimSolver generator utils logging carma::carma OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES})
 
 
 
@@ -136,10 +144,15 @@ add_executable(functionalModel_test
     tests/cppTests/functionalModel/TestModel_test.cpp
     tests/cppTests/functionalModel/ShkuratovModel_test.cpp
     tests/cppTests/functionalModel/HapkeModel_test.cpp
-    tests/cppTests/functionalModel/ExternalPythonModel_test.cpp
+    # tests/cppTests/functionalModel/ExternalPythonModel_test.cpp
     tests/cppTests/functionalModel/DataGeneration_test.cpp
     tests/cppTests/functionalModel/ImportanceSampling_test.cpp)
-target_link_libraries(functionalModel_test PRIVATE gtest_main pybind11::embed functionalModel generator logging ${ARMADILLO_LIBRARIES})
+target_link_libraries(functionalModel_test PRIVATE gtest_main functionalModel generator logging ${ARMADILLO_LIBRARIES})
+
+add_executable(pythonEmbed_test 
+    tests/cppTests/functionalModel/ExternalPythonModel_test.cpp)
+target_link_libraries(pythonEmbed_test PRIVATE gtest_main pythonEmbed pybind11::embed logging ${ARMADILLO_LIBRARIES})
+
 
 add_executable(xllimSolver_test 
     tests/cppTests/xllimSolver/covariancesTest/fullCovarianceTest.cpp
@@ -155,6 +168,7 @@ target_link_libraries(integration_test PRIVATE gtest_main utils xllimSolver func
 
 include(GoogleTest)
 gtest_discover_tests(functionalModel_test)
+gtest_discover_tests(pythonEmbed_test)
 gtest_discover_tests(generator_test)
 gtest_discover_tests(xllimSolver_test)
 gtest_discover_tests(utils_test)
