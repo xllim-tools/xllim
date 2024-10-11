@@ -122,6 +122,23 @@ vec FunctionalModel::propositionDensity(const mat &x, const vec &weight, const m
     // return utils::logSumExp(utils::logDensity(x, weight.t(), mean, covariance), 1);
 }
 
+ImportanceSamplingResult FunctionalModel::importanceSampling(PredictionResult predictions, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
+{
+    // retrieve the gmm parameters from de GLLiM prediction results. It corresponds to the proposition law for the Importance Sampling method.
+    std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms;
+    const unsigned N_obs = predictions.meanPredResult.gmm_weights.n_rows;
+    for (size_t i = 0; i < N_obs; i++)
+    {
+        proposition_gmms.push_back(std::make_tuple(
+            predictions.meanPredResult.gmm_weights.row(i).t(),
+            predictions.meanPredResult.gmm_means.row(i),
+            predictions.meanPredResult.gmm_covs // TODO 4 dimension : use arma::field
+            ));
+    }
+    // Apply importance sampling algorithm
+    return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose);
+}
+
 ImportanceSamplingResult FunctionalModel::importanceSampling(std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
 {
     // Checks on IMIS parameters

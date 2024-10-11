@@ -47,7 +47,12 @@ void bind_functional_model(pybind11::module& m)
             })
         .def("genData", py::overload_cast<unsigned, const std::string &, double, unsigned>(&FunctionalModel::genData))
         .def("genData", py::overload_cast<unsigned, const std::string &, vec &, unsigned>(&FunctionalModel::genData))
-        .def("importanceSampling", &FunctionalModel::importanceSampling);
+        .def("importanceSampling",
+            py::overload_cast<std::vector<std::tuple<const vec, const mat, const cube>>, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
+            py::arg("proposition_gmms"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1)
+        .def("importanceSampling",
+            py::overload_cast<PredictionResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
+            py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1);
         
 
     py::class_<TestModel, std::shared_ptr<TestModel>, FunctionalModel>(m, "TestModel")
