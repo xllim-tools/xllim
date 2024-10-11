@@ -247,7 +247,7 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
     std::tuple<mat, cube, cube> GMMs = constructGMM(x, theta_altered);
     result.meanPredResult.gmm_weights = std::get<0>(GMMs); // (N_obs, K)
     result.meanPredResult.gmm_means = std::get<1>(GMMs);   // (N_obs, D, K)
-    result.meanPredResult.gmm_covs = std::get<2>(GMMs);    // (D, D, K)
+    result.meanPredResult.gmm_covs = std::get<2>(GMMs);    // (D, D, K) (The covariance is indenpendent from x)
 
     // ============================= Prediction mean estimations ==================================
 
@@ -310,7 +310,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
             PredictionResult res_n = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)), verbose);
             result.meanPredResult.gmm_weights.row(n) = res_n.meanPredResult.gmm_weights; // (N_obs, K)
             result.meanPredResult.gmm_means.row(n) = res_n.meanPredResult.gmm_means;     // (N_obs, D, K)
-            result.meanPredResult.gmm_covs = res_n.meanPredResult.gmm_covs;              // (D, D, K) // TODO Problem because for this case gmm_covs = theta_star.Sigma and is different for each observation :/
+            result.meanPredResult.gmm_covs = res_n.meanPredResult.gmm_covs;              // (D, D, K) (The covariance is indenpendent from y)
             result.meanPredResult.mean.row(n) = res_n.meanPredResult.mean;               // (N_obs, D)
             result.meanPredResult.variance.row(n) = res_n.meanPredResult.variance;       // (N_obs, D, D)
         }
@@ -737,7 +737,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     std::tuple<mat, cube, cube> GMMs = constructGMM(y, theta_star_altered);
     result.meanPredResult.gmm_weights = std::get<0>(GMMs); // (N_obs, K)
     result.meanPredResult.gmm_means = std::get<1>(GMMs);   // (N_obs, D, K)
-    result.meanPredResult.gmm_covs = std::get<2>(GMMs);    // (D, D, K)
+    result.meanPredResult.gmm_covs = std::get<2>(GMMs);    // (D, D, K) (The covariance is indenpendent from y)
 
     // ============================= Prediction mean estimations ==================================
 

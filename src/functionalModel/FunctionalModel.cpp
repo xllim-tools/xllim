@@ -132,7 +132,7 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(PredictionResult pr
         proposition_gmms.push_back(std::make_tuple(
             predictions.meanPredResult.gmm_weights.row(i).t(),
             predictions.meanPredResult.gmm_means.row(i),
-            predictions.meanPredResult.gmm_covs // TODO 4 dimension : use arma::field
+            predictions.meanPredResult.gmm_covs // The covariance is indenpendent from y thus it is the same for all predictions
             ));
     }
     // Apply importance sampling algorithm

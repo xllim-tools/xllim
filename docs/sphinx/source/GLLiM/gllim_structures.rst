@@ -143,9 +143,9 @@ Structures
         The means of each component in the GMM (N_obs, D, K).
 
     .. attribute:: gmm_covs
-        :type: ndarray of shape (N_obs, D, D, K)
+        :type: ndarray of shape (D, D, K)
 
-        The covariance matrices of each component in the GMM (N_obs, D, D, K).
+        The covariance matrices of each component in the GMM (D, D, K). The covariance is indenpendent from the observations thus it is the same for all predictions.
 
 
 .. _center-prediction-result-struct:

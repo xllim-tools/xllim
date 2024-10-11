@@ -11,7 +11,7 @@ struct MeanPredictionResult
     cube variance;   // The variance of the prediction (N_obs, D, D)
     mat gmm_weights; // The weights of the components of the GMM (N_obs, K)
     cube gmm_means;  // The means of each component in the GMM (N_obs, D, K)
-    cube gmm_covs;   // The covariance matrices of each component in the GMM (D, D, K)
+    cube gmm_covs;   // The covariance matrices of each component in the GMM (D, D, K). The covariance is indenpendent from the observation.
 
     MeanPredictionResult(unsigned N_obs, unsigned D, unsigned K) : mean(N_obs, D), variance(N_obs, D, D), gmm_weights(N_obs, K), gmm_means(N_obs, D, K), gmm_covs(D, D, K) {}
 };
