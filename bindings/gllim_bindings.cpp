@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/chrono.h>
+#include <pybind11/iostream.h>
 #include <carma>
 #include <armadillo>
 
@@ -81,10 +82,14 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
 
     std::string GLLiM_pyname = std::string("_GLLiM") + str;
     py::class_<GLLiM<TGamma, TSigma>, std::shared_ptr<GLLiM<TGamma, TSigma>>>(m, GLLiM_pyname.c_str()) // exposed to Pybind11 and hide in Python with the underscore
-        .def(py::init<unsigned, unsigned, unsigned, std::string, std::string, unsigned>(), py::arg("K"), py::arg("D"), py::arg("L"), py::arg("gamma_type"), py::arg("sigma_type"), py::arg("n_hidden_variables") = 0)
+        .def(py::init<unsigned, unsigned, unsigned, std::string, std::string, unsigned>(), py::arg("K"), py::arg("D"), py::arg("L"), py::arg("gamma_type"), py::arg("sigma_type"), py::arg("n_hidden_variables") = 0,
+             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 
-        .def("getDimensions", &GLLiM<TGamma, TSigma>::getDimensions, "some info :)")
-        .def("getConstraints", &GLLiM<TGamma, TSigma>::getConstraints)
+        .def("getDimensions", &GLLiM<TGamma, TSigma>::getDimensions,
+             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>(),
+             "some info :)")
+        .def("getConstraints", &GLLiM<TGamma, TSigma>::getConstraints,
+             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
         .def("getParams", &GLLiM<TGamma, TSigma>::getParamsArray)
         .def("getParamPi", &GLLiM<TGamma, TSigma>::getParamPi)
         .def("getParamA", &GLLiM<TGamma, TSigma>::getParamA)
@@ -105,14 +110,22 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
 
         .def("getInsights", &GLLiM<TGamma, TSigma>::getInsights)
 
-        .def("directDensities", py::overload_cast<const mat &, const vec &, int>(&GLLiM<TGamma, TSigma>::directDensities), py::arg("x"), py::arg("x_incertitude"), py::arg("verbose") = 0)
-        .def("directDensities", py::overload_cast<const mat &, int>(&GLLiM<TGamma, TSigma>::directDensities), py::arg("x"), py::arg("verbose") = 0)
-        .def("inverseDensities", py::overload_cast<const mat &, const mat &, int>(&GLLiM<TGamma, TSigma>::inverseDensities), py::arg("y"), py::arg("y_incertitude"), py::arg("verbose") = 0)
-        .def("inverseDensities", py::overload_cast<const mat &, int>(&GLLiM<TGamma, TSigma>::inverseDensities), py::arg("y"), py::arg("verbose") = 0)
+        // ! The implementation in pybind11/iostream.h is NOT thread safe. Multiple threads writing to a redirected ostream concurrently cause data races and potentially buffer overflows.
+        .def("directDensities", py::overload_cast<const mat &, const vec &, int>(&GLLiM<TGamma, TSigma>::directDensities), py::arg("x"), py::arg("x_incertitude"), py::arg("verbose") = 0,
+             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+        .def("directDensities", py::overload_cast<const mat &, int>(&GLLiM<TGamma, TSigma>::directDensities), py::arg("x"), py::arg("verbose") = 0,
+             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+        .def("inverseDensities", py::overload_cast<const mat &, const mat &, int>(&GLLiM<TGamma, TSigma>::inverseDensities), py::arg("y"), py::arg("y_incertitude"), py::arg("verbose") = 0,
+             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+        .def("inverseDensities", py::overload_cast<const mat &, int>(&GLLiM<TGamma, TSigma>::inverseDensities), py::arg("y"), py::arg("verbose") = 0,
+             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 
-        .def("initialize", &GLLiM<TGamma, TSigma>::initialize)
-        .def("train", &GLLiM<TGamma, TSigma>::train)
-        .def("trainJGMM", &GLLiM<TGamma, TSigma>::trainJGMM)
+        .def("initialize", &GLLiM<TGamma, TSigma>::initialize,
+             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+        .def("train", &GLLiM<TGamma, TSigma>::train,
+             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+        .def("trainJGMM", &GLLiM<TGamma, TSigma>::trainJGMM,
+             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 
         .doc() = R"mydelimiter(
             GLLiM class

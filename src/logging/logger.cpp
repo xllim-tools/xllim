@@ -12,7 +12,7 @@ void Logger::log(LogLevel level, const std::string &message)
 {
     std::lock_guard<std::mutex> guard(log_mutex_);
     clearProgressBar();
-    std::cout << getColor(level) << getLabel(level) << ": " << message << "\033[0m" << std::endl;
+    std::cout << getLevelColor(level) << "[xllim] " << getLevelLabel(level) << ": " << message << getColor("reset") << std::endl;
     showProgressBar();
 }
 
@@ -63,49 +63,67 @@ void Logger::showProgressBar()
         auto now = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = now - progress_bar_start_;
 
-        std::cout << "\033[35m"; // set color to magenta
-        std::cout << "\r[";      // carriage return. Cursur is placed at the start of the line
+        std::string progress_bar_string;
+        progress_bar_string += getColor("magenta"); // set color to magenta
+        progress_bar_string += "\r[";               // carriage return. Cursur is placed at the start of the line
         for (int i = 0; i < progress_bar_width_; ++i)
         {
             if (i < pos)
-                std::cout << "=";
+                progress_bar_string += "=";
             else if (i == pos)
-                std::cout << ">";
+                progress_bar_string += ">";
             else
-                std::cout << " ";
+                progress_bar_string += " ";
         }
-        std::cout << "] " << int(percentage * 100.0) << "% (" << elapsed_seconds.count() << "s)";
-        std::cout << "\033[0m"; // reset color
+        progress_bar_string += "] " + std::to_string(int(percentage * 100.0)) + "% (" + std::to_string(elapsed_seconds.count()) + " sec)";
+        progress_bar_string += getColor("reset"); // reset color
+        std::cout << progress_bar_string;
         std::cout.flush();
     }
 }
 
-std::string Logger::getLabel(LogLevel level)
+std::string Logger::getLevelLabel(LogLevel level)
 {
     switch (level)
     {
     case INFO:
-        return "INFO";
+        return "INFO    ";
     case WARNING:
-        return "WARNING";
+        return "WARNING ";
     case ERROR:
-        return "ERROR";
+        return "ERROR   ";
     default:
-        return "UNKNOWN";
+        return "UNKNOWN ";
     }
 }
 
-std::string Logger::getColor(LogLevel level)
+std::string Logger::getLevelColor(LogLevel level)
 {
     switch (level)
     {
     case INFO:
-        return "\033[39m"; // Default
+        return getColor("default");
     case WARNING:
-        return "\033[33m"; // Yellow
+        return getColor("yellow");
     case ERROR:
-        return "\033[31m"; // Red
+        return getColor("red");
     default:
-        return "\033[0m"; // Reset
+        return getColor("reset");
     }
+}
+
+std::string Logger::getColor(std::string color)
+{
+    if (color == "default")
+        return "\033[39m"; // Default
+    else if (color == "yellow")
+        return "\033[33m"; // Yellow
+    else if (color == "red")
+        return "\033[31m"; // Red
+    else if (color == "magenta")
+        return "\033[35m"; // Magenta
+    else if (color == "reset")
+        return "\033[0m"; // Reset
+    else
+        return "\033[0m"; // Reset
 }

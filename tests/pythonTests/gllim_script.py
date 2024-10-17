@@ -127,7 +127,7 @@ for gamma_type in covariance_type_list:
         y_incertitudes_mat = np.copy(y_incertitudes_temp)
 
         tic = time.time()
-        prediction_results_all = gllim.inverseDensities(y, y_incertitudes_mat)
+        prediction_results_all = gllim.inverseDensities(y, y_incertitudes_mat, 1)
         print("Time Multi inversion = {}".format(time.time() - tic))
 
 

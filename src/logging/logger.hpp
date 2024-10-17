@@ -67,14 +67,21 @@ private:
      * @param level The log level.
      * @return The string label for the log level.
      */
-    std::string getLabel(LogLevel level);
+    std::string getLevelLabel(LogLevel level);
 
     /**
      * @brief Gets the console color code for a log level.
      * @param level The log level.
      * @return The console color code for the log level.
      */
-    std::string getColor(LogLevel level);
+    std::string getLevelColor(LogLevel level);
+
+    /**
+     * @brief Gets the ANSI escape code of a color
+     * @param color A string of the color.
+     * @return The ANSI escape code color
+     */
+    std::string getColor(std::string color);
 
     /**
      * @brief Clears the current progress bar from the console.

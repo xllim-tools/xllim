@@ -393,7 +393,7 @@ print(cube[:,:,0].T)
 # In[19]:
 
 
-verbose = 1
+verbose = 0
 tic = time.time()
 results = model.importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose)
 tac = time.time()

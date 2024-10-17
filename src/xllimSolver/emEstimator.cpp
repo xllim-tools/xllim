@@ -28,7 +28,7 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     }
     if (verbose >= 1)
     {
-        logger.log(INFO, "Start GLLiM-EM Training");
+        logger.log(INFO, "[Training] Start GLLiM-EM");
     }
 
     unsigned iteration = 0;
@@ -55,7 +55,7 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
         }
         if (verbose >= 1)
         {
-            logger.log(INFO, "Iteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(log_likelihood_(iteration)));
+            logger.log(INFO, "\tIteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(log_likelihood_(iteration)));
         }
 
     } while (!has_converged(log_likelihood_(iteration - 1), log_likelihood_(iteration), iteration, max_iteration, ratio_ll, floor, verbose));
@@ -66,7 +66,7 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     }
     if (verbose >= 1)
     {
-        logger.log(INFO, "Finish GLLiM-EM Training");
+        logger.log(INFO, "[Training] GLLiM-EM completed");
     }
 }
 
@@ -337,7 +337,7 @@ bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, doubl
     {
         if (verbose >= 1)
         {
-            Logger::getInstance().log(WARNING, "Maximum iteration number reached");
+            Logger::getInstance().log(WARNING, "[Training] Maximum iteration number reached");
         }
     }
 
@@ -348,7 +348,7 @@ bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, doubl
     {
         if (verbose >= 1)
         {
-            Logger::getInstance().log(WARNING, "Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100));
+            Logger::getInstance().log(WARNING, "[Training] Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100));
         }
     }
     return max_iter_condition || ratio_ll_condition;

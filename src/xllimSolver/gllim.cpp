@@ -34,12 +34,7 @@ static std::vector<TCov> convertArrayToVectorOfCov(unsigned &K, unsigned &dimens
 // GLLiM<TGamma,TSigma>::GLLiM<TGamma,TSigma>(unsigned D, unsigned L, unsigned K, GLLiMParameters<TGamma,TSigma> &theta, GLLiMConstraints &constraints) {}
 
 template <typename TGamma, typename TSigma>
-GLLiM<TGamma, TSigma>::GLLiM(unsigned K, unsigned D, unsigned L, const std::string &gamma_type, const std::string &sigma_type, unsigned n_hidden_variables) : theta_(K, D, L - n_hidden_variables, n_hidden_variables), constraints_(gamma_type, sigma_type)
-{
-    Logger::getInstance().log(INFO, "GLLiM Parameters initialized");
-    Logger::getInstance().log(INFO, GLLiM<TGamma, TSigma>::getDimensions());
-    Logger::getInstance().log(INFO, GLLiM<TGamma, TSigma>::getConstraints());
-}
+GLLiM<TGamma, TSigma>::GLLiM(unsigned K, unsigned D, unsigned L, const std::string &gamma_type, const std::string &sigma_type, unsigned n_hidden_variables) : theta_(K, D, L - n_hidden_variables, n_hidden_variables), constraints_(gamma_type, sigma_type) {}
 
 // ============================== Main public methods ==============================
 
@@ -83,13 +78,13 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
 
     if (verbose >= 1)
     {
-        Logger::getInstance().log(INFO, "Start Initialization");
+        Logger::getInstance().log(INFO, "[Initialization] Start");
     }
     for (unsigned exp = 0; exp < nb_experiences; exp++)
     {
         if (verbose >= 1)
         {
-            Logger::getInstance().log(INFO, "Initialisation : " + std::to_string(exp + 1));
+            Logger::getInstance().log(INFO, "[Initialisation] : Experience " + std::to_string(exp + 1) + "/" + std::to_string(nb_experiences));
         }
 
         // generate a mean for the GMM using a data generator strategy
@@ -144,7 +139,7 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
             Logger::getInstance().log(INFO, "\tTrain the initial GLLiM model");
         }
         // ! Simplification : just use train() method. If ratio_ll is set to 0, the new version it is equivalent (must be verified) to the old version.
-        gllimEmEstimator.train(t, y, local_theta, gllim_em_iteration, -1.0, gllim_em_floor, verbose); // TODO verbose = 0,1,2..
+        gllimEmEstimator.train(t, y, local_theta, gllim_em_iteration, -1.0, gllim_em_floor, 0); // TODO verbose = 0,1,2..
 
         vec log_likelihood_list = gllimEmEstimator.get_log_likelihood();      // log_likelihood for each iteration
         log_likelihood = log_likelihood_list[log_likelihood_list.n_elem - 1]; // log_likelihood of last iteration
@@ -164,7 +159,7 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
 
     if (verbose >= 1)
     {
-        Logger::getInstance().log(INFO, "FinishInitialization");
+        Logger::getInstance().log(INFO, "[Initialisation] Completed");
     }
 
     // Save relevant information about initialisation within Insights structure
@@ -304,15 +299,29 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
     }
     else
     {
+        Logger &logger = Logger::getInstance();
+        if (verbose >= 1)
+        {
+            logger.startProgressBar(N_obs);
+        }
 #pragma omp parallel for
         for (size_t n = 0; n < N_obs; n++)
         {
+            if (verbose >= 1)
+            {
+                logger.updateProgressBar(n);
+                logger.showProgressBar();
+            }
             PredictionResult res_n = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)), verbose);
             result.meanPredResult.gmm_weights.row(n) = res_n.meanPredResult.gmm_weights; // (N_obs, K)
             result.meanPredResult.gmm_means.row(n) = res_n.meanPredResult.gmm_means;     // (N_obs, D, K)
             result.meanPredResult.gmm_covs = res_n.meanPredResult.gmm_covs;              // (D, D, K) (The covariance is indenpendent from y)
             result.meanPredResult.mean.row(n) = res_n.meanPredResult.mean;               // (N_obs, D)
             result.meanPredResult.variance.row(n) = res_n.meanPredResult.variance;       // (N_obs, D, D)
+        }
+        if (verbose >= 1)
+        {
+            logger.stopProgressBar();
         }
     }
 
@@ -358,7 +367,7 @@ std::string GLLiM<TGamma, TSigma>::getDimensions()
 template <typename TGamma, typename TSigma>
 std::string GLLiM<TGamma, TSigma>::getConstraints()
 {
-    std::string str = "GLLiM constraints are :\n\tgamma_type = '" + constraints_.gamma_type + "',\n\tsigma_type = '" + constraints_.sigma_type + "'.";
+    std::string str = "GLLiM constraints are gamma_type = '" + constraints_.gamma_type + "', sigma_type = '" + constraints_.sigma_type + "'";
     return str;
 }
 
@@ -712,7 +721,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
 
     if (!y_incertitude.is_zero())
     {
-        if (verbose >= 1)
+        if (verbose >= 2)
         {
             Logger::getInstance().log(INFO, "Alter theta covariance");
         }
@@ -722,7 +731,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
         }
     }
 
-    if (verbose >= 1)
+    if (verbose >= 2)
     {
         Logger::getInstance().log(INFO, "Inverse theta");
     }
@@ -730,7 +739,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
 
     // ==================== Construct the GMM of the inverse conditional model ====================
 
-    if (verbose >= 1)
+    if (verbose >= 2)
     {
         Logger::getInstance().log(INFO, "Construct the GMM of the inverse conditional model");
     }
@@ -742,7 +751,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     // ============================= Prediction mean estimations ==================================
 
     // Compute the mean of the means in the mixture
-    if (verbose >= 1)
+    if (verbose >= 2)
     {
         Logger::getInstance().log(INFO, "Compute the weighted mean of the means in the mixture");
     }
@@ -753,7 +762,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     }
 
     // Compute the mean of covariances in the mixture
-    if (verbose >= 1)
+    if (verbose >= 2)
     {
         Logger::getInstance().log(INFO, "Compute the weighted covariance of the covariances in the mixture");
     }
