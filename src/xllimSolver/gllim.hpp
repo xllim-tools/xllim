@@ -59,8 +59,11 @@ public:
     PredictionResult directDensities(const mat &x, const vec &x_incertitude, int verbose = 0);
     PredictionResult directDensities(const mat &x, int verbose = 1) { return directDensities(x, vec(theta_.L, fill::zeros), verbose); };
 
-    PredictionResult inverseDensities(const mat &y, const mat &y_incertitude, int verbose = 0);
-    PredictionResult inverseDensities(const mat &y, int verbose = 1) { return inverseDensitiesOneInversion(y, vec(theta_.D, fill::zeros), verbose); };
+    PredictionResult inverseDensities(const mat &y, const mat &y_incertitude, unsigned K_merged = 0, double merging_threshold = 1e-10, int verbose = 0);
+    PredictionResult inverseDensities(const mat &y, unsigned K_merged = 0, double merging_threshold = 1e-10, int verbose = 0)
+    {
+        return inverseDensitiesOneInversion(y, vec(theta_.D, fill::zeros), K_merged, merging_threshold, verbose);
+    };
 
     Insights getInsights();
 
@@ -73,7 +76,7 @@ private:
     GLLiMParameters<FullCovariance, FullCovariance> inverse(GLLiMParameters<TGamma, TSigma> &theta);
     template <typename TGamma2, typename TSigma2>
     std::tuple<mat, cube, cube> constructGMM(const mat &x, GLLiMParameters<TGamma2, TSigma2> &theta);
-    PredictionResult inverseDensitiesOneInversion(const mat &y, const vec &y_incertitude, int verbose = 1);
+    PredictionResult inverseDensitiesOneInversion(const mat &y, const vec &y_incertitude, unsigned K_merged = 0, double merging_threshold = 1e-10, int verbose = 1);
 };
 
 #endif // GLLIM_HPP

@@ -18,11 +18,15 @@ struct MeanPredictionResult
 
 struct CenterPredictionResult
 {
-    mat weights; // The weights of the centers
-    cube means;   // The centers that stands for the predictions
-    cube covs;   // The covariance matrices of the centers
+    mat weights;            // The weights of the merged GMM with shape (N_obs, K_merged)
+    cube means;             // The means of the merged GMM with shape (N_obs, D, K_merged). It corresponds to the centers that stands for the predictions
+    std::vector<cube> covs; // The covariance of the merged GMM with shape (N_obs, D, D, K_merged). It is constructed from other gaussians means thus it depends on observations.// ! TODO field
 
-    CenterPredictionResult(unsigned N_obs, unsigned D, unsigned K) : weights(N_obs, K), means(N_obs, D, K), covs(D, D, K) {}
+    CenterPredictionResult(unsigned N_obs, unsigned D, unsigned K_merged) : weights(N_obs, K_merged), means(N_obs, D, K_merged), covs(N_obs, cube(D, D, K_merged))
+    {
+        // cube template_cube(D, D, K_merged); // Initialize a single cube
+        // covs.fill(template_cube);           // Fill it with the template cube
+    }
 };
 
 struct PredictionResult
@@ -30,7 +34,7 @@ struct PredictionResult
     MeanPredictionResult meanPredResult;     // @see MeanPredictionResult MeanPredictionResult
     CenterPredictionResult centerPredResult; // @see CenterPredictionResult CenterPredictionResult
 
-    PredictionResult(unsigned N_obs, unsigned D, unsigned K) : meanPredResult(N_obs, D, K), centerPredResult(N_obs, D, K) {}
+    PredictionResult(unsigned N_obs, unsigned D, unsigned K, unsigned K_merged = 0) : meanPredResult(N_obs, D, K), centerPredResult(N_obs, D, K_merged) {}
 };
 
 #endif // PREDICTIONRESULTS_HPP

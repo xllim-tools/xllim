@@ -5,6 +5,9 @@
 #include "../utils/utils.hpp"
 #include "../logging/logger.hpp"
 
+#include "multivariateGaussian.hpp"
+#define DELETED true
+
 // ============================== Static methods ==============================
 
 template <typename TCov>
@@ -279,11 +282,11 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
 
 // returns prior mean estimates E[xn|yn;θ] when the observation incertitude is different for each observation (no parallelisation)
 template <typename TGamma, typename TSigma>
-PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat &y_incertitude, int verbose)
+PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat &y_incertitude, unsigned K_merged, double merging_threshold, int verbose)
 // TODO merge this method with directDensities. Check out the differences
 {
     unsigned N_obs = y.n_cols;
-    PredictionResult result(N_obs, theta_.L, theta_.K);
+    PredictionResult result(N_obs, theta_.L, theta_.K, K_merged);
 
     if (y_incertitude.n_rows != y.n_rows)
     {
@@ -295,7 +298,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
     }
     else if (y_incertitude.n_cols == 1)
     {
-        result = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(y, vec(y_incertitude), verbose);
+        result = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(y, vec(y_incertitude), K_merged, merging_threshold, verbose);
     }
     else
     {
@@ -312,12 +315,15 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
                 logger.updateProgressBar(n);
                 logger.showProgressBar();
             }
-            PredictionResult res_n = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)), verbose);
+            PredictionResult res_n = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)), K_merged, merging_threshold, verbose);
             result.meanPredResult.gmm_weights.row(n) = res_n.meanPredResult.gmm_weights; // (N_obs, K)
             result.meanPredResult.gmm_means.row(n) = res_n.meanPredResult.gmm_means;     // (N_obs, D, K)
             result.meanPredResult.gmm_covs = res_n.meanPredResult.gmm_covs;              // (D, D, K) (The covariance is indenpendent from y)
             result.meanPredResult.mean.row(n) = res_n.meanPredResult.mean;               // (N_obs, D)
             result.meanPredResult.variance.row(n) = res_n.meanPredResult.variance;       // (N_obs, D, D)
+            result.centerPredResult.weights.row(n) = res_n.centerPredResult.weights;     // (N_obs, K_merged)
+            result.centerPredResult.means.row(n) = res_n.centerPredResult.means;         // (N_obs, D, K_merged)
+            result.centerPredResult.covs[n] = res_n.centerPredResult.covs[0];            // (N_obs, D, D, K_merged) (vector<cube>) (Depends on other gaussians means thus y)
         }
         if (verbose >= 1)
         {
@@ -707,13 +713,76 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
     return std::make_tuple(weights, means, covariances);
 }
 
+MultivariateGaussian mergeTwoGaussians(const MultivariateGaussian &g1, const MultivariateGaussian &g2)
+{
+    MultivariateGaussian merged_g1g2;
+
+    merged_g1g2.weight = g1.weight + g2.weight;
+
+    double weight1_12 = g1.weight / (g1.weight + g2.weight);
+    double weight2_12 = g2.weight / (g1.weight + g2.weight);
+
+    merged_g1g2.mean = g1.mean * weight1_12 + g2.mean * weight2_12;
+
+    merged_g1g2.covariance = g1.covariance * weight1_12 + g2.covariance * weight2_12 +
+                             weight1_12 * weight2_12 * (g1.mean - g2.mean) * (g1.mean - g2.mean).t();
+
+    return merged_g1g2;
+}
+
+void computeDissimilarityCriterion(MultivariateGaussian &g1, MultivariateGaussian &g2, MultivariateGaussian &merged_g1g2, double &dissimilarity)
+{
+    merged_g1g2 = mergeTwoGaussians(g1, g2);
+
+    double log_det_cov_g1 = log_det(g1.covariance).real();
+    double log_det_cov_g2 = log_det(g2.covariance).real();
+    double log_det_cov_g1g2 = log_det(merged_g1g2.covariance).real();
+
+    dissimilarity = 0.5 * ((g1.weight + g2.weight) * log_det_cov_g1g2 - g1.weight * log_det_cov_g1 - g2.weight * log_det_cov_g2);
+}
+
+void findPairToMerge(std::vector<std::pair<MultivariateGaussian, bool>> &gaussians)
+{
+    unsigned K = gaussians.size();
+    MultivariateGaussian merged_gaussian, best_merged_gaussian;
+    unsigned best_k1 = 0, best_k2 = 0;
+    double dissimilarity, best_dissimilarity = datum::inf;
+
+    for (unsigned k1 = 0; k1 < K; k1++)
+    {
+        if (gaussians[k1].second != DELETED)
+        {
+            for (unsigned k2 = k1 + 1; k2 < K; k2++)
+            {
+                if (gaussians[k2].second != DELETED)
+                {
+                    computeDissimilarityCriterion(
+                        gaussians[k1].first,
+                        gaussians[k2].first,
+                        merged_gaussian,
+                        dissimilarity);
+                    if (dissimilarity < best_dissimilarity)
+                    {
+                        best_k1 = k1;
+                        best_k2 = k2;
+                        best_dissimilarity = dissimilarity;
+                        best_merged_gaussian = merged_gaussian;
+                    }
+                }
+            }
+        }
+    }
+    gaussians[best_k1].first = best_merged_gaussian;
+    gaussians[best_k2].second = DELETED;
+}
+
 // returns prior mean estimates E[xn|yn;θ]
 template <typename TGamma, typename TSigma>
-PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &y, const vec &y_incertitude, int verbose)
+PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &y, const vec &y_incertitude, unsigned K_merged, double merging_threshold, int verbose)
 // TODO merge this method with directDensities. Check out the differences
 {
     unsigned N_obs = y.n_cols;
-    PredictionResult result(N_obs, theta_.L, theta_.K);
+    PredictionResult result(N_obs, theta_.L, theta_.K, K_merged);
 
     // ==================== Alter theta covariance and inverse theta ====================
 
@@ -778,6 +847,66 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
         }
     }
 
+    // ====================================== Merging step ======================================
+    // This algorithm relies on two steps :
+    //      – given two Gaussian components, merge them into a single Gaussian with same weight, mean and variance as the
+    //          original sum;
+    //      – at each iteration, select the two components to be merged by minimizing the Kullback-Leibler divergence be-
+    //          tween the current mixture and the one that would be obtained by merging these two components.
+    // It follows a final mixture of K_merged-components with respective weight, mean and covariance
+
+    if (K_merged > 0) // do not compute merging algorithm if K_merged == 0.
+    {
+#pragma omp parallel
+        for (unsigned n = 0; n < N_obs; ++n)
+        {
+            // Apply threshold on weights. // TODO : also apply to pred by mean ?
+            if (verbose >= 2)
+            {
+                Logger::getInstance().log(INFO, "Apply threshold on GMM weights");
+            }
+            uvec thresholded_indices = find(std::get<0>(GMMs).row(n) > merging_threshold);
+            unsigned K_thresholded = thresholded_indices.n_elem;
+
+            // Move GMMs to vector<MultivariateGaussian, bool> structure
+            std::vector<std::pair<MultivariateGaussian, bool>> gaussians(K_thresholded);
+            for (unsigned k = 0; k < K_thresholded; k++)
+            {
+                unsigned k_in_GMMs = thresholded_indices(k);
+                gaussians[k].second = !DELETED;
+                gaussians[k].first.weight = std::get<0>(GMMs)(n, k_in_GMMs);
+                gaussians[k].first.mean = std::get<1>(GMMs).slice(k_in_GMMs).row(n).t();
+                gaussians[k].first.covariance = std::get<2>(GMMs).slice(k_in_GMMs);
+            }
+
+            // Merge the K Gaussians into K_merged ones.
+            if (verbose >= 2)
+            {
+                Logger::getInstance().log(INFO, "Merge the K Gaussians into K_merged ones");
+            }
+            for (size_t k = 0; k < K_thresholded - K_merged; k++)
+            {
+                findPairToMerge(gaussians);
+            }
+
+            // reconstruct reduced GMMs
+            if (verbose >= 2)
+            {
+                Logger::getInstance().log(INFO, "Reconstruct the reduced GMMs");
+            }
+            unsigned k = 0;
+            for (const auto &element : gaussians)
+            {
+                if (!element.second) // if gaussian is not DELETED
+                {
+                    result.centerPredResult.weights(n, k) = element.first.weight;           // mat (N_obs, K_merged)
+                    result.centerPredResult.means.slice(k).row(n) = element.first.mean.t(); // cube (N_obs, D, K_merged)
+                    result.centerPredResult.covs[n].slice(k) = element.first.covariance;    // vector<cube> (N_obs, D, D, K_merged) (Depends on other gaussians means thus y)
+                    k++;
+                }
+            }
+        }
+    }
     return result;
 }
 
