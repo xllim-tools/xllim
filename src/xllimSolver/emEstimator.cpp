@@ -26,10 +26,7 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     {
         logger.startProgressBar(max_iteration);
     }
-    if (verbose >= 1)
-    {
-        logger.log(INFO, "[Training] Start GLLiM-EM");
-    }
+    logger.log(INFO, 1, verbose, "[Training] Start GLLiM-EM");
 
     unsigned iteration = 0;
     do
@@ -53,10 +50,7 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
         {
             logger.updateProgressBar(iteration);
         }
-        if (verbose >= 1)
-        {
-            logger.log(INFO, "\tIteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(log_likelihood_(iteration)));
-        }
+        logger.log(INFO, 1, verbose, "\tIteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(log_likelihood_(iteration)));
 
     } while (!has_converged(log_likelihood_(iteration - 1), log_likelihood_(iteration), iteration, max_iteration, ratio_ll, floor, verbose));
 
@@ -64,10 +58,7 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     {
         logger.stopProgressBar();
     }
-    if (verbose >= 1)
-    {
-        logger.log(INFO, "[Training] GLLiM-EM completed");
-    }
+    logger.log(INFO, 1, verbose, "[Training] GLLiM-EM completed");
 }
 
 template <typename TGamma, typename TSigma>
@@ -335,10 +326,7 @@ bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, doubl
 
     if (max_iter_condition)
     {
-        if (verbose >= 1)
-        {
-            Logger::getInstance().log(WARNING, "[Training] Maximum iteration number reached");
-        }
+        Logger::getInstance().log(WARNING, 1, verbose, "[Training] Maximum iteration number reached");
     }
 
     bool ratio_ll_condition = ratio_increase_likelihood <= ratio_ll / 100;
@@ -346,10 +334,7 @@ bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, doubl
 
     if (ratio_ll_condition)
     {
-        if (verbose >= 1)
-        {
-            Logger::getInstance().log(WARNING, "[Training] Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100));
-        }
+        Logger::getInstance().log(WARNING, 1, verbose, "[Training] Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100));
     }
     return max_iter_condition || ratio_ll_condition;
 }

@@ -179,10 +179,7 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(std::vector<std::tu
         gmm_full proposition_gmm;
 
         // ====================== Importance Sampling basic step and initialisation =========================
-        if (verbose >= 2)
-        {
-            logger.log(INFO, "\tObservation " + std::to_string(n_obs) + " : Importance Sampling basic step and initialisation");
-        }
+        logger.log(INFO, 2, verbose, "\tObservation " + std::to_string(n_obs) + " : Importance Sampling basic step and initialisation");
         proposition_gmm.set_params(std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs]), std::get<0>(proposition_gmms[n_obs]).t());
         samples.cols(0, N_0 - 1) = proposition_gmm.generate(N_0);                                                                                                                                                      // sample with GLLiM-GMM
         target_log_densities.subvec(0, N_0 - 1) = targetDensity(samples.cols(0, N_0 - 1), y.row(n_obs).t(), y_err.row(n_obs).t(), covariance);                                                                         // compute the target log probability density function (PDF)
@@ -194,10 +191,7 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(std::vector<std::tu
         /* The covariance matrix from the initial proposition law is used for each IMIS iteration
         The advandage is that the inverse of the covariance matrix is only computed once.
         However to improve IMIS precision the Mahalanobis distance should be calculated at each step with Covariance of each new proposition law */
-        if (verbose >= 2)
-        {
-            logger.log(INFO, "\tObservation " + std::to_string(n_obs) + " : Compute proposition covariance");
-        }
+        logger.log(INFO, 2, verbose, "\tObservation " + std::to_string(n_obs) + " : Compute proposition covariance");
         mat proposition_covariance = utils::proposition_covariance(proposition_gmm);
         proposition_covariance = trimatl(inv_sympd(proposition_covariance));
 
@@ -210,26 +204,17 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(std::vector<std::tu
             N_j1 = N_j + B;
 
             // a) Find highest weigth
-            if (verbose >= 2)
-            {
-                logger.log(INFO, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Find highest weigth");
-            }
+            logger.log(INFO, 2, verbose, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Find highest weigth");
             uword i_max = weights.subvec(0, N_j - 1).index_max();
             vec x_max = samples.col(i_max);
 
             // b) Find the B inputs with smallest Mahalanobis distance to x_max
-            if (verbose >= 2)
-            {
-                logger.log(INFO, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Find the B inputs with smallest Mahalanobis distance to x_max");
-            }
+            logger.log(INFO, 2, verbose, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Find the B inputs with smallest Mahalanobis distance to x_max");
             vec mahalanobis_dist = utils::MahalanobisWithInvertedCov(samples.cols(0, N_j - 1), x_max, proposition_covariance);
             uvec neighboors_idx = sort_index(mahalanobis_dist);
 
             // d) Compute associated covariance
-            if (verbose >= 2)
-            {
-                logger.log(INFO, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Compute associated covariance");
-            }
+            logger.log(INFO, 2, verbose, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Compute associated covariance");
             /*  Raftery & Bao propose the formula
                 w = (ws[id] + (1 / Nk)) / 2 (average between importance and 1/Nk)
                 but, according to Fasalio et al 2016, not weighting increases stability
@@ -243,20 +228,14 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(std::vector<std::tu
             Sigma_j.slice(0) /= B;
 
             // e) Generate B new samples
-            if (verbose >= 2)
-            {
-                logger.log(INFO, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Generate B new samples");
-            }
+            logger.log(INFO, 2, verbose, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Generate B new samples");
             mat x_max_mat = mat(x_max);
             rowvec weight_unitary(1, fill::value(1));
             gmm_step[j_step].set_params(x_max, Sigma_j, weight_unitary); // save the Gaussian(x_max, Sigma_j) for further use ...
             samples.cols(N_j, N_j1 - 1) = gmm_step[j_step].generate(B);
 
             // h) Update proposition law
-            if (verbose >= 2)
-            {
-                logger.log(INFO, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Update proposition law");
-            }
+            logger.log(INFO, 2, verbose, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Update proposition law");
             /* Update current points [0:N_j-1]:
                 for existing points, we can update the weigths without computing the whole mixture using
                 prop_j1 = (N_j / N_j1) * prop_j + (B / N_j1) * phi_j1 */
@@ -277,19 +256,13 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(std::vector<std::tu
             proposition_log_densities.subvec(N_j, N_j1 - 1) = utils::weightedLogSumExp(N_0, proposition_log_densities_0, B, log_sum_phi) - log(N_j1);
 
             // i) Update all weights
-            if (verbose >= 2)
-            {
-                logger.log(INFO, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Update all weights");
-            }
+            logger.log(INFO, 2, verbose, "\tObservation " + std::to_string(n_obs) + " | IMIS step " + std::to_string(j_step) + " : Update all weights");
             weights.subvec(0, N_j1 - 1) = target_log_densities.subvec(0, N_j1 - 1) - proposition_log_densities.subvec(0, N_j1 - 1); // Careful: here we manipulate log(weights)
 
         } // End of IMIS steps
 
         // ====================== Importance Sampling diagnostics and mean estimations ======================
-        if (verbose >= 2)
-        {
-            logger.log(INFO, "\tObservation " + std::to_string(n_obs) + " : Importance Sampling diagnostics");
-        }
+        logger.log(INFO, 2, verbose, "\tObservation " + std::to_string(n_obs) + " : Importance Sampling diagnostics");
         sum_weights = utils::logSumExp(weights);
         sum_weights_2 = utils::logSumExp(2 * weights);
 

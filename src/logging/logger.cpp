@@ -16,6 +16,17 @@ void Logger::log(LogLevel level, const std::string &message)
     showProgressBar();
 }
 
+void Logger::log(LogLevel level, unsigned verbose_level, unsigned verbose, const std::string &message)
+{
+    if (verbose >= verbose_level)
+    {
+        std::lock_guard<std::mutex> guard(log_mutex_);
+        clearProgressBar();
+        std::cout << getLevelColor(level) << "[xllim] " << getLevelLabel(level) << ": " << message << getColor("reset") << std::endl;
+        showProgressBar();
+    }
+}
+
 void Logger::startProgressBar(int total, int width)
 {
     progress_bar_active_ = true;

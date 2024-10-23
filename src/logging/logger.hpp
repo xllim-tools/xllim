@@ -32,6 +32,7 @@ public:
      * @param message The message to log.
      */
     void log(LogLevel level, const std::string &message);
+    void log(LogLevel level, unsigned verbose_level, unsigned verbose, const std::string &message);
 
     /**
      * @brief Sets and starts a new progress bar.
@@ -88,7 +89,7 @@ private:
      */
     void clearProgressBar();
 
-    std::mutex log_mutex_;                                                   ///< Mutex to ensure thread-safety for logging.
+    std::mutex log_mutex_;                                                  ///< Mutex to ensure thread-safety for logging.
     int progress_bar_total_;                                                ///< Total value for 100% completion.
     int progress_bar_width_;                                                ///< Width of the progress bar.
     int progress_bar_progress_;                                             ///< Current progress value.
