@@ -64,6 +64,12 @@ public:
     {
         return inverseDensitiesOneInversion(y, vec(theta_.D, fill::zeros), K_merged, merging_threshold, verbose);
     };
+    // It implements the regularization algorithm to get predictions more adapter to a context that requires 
+    // regularity between the predictions of different observations.
+    // arg : series - cube of shape series is with shape (N_obs, L, K_merged) = (nb_wavelengths,L,nb_centers)
+    // return : chosen permutation - Mat<unsigned int> of shape (K, N_obs)
+    // ! The complexity is O(N_obs*K!*K)
+    umat regularize(const cube &series);
 
     Insights getInsights();
 

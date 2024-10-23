@@ -173,8 +173,20 @@ tic = time.time()
 prediction_results_all = gllim.inverseDensities(y, y_incertitudes_mat)
 print("Time Multi inversion = {}".format(time.time() - tic))
 
+K_merged = 2
+merging_threshold = 1e-5
 
+tic = time.time()
+prediction_results_all = gllim.inverseDensities(y, y_incertitudes_mat, K_merged, merging_threshold, 1)
+print("Time inversion with merging algorithm = {}".format(time.time()-tic))
 
+series = prediction_results_all.centerPredResult.means
+tic = time.time()
+permutations = gllim.regularize(series)
+print("Time regularization of merged centers = {}".format(time.time()-tic))
+
+# this sould returns an error
+# [xllim] ERROR   : This method is only available with gamma_type = 'full' and sigma_type = 'full'
 gllim = lib.GLLiM(K, D, L, "full", "diag")
 gllim.trainJGMM(
     X_gen, Y_gen, kmeans_iteration, em_iteration, train_floor, verbose
