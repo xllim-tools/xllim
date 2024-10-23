@@ -180,7 +180,7 @@ tic = time.time()
 prediction_results_all = gllim.inverseDensities(y, y_incertitudes_mat, K_merged, merging_threshold, 1)
 print("Time inversion with merging algorithm = {}".format(time.time()-tic))
 
-series = prediction_results_all.centerPredResult.means
+series = prediction_results_all.mergedGMM.means
 tic = time.time()
 permutations = gllim.regularize(series)
 print("Time regularization of merged centers = {}".format(time.time()-tic))
