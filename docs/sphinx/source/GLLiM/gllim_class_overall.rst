@@ -102,9 +102,9 @@ GLLiM class overall
     +-----------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
     | :ref:`PredictionResult <prediction-result-struct>`              | Describes the results concerning a GLLiM density estimation (direct or inverse).                             |
     +-----------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
-    | :ref:`MeanPredictionResult <mean-prediction-result-struct>`     | Describes the results concerning a GLLiM density estimation by the mean.                                     |
+    | :ref:`FullGMMResult <mean-prediction-result-struct>`     | Describes the results concerning a GLLiM density estimation by the mean.                                     |
     +-----------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
-    | :ref:`CenterPredictionResult <center-prediction-result-struct>` | Describes the results concerning a GLLiM density estimation by the centroids.                                |
+    | :ref:`MergedGMMResult <center-prediction-result-struct>` | Describes the results concerning a GLLiM density estimation by the centroids.                                |
     +-----------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
     | :ref:`Insights <insights-struct>`                               | Describes valuable information about initialisation and training (time, log-likelihood and configuration).   |
     +-----------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+

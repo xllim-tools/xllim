@@ -88,7 +88,7 @@ public:
     /**
     args: 
         gmm_weights (K)
-        gmm_means (L,K)
+        means (L,K)
         gmm_covs (L,LK)
         y (N,L)
     return:

@@ -101,20 +101,20 @@ Structures
     :param int D: Dimensionality of each observation.
     :param int K: Number of components in the GMM.
 
-    .. attribute:: meanPredResult
-        :type: MeanPredictionResult
+    .. attribute:: fullGMM
+        :type: FullGMMResult
 
         The result of the mean prediction.
 
-    .. attribute:: centerPredResult
-        :type: CenterPredictionResult
+    .. attribute:: mergedGMM
+        :type: MergedGMMResult
 
         The result of the center prediction.
 
 
 .. _mean-prediction-result-struct:
 
-.. class:: MeanPredictionResult(N_obs, D, K)
+.. class:: FullGMMResult(N_obs, D, K)
 
     This structure holds the results of the mean predictions for a Gaussian Mixture Model (GMM).
 
@@ -137,7 +137,7 @@ Structures
 
         The weights of the components of the GMM (N_obs, K).
 
-    .. attribute:: gmm_means
+    .. attribute:: means
         :type: ndarray of shape (N_obs, D, K)
 
         The means of each component in the GMM (N_obs, D, K).
@@ -150,7 +150,7 @@ Structures
 
 .. _center-prediction-result-struct:
 
-.. class:: CenterPredictionResult
+.. class:: MergedGMMResult
 
     This structure holds the results of the center predictions for a Gaussian Mixture Model (GMM).
 

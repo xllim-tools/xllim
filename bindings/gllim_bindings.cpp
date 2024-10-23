@@ -17,22 +17,24 @@ void bind_gllim(pybind11::module &m)
 
      py::class_<GLLiMParametersBase, std::shared_ptr<GLLiMParametersBase>>(m, "GLLiMParametersBase");
 
-     py::class_<MeanPredictionResult>(m, "MeanPredictionResult")
-         .def_readwrite("mean", &MeanPredictionResult::mean)
-         .def_readwrite("variance", &MeanPredictionResult::variance)
-         .def_readwrite("gmm_weights", &MeanPredictionResult::gmm_weights)
-         .def_readwrite("gmm_means", &MeanPredictionResult::gmm_means)
-         .def_readwrite("gmm_covs", &MeanPredictionResult::gmm_covs);
+     py::class_<FullGMMResult>(m, "FullGMMResult")
+         .def_readwrite("mean", &FullGMMResult::mean)
+         .def_readwrite("variance", &FullGMMResult::variance)
+         .def_readwrite("weights", &FullGMMResult::weights)
+         .def_readwrite("means", &FullGMMResult::means)
+         .def_readwrite("covs", &FullGMMResult::covs);
 
-     py::class_<CenterPredictionResult>(m, "CenterPredictionResult")
-         .def_readwrite("weights", &CenterPredictionResult::weights)
-         .def_readwrite("means", &CenterPredictionResult::means)
-         .def_readwrite("covs", &CenterPredictionResult::covs);
+     py::class_<MergedGMMResult>(m, "MergedGMMResult")
+         .def_readwrite("mean", &MergedGMMResult::mean)
+         .def_readwrite("variance", &MergedGMMResult::variance)
+         .def_readwrite("weights", &MergedGMMResult::weights)
+         .def_readwrite("means", &MergedGMMResult::means)
+         .def_readwrite("covs", &MergedGMMResult::covs);
 
      py::class_<PredictionResult>(m, "PredictionResult")
          .def(py::init<unsigned, unsigned, unsigned, unsigned>(), py::arg("N_obs"), py::arg("D"), py::arg("K"), py::arg("K_merged") = 0)
-         .def_readwrite("meanPredResult", &PredictionResult::meanPredResult)
-         .def_readwrite("centerPredResult", &PredictionResult::centerPredResult);
+         .def_readwrite("fullGMM", &PredictionResult::fullGMM)
+         .def_readwrite("mergedGMM", &PredictionResult::mergedGMM);
 
      py::class_<InitialisationInsights>(m, "InitialisationInsights")
          .def_readwrite("time", &InitialisationInsights::time)
@@ -119,8 +121,8 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
               py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
          .def("inverseDensities", py::overload_cast<const mat &, unsigned, double, int>(&GLLiM<TGamma, TSigma>::inverseDensities), py::arg("y"), py::arg("K_merged") = 0, py::arg("merging_threshold") = 1e-10, py::arg("verbose") = 0,
               py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
-          
-          .def("regularize", &GLLiM<TGamma, TSigma>::regularize,
+
+         .def("regularize", &GLLiM<TGamma, TSigma>::regularize,
               py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 
          .def("initialize", &GLLiM<TGamma, TSigma>::initialize,

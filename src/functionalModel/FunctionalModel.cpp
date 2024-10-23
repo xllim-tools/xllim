@@ -126,13 +126,13 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(PredictionResult pr
 {
     // retrieve the gmm parameters from de GLLiM prediction results. It corresponds to the proposition law for the Importance Sampling method.
     std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms;
-    const unsigned N_obs = predictions.meanPredResult.gmm_weights.n_rows;
+    const unsigned N_obs = predictions.fullGMM.weights.n_rows;
     for (size_t i = 0; i < N_obs; i++)
     {
         proposition_gmms.push_back(std::make_tuple(
-            predictions.meanPredResult.gmm_weights.row(i).t(),
-            predictions.meanPredResult.gmm_means.row(i),
-            predictions.meanPredResult.gmm_covs // The covariance is indenpendent from y thus it is the same for all predictions
+            predictions.fullGMM.weights.row(i).t(),
+            predictions.fullGMM.means.row(i),
+            predictions.fullGMM.covs // The covariance is indenpendent from y thus it is the same for all predictions
             ));
     }
     // Apply importance sampling algorithm
