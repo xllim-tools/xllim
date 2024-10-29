@@ -802,6 +802,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
 
     if (K_merged > 0) // do not compute merging algorithm if K_merged == 0.
     {
+        Logger::getInstance().log(INFO, 2, verbose, "Start GMM merging algorithm");
 #pragma omp parallel
         for (unsigned n = 0; n < N_obs; ++n)
         {
@@ -820,15 +821,19 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
                 gaussians[k].first.mean = std::get<1>(GMMs).slice(k_in_GMMs).row(n).t();
                 gaussians[k].first.covariance = std::get<2>(GMMs).slice(k_in_GMMs);
             }
-
-            // Merge the K Gaussians into K_merged ones.
-            Logger::getInstance().log(INFO, 2, verbose, "Merge the K Gaussians into K_merged ones");
-            for (size_t k = 0; k < K_thresholded - K_merged; k++)
+            if (K_thresholded <= K_merged)
             {
-                findPairToMerge(gaussians);
+                Logger::getInstance().log(INFO, 2, verbose, "Number of gaussians after threshold is lower or equal to desired merged gaussians.");
+            }
+            else
+            {
+                Logger::getInstance().log(INFO, 2, verbose, "Merge the K Gaussians into K_merged ones");
+                for (size_t k = 0; k < K_thresholded - K_merged; k++)
+                {
+                    findPairToMerge(gaussians);
+                }
             }
 
-            // reconstruct reduced GMMs
             Logger::getInstance().log(INFO, 2, verbose, "Reconstruct the reduced GMMs");
             unsigned k = 0;
             for (const auto &element : gaussians)
@@ -842,17 +847,14 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
                 }
             }
             Logger::getInstance().log(INFO, 2, verbose, "Compute mean and variance of merged GMMs");
-            result.mergedGMM.weights.print("result.mergedGMM.weights");
             for (unsigned k = 0; k < K_merged; ++k)
             {
-                result.mergedGMM.weights.print("result.mergedGMM.weights");
-                result.mergedGMM.means.slice(k).print("result.mergedGMM.means.slice(k)");
-                result.mergedGMM.mean += diagmat(result.mergedGMM.weights.col(k)) * result.mergedGMM.means.slice(k);
+                result.mergedGMM.mean += diagmat(result.mergedGMM.weights.col(k)) * result.mergedGMM.means.slice(k); // mat (N_obs, D)
             }
             for (unsigned k = 0; k < K_merged; ++k)
             {
                 rowvec mean_diff = result.mergedGMM.means.slice(k).row(n) - result.mergedGMM.mean.row(n);
-                result.mergedGMM.variance.row(n) += result.mergedGMM.weights(n, k) * (result.mergedGMM.covs[n].slice(k) + mean_diff.t() * mean_diff);
+                result.mergedGMM.variance.row(n) += result.mergedGMM.weights(n, k) * (result.mergedGMM.covs[n].slice(k) + mean_diff.t() * mean_diff); // mat (N_obs, D, D)
             }
         }
     }

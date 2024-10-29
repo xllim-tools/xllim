@@ -85,18 +85,9 @@ public:
      */
     std::tuple<mat, mat> genData(unsigned N, const std::string &generator_type, double noise_ratio, unsigned seed = 0);
 
-    /**
-    args: 
-        gmm_weights (K)
-        means (L,K)
-        gmm_covs (L,LK)
-        y (N,L)
-    return:
-        results.predictions (L,N)
-     */
-    ImportanceSamplingResult importanceSampling(std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
-    // NOTE: si on met "const vec/mat/cube &" on obtient une erreur avec CARMA/python "Memoryerror: std::bad_alloc"
-    ImportanceSamplingResult importanceSampling(PredictionResult predictions, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
+    ImportanceSamplingResult importanceSampling(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
+    ImportanceSamplingResult importanceSampling(FullGMMResult fullGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
+    ImportanceSamplingResult importanceSampling(MergedGMMResult mergedGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
 
 protected:
     /**

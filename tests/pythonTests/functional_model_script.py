@@ -360,10 +360,10 @@ print(y_gen.shape)
 # In[17]:
 
 
-K = 10
+K = 3
 L = 4
 
-weight = np.ones(K)*0.1
+weight = np.ones(K) * 1/K
 # weight = np.array([0.2, 0.1, 0.1, 0.2, 0.4])
 # mean = np.ones((4,5))*0.77
 # mean[:,1] *= 3
@@ -374,7 +374,7 @@ for k in range(cube.shape[2]):
     cube[:,:,k] += np.eye(L) * 0.1
     cube[:,:,k] = np.dot(cube[:,:,k], cube[:,:,k].T) * 0.001
 
-proposition_gmms = [(weight, mean, cube), (weight, mean*0.2, cube*0.2)] * 20
+proposition_gmms = [(weight.T, mean, cube), (weight.T, mean*0.2, cube*0.2)] * 20
 y = np.array(y_gen[:2]) # Note avec CARMA, on a l'erreur "this array cannot be borrow...." dans le cas où on met en argument un pointeur! Et donc la mémoire n'appartient pas à cette variable.
 y = y_gen
 y_err = y*0.001

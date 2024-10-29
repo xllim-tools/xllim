@@ -24,7 +24,16 @@ struct MergedGMMResult
     cube means;             // The means of the merged GMM with shape (N_obs, D, K_merged). It corresponds to the centers that stands for the predictions
     std::vector<cube> covs; // The covariance of the merged GMM with shape (N_obs, D, D, K_merged). It is constructed from other gaussians means thus it depends on observations.
 
-    MergedGMMResult(unsigned N_obs, unsigned D, unsigned K_merged) : mean(N_obs, D), variance(N_obs, D, D), weights(N_obs, K_merged), means(N_obs, D, K_merged), covs(N_obs, cube(D, D, K_merged)) {}
+    MergedGMMResult(unsigned N_obs, unsigned D, unsigned K_merged) : mean(N_obs, D), variance(N_obs, D, D), weights(N_obs, K_merged), means(N_obs, D, K_merged), covs(N_obs, cube(D, D, K_merged))
+    {
+        for (size_t n = 0; n < N_obs; n++)
+        {
+            for (size_t k = 0; k < K_merged; k++)
+            {
+                covs[n].slice(k).eye();
+            }
+        }
+    }
 };
 
 struct PredictionResult

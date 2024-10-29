@@ -122,24 +122,39 @@ vec FunctionalModel::propositionDensity(const mat &x, const vec &weight, const m
     // return utils::logSumExp(utils::logDensity(x, weight.t(), mean, covariance), 1);
 }
 
-ImportanceSamplingResult FunctionalModel::importanceSampling(PredictionResult predictions, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
+ImportanceSamplingResult FunctionalModel::importanceSampling(FullGMMResult fullGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
 {
     // retrieve the gmm parameters from de GLLiM prediction results. It corresponds to the proposition law for the Importance Sampling method.
-    std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms;
-    const unsigned N_obs = predictions.fullGMM.weights.n_rows;
+    std::vector<std::tuple<vec, mat, cube>> proposition_gmms;
+    const unsigned N_obs = fullGMM.weights.n_rows;
     for (size_t i = 0; i < N_obs; i++)
     {
         proposition_gmms.push_back(std::make_tuple(
-            predictions.fullGMM.weights.row(i).t(),
-            predictions.fullGMM.means.row(i),
-            predictions.fullGMM.covs // The covariance is indenpendent from y thus it is the same for all predictions
+            fullGMM.weights.row(i).t(),
+            fullGMM.means.row(i),
+            fullGMM.covs // The covariance is indenpendent from y thus it is the same for all predictions
             ));
     }
-    // Apply importance sampling algorithm
     return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose);
 }
 
-ImportanceSamplingResult FunctionalModel::importanceSampling(std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
+ImportanceSamplingResult FunctionalModel::importanceSampling(MergedGMMResult mergedGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
+{
+    // retrieve the gmm parameters from de GLLiM prediction results. It corresponds to the proposition law for the Importance Sampling method.
+    std::vector<std::tuple<vec, mat, cube>> proposition_gmms;
+    const unsigned N_obs = mergedGMM.weights.n_rows;
+    for (size_t i = 0; i < N_obs; i++)
+    {
+        proposition_gmms.push_back(std::make_tuple(
+            mergedGMM.weights.row(i).t(),
+            mergedGMM.means.row(i),
+            mergedGMM.covs[i] // The covariance is indenpendent from y thus it is the same for all predictions
+            ));
+    }
+    return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose);
+}
+
+ImportanceSamplingResult FunctionalModel::importanceSampling(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
 {
     // Checks on IMIS parameters
     if (J != 0 && B == 0)

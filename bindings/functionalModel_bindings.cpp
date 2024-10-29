@@ -12,6 +12,24 @@
 
 namespace py = pybind11;
 
+// For some reason the automatic conversion between list<tuple(ndarray, ndarray, ndarray) and std::vector<std::tuple<vec, mat, cube>>
+// fails for K <= L. That is whay this explicit conversion function is needed at the moment (pybind11 2.11.1 carma 0.6.7)
+std::vector<std::tuple<vec, mat, cube>> parse_proposition_gmms(const py::list &proposition_gmms_py)
+{
+    std::vector<std::tuple<vec, mat, cube>> proposition_gmms;
+    for (size_t i = 0; i < proposition_gmms_py.size(); ++i)
+    {
+        auto item = proposition_gmms_py[i].cast<py::tuple>();
+        // Cast each component of the tuple to the correct Armadillo type
+        vec weights = carma::arr_to_col(item[0].cast<py::array_t<double>>());
+        mat means = carma::arr_to_mat(item[1].cast<py::array_t<double>>());
+        cube covs = carma::arr_to_cube(item[2].cast<py::array_t<double>>());
+
+        proposition_gmms.emplace_back(weights, means, covs);
+    }
+    return proposition_gmms;
+}
+
 void bind_functional_model(pybind11::module &m)
 {
     // PYBIND11_NUMPY_DTYPE(Dummy, predictions, predictions_variance);
@@ -51,14 +69,21 @@ void bind_functional_model(pybind11::module &m)
              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 
         // ! The implementation in pybind11/iostream.h is NOT thread safe. Multiple threads writing to a redirected ostream concurrently cause data races and potentially buffer overflows.
-        .def("importanceSampling",
-             py::overload_cast<std::vector<std::tuple<const vec, const mat, const cube>>, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
-             py::arg("proposition_gmms"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
-             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
-        .def("importanceSampling",
-             py::overload_cast<PredictionResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
-             py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
-             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
+        .def("importanceSampling", [](FunctionalModel &self, py::list proposition_gmms_py, const mat &y, const mat &y_err, const vec &covariance, unsigned N_0, unsigned B, unsigned J, int verbose)
+            {
+                auto proposition_gmms = parse_proposition_gmms(proposition_gmms_py);
+                return self.importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose);
+            },
+            py::arg("proposition_gmms"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
+            py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+        
+        .def("importanceSampling", py::overload_cast<FullGMMResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
+            py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
+            py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+        
+        .def("importanceSampling", py::overload_cast<MergedGMMResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
+            py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
+            py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
 
     py::class_<TestModel, std::shared_ptr<TestModel>, FunctionalModel>(m, "TestModel")
         .def(py::init<>());

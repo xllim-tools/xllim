@@ -36,7 +36,7 @@ protected:
     vec weight;
     mat mean;
     cube covariance;
-    std::vector<std::tuple<const vec, const mat, const cube>> proposition_gmms;
+    std::vector<std::tuple<vec, mat, cube>> proposition_gmms;
     mat y;
     mat y_err;
     vec y_covariance;
@@ -46,7 +46,7 @@ protected:
 
 TEST_F(ImportanceSamplingTest, ISReturnsGoodShape)
 {
-    unsigned N_obs = 20, K = 50, N_0 = 1000;
+    unsigned N_obs = 20, K = 2, N_0 = 1000;
     SetUp(K, N_obs);
     ImportanceSamplingResult results = model->importanceSampling(proposition_gmms, y, y_err, y_covariance, N_0);
     ASSERT_EQ(results.predictions.n_rows, L);     // X dimension
