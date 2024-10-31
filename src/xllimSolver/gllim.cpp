@@ -861,64 +861,6 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     return result;
 }
 
-unsigned factorial(unsigned n)
-{
-    return (n == 0 || n == 1) ? 1 : factorial(n - 1) * n;
-}
-
-umat generatePermutations(unsigned N)
-{
-    umat permutations(factorial(N), N); // (N!, N)
-    unsigned current_permutation = 0;
-    unsigned elements[N]; // Generate an 1D array of N elements from 0 to N-1
-    for (unsigned n = 0; n < N; n++)
-        elements[n] = n;
-    do
-    {
-        for (unsigned n = 0; n < N; n++)
-            permutations(current_permutation, n) = elements[n]; // save the current permutation
-        current_permutation++;
-    } while (std::next_permutation(elements, elements + N));
-    return permutations;
-}
-
-template <typename TGamma, typename TSigma>
-umat GLLiM<TGamma, TSigma>::regularize(const cube &series)
-{
-    // series is with shape (N_obs, L, K_merged) = (nb_wavelengths,L,nb_centers)
-    unsigned N_obs = series.n_rows, L = series.n_cols, K = series.n_slices;
-    umat permutations = generatePermutations(K); // (K!, K)
-    umat chosen_permutations(K, N_obs);          // (K, N_obs)
-    for (unsigned k = 0; k < K; k++)
-        chosen_permutations(k, 0) = k;
-
-    mat current_choice = series.row(0); // (L, K)
-    mat proposition(L, K);              // (L, K)
-    vec diff(permutations.n_rows);      // (K!)
-
-    uword best_permutation_index;
-
-    for (unsigned n = 0; n < N_obs - 1; n++)
-    {
-        for (unsigned p = 0; p < permutations.n_rows; p++) // loop on K!
-        {
-            for (unsigned k = 0; k < K; k++)
-            {
-                proposition.col(k) = series.slice(permutations(p, k)).row(n + 1).t();
-            }
-            diff(p) = sum(sqrt(sum(pow(current_choice - proposition, 2), 0)));
-        }
-        best_permutation_index = diff.index_min();
-        chosen_permutations.col(n + 1) = permutations.row(best_permutation_index).t();
-
-        for (unsigned k = 0; k < K; k++)
-        {
-            current_choice.col(k) = series.slice(permutations(best_permutation_index, k)).row(n + 1).t();
-        }
-    }
-    return chosen_permutations;
-}
-
 // ============================== Explicit instantiation of template classes ==============================
 
 template class GLLiM<FullCovariance, FullCovariance>;

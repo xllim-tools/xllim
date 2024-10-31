@@ -182,7 +182,7 @@ print("Time inversion with merging algorithm = {}".format(time.time()-tic))
 
 series = prediction_results_all.mergedGMM.means
 tic = time.time()
-permutations = gllim.regularize(series)
+permutations = lib.regularize(series)
 print("Time regularization of merged centers = {}".format(time.time()-tic))
 
 # this sould returns an error

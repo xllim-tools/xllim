@@ -24,6 +24,13 @@ namespace utils
     // vec dmvnrm_arma_fast_chol(arma::mat const &x, arma::rowvec const &mean, arma::mat &chol, bool const logd = true);
     // vec dmvnrm_arma_fast_chol_diag(arma::mat const &x, arma::rowvec const &mean, const arma::vec &chol, bool const logd = true);
     // mat safe_cholesky(mat &Sigma);
+
+    // It implements the regularization algorithm to get predictions more adapter to a context that requires 
+    // regularity between the predictions of different observations.
+    // arg : series - cube of shape series is with shape (N_obs, L, K_merged) = (nb_wavelengths,L,nb_centers)
+    // return : chosen permutation - Mat<unsigned int> of shape (K, N_obs)
+    // ! The complexity is O(N_obs*K!*K)
+    umat regularize(const cube &series);
 }
 
 #endif // UTILS_HPP

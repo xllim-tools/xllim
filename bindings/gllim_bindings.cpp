@@ -122,9 +122,6 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
          .def("inverseDensities", py::overload_cast<const mat &, unsigned, double, int>(&GLLiM<TGamma, TSigma>::inverseDensities), py::arg("y"), py::arg("K_merged") = 0, py::arg("merging_threshold") = 1e-10, py::arg("verbose") = 0,
               py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 
-         .def("regularize", &GLLiM<TGamma, TSigma>::regularize,
-              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
-
          .def("initialize", &GLLiM<TGamma, TSigma>::initialize,
               py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
          .def("train", &GLLiM<TGamma, TSigma>::train,
