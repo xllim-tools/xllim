@@ -80,7 +80,28 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
          .def_readwrite("B", &GLLiMParametersArray<TGamma, TSigma>::B)
          .def_readwrite("C", &GLLiMParametersArray<TGamma, TSigma>::C)
          .def_readwrite("Gamma", &GLLiMParametersArray<TGamma, TSigma>::Gamma)
-         .def_readwrite("Sigma", &GLLiMParametersArray<TGamma, TSigma>::Sigma);
+         .def_readwrite("Sigma", &GLLiMParametersArray<TGamma, TSigma>::Sigma)
+         .def(py::pickle(                                                       // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
+             [](const GLLiMParametersArray<TGamma, TSigma> &p) {                // __getstate__
+                  return py::make_tuple(p.Pi, p.A, p.B, p.C, p.Gamma, p.Sigma); // Return a tuple that fully encodes the state of the object
+             },
+             [](py::tuple t) { // __setstate__
+                  if (t.size() != 6)
+                       throw std::runtime_error("Invalid state!");
+
+                  // Create a new C++ instance
+                  GLLiMParametersArray<TGamma, TSigma> p(0, 0, 0);
+
+                  // Restore the state from the tuple
+                  p.Pi = t[0].cast<decltype(p.Pi)>();
+                  p.A = t[1].cast<decltype(p.A)>();
+                  p.B = t[2].cast<decltype(p.B)>();
+                  p.C = t[3].cast<decltype(p.C)>();
+                  p.Gamma = t[4].cast<decltype(p.Gamma)>();
+                  p.Sigma = t[5].cast<decltype(p.Sigma)>();
+
+                  return p;
+             }));
 
      std::string GLLiM_pyname = std::string("_GLLiM") + str;
      py::class_<GLLiM<TGamma, TSigma>, std::shared_ptr<GLLiM<TGamma, TSigma>>>(m, GLLiM_pyname.c_str()) // exposed to Pybind11 and hide in Python with the underscore

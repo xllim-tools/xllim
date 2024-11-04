@@ -2,6 +2,8 @@ import numpy as np
 import xllim as lib
 import numpy.matlib
 import time
+import pickle
+import os
 import logging
 
 logging.getLogger().setLevel(logging.INFO)
@@ -73,6 +75,24 @@ new_theta.B = B * 2
 new_theta.Sigma = Sigma
 
 gllim.setParams(new_theta)
+
+# Test pickle/unpickle gllimParameters
+with open('gllimParameters_pickle_test.file', 'wb') as f:
+    pickle.dump(new_theta, f)
+    f.close()
+
+with open('gllimParameters_pickle_test.file', 'rb') as f:
+    new_theta_unpickled = pickle.load(f)
+    f.close()
+
+os.remove('gllimParameters_pickle_test.file') # delete the generated file
+
+print(np.all(new_theta.Pi == new_theta_unpickled.Pi))
+print(np.all(new_theta.A == new_theta_unpickled.A))
+print(np.all(new_theta.B == new_theta_unpickled.B))
+print(np.all(new_theta.C == new_theta_unpickled.C))
+print(np.all(new_theta.Gamma == new_theta_unpickled.Gamma))
+print(np.all(new_theta.Sigma == new_theta_unpickled.Sigma))
 
 
 ################## loop on GLLiM models ####################
