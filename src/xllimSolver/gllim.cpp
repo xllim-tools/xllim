@@ -27,7 +27,7 @@ static std::vector<TCov> convertArrayToVectorOfCov(unsigned &K, unsigned &dimens
     std::vector<TCov> cov_vector(K, TCov(dimension));
     for (unsigned k = 0; k < K; k++)
     {
-        cov_vector[k] = TCov(cov_array.row(k));
+        cov_vector[k] = cov_array.row(k);
     }
     return cov_vector;
 }

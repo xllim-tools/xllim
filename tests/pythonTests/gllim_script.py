@@ -42,6 +42,8 @@ Y_gen = np.random.rand(D, N)
 
 
 ################## setters ####################
+# ! TODO : put this section inside the gllim model loop
+# ! specific Gamma and Sigma are required
 gllim = lib.GLLiM(
     K, D, L, gamma_type="full", sigma_type="diag", n_hidden_variables=n_hidden_variables
 )

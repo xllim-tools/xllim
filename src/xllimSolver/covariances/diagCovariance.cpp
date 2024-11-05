@@ -85,6 +85,12 @@ DiagCovariance &DiagCovariance::operator=(const vec &var)
     return *this;
 }
 
+DiagCovariance &DiagCovariance::operator=(const arma::subview_row<double> &var)
+{
+    variances_ = var.t();
+    return *this;
+}
+
 DiagCovariance &DiagCovariance::operator+=(const mat &cov)
 {
     variances_ += cov.diag();

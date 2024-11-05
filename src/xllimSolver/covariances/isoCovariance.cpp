@@ -88,6 +88,12 @@ IsoCovariance &IsoCovariance::operator=(const mat &cov)
     return *this;
 }
 
+IsoCovariance &IsoCovariance::operator=(const arma::subview_col<double> &cov_scalar)
+{
+    scalar_ = accu(cov_scalar) / cov_scalar.n_rows;
+    return *this;
+}
+
 IsoCovariance &IsoCovariance::operator=(double scalar)
 {
     scalar_ = scalar;
@@ -111,7 +117,6 @@ IsoCovariance &IsoCovariance::operator+=(double scalar)
 mat operator+(const mat &y, const IsoCovariance &x)
 {
     mat result = y + x.get_mat();
-    ;
     return result;
 }
 

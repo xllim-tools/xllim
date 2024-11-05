@@ -105,6 +105,7 @@ public:
     DiagCovariance &operator=(const DiagCovariance &cov);
     DiagCovariance &operator=(const mat &cov);
     DiagCovariance &operator=(const vec &var);
+    DiagCovariance &operator=(const arma::subview_row<double> &var);
     DiagCovariance &operator+=(const mat &cov);
     DiagCovariance &operator+=(double scalar);
 
@@ -153,6 +154,7 @@ public:
     // Assignement operators
     IsoCovariance &operator=(const IsoCovariance &cov);
     IsoCovariance &operator=(const mat &cov);
+    IsoCovariance &operator=(const arma::subview_col<double> &cov_scalar);
     IsoCovariance &operator=(double scalar);
     IsoCovariance &operator+=(const mat &cov);
     IsoCovariance &operator+=(double scalar);
