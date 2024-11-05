@@ -232,10 +232,10 @@ void EmEstimator<TGamma, TSigma>::update_C_k(GLLiMParameters<TGamma, TSigma> &th
 template <typename TGamma, typename TSigma>
 void EmEstimator<TGamma, TSigma>::update_Gamma_k(GLLiMParameters<TGamma, TSigma> &theta, unsigned k, const mat &t, const vec &avg_r_k)
 {
-    theta.Gamma[k].head(theta.L_t).fill(0.0);
+    theta.Gamma[k].fill_head(theta.L_t, 0.0);
     for (unsigned n = 0; n < t.n_cols; n++)
     {
-        theta.Gamma[k].head(theta.L_t).rank_one_update(t.col(n) - theta.C.col(k).head(theta.L_t), avg_r_k(n)); // efficient computation
+        theta.Gamma[k].rank_one_update_head(theta.L_t, t.col(n) - theta.C.col(k).head(theta.L_t), avg_r_k(n)); // efficient computation
     }
 }
 

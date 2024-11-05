@@ -27,9 +27,22 @@ void FullCovariance::rank_one_update(const vec &v, double alpha)
     }
 }
 
+void FullCovariance::rank_one_update_head(unsigned L_t, const vec &v, double alpha)
+{
+    for (unsigned i = 0; i < v.n_rows; i++)
+    {
+        covariances_.submat(0, 0, L_t - 1, L_t - 1).col(i) += v * v(i) * alpha;
+    }
+}
+
 void FullCovariance::fill(const double scalar)
 {
     covariances_.fill(scalar);
+}
+
+void FullCovariance::fill_head(unsigned L_t, const double scalar)
+{
+    covariances_.submat(0, 0, L_t - 1, L_t - 1).fill(scalar);
 }
 
 void FullCovariance::print(const std::string &str) const

@@ -30,9 +30,19 @@ void DiagCovariance::rank_one_update(const vec &v, double alpha)
     variances_ += pow(v, 2) * alpha;
 }
 
+void DiagCovariance::rank_one_update_head(unsigned L_t, const vec &v, double alpha)
+{
+    variances_.head(L_t) += pow(v, 2) * alpha;
+}
+
 void DiagCovariance::fill(const double scalar)
 {
     variances_.fill(scalar);
+}
+
+void DiagCovariance::fill_head(unsigned L_t, const double scalar)
+{
+    variances_.head(L_t).fill(scalar);
 }
 
 void DiagCovariance::print(const std::string &str) const

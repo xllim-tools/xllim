@@ -26,8 +26,20 @@ void IsoCovariance::rank_one_update(const vec &v, double alpha)
     scalar_ += alpha * accu(pow(v, 2)) / size_;
 }
 
+void IsoCovariance::rank_one_update_head(unsigned L_t, const vec &v, double alpha)
+{
+    // This case should not be used. If Covariance is Isotropic than covariances keep the same. The observed/latent dimension is not considered here (L_t=L).
+    scalar_ += alpha * accu(pow(v, 2)) / size_;
+}
+
 void IsoCovariance::fill(const double scalar)
 {
+    scalar_ = scalar;
+}
+
+void IsoCovariance::fill_head(unsigned L_t, const double scalar)
+{
+    // This case should not be used. If Covariance is Isotropic than covariances keep the same. The observed/latent dimension is not considered here (L_t=L).
     scalar_ = scalar;
 }
 

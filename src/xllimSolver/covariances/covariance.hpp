@@ -15,7 +15,9 @@ public:
     virtual double log_det() const = 0;
     // virtual Covariance inv() const = 0; // error: invalid covariant return type
     virtual void rank_one_update(const vec &v, double alpha) = 0;
+    virtual void rank_one_update_head(unsigned L_t, const vec &v, double alpha) = 0;
     virtual void fill(const double scalar) = 0;
+    virtual void fill_head(unsigned L_t, const double scalar) = 0;
     virtual void print(const std::string &str) const = 0;
     virtual void print() const = 0;
     virtual mat get_mat() const = 0;
@@ -42,7 +44,9 @@ public:
     double log_det() const override;
     FullCovariance inv() const;
     void rank_one_update(const vec &v, double alpha) override;
+    void rank_one_update_head(unsigned L_t, const vec &v, double alpha) override;
     void fill(const double scalar) override;
+    void fill_head(unsigned L_t, const double scalar) override;
     void print(const std::string &str) const override;
     void print() const override;
     FullCovariance head(unsigned L_t) const;
@@ -88,7 +92,9 @@ public:
     double log_det() const override;
     DiagCovariance inv() const;
     void rank_one_update(const vec &v, double alpha) override;
+    void rank_one_update_head(unsigned L_t, const vec &v, double alpha) override;
     void fill(const double scalar) override;
+    void fill_head(unsigned L_t, const double scalar) override;
     void print(const std::string &str) const override;
     void print() const override;
     DiagCovariance head(unsigned L_t) const;
@@ -136,7 +142,9 @@ public:
     double log_det() const override;
     IsoCovariance inv() const;
     void rank_one_update(const vec &v, double alpha) override;
+    void rank_one_update_head(unsigned L_t, const vec &v, double alpha) override;
     void fill(const double scalar) override;
+    void fill_head(unsigned L_t, const double scalar) override;
     void print(const std::string &str) const override;
     void print() const override;
     IsoCovariance head(unsigned L_t) const;
