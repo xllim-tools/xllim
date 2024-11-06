@@ -334,6 +334,7 @@ bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, doubl
 
     if (ratio_ll_condition)
     {
+        log_likelihood_ = vec(log_likelihood_.head(current_iter + 1)); // reduce log_likelihood_ vec size
         Logger::getInstance().log(WARNING, 1, verbose, "[Training] Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100));
     }
     return max_iter_condition || ratio_ll_condition;
