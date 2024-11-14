@@ -11,6 +11,29 @@
 #include "../src/xllimSolver/gllimStructures/gllimParametersArray.hpp"
 
 namespace py = pybind11;
+
+// Getter function to convert C++ std::vector<arma::cube> to Python list of numpy arrays
+std::vector<py::array_t<double>> get_covs(const MergedGMMResult &self)
+{
+     std::vector<py::array_t<double>> covs_list;
+     for (const auto &cube : self.covs)
+     {
+          covs_list.push_back(carma::cube_to_arr(cube)); // Convert each cube to numpy array
+     }
+     return covs_list;
+}
+
+// Setter function to convert Python list of numpy arrays to C++ std::vector<arma::cube>
+void set_covs(MergedGMMResult &self, const std::vector<py::array_t<double>> &covs_list)
+{
+     std::vector<cube> new_covs;
+     for (const auto &array : covs_list)
+     {
+          new_covs.push_back(carma::arr_to_cube(array)); // Convert each numpy array to arma::cube
+     }
+     self.covs = std::move(new_covs); // Assign the new vector to the class attribute
+}
+
 void bind_gllim(pybind11::module &m)
 {
      py::class_<GLLiMBase, std::shared_ptr<GLLiMBase>>(m, "GLLiMBase");
@@ -29,7 +52,7 @@ void bind_gllim(pybind11::module &m)
          .def_readwrite("variance", &MergedGMMResult::variance)
          .def_readwrite("weights", &MergedGMMResult::weights)
          .def_readwrite("means", &MergedGMMResult::means)
-         .def_readwrite("covs", &MergedGMMResult::covs);
+         .def_property("covs", &get_covs, &set_covs); // Specific definition of getter and setter because the 'complex' structure is not handle properly by Pybind11/carma
 
      py::class_<PredictionResult>(m, "PredictionResult")
          .def(py::init<unsigned, unsigned, unsigned, unsigned>(), py::arg("N_obs"), py::arg("D"), py::arg("K"), py::arg("K_merged") = 0)
