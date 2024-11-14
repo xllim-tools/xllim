@@ -93,10 +93,12 @@ vec FunctionalModel::targetDensity(const mat &x, const vec &y, const vec &y_err,
     gmm_full gmm;
     rowvec weight(1, fill::value(1));
     for (unsigned n = 0; n < x.n_cols; ++n)
-    { // TODO/NOTE: vectorisation of physical models
-        if (any(x.col(n) > 1 || x.col(n) < 0))
+    {                                          // TODO/NOTE: vectorisation of physical models
+        if (any(x.col(n) > 1 || x.col(n) < 0)) // if x is not in [0,1], F(x) may return nan
         {
             densities(n) = -datum::inf;
+            // vec dummy(x.n_rows, fill::value(0.5)); // Force the sampling if x not in [0,1] by applying F on dummy median value
+            // F(dummy, F_on_x);
         }
         else
         {
@@ -154,6 +156,23 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(MergedGMMResult mer
     return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose);
 }
 
+ImportanceSamplingResult FunctionalModel::importanceSampling(MergedGMMResult mergedGMM, unsigned idx_gaussian, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
+{
+    // retrieve the gmm parameters from de GLLiM prediction results. It corresponds to the proposition law for the Importance Sampling method.
+    std::vector<std::tuple<vec, mat, cube>> proposition_gmms;
+    const unsigned N_obs = mergedGMM.weights.n_rows;
+    for (size_t i = 0; i < N_obs; i++)
+    {
+        cube covs_cube(mergedGMM.means.n_cols, mergedGMM.means.n_cols, 1); // ! TODO terrible code
+        covs_cube.slice(0) = mergedGMM.covs[i].slice(idx_gaussian);
+        proposition_gmms.push_back(std::make_tuple(
+            vec(1, fill::value(1)),
+            mat(mergedGMM.means.slice(idx_gaussian).row(i).t()),
+            covs_cube));
+    }
+    return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose);
+}
+
 ImportanceSamplingResult FunctionalModel::importanceSampling(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
 {
     // Checks on IMIS parameters
@@ -181,7 +200,7 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const std::vector<s
         logger.log(INFO, "[Sampling] Start Incremental Mixture Importance Sampling (IMIS) for " + std::to_string(N_obs) + " observations.");
     }
 
-#pragma omp parallel for shared(importanceSamplingResult, N_samples, L, N_obs, logger, counter)
+    // #pragma omp parallel for shared(importanceSamplingResult, N_samples, L, N_obs, logger, counter)
     for (unsigned n_obs = 0; n_obs < N_obs; ++n_obs)
     {
         mat samples(L, N_samples);

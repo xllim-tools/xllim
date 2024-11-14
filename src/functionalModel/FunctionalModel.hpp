@@ -88,6 +88,7 @@ public:
     ImportanceSamplingResult importanceSampling(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
     ImportanceSamplingResult importanceSampling(FullGMMResult fullGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
     ImportanceSamplingResult importanceSampling(MergedGMMResult mergedGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
+    ImportanceSamplingResult importanceSampling(MergedGMMResult mergedGMM, unsigned idx_gaussian, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose);
 
 protected:
     /**

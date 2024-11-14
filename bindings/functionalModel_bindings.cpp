@@ -83,6 +83,10 @@ void bind_functional_model(pybind11::module &m)
         
         .def("importanceSampling", py::overload_cast<MergedGMMResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
             py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
+            py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+        
+        .def("importanceSampling", py::overload_cast<MergedGMMResult, unsigned, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
+            py::arg("predictions"), py::arg("idx_gaussian"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
             py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
 
     py::class_<TestModel, std::shared_ptr<TestModel>, FunctionalModel>(m, "TestModel")
