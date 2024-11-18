@@ -20,7 +20,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set compiler flags for different build types
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g") # -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -DARMA_EXTRA_DEBUG
-set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG -DARMA_NO_DEBUG -DARMA_DONT_USE_OPENMP")
 
 
 # ##############################################################################
