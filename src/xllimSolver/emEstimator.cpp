@@ -32,25 +32,15 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     do
     {
         iteration++;
-        // pyGLLiM
-        // # MAXIMIZATION STEP
-        // θ = self._maximization(t, y, r, cstr, μw, Sw)
-
-        // # EXPECTATION STEP
-        // r, log_like[it], ec = self._expectation_z(t,y,θ)
-        // θ, cstr = self._remove_empty_clusters(θ,cstr,ec)
-        // μw, Sw = self._expectation_w(t, y, θ)
-
         expectation_W_step(t, y, theta, mu_w, S_w);
-        expectation_Z_step(t, y, theta, log_r);
+        expectation_Z_step(t, y, theta, log_r, iteration);
         maximization_step(t, y, theta, log_r, mu_w, S_w, floor);
-        log_likelihood_(iteration) = compute_log_likelihood(log_r);
 
         if (verbose >= 2)
         {
             logger.updateProgressBar(iteration);
         }
-        logger.log(INFO, 1, verbose, "\tIteration : " + std::to_string(iteration) + ", log likelihood : " + std::to_string(log_likelihood_(iteration)));
+        logger.log(INFO, 1, verbose, "\tIteration : " + std::to_string(iteration) + ", avg log-likelihood : " + std::to_string(log_likelihood_(iteration)));
 
     } while (!has_converged(log_likelihood_(iteration - 1), log_likelihood_(iteration), iteration, max_iteration, ratio_ll, floor, verbose));
 
@@ -100,7 +90,7 @@ void EmEstimator<TGamma, TSigma>::expectation_W_step(const mat &t, const mat &y,
 }
 
 template <typename TGamma, typename TSigma>
-void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r)
+void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r, unsigned iteration)
 {
     // The posterior probability r (r_Z in the paper) is defined by:
     // r(n,k)               = Pi(k) p(y_n,t_n|Z_n=k;θ) / Σ(j=1:K)[Pi(j) p(y_n,t_n|Z_n=j;θ)]
@@ -108,6 +98,7 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
     // p(y_n|t_n,Z_n=k;θ)   = gaussianDensity(y_n; A_k * [t_n;C_w_k] + B_k, Sigma_k + A_w_k * Gamma_w_k * A_w_k^T)  = "density_t"
     // p(t_n|Z_n=k;θ)       = gaussianDensity(t_n; C_t_k, Gamma_t_k))                                               = "density_y"
     // => Finally     log_r = log(Pi_k) + log(density_t) + log(density_y)
+    // => Normalization on axis K 
 
     unsigned N = t.n_cols;
     double D_log_2_pi = theta.D * LOG_2_PI;
@@ -164,11 +155,19 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
         }
     }
 
+    // Vector of shape (N) corresponding to Σ(j=1:K)[Pi(j) p(y_n,t_n|Z_n=j;θ)]
+    // It is useful for log_r normalisation and computing average log-likelihood 
+    vec log_r_n = utils::logSumExp(log_r, 1); 
+
+    // compute average log-likelihood
+    //      The observed-data log-likelihood is defined by:
+    //      L(t,θ)   = Σ(n=1:N)[ log_p(y_n,t_n;θ) ]
+    //               = Σ(n=1:N)[ log( Σ(k=1:K)[ Pi(k) p(y_n,t_n|Z_n=k;θ) ] ) ]
+    //               = Σ(n=1:N)[ Σ(k=1:K)[ Pi(k) p(y_n,t_n|Z_n=k;θ) ] ]
+    log_likelihood_(iteration) = accu(log_r_n) / N;
+
     // normalization on K
-    for (unsigned n = 0; n < N; n++)
-    {
-        log_r.row(n) -= utils::logSumExp(log_r.row(n).t());
-    }
+    log_r.each_col() -= log_r_n;
 }
 
 template <typename TGamma, typename TSigma>
@@ -309,13 +308,6 @@ template <typename TCov>
 void EmEstimator<TGamma, TSigma>::improve_covariance_stability(TCov &covariance, unsigned dimension, double floor)
 {
     covariance += eye(dimension, dimension) * floor;
-}
-
-template <typename TGamma, typename TSigma>
-double EmEstimator<TGamma, TSigma>::compute_log_likelihood(const mat &log_r)
-{
-    vec log_ll = utils::logSumExp(log_r, 0);
-    return accu(log_ll) / log_r.n_cols;
 }
 
 template <typename TGamma, typename TSigma>

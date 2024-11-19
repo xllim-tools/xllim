@@ -45,11 +45,11 @@ private:
      * @param theta : the current value of the parameters of the GLLiM model.
      * @param next_rnk : the new posterior computed by the E-step.
      */
-    void expectation_Z_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r);
+    // TODO computes log_r, the normalized posterior probability and updates loglikelihood vector 
+    void expectation_Z_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, mat &log_r, unsigned iteration);
 
+    // TODO computes mu_w and S_w
     void expectation_W_step(const mat &t, const mat &y, GLLiMParameters<TGamma, TSigma> &theta, cube &mu_w, cube &S_w);
-
-    double compute_log_likelihood(const mat &r);
 
     /**
      * @brief update of the parameter A of the GLLiM model
