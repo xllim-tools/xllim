@@ -88,9 +88,9 @@ vec FunctionalModel::targetDensity(const mat &x, const vec &y, const vec &y_err,
     vec densities(x.n_cols);
     vec F_on_x(y.n_rows);
     mat F_on_x_mat(y.n_rows, 1); // TODO: redundant but compilation error otherwise
-    cube covariance_matrix(y.n_rows, y.n_rows, 1);
-    covariance_matrix.slice(0) = diagmat(pow(y_err, 2) + pow(covariance, 2));
-    gmm_full gmm;
+    mat covariance_matrix(y.n_rows, 1);
+    covariance_matrix.col(0) = pow(y_err, 2) + pow(covariance, 2);
+    gmm_diag gmm;
     rowvec weight(1, fill::value(1));
     for (unsigned n = 0; n < x.n_cols; ++n)
     {                                          // TODO/NOTE: vectorisation of physical models
@@ -106,7 +106,7 @@ vec FunctionalModel::targetDensity(const mat &x, const vec &y, const vec &y_err,
             F_on_x_mat.col(0) = F_on_x;
             gmm.set_params(F_on_x_mat, covariance_matrix, weight);
             densities(n) = gmm.log_p(y);
-            // densities(n) = utils::logDensity(y, F_on_x, covariance_matrix.slice(0)); // provides same results as gmm.log_p(y). I verified.
+            // densities(n) = utils::logDensity(y, F_on_x, covariance_matrix.col(0)); // provides same results as gmm.log_p(y). I verified.
         }
     }
     return densities;
