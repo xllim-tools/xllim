@@ -10,13 +10,30 @@ FullCovariance::FullCovariance(unsigned dimension) : covariances_(mat(dimension,
 
 double FullCovariance::log_det() const
 {
-    return log_det_sympd(covariances_);
+    double result;
+    bool success = arma::log_det_sympd(result, covariances_);
+    if (success)
+    {
+        return result;
+    }
+    else
+    {
+        return arma::log_det(covariances_).real();
+    }
 }
 
 FullCovariance FullCovariance::inv() const
 {
-    mat inv = inv_sympd(covariances_);
-    return FullCovariance(inv);
+    mat inv;
+    bool success = arma::inv_sympd(inv, covariances_);
+    if (success)
+    {
+        return FullCovariance(inv);
+    }
+    else
+    {
+        return FullCovariance(arma::inv(covariances_));
+    }
 }
 
 void FullCovariance::rank_one_update(const vec &v, double alpha)
