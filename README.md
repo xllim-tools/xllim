@@ -115,7 +115,7 @@ curl --location -o jupyter.Dockerfile "https://gitlab.inria.fr/kernelo-mistis/ke
 ```
 3. Build the docker image named *xllim_jupyter_notebook*
 ```
-docker build -f jupyter.Dockerfile -t "xllim_jupyter_notebook" .
+docker build -f jupyter.Dockerfile -t "xllim_jupyter_notebook" --no-cache-filter install .
 ```
 4. Run the container *xllim_notebook* and bind the volume to your current working directory.
 ```

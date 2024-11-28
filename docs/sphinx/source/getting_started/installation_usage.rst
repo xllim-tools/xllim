@@ -26,7 +26,7 @@ First steps
 
 .. code-block:: bash
 
-   docker build -f jupyter.Dockerfile -t "xllim_jupyter_notebook" .
+   docker build -f jupyter.Dockerfile -t "xllim_jupyter_notebook" --no-cache-filter install .
 
 4. Run the container *xllim_notebook* and bind the volume to your current working directory:
 
