@@ -22,7 +22,7 @@ TEST_P(DataGenerationTest, GenDataReturnsXYGoodShape)
     unsigned N = 10;
     unsigned seed = 12345;
     // vec covariance = vec(9, fill::randu) * 1e-5;
-    double noise_ratio = 1e4;
+    double noise_ratio = 0.01;
     std::tuple<mat, mat> data = model->genData(N, GetParam(), noise_ratio, seed);
     ASSERT_EQ(std::get<0>(data).n_rows, N) << "X_gen shape (rows) error on " << GetParam();
     ASSERT_EQ(std::get<0>(data).n_cols, 4) << "X_gen shape (cols) error on " << GetParam();
@@ -36,7 +36,7 @@ TEST_P(DataGenerationTest, YGenApproxEqualFOnXGen)
     unsigned N = 50;
     unsigned seed = 12345;
     // vec covariance = vec(9, fill::randu) * 1e-5;
-    double noise_ratio = 1e4;
+    double noise_ratio = 0.01;
     std::tuple<mat, mat> data = model->genData(N, GetParam(), noise_ratio, seed);
     vec y(9);
     for (unsigned int i = 0; i < N; i++)
