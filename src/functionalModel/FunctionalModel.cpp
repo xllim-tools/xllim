@@ -76,7 +76,7 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
         for (unsigned j = 0; j < dimension_D; j++)
         {
             noise(j) = normal_distribution(engine);
-            y_gen(i, j) = y_temp(j) + noise(j) * y_temp(j) / noise_ratio;
+            y_gen(i, j) = y_temp(j) + noise(j) * y_temp(j) * noise_ratio / 100.;
         }
     }
 
