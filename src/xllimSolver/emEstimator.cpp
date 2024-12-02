@@ -98,7 +98,7 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
     // p(y_n|t_n,Z_n=k;θ)   = gaussianDensity(y_n; A_k * [t_n;C_w_k] + B_k, Sigma_k + A_w_k * Gamma_w_k * A_w_k^T)  = "density_t"
     // p(t_n|Z_n=k;θ)       = gaussianDensity(t_n; C_t_k, Gamma_t_k))                                               = "density_y"
     // => Finally     log_r = log(Pi_k) + log(density_t) + log(density_y)
-    // => Normalization on axis K 
+    // => Normalization on axis K
 
     unsigned N = t.n_cols;
     double D_log_2_pi = theta.D * LOG_2_PI;
@@ -139,11 +139,21 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
                     Sigma_k_inv = theta.Sigma[k].inv(); // xCovariance inv() method
                 }
 
+                // compute all vector (y_n - A_k*[t_n;C_w_k] - B_k)
+                mat y_u = y - theta.A.slice(k).head_cols(theta.L_t) * t;
+                y_u.each_col() -= theta.B.col(k);
+                if (theta.L_w > 0)
+                {
+                    y_u.each_col() -= theta.A.slice(k).tail_cols(theta.L_w) * theta.C.col(k).tail(theta.L_w);
+                }
+
+                // compute all vector (t_n - C_t_k)
+                mat t_u = t;
+                t_u.each_col() -= theta.C.col(k).head(theta.L_t);
+
                 for (unsigned n = 0; n < N; n++)
                 {
-                    vec y_u = y.col(n) - theta.A.slice(k) * join_cols(t.col(n), theta.C.col(k).tail(theta.L_w)) - theta.B.col(k);                             // compute the vector (y_n - A_k*[t_n;C_w_k] - B_k)
-                    vec x_u = t.col(n) - theta.C.col(k).head(theta.L_t);                                                                                      // compute the vector (t_n - C_t_k)
-                    log_r(n, k) = log_Pi_k - 0.5 * (const_density_t + dot(x_u, Gamma_t_k_inv * x_u)) - 0.5 * (const_density_y + dot(y_u, Sigma_k_inv * y_u)); // log_r = log(Pi_k) + log(density_t) + log(density_y)
+                    log_r(n, k) = log_Pi_k - 0.5 * (const_density_t + dot(t_u.col(n), Gamma_t_k_inv * vec(t_u.col(n)))) - 0.5 * (const_density_y + dot(y_u.col(n), Sigma_k_inv * vec(y_u.col(n)))); // log_r = log(Pi_k) + log(density_t) + log(density_y)
                 }
             }
             else
@@ -156,8 +166,8 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
     }
 
     // Vector of shape (N) corresponding to Σ(j=1:K)[Pi(j) p(y_n,t_n|Z_n=j;θ)]
-    // It is useful for log_r normalisation and computing average log-likelihood 
-    vec log_r_n = utils::logSumExp(log_r, 1); 
+    // It is useful for log_r normalisation and computing average log-likelihood
+    vec log_r_n = utils::logSumExp(log_r, 1);
 
     // compute average log-likelihood
     //      The observed-data log-likelihood is defined by:
