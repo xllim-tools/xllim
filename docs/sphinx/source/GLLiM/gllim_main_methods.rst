@@ -65,12 +65,15 @@ Main methods
 
 .. _inverse-densities-method:
 
-    .. method:: inverseDensities(y, y_incertitude = 0)
+    .. method:: inverseDensities(y, y_incertitude = 0, K_merged = 0, merging_threshold = 1e-10, verbose = 0)
 
         Compute the inverse densities given input matrix `y` and its uncertainties.
 
         :param ndarray y: Input matrix `y` with shape (N_obs, D).
         :param ndarray, optional y_incertitude: Uncertainty in `y` with shape (N_obs, D).
+        :param int, optional K_merged: Merged the full GMM (K components) into K_merged gaussian components.
+        :param float, optional merging_threshold: Threshold on the merged GMM weights. Gaussian component with a weight below this threshold are ignored.
+        :param int verbose: Verbosity level (default is 0).
         :returns: An instance of `PredictionResult` containing the inverse densities.
 
 

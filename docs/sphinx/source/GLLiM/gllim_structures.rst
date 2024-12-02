@@ -132,7 +132,7 @@ Structures
 
         The variance of the GMM prediction (N_obs, D, D).
 
-    .. attribute:: gmm_weights
+    .. attribute:: weights
         :type: ndarray of shape (N_obs, K)
 
         The weights of the components of the GMM (N_obs, K).
@@ -142,7 +142,7 @@ Structures
 
         The means of each component in the GMM (N_obs, D, K).
 
-    .. attribute:: gmm_covs
+    .. attribute:: covs
         :type: ndarray of shape (D, D, K)
 
         The covariance matrices of each component in the GMM (D, D, K). The covariance is indenpendent from the observations thus it is the same for all predictions.
@@ -154,21 +154,34 @@ Structures
 
     This structure holds the results of the center predictions for a Gaussian Mixture Model (GMM).
 
-    .. attribute:: weights
-        :type: vec
+    :param int N_obs: Number of observations.
+    :param int D: Dimensionality of each observation.
+    :param int K_merged: Number of components in the merged GMM.
 
-        The weights of the centers.
+    .. attribute:: mean
+        :type: ndarray of shape (N_obs, D)
+
+        The mean of the merged GMM prediction (N_obs, D).
+
+    .. attribute:: variance
+        :type: ndarray of shape (N_obs, D, D)
+
+        The variance of the merged GMM prediction (N_obs, D, D).
+
+    .. attribute:: weights
+        :type: ndarray of shape (N_obs, K_merged)
+
+        The weights of the components of the merged GMM (N_obs, K_merged).
 
     .. attribute:: means
-        :type: ndarray of shape ()
+        :type: ndarray of shape (N_obs, D, K_merged)
 
-        The centers that represent the predictions.
+        The means of each component in the merged GMM (N_obs, D, K_merged). It corresponds to the centers that stands for the predictions
 
     .. attribute:: covs
-        :type: ndarray of shape ()
+        :type: list with length N_obs[ndarray of shape (D, D, K_merged)]
 
-        The covariance matrices of the centers.
-
+        The covariance matrices of each component in the merged GMM (D, D, K). It is constructed from other gaussians means thus it depends on observations.
 
 
 .. _insights-struct:

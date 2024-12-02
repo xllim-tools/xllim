@@ -121,6 +121,50 @@ Methods
     :returns: An instance of `ImportanceSamplingResult` containing the importance sampling results.
 
 
+.. method:: importanceSampling(fullGMM, y, y_err, covariance, N_0, B=0, J=0)
+
+    Perform importance sampling with given parameters.
+
+    :param fullGMM: The full GMM calculated with inverseDensities method.
+    :type fullGMM: :class:`FullGMMResult`
+    :param mat y: Matrix y.
+    :param mat y_err: Matrix of y errors.
+    :param ndarray covariance: Covariance vector.
+    :param int N_0: Initial number of samples.
+    :param int B: (optional) Parameter B.
+    :param int J: (optional) Parameter J.
+    :returns: An instance of `ImportanceSamplingResult` containing the importance sampling results.
+
+.. method:: importanceSampling(mergedGMM, y, y_err, covariance, N_0, B=0, J=0)
+
+    Perform importance sampling with given parameters.
+
+    :param mergedGMM: The merged GMM calculated with inverseDensities method.
+    :type mergedGMM: :class:`MergedGMMResult`
+    :param mat y: Matrix y.
+    :param mat y_err: Matrix of y errors.
+    :param ndarray covariance: Covariance vector.
+    :param int N_0: Initial number of samples.
+    :param int B: (optional) Parameter B.
+    :param int J: (optional) Parameter J.
+    :returns: An instance of `ImportanceSamplingResult` containing the importance sampling results.
+
+.. method:: importanceSampling(mergedGMM, idx_gaussian, y, y_err, covariance, N_0, B=0, J=0)
+
+    Perform importance sampling with given parameters on the specified gaussian of the merged GMM.
+
+    :param mergedGMM: The merged GMM calculated with inverseDensities method.
+    :type mergedGMM: :class:`MergedGMMResult`
+    :param int idx_gaussian: Index of the desired gaussian from the merged GMM. Starts from 0 and ends at K_merged - 1.
+    :param mat y: Matrix y.
+    :param mat y_err: Matrix of y errors.
+    :param ndarray covariance: Covariance vector.
+    :param int N_0: Initial number of samples.
+    :param int B: (optional) Parameter B.
+    :param int J: (optional) Parameter J.
+    :returns: An instance of `ImportanceSamplingResult` containing the importance sampling results.
+
+
 .. _derived-classes:
 
 Derived classes
