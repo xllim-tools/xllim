@@ -32,7 +32,7 @@ First steps
 
 .. code-block:: bash
 
-   docker run -it --name xllim_notebook --detach -p 8888:8888 -v "${PWD}":/home/jovyan/work xllim_jupyter_notebook
+   docker run -it --name xllim_notebook --detach -p 8888:8888 -v "${PWD}":/home/jovyan/work --user root -e CHOWN_EXTRA="/home/jovyan/work" xllim_jupyter_notebook
 
 5. Get the JupyterLab web address and have fun!:
 

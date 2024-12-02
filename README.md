@@ -119,7 +119,7 @@ docker build -f jupyter.Dockerfile -t "xllim_jupyter_notebook" --no-cache-filter
 ```
 4. Run the container *xllim_notebook* and bind the volume to your current working directory.
 ```
-docker run -it --name xllim_notebook --detach -p 8888:8888 -v "${PWD}":/home/jovyan/work xllim_jupyter_notebook
+docker run -it --name xllim_notebook --detach -p 8888:8888 -v "${PWD}":/home/jovyan/work --user root -e CHOWN_EXTRA="/home/jovyan/work" xllim_jupyter_notebook
 ```
 5. Get the JupyterLab web adress and have fun !
 ```
