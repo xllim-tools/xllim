@@ -145,7 +145,7 @@ mat operator*(const mat &y, const DiagCovariance &x)
     mat result = mat(y.n_rows, y.n_cols);
     for (unsigned i = 0; i < y.n_rows; i++)
     {
-        result.row(i) = y.row(i) % x.get_vec().t();
+        result.row(i) = y.row(i) % x.variances_.t();
     }
     return result;
 }
@@ -155,7 +155,7 @@ mat operator*(const arma::subview_cols<double> &y, const DiagCovariance &x)
     mat result = mat(y.n_rows, y.n_cols);
     for (unsigned i = 0; i < y.n_rows; i++)
     {
-        result.row(i) = y.row(i) % x.get_vec().t();
+        result.row(i) = y.row(i) % x.variances_.t();
     }
     return result;
 }
@@ -165,19 +165,19 @@ mat operator*(const DiagCovariance &x, const mat &y)
     mat result = mat(y.n_rows, y.n_cols);
     for (unsigned i = 0; i < y.n_cols; i++)
     {
-        result.col(i) = y.col(i) % x.get_vec();
+        result.col(i) = y.col(i) % x.variances_;
     }
     return result;
 }
 
 vec operator*(const DiagCovariance &x, const vec &y)
 {
-    vec result = x.get_vec() % y;
+    vec result = x.variances_ % y;
     return result;
 }
 
 rowvec operator*(const rowvec &y, const DiagCovariance &x)
 {
-    rowvec result = y % x.get_vec().t();
+    rowvec result = y % x.variances_.t();
     return result;
 }

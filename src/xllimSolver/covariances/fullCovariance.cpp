@@ -117,52 +117,52 @@ FullCovariance &FullCovariance::operator+=(double scalar)
 
 mat operator+(const mat &y, const FullCovariance &x)
 {
-    mat result = y + x.get_mat();
+    mat result = y + x.covariances_;
     return result;
 }
 
 mat operator+(const FullCovariance &x, const mat &y)
 {
-    mat result = y + x.get_mat();
+    mat result = y + x.covariances_;
     return result;
 }
 
 mat operator-(const mat &y, const FullCovariance &x)
 {
-    return y - x.get_mat();
+    return y - x.covariances_;
 }
 
 mat operator-(const FullCovariance &x, const mat &y)
 {
-    return x.get_mat() - y;
+    return x.covariances_ - y;
 }
 
 mat operator*(const mat &y, const FullCovariance &x)
 {
-    mat result = y * x.get_mat();
+    mat result = y * x.covariances_;
     return result;
 }
 
 mat operator*(const arma::subview_cols<double> &y, const FullCovariance &x)
 {
-    mat result = y * x.get_mat();
+    mat result = y * x.covariances_;
     return result;
 }
 
 mat operator*(const FullCovariance &x, const mat &y)
 {
-    mat result = x.get_mat() * y;
+    mat result = x.covariances_ * y;
     return result;
 }
 
 vec operator*(const FullCovariance &x, const vec &y)
 {
-    vec result = x.get_mat() * y;
+    vec result = x.covariances_ * y;
     return result;
 }
 
 rowvec operator*(const rowvec &y, const FullCovariance &x)
 {
-    rowvec result = y * x.get_mat();
+    rowvec result = y * x.covariances_;
     return result;
 }

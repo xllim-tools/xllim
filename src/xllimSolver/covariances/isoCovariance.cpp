@@ -152,30 +152,30 @@ mat operator-(const IsoCovariance &x, const mat &y)
 
 mat operator*(const mat &y, const IsoCovariance &x)
 {
-    mat result = y * x.get_scalar();
+    mat result = y * x.scalar_;
     return result;
 }
 
 mat operator*(const arma::subview_cols<double> &y, const IsoCovariance &x)
 {
-    mat result = y * x.get_scalar();
+    mat result = y * x.scalar_;
     return result;
 }
 
 mat operator*(const IsoCovariance &x, const mat &y)
 {
-    mat result = y * x.get_scalar();
+    mat result = y * x.scalar_;
     return result;
 }
 
 vec operator*(const IsoCovariance &x, const vec &y)
 {
-    vec result = x.get_scalar() * y;
+    vec result = x.scalar_ * y;
     return result;
 }
 
 rowvec operator*(const rowvec &y, const IsoCovariance &x)
 {
-    rowvec result = y * x.get_scalar();
+    rowvec result = y * x.scalar_;
     return result;
 }
