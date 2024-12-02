@@ -117,6 +117,7 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         cube mu_w_normal_distr(L_w, N, K, fill::zeros);
         cube S_w_normal_distr(L_w, L_w, K, fill::zeros);
         S_w_normal_distr.each_slice() = mat(L_w, L_w, fill::eye);
+        log_r.each_col() -= utils::logSumExp(log_r, 1); // normalization on K
         gllimEmEstimator.maximization_step(t, y, local_theta, log_r, mu_w_normal_distr, S_w_normal_distr, gllim_em_floor);
 
         Logger::getInstance().log(INFO, 1, verbose, "\tTrain the initial GLLiM model");
