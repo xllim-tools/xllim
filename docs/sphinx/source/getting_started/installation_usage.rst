@@ -28,17 +28,14 @@ First steps
 
    docker build -f jupyter.Dockerfile -t "xllim_jupyter_notebook" --no-cache-filter install .
 
-4. Run the container *xllim_notebook* and bind the volume to your current working directory:
+4. Create and run the container *xllim_notebook* and bind the volume to your current working directory:
 
 .. code-block:: bash
 
-   docker run -it --name xllim_notebook --detach -p 8888:8888 -v "${PWD}":/home/jovyan/work --user root -e CHOWN_EXTRA="/home/jovyan/work" xllim_jupyter_notebook
+   docker run -it --name xllim_notebook -p 8888:8888 -v "${PWD}":/home/jovyan/work xllim_jupyter_notebook
 
-5. Get the JupyterLab web address and have fun!:
-
-.. code-block:: bash
-
-   docker logs xllim_notebook | grep -oP 'http://127.0.0.1:8888/lab\?token=\w+' | head -n 1
+5. You can find the JupyterLab server adress (*http://127.0.0.1:8888/lab?token=[some-token]*) in the logs. Make sure there is not another Jupyter server running. Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+Have fun !
 
 Use your container
 ******************
@@ -52,6 +49,20 @@ You can start and stop the container with the two simple commands below:
 
    docker stop xllim_notebook
    docker start xllim_notebook
+
+File permission issues
+******************
+
+Depending on your OS and Docker version you may face permission issues on the mounted volume (/home/jovyan/work/ directory).
+You can overcome this issue by granting file access to the virtual user (*jovyan*) when creating the container.
+
+.. code-block:: bash
+   docker run -it --name xllim_notebook -p 8888:8888 -v "${PWD}":/home/jovyan/work bash -c "chown -R jovyan:users /home/jovyan/work && start-notebook.py"
+
+After stopping the Docker container you should need to grant back file access to your host machine's user.
+
+.. code-block:: bash
+   sudo chown -R $(id -u):$(id -g) "${PWD}"
 
 
 Go on the JupyterLab web-based user interface. Here is your personal workspace tree structure:
