@@ -31,7 +31,10 @@ deploy_docker:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
         - apk update
         - apk add curl
+        - 'curl --location --output artefact_token.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/kernelo-mistis%2Fkernelo-gllim-is/jobs/artifacts/v2/download?job=build_job"'
+        - ll
         - 'curl --location --output artefact.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/kernelo-mistis%2Fkernelo-gllim-is/jobs/artifacts/v2/download?job=build_job"'
+        - ll
         - unzip artefact.zip
         - rm artefact.zip
         - docker pull $CI_REGISTRY_IMAGE/xllim_runner
