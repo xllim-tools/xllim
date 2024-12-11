@@ -63,35 +63,31 @@ This image is built from Ubuntu 22.04 and contains sufficient dependencies for x
 
 ### First steps
 
-1. Connect to Inria's GitLab
+1. Pull the docker image
 ```
-docker login registry.gitlab.inria.fr
+docker pull registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/xllim_minimal
 ```
-2. Pull the docker image
+2. Create your container
 ```
-docker pull registry.gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/xllim_runner:master
-```
-3. Create your container
-```
-docker run -it --name [myContainer] registry.gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/xllim_runner:master
+docker run -it --name [myContainer] registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/xllim_minimal
 ```
 Once inside the container you can manage your workspace, install dependencies, run commands... Enter *exit* to exit the container.
 
 ### Use your container
 
-5. Copy local files into your container.
+3. Copy local files into your container.
 ```
 docker cp [myFile] [myContainer]:/home/
 ```
-6. Start your container
+4. Start your container
 ```
 docker start [myContainer]
 ```
-7. Enter into your container in interactive mode
+5. Enter into your container in interactive mode
 ```
 docker exec -it [myContainer] bash
 ```
-8. Stop your container
+6. Stop your container
 ```
 docker stop [myContainer]
 ```
