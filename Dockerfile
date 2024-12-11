@@ -6,6 +6,7 @@ FROM ubuntu:jammy AS runner
 # Install xllim run-time dependencies
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
+	apt-utils \
 	python3 \
 	python3-numpy \
 	python3-pybind11 \
@@ -43,6 +44,8 @@ RUN apt-get install -y --no-install-recommends libboost-dev
 FROM runner AS minimal
 
 # Download and place xllim shared library in python global dist packages
+RUN apt update
+RUN apt install -y --no-install-recommends curl
 RUN curl --location -o artefact.zip "https://gitlab.inria.fr/api/v4/projects/kernelo-mistis%2Fkernelo-gllim-is/jobs/artifacts/v2/download?job=build_job"
 RUN unzip artefact.zip
 RUN rm artefact.zip
