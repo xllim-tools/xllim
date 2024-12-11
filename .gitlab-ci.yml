@@ -27,9 +27,19 @@ deploy_docker:
         - ci.inria.fr
         - small
     image: docker:stable
+    before_script:
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        - apt update
+        - apt install curl
+        - 'curl --location --output artefact.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/kernelo-mistis%2Fkernelo-gllim-is/jobs/artifacts/v2/download?job=build_job"'
+        - unzip artefact.zip
+        - rm artefact.zip
     script:
-        - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
-        - docker build -t "$CI_REGISTRY_IMAGE/xllim_minimal" --target minimal .
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        - docker run -it -d --rm --name xllim_minimal_temp_container
+        - docker cp *.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
+        - docker commit xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_minimal
+        - docker stop xllim_minimal_temp_container
         - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"
 
 test_job:
