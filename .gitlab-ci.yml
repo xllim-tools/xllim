@@ -20,6 +20,18 @@ dockers:
         - docker push "$CI_REGISTRY_IMAGE/xllim_builder"
         # - docker push "$CI_REGISTRY_IMAGE/kernelo_coverage"
 
+deploy_docker:
+    stage: deploy
+    when: manual
+    tags:
+        - ci.inria.fr
+        - small
+    image: docker:stable
+    script:
+        - docker build -t "$CI_REGISTRY_IMAGE/xllim_minimal" --target minimal .
+        - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+        - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"
+
 test_job:
     stage: test
     when: manual

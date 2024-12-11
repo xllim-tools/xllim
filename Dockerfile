@@ -38,3 +38,12 @@ RUN pip3 install -U sphinx sphinx-rtd-theme
 
 # ! Boost required but only used for boost/property_tree
 RUN apt-get install -y --no-install-recommends libboost-dev
+
+
+FROM runner AS minimal
+
+# Download and place xllim shared library in python global dist packages
+RUN curl --location -o artefact.zip "https://gitlab.inria.fr/api/v4/projects/kernelo-mistis%2Fkernelo-gllim-is/jobs/artifacts/v2/download?job=build_job"
+RUN unzip artefact.zip
+RUN rm artefact.zip
+RUN mv *.so /usr/lib/python3/dist-packages/xllim.so
