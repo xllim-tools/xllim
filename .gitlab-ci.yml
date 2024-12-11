@@ -31,22 +31,32 @@ deploy_docker:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
         - apk update
         - apk add curl
-        - 'curl --location --output artefact_token.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/kernelo-mistis%2Fkernelo-gllim-is/jobs/artifacts/v2/download?job=build_job"'
-        - ls
-        - cat artefact_token.zip
         - curl --location --output artefact.zip "https://gitlab.inria.fr/api/v4/projects/kernelo-mistis%2Fkernelo-gllim-is/jobs/artifacts/v2/download?job=build_job"
-        - ls
-        - cat artefact.zip
         - unzip artefact.zip
         - rm artefact.zip
-        # - docker build --no-cache --build-arg image=$CI_REGISTRY_IMAGE/xllim_runner:latest -f minimal.Dockerfile -t $CI_REGISTRY_IMAGE/xllim_minimal:$CI_COMMIT_BRANCH .
-        # - docker push $CI_REGISTRY_IMAGE/xllim_minimal:$CI_COMMIT_BRANCH
         - docker pull $CI_REGISTRY_IMAGE/xllim_runner
         - docker run -it -d --rm --name xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_runner
         - docker cp *.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
         - docker commit xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_minimal
         - docker stop xllim_minimal_temp_container
         - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"
+
+        # - 'curl --location --output artefact_token.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/kernelo-mistis%2Fkernelo-gllim-is/jobs/artifacts/v2/download?job=build_job"'
+        # - ls
+        # - cat artefact_token.zip
+        # - curl --location --output artefact.zip "https://gitlab.inria.fr/api/v4/projects/kernelo-mistis%2Fkernelo-gllim-is/jobs/artifacts/v2/download?job=build_job"
+        # - ls
+        # - cat artefact.zip
+        # - unzip artefact.zip
+        # - rm artefact.zip
+        # # - docker build --no-cache --build-arg image=$CI_REGISTRY_IMAGE/xllim_runner:latest -f minimal.Dockerfile -t $CI_REGISTRY_IMAGE/xllim_minimal:$CI_COMMIT_BRANCH .
+        # # - docker push $CI_REGISTRY_IMAGE/xllim_minimal:$CI_COMMIT_BRANCH
+        # - docker pull $CI_REGISTRY_IMAGE/xllim_runner
+        # - docker run -it -d --rm --name xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_runner
+        # - docker cp *.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
+        # - docker commit xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_minimal
+        # - docker stop xllim_minimal_temp_container
+        # - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"
 
 test_job:
     stage: test
