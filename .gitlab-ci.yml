@@ -31,7 +31,7 @@ deploy_docker:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
         - apk update
         - apk add curl
-        - 'curl --location --output artifacts.zip "https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/jobs/artifacts/v2/download?job=build_job"'
+        - 'curl --location --output artifacts.zip "https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/jobs/artifacts/v2/download?job=build_job&job_token=$CI_JOB_TOKEN"'
         - ls -l
         - unzip artefact.zip
         - rm artefact.zip
