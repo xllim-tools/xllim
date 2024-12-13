@@ -20,13 +20,12 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
 
     log_likelihood_ = vec(max_iteration + 1, fill::value(-datum::inf)); // A list of log-likelihood at each iteration
 
-    // set a logger with a progress bar for GLLiM-EM training
-    Logger &logger = Logger::getInstance();
-    if (verbose >= 2)
+    Logger &logger = Logger::getInstance(); // set a logger
+    if (verbose >= 1)
     {
-        logger.startProgressBar(max_iteration);
+        logger.getProgressBar().start(max_iteration);
+        logger.log(INFO, "[Training] Start GLLiM-EM");
     }
-    logger.log(INFO, 1, verbose, "[Training] Start GLLiM-EM");
 
     unsigned iteration = 0;
     do
@@ -36,19 +35,19 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
         expectation_Z_step(t, y, theta, log_r, iteration);
         maximization_step(t, y, theta, log_r, mu_w, S_w, floor);
 
-        if (verbose >= 2)
+        if (verbose >= 1)
         {
-            logger.updateProgressBar(iteration);
+            // logger.getProgressBar().update(iteration); // no need ProgressBar and log
+            logger.log(INFO, "\tIteration : " + std::to_string(iteration) + ", avg log-likelihood : " + std::to_string(log_likelihood_(iteration)));
         }
-        logger.log(INFO, 1, verbose, "\tIteration : " + std::to_string(iteration) + ", avg log-likelihood : " + std::to_string(log_likelihood_(iteration)));
 
     } while (!has_converged(log_likelihood_(iteration - 1), log_likelihood_(iteration), iteration, max_iteration, ratio_ll, floor, verbose));
 
-    if (verbose >= 2)
+    if (verbose >= 1)
     {
-        logger.stopProgressBar();
+        logger.getProgressBar().stop();
+        logger.log(INFO, "[Training] GLLiM-EM completed in " + std::to_string(logger.getProgressBar().time_it_took()) + " sec");
     }
-    logger.log(INFO, 1, verbose, "[Training] GLLiM-EM completed");
 }
 
 template <typename TGamma, typename TSigma>
@@ -326,18 +325,18 @@ bool EmEstimator<TGamma, TSigma>::has_converged(double old_log_likelihood, doubl
     double ratio_increase_likelihood = (exp(new_log_likelihood) - exp(old_log_likelihood)) / exp(old_log_likelihood);
     bool max_iter_condition = current_iter == max_iteration;
 
-    if (max_iter_condition)
+    if (max_iter_condition && verbose >= 1)
     {
-        Logger::getInstance().log(WARNING, 1, verbose, "[Training] Maximum iteration number reached");
+        Logger::getInstance().log(WARNING, "[Training] Maximum iteration number reached");
     }
 
     bool ratio_ll_condition = ratio_increase_likelihood <= ratio_ll / 100;
     // ratio_ll_condition = false; // TODO temporary for test. log likelihood is decreasing ?
 
-    if (ratio_ll_condition)
+    if (ratio_ll_condition && verbose >= 1)
     {
         log_likelihood_ = vec(log_likelihood_.head(current_iter + 1)); // reduce log_likelihood_ vec size
-        Logger::getInstance().log(WARNING, 1, verbose, "[Training] Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100));
+        Logger::getInstance().log(WARNING, "[Training] Likelihood increase threshold reached :" + std::to_string(ratio_ll / 100));
     }
     return max_iter_condition || ratio_ll_condition;
 }

@@ -20,7 +20,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set compiler flags for different build types
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g") # -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -DARMA_EXTRA_DEBUG
-set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG -DARMA_NO_DEBUG -DARMA_DONT_USE_OPENMP")
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG -DARMA_NO_DEBUG -DARMA_DONT_USE_OPENMP") # -DNOPROGRESS
 
 
 # ##############################################################################
@@ -69,9 +69,9 @@ add_library(utils STATIC
 set_target_properties(utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(utils PRIVATE OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES})
 
-add_library(logging STATIC 
-    src/logging/logger.cpp
-)
+add_library(logging INTERFACE)
+target_include_directories(logging INTERFACE src/logging)
+
 set_target_properties(logging PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_library(generator STATIC 

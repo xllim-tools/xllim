@@ -66,6 +66,8 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         throw std::invalid_argument("The input and output matrices must have same number of observations N.");
     }
 
+    Logger &logger = Logger::getInstance(); // set a logger with a progress bar
+
     double best_log_likelihood = -(datum::inf);
     double log_likelihood;
     GLLiMParameters<TGamma, TSigma> best_theta(K, D, L_t, L_w);
@@ -79,13 +81,16 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
     EmEstimator<TGamma, TSigma> gllimEmEstimator;
     DataGeneration::RandomGenerator randomGenerator(seed);
 
-    Logger::getInstance().log(INFO, 1, verbose, "[Initialization] Start");
+    if (verbose >= 1)
+        logger.log(INFO, "[Initialization] Start");
     for (unsigned exp = 0; exp < nb_experiences; exp++)
     {
-        Logger::getInstance().log(INFO, 1, verbose, "[Initialisation] : Experience " + std::to_string(exp + 1) + "/" + std::to_string(nb_experiences));
+        if (verbose >= 1)
+            logger.log(INFO, "[Initialisation] : Experience " + std::to_string(exp + 1) + "/" + std::to_string(nb_experiences));
 
         // generate a mean for the GMM using a data generator strategy
-        Logger::getInstance().log(INFO, 1, verbose, "\tGenerate GMM means");
+        if (verbose >= 1)
+            logger.log(INFO, "\tGenerate GMM means");
         randomGenerator.execute(gmm_means);
 
         // use the same weight for all the clusters
@@ -93,7 +98,8 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         gmm_weights /= K;
 
         // Create a cube of K covariance matrices with a homothety constraint
-        Logger::getInstance().log(INFO, 1, verbose, "\tGenerate GMM covariance matrices");
+        if (verbose >= 1)
+            logger.log(INFO, "\tGenerate GMM covariance matrices");
         gmm_covs.zeros();
         for (unsigned k = 0; k < K; k++)
         {
@@ -101,7 +107,8 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         }
 
         // train a GMM over nb_iter iteration
-        Logger::getInstance().log(INFO, 1, verbose, "\tTrain the GMM model");
+        if (verbose >= 1)
+            logger.log(INFO, "\tTrain the GMM model");
         gmm_full gmm;
         gmm.set_params(gmm_means, gmm_covs, gmm_weights);
         gmm.learn(t, K, maha_dist, keep_existing, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, false);
@@ -112,7 +119,8 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
             log_r.col(k) = gmm.log_p(t, k).t();
         }
 
-        Logger::getInstance().log(INFO, 1, verbose, "\tCompute Initial theta vector of the GLLiM model from GMM");
+        if (verbose >= 1)
+            logger.log(INFO, "\tCompute Initial theta vector of the GLLiM model from GMM");
         // Hybrid model : latent variables follow a normal distribution
         cube mu_w_normal_distr(L_w, N, K, fill::zeros);
         cube S_w_normal_distr(L_w, L_w, K, fill::zeros);
@@ -120,7 +128,8 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         log_r.each_col() -= utils::logSumExp(log_r, 1); // normalization on K
         gllimEmEstimator.maximization_step(t, y, local_theta, log_r, mu_w_normal_distr, S_w_normal_distr, gllim_em_floor);
 
-        Logger::getInstance().log(INFO, 1, verbose, "\tTrain the initial GLLiM model");
+        if (verbose >= 1)
+            logger.log(INFO, "\tTrain the initial GLLiM model");
         // ! Simplification : just use train() method. If ratio_ll is set to 0, the new version it is equivalent (must be verified) to the old version.
         gllimEmEstimator.train(t, y, local_theta, gllim_em_iteration, -1.0, gllim_em_floor, 0);
 
@@ -132,12 +141,14 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
             best_theta = local_theta;
             best_log_likelihood = log_likelihood;
         }
-        Logger::getInstance().log(INFO, 1, verbose, "\tCurrent log likelihood : " + std::to_string(log_likelihood) + ", Best log likelihood : " + std::to_string(best_log_likelihood));
+        if (verbose >= 1)
+            logger.log(INFO, "\tCurrent log likelihood : " + std::to_string(log_likelihood) + ", Best log likelihood : " + std::to_string(best_log_likelihood));
     }
 
     theta_ = best_theta;
 
-    Logger::getInstance().log(INFO, 1, verbose, "[Initialisation] Completed");
+    if (verbose >= 1)
+        logger.log(INFO, "[Initialisation] Completed");
 
     // Save relevant information about initialisation within Insights structure
     auto end = std::chrono::high_resolution_clock::now();
@@ -154,7 +165,8 @@ void GLLiM<TGamma, TSigma>::trainJGMM(const mat &x, const mat &y, unsigned kmean
 template <>
 void GLLiM<FullCovariance, FullCovariance>::trainJGMM(const mat &x, const mat &y, unsigned kmeans_iteration, unsigned em_iteration, double floor, int verbose)
 {
-    Logger::getInstance().log(WARNING, 1, verbose, "A classic GMM training is applied on the equivalent joint-GMM to GLLiM. The algorithm is provided by the Armadillo library. This option is only available whith 'full/full' constraints. The training is equivalent and faster than the GLLiM-EM algorithm.");
+    if (verbose >= 1)
+        Logger::getInstance().log(WARNING, "A classic GMM training is applied on the equivalent joint-GMM to GLLiM. The algorithm is provided by the Armadillo library. This option is only available whith 'full/full' constraints. The training is equivalent and faster than the GLLiM-EM algorithm.");
     auto start = std::chrono::high_resolution_clock::now();
     JGMM estimator;
     estimator.train(x, y, theta_, kmeans_iteration, em_iteration, floor, verbose);
@@ -196,7 +208,7 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
 
     if (!x_incertitude.is_zero())
     {
-        Logger::getInstance().log(INFO, 1, verbose, "Alter theta covariance");
+        // Logger::getInstance().log(INFO, 1, verbose, "Alter theta covariance");
         for (unsigned k = 0; k < theta_.K; ++k)
         {
             theta_altered.Gamma[k] += diagmat(pow(x_incertitude, 2));
@@ -205,7 +217,7 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
 
     // ==================== Construct the GMM of the forward conditional model ====================
 
-    Logger::getInstance().log(INFO, 1, verbose, "Construct the GMM of the forward conditional model");
+    // Logger::getInstance().log(INFO, 1, verbose, "Construct the GMM of the forward conditional model");
     std::tuple<mat, cube, cube> GMMs = constructGMM(x, theta_altered);
     result.fullGMM.weights = std::get<0>(GMMs); // (N_obs, K)
     result.fullGMM.means = std::get<1>(GMMs);   // (N_obs, D, K)
@@ -214,7 +226,7 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
     // ============================= Prediction mean estimations ==================================
 
     // Compute the mean of the means in the mixture
-    Logger::getInstance().log(INFO, 1, verbose, "Compute the weighted mean of the means in the mixture");
+    // Logger::getInstance().log(INFO, 1, verbose, "Compute the weighted mean of the means in the mixture");
     result.fullGMM.mean = mat(N_obs, theta_.D);
     for (unsigned k = 0; k < theta_.K; ++k)
     {
@@ -222,7 +234,7 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
     }
 
     // Compute the mean of covariances in the mixture
-    Logger::getInstance().log(INFO, 1, verbose, "Compute the weighted covariance of the covariances in the mixture");
+    // Logger::getInstance().log(INFO, 1, verbose, "Compute the weighted covariance of the covariances in the mixture");
 // TODO voir formule dans Kugler 2021. Can be simplified
 #pragma omp parallel
     result.fullGMM.variance = cube(N_obs, theta_.D, theta_.D);
@@ -262,17 +274,14 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
     {
         Logger &logger = Logger::getInstance();
         if (verbose >= 1)
-        {
-            logger.startProgressBar(N_obs);
-        }
+            logger.getProgressBar().start(N_obs);
+
 #pragma omp parallel for
         for (size_t n = 0; n < N_obs; n++)
         {
             if (verbose >= 1)
-            {
-                logger.updateProgressBar(n);
-                logger.showProgressBar();
-            }
+                logger.getProgressBar().update(n + 1);
+
             PredictionResult res_n = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)), K_merged, merging_threshold, verbose);
             result.fullGMM.weights.row(n) = res_n.fullGMM.weights;   // (N_obs, K)
             result.fullGMM.means.row(n) = res_n.fullGMM.means;       // (N_obs, D, K)
@@ -286,10 +295,9 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
             result.mergedGMM.mean.row(n) = res_n.mergedGMM.mean;         // (N_obs, D)
             result.mergedGMM.variance.row(n) = res_n.mergedGMM.variance; // (N_obs, D, D)
         }
+
         if (verbose >= 1)
-        {
-            logger.stopProgressBar();
-        }
+            logger.getProgressBar().stop();
     }
 
     return result;
@@ -751,19 +759,19 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
 
     if (!y_incertitude.is_zero())
     {
-        Logger::getInstance().log(INFO, 2, verbose, "Alter theta covariance");
+        // Logger::getInstance().log(INFO, 2, verbose, "Alter theta covariance");
         for (unsigned k = 0; k < theta_altered.K; ++k)
         {
             theta_altered.Sigma[k] += diagmat(pow(y_incertitude, 2));
         }
     }
 
-    Logger::getInstance().log(INFO, 2, verbose, "Inverse theta");
+    // Logger::getInstance().log(INFO, 2, verbose, "Inverse theta");
     GLLiMParameters<FullCovariance, FullCovariance> theta_star_altered = inverse(theta_altered);
 
     // ==================== Construct the GMM of the inverse conditional model ====================
 
-    Logger::getInstance().log(INFO, 2, verbose, "Construct the GMM of the inverse conditional model");
+    // Logger::getInstance().log(INFO, 2, verbose, "Construct the GMM of the inverse conditional model");
     std::tuple<mat, cube, cube> GMMs = constructGMM(y, theta_star_altered);
     result.fullGMM.weights = std::get<0>(GMMs); // (N_obs, K)
     result.fullGMM.means = std::get<1>(GMMs);   // (N_obs, D, K)
@@ -772,7 +780,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     // ============================= Prediction mean estimations ==================================
 
     // Compute the mean of the means in the mixture
-    Logger::getInstance().log(INFO, 2, verbose, "Compute the weighted mean of the means in the mixture");
+    // Logger::getInstance().log(INFO, 2, verbose, "Compute the weighted mean of the means in the mixture");
     result.fullGMM.mean = mat(N_obs, theta_star_altered.D); // theta_star_altered.D or theta_altered.L (the second one is more explicit. )
     for (unsigned k = 0; k < theta_star_altered.K; ++k)
     {
@@ -780,7 +788,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     }
 
     // Compute the mean of covariances in the mixture
-    Logger::getInstance().log(INFO, 2, verbose, "Compute the weighted covariance of the covariances in the mixture");
+    // Logger::getInstance().log(INFO, 2, verbose, "Compute the weighted covariance of the covariances in the mixture");
     // TODO voir formule dans Kugler 2021.  can be simplified
     result.fullGMM.variance = cube(N_obs, theta_star_altered.D, theta_star_altered.D);
 #pragma omp parallel
@@ -803,12 +811,12 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
 
     if (K_merged > 0) // do not compute merging algorithm if K_merged == 0.
     {
-        Logger::getInstance().log(INFO, 2, verbose, "Start GMM merging algorithm");
+        // Logger::getInstance().log(INFO, 2, verbose, "Start GMM merging algorithm");
 #pragma omp parallel
         for (unsigned n = 0; n < N_obs; ++n)
         {
             // Apply threshold on weights. // TODO : also apply to pred by mean ?
-            Logger::getInstance().log(INFO, 2, verbose, "Apply threshold on GMM weights");
+            // Logger::getInstance().log(INFO, 2, verbose, "Apply threshold on GMM weights");
             uvec thresholded_indices = find(std::get<0>(GMMs).row(n) > merging_threshold);
             unsigned K_thresholded = thresholded_indices.n_elem;
 
@@ -824,18 +832,18 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
             }
             if (K_thresholded <= K_merged)
             {
-                Logger::getInstance().log(INFO, 2, verbose, "Number of gaussians after threshold is lower or equal to desired merged gaussians.");
+                // Logger::getInstance().log(INFO, 2, verbose, "Number of gaussians after threshold is lower or equal to desired merged gaussians.");
             }
             else
             {
-                Logger::getInstance().log(INFO, 2, verbose, "Merge the K Gaussians into K_merged ones");
+                // Logger::getInstance().log(INFO, 2, verbose, "Merge the K Gaussians into K_merged ones");
                 for (size_t k = 0; k < K_thresholded - K_merged; k++)
                 {
                     findPairToMerge(gaussians);
                 }
             }
 
-            Logger::getInstance().log(INFO, 2, verbose, "Reconstruct the reduced GMMs");
+            // Logger::getInstance().log(INFO, 2, verbose, "Reconstruct the reduced GMMs");
             unsigned k = 0;
             for (const auto &element : gaussians)
             {
@@ -847,7 +855,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
                     k++;
                 }
             }
-            Logger::getInstance().log(INFO, 2, verbose, "Compute mean and variance of merged GMMs");
+            // Logger::getInstance().log(INFO, 2, verbose, "Compute mean and variance of merged GMMs");
             for (unsigned k = 0; k < K_merged; ++k)
             {
                 result.mergedGMM.mean += diagmat(result.mergedGMM.weights.col(k)) * result.mergedGMM.means.slice(k); // mat (N_obs, D)
