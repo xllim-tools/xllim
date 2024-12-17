@@ -3,6 +3,8 @@
 #include "../utils/utils.hpp"
 #include "../logging/logger.hpp"
 
+#include <omp.h>
+
 // ! Useful notation
 // A_w_k = theta.A.slice(k).tail_cols(theta.L_w) // TODO is it possible to do an alias ?
 
@@ -67,6 +69,7 @@ void EmEstimator<TGamma, TSigma>::expectation_W_step(const mat &t, const mat &y,
 
     if (theta.L_w > 0)
     {
+#pragma omp parallel for default(none) schedule(static) shared(t, y, theta, mu_w, S_w)
         for (unsigned k = 0; k < theta.K; k++)
         {
             TGamma inv_Gamma_w_k = theta.Gamma[k].tail(theta.L_w).inv(); // (L_w, L_w)
@@ -100,10 +103,8 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
     // => Normalization on axis K
 
     unsigned N = t.n_cols;
-    double D_log_2_pi = theta.D * LOG_2_PI;
-    double L_log_2_pi = theta.L * LOG_2_PI;
 
-    // #pragma omp parallel for shared(N,K,L,D,x,y,theta,D_log_2_pi, L_log_2_pi,temp_density_y,temp_density_x,log_Pi_K,next_rnk)
+#pragma omp parallel for default(none) schedule(static) shared(t, y, theta, log_r, N)
     for (unsigned k = 0; k < theta.K; k++)
     {
         // compute log_r only if the the weight of the k_th gaussian in the mixture is not zero
@@ -124,8 +125,8 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
             if (log_det_Sigma_k != -datum::inf && log_det_Gamma_t_k != -datum::inf)
             {
                 double log_Pi_k = log(theta.Pi(k));
-                double const_density_t = L_log_2_pi + log_det_Gamma_t_k;
-                double const_density_y = D_log_2_pi + log_det_Sigma_k;
+                double const_density_t = theta.L * LOG_2_PI + log_det_Gamma_t_k;
+                double const_density_y = theta.D * LOG_2_PI + log_det_Sigma_k;
 
                 TGamma Gamma_t_k_inv = theta.Gamma[k].head(theta.L_t).inv();
                 TSigma Sigma_k_inv(theta.D);
@@ -186,7 +187,7 @@ void EmEstimator<TGamma, TSigma>::maximization_step(const mat &t, const mat &y, 
 
     unsigned N = log_r.n_rows;
 
-    // #pragma omp parallel for shared(x, y, r_nk, next_theta, N, K, D, L) schedule(static) num_threads(2)
+#pragma omp parallel for default(none) schedule(static) shared(t, y, theta, log_r, mu_w, S_w, floor, N)
     for (unsigned k = 0; k < theta.K; k++)
     {
         double log_r_k = utils::logSumExp(log_r.col(k)); // r(k) = Σ(n=1:N)[r(n,k)]

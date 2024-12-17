@@ -4,6 +4,7 @@
 #include "../generator/RandomGenerator.hpp"
 #include "../utils/utils.hpp"
 #include "../logging/logger.hpp"
+#include <omp.h>
 
 #include "multivariateGaussian.hpp"
 #define DELETED true
@@ -113,7 +114,8 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         gmm.set_params(gmm_means, gmm_covs, gmm_weights);
         gmm.learn(t, K, maha_dist, keep_existing, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, false);
 
-        // compute log_rnk using the posterior of the GMM after the training
+// compute log_rnk using the posterior of the GMM after the training
+#pragma omp parallel for default(none) schedule(static) shared(log_r, gmm, t, K)
         for (unsigned k = 0; k < K; k++)
         {
             log_r.col(k) = gmm.log_p(t, k).t();
@@ -228,6 +230,7 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
     // Compute the mean of the means in the mixture
     // Logger::getInstance().log(INFO, 1, verbose, "Compute the weighted mean of the means in the mixture");
     result.fullGMM.mean = mat(N_obs, theta_.D);
+    // #pragma omp parallel for default(none) schedule(static) shared(result, K)
     for (unsigned k = 0; k < theta_.K; ++k)
     {
         result.fullGMM.mean += diagmat(result.fullGMM.weights.col(k)) * result.fullGMM.means.slice(k);
@@ -235,9 +238,9 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
 
     // Compute the mean of covariances in the mixture
     // Logger::getInstance().log(INFO, 1, verbose, "Compute the weighted covariance of the covariances in the mixture");
-// TODO voir formule dans Kugler 2021. Can be simplified
-#pragma omp parallel
+    // TODO voir formule dans Kugler 2021. Can be simplified
     result.fullGMM.variance = cube(N_obs, theta_.D, theta_.D);
+    // #pragma omp parallel for default(none) schedule(static) shared(result, N_obs, K)
     for (unsigned n = 0; n < N_obs; ++n)
     {
         for (unsigned k = 0; k < theta_.K; ++k)
@@ -276,13 +279,11 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
         if (verbose >= 1)
             logger.getProgressBar().start(N_obs);
 
-#pragma omp parallel for
+        // #pragma omp parallel for default(none) schedule(static) shared(result, N_obs, logger, y, y_incertitude, K_merged, merging_threshold, verbose) // ! slower execution : false sharing ?
         for (size_t n = 0; n < N_obs; n++)
         {
-            if (verbose >= 1)
-                logger.getProgressBar().update(n + 1);
-
             PredictionResult res_n = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)), K_merged, merging_threshold, verbose);
+
             result.fullGMM.weights.row(n) = res_n.fullGMM.weights;   // (N_obs, K)
             result.fullGMM.means.row(n) = res_n.fullGMM.means;       // (N_obs, D, K)
             result.fullGMM.covs = res_n.fullGMM.covs;                // (D, D, K) (The covariance is indenpendent from y)
@@ -294,10 +295,16 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
             result.mergedGMM.covs[n] = res_n.mergedGMM.covs[0];          // (N_obs, D, D, K_merged) (vector<cube>) (Depends on other gaussians means thus y)
             result.mergedGMM.mean.row(n) = res_n.mergedGMM.mean;         // (N_obs, D)
             result.mergedGMM.variance.row(n) = res_n.mergedGMM.variance; // (N_obs, D, D)
+
+            if (verbose >= 1)
+                logger.getProgressBar().update(n + 1);
         }
 
         if (verbose >= 1)
+        {
             logger.getProgressBar().stop();
+            logger.log(INFO, "[Prediction] Inversion completed in " + std::to_string(logger.getProgressBar().time_it_took()) + " sec");
+        }
     }
 
     return result;
@@ -638,7 +645,7 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
     double log_det_gamma;
     vec x_u;
 
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (unsigned k = 0; k < theta.K; k++)
     {
         if (theta.Pi(k) == 0)
@@ -782,6 +789,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     // Compute the mean of the means in the mixture
     // Logger::getInstance().log(INFO, 2, verbose, "Compute the weighted mean of the means in the mixture");
     result.fullGMM.mean = mat(N_obs, theta_star_altered.D); // theta_star_altered.D or theta_altered.L (the second one is more explicit. )
+    // #pragma omp parallel for default(none) schedule(static) shared(result, K_star_altered)
     for (unsigned k = 0; k < theta_star_altered.K; ++k)
     {
         result.fullGMM.mean += diagmat(result.fullGMM.weights.col(k)) * result.fullGMM.means.slice(k);
@@ -791,7 +799,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     // Logger::getInstance().log(INFO, 2, verbose, "Compute the weighted covariance of the covariances in the mixture");
     // TODO voir formule dans Kugler 2021.  can be simplified
     result.fullGMM.variance = cube(N_obs, theta_star_altered.D, theta_star_altered.D);
-#pragma omp parallel
+    // #pragma omp parallel for default(none) schedule(static) shared(result, N_obs, K_star_altered)
     for (unsigned n = 0; n < N_obs; ++n)
     {
         for (unsigned k = 0; k < theta_star_altered.K; ++k)
@@ -812,7 +820,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     if (K_merged > 0) // do not compute merging algorithm if K_merged == 0.
     {
         // Logger::getInstance().log(INFO, 2, verbose, "Start GMM merging algorithm");
-#pragma omp parallel
+        // #pragma omp parallel
         for (unsigned n = 0; n < N_obs; ++n)
         {
             // Apply threshold on weights. // TODO : also apply to pred by mean ?

@@ -108,6 +108,7 @@ add_library(xllimSolver STATIC
     src/xllimSolver/covariances/isoCovariance.cpp
 )
 set_target_properties(xllimSolver PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(xllimSolver PRIVATE OpenMP::OpenMP_CXX)
 
 pybind11_add_module(xllim bindings/xllim_bindings.cpp)
 target_link_libraries(xllim PRIVATE functionalModel pythonEmbed xllimSolver generator utils logging carma::carma OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES})
