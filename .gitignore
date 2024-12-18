@@ -12,4 +12,8 @@ test
 # exclude everything
 pytest/savedFiles/*
 # exception to the rule
-!pytest/savedFiles/.gitkeep 
+!pytest/savedFiles/.gitkeep
+
+
+# tests
+tests/pythonTests/comparative_performance_table.csv
