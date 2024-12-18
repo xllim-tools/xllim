@@ -38,7 +38,7 @@ physical_models.append(
 )
 
 # Get JSC1 geometries from JSON file
-with open("JSC1_BRDF.json", "r") as f:
+with open("../dataRef/JSC1_BRDF.json", "r") as f:
     data = json.load(f)
 geometries_JSC1 = {
     "name": "JSC1",
@@ -46,7 +46,7 @@ geometries_JSC1 = {
 }
 
 # Get Mukundpura geometries from JSON file
-with open("mukundpura_bloc_poudre_BRDF.json", "r") as f:
+with open("../dataRef/mukundpura_bloc_poudre_BRDF.json", "r") as f:
     data = json.load(f)
 geometries_muk = {
     "name": "muk",
