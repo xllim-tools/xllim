@@ -41,23 +41,82 @@ void bind_gllim(pybind11::module &m)
      py::class_<GLLiMParametersBase, std::shared_ptr<GLLiMParametersBase>>(m, "GLLiMParametersBase");
 
      py::class_<FullGMMResult>(m, "FullGMMResult")
+         .def(py::init<unsigned, unsigned, unsigned>(), py::arg("N_obs"), py::arg("D"), py::arg("K"))
          .def_readwrite("mean", &FullGMMResult::mean)
          .def_readwrite("variance", &FullGMMResult::variance)
          .def_readwrite("weights", &FullGMMResult::weights)
          .def_readwrite("means", &FullGMMResult::means)
-         .def_readwrite("covs", &FullGMMResult::covs);
+         .def_readwrite("covs", &FullGMMResult::covs)
+         .def(py::pickle(                                                                // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
+             [](const FullGMMResult &p) {                                                // __getstate__
+                  return py::make_tuple(p.mean, p.variance, p.weights, p.means, p.covs); // Return a tuple that fully encodes the state of the object
+             },
+             [](py::tuple t) { // __setstate__
+                  if (t.size() != 5)
+                       throw std::runtime_error("Invalid state!");
+
+                  // Create a new C++ instance
+                  FullGMMResult p(0, 0, 0);
+
+                  // Restore the state from the tuple
+                  p.mean = t[0].cast<decltype(p.mean)>();
+                  p.variance = t[1].cast<decltype(p.variance)>();
+                  p.weights = t[2].cast<decltype(p.weights)>();
+                  p.means = t[3].cast<decltype(p.means)>();
+                  p.covs = t[4].cast<decltype(p.covs)>();
+
+                  return p;
+             }));
 
      py::class_<MergedGMMResult>(m, "MergedGMMResult")
+         .def(py::init<unsigned, unsigned, unsigned>(), py::arg("N_obs"), py::arg("D"), py::arg("K_merged"))
          .def_readwrite("mean", &MergedGMMResult::mean)
          .def_readwrite("variance", &MergedGMMResult::variance)
          .def_readwrite("weights", &MergedGMMResult::weights)
          .def_readwrite("means", &MergedGMMResult::means)
-         .def_property("covs", &get_covs, &set_covs); // Specific definition of getter and setter because the 'complex' structure is not handle properly by Pybind11/carma
+         .def_property("covs", &get_covs, &set_covs)                                     // Specific definition of getter and setter because the 'complex' structure is not handle properly by Pybind11/carma
+         .def(py::pickle(                                                                // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
+             [](const MergedGMMResult &p) {                                              // __getstate__
+                  return py::make_tuple(p.mean, p.variance, p.weights, p.means, p.covs); // Return a tuple that fully encodes the state of the object
+             },
+             [](py::tuple t) { // __setstate__
+                  if (t.size() != 5)
+                       throw std::runtime_error("Invalid state!");
+
+                  // Create a new C++ instance
+                  MergedGMMResult p(0, 0, 0);
+
+                  // Restore the state from the tuple
+                  p.mean = t[0].cast<decltype(p.mean)>();
+                  p.variance = t[1].cast<decltype(p.variance)>();
+                  p.weights = t[2].cast<decltype(p.weights)>();
+                  p.means = t[3].cast<decltype(p.means)>();
+                  p.covs = t[4].cast<decltype(p.covs)>();
+
+                  return p;
+             }));
 
      py::class_<PredictionResult>(m, "PredictionResult")
          .def(py::init<unsigned, unsigned, unsigned, unsigned>(), py::arg("N_obs"), py::arg("D"), py::arg("K"), py::arg("K_merged") = 0)
          .def_readwrite("fullGMM", &PredictionResult::fullGMM)
-         .def_readwrite("mergedGMM", &PredictionResult::mergedGMM);
+         .def_readwrite("mergedGMM", &PredictionResult::mergedGMM)
+         .def(py::pickle(                                        // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
+             [](const PredictionResult &p) {                     // __getstate__
+                  return py::make_tuple(p.fullGMM, p.mergedGMM); // Return a tuple that fully encodes the state of the object
+             },
+             [](py::tuple t) { // __setstate__
+                  if (t.size() != 2)
+                       throw std::runtime_error("Invalid state!");
+
+                  // Create a new C++ instance
+                  PredictionResult p(0, 0, 0);
+
+                  // Restore the state from the tuple
+                  p.fullGMM = t[0].cast<decltype(p.fullGMM)>();
+                  p.mergedGMM = t[1].cast<decltype(p.mergedGMM)>();
+
+                  return p;
+             }));
 
      py::class_<InitialisationInsights>(m, "InitialisationInsights")
          .def_readwrite("time", &InitialisationInsights::time)
