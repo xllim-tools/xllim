@@ -345,7 +345,7 @@ print(y_gen.shape)
 # In[15]:
 
 
-x_gen, y_gen = model.genData(40, "sobol", 0.1, 1234)
+x_gen, y_gen = model.genData(400, "sobol", 0.1, 1234)
 
 
 # In[16]:
@@ -374,7 +374,7 @@ for k in range(cube.shape[2]):
     cube[:,:,k] += np.eye(L) * 0.1
     cube[:,:,k] = np.dot(cube[:,:,k], cube[:,:,k].T) * 0.001
 
-proposition_gmms = [(weight.T, mean, cube), (weight.T, mean*0.2, cube*0.2)] * 20
+proposition_gmms = [(weight.T, mean, cube), (weight.T, mean*0.2, cube*0.2)] * 200
 y = np.array(y_gen[:2]) # Note avec CARMA, on a l'erreur "this array cannot be borrow...." dans le cas où on met en argument un pointeur! Et donc la mémoire n'appartient pas à cette variable.
 y = y_gen
 y_err = y*0.001
@@ -393,7 +393,7 @@ print(cube[:,:,0].T)
 # In[19]:
 
 
-verbose = 0
+verbose = 1
 tic = time.time()
 results = model.importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose)
 tac = time.time()
