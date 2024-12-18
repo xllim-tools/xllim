@@ -31,6 +31,10 @@ namespace utils
     // return : chosen permutation - Mat<unsigned int> of shape (K, N_obs)
     // ! The complexity is O(N_obs*K!*K)
     umat regularize(const cube &series);
+
+    // Set the RNG (Random Number Generator) for an armadillo random generation method.
+    // This methods takes into account if seed=0 are value
+    void set_seed_armadillo(unsigned seed);
 }
 
 #endif // UTILS_HPP

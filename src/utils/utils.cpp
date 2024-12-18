@@ -289,7 +289,6 @@ vec utils::MahalanobisWithInvertedCov(const mat &x, const vec &center, const mat
 //     return Chol;
 // }
 
-
 unsigned factorial(unsigned n)
 {
     return (n == 0 || n == 1) ? 1 : factorial(n - 1) * n;
@@ -345,4 +344,12 @@ umat utils::regularize(const cube &series)
         }
     }
     return chosen_permutations;
+}
+
+void utils::set_seed_armadillo(unsigned seed)
+{
+    if (seed == 0)
+        arma_rng::set_seed_random();
+    else
+        arma_rng::set_seed(seed);
 }

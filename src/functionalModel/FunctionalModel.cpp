@@ -120,7 +120,7 @@ vec FunctionalModel::propositionDensity(const mat &x, const vec &weight, const m
     // return utils::logSumExp(utils::logDensity(x, weight.t(), mean, covariance), 1);
 }
 
-ImportanceSamplingResult FunctionalModel::importanceSampling(FullGMMResult fullGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
+ImportanceSamplingResult FunctionalModel::importanceSampling(FullGMMResult fullGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose, unsigned seed)
 {
     // retrieve the gmm parameters from de GLLiM prediction results. It corresponds to the proposition law for the Importance Sampling method.
     std::vector<std::tuple<vec, mat, cube>> proposition_gmms;
@@ -133,10 +133,10 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(FullGMMResult fullG
             fullGMM.covs // The covariance is indenpendent from y thus it is the same for all predictions
             ));
     }
-    return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose);
+    return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose, seed);
 }
 
-ImportanceSamplingResult FunctionalModel::importanceSampling(MergedGMMResult mergedGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
+ImportanceSamplingResult FunctionalModel::importanceSampling(MergedGMMResult mergedGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose, unsigned seed)
 {
     // retrieve the gmm parameters from de GLLiM prediction results. It corresponds to the proposition law for the Importance Sampling method.
     std::vector<std::tuple<vec, mat, cube>> proposition_gmms;
@@ -149,10 +149,10 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(MergedGMMResult mer
             mergedGMM.covs[i] // The covariance is indenpendent from y thus it is the same for all predictions
             ));
     }
-    return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose);
+    return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose, seed);
 }
 
-ImportanceSamplingResult FunctionalModel::importanceSampling(MergedGMMResult mergedGMM, unsigned idx_gaussian, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
+ImportanceSamplingResult FunctionalModel::importanceSampling(MergedGMMResult mergedGMM, unsigned idx_gaussian, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose, unsigned seed)
 {
     // retrieve the gmm parameters from de GLLiM prediction results. It corresponds to the proposition law for the Importance Sampling method.
     std::vector<std::tuple<vec, mat, cube>> proposition_gmms;
@@ -166,10 +166,10 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(MergedGMMResult mer
             mat(mergedGMM.means.slice(idx_gaussian).row(i).t()),
             covs_cube));
     }
-    return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose);
+    return importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose, seed);
 }
 
-ImportanceSamplingResult FunctionalModel::importanceSampling(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose)
+ImportanceSamplingResult FunctionalModel::importanceSampling(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose, unsigned seed)
 {
     // Checks on IMIS parameters
     if (J != 0 && B == 0)
@@ -196,7 +196,7 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const std::vector<s
     }
 
 // You should use 'default(none)' by default: be specific about what you'resharing
-#pragma omp parallel for default(none) schedule(static) shared(logger, importanceSamplingResult, N_samples, L, N_obs, proposition_gmms, y, y_err, covariance, N_0, B, J, verbose)
+#pragma omp parallel for default(none) schedule(static) shared(logger, importanceSamplingResult, N_samples, L, N_obs, proposition_gmms, y, y_err, covariance, N_0, B, J, verbose, seed)
     for (size_t n_obs = 0; n_obs < N_obs; n_obs++)
     {
         mat samples(L, N_samples);
@@ -210,6 +210,7 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const std::vector<s
 
         // ====================== Importance Sampling basic step and initialisation =========================
         proposition_gmm.set_params(std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs]), std::get<0>(proposition_gmms[n_obs]).t());
+        utils::set_seed_armadillo(seed);
         samples.cols(0, N_0 - 1) = proposition_gmm.generate(N_0);                                                                                                                                                      // sample with GLLiM-GMM
         target_log_densities.subvec(0, N_0 - 1) = targetDensity(samples.cols(0, N_0 - 1), y.row(n_obs).t(), y_err.row(n_obs).t(), covariance);                                                                         // compute the target log probability density function (PDF)
         proposition_log_densities.subvec(0, N_0 - 1) = propositionDensity(samples.cols(0, N_0 - 1), std::get<0>(proposition_gmms[n_obs]), std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs])); // compute the target log probability density function (PDF)
@@ -256,6 +257,7 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const std::vector<s
             mat x_max_mat = mat(x_max);
             rowvec weight_unitary(1, fill::value(1));
             gmm_step[j_step].set_params(x_max, Sigma_j, weight_unitary); // save the Gaussian(x_max, Sigma_j) for further use ...
+            utils::set_seed_armadillo(seed);
             samples.cols(N_j, N_j1 - 1) = gmm_step[j_step].generate(B);
 
             // h) Update proposition law

@@ -64,30 +64,23 @@ void bind_functional_model(pybind11::module &m)
                 py::array_t<double> y_arr = carma::col_to_arr(x_arma).squeeze();
                 return y_arr; })
         .def("genData", py::overload_cast<unsigned, const std::string &, double, unsigned>(&FunctionalModel::genData),
+             py::arg("N"), py::arg("generator_type"), py::arg("noise_ratio"), py::arg("seed") = 0,
              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
         .def("genData", py::overload_cast<unsigned, const std::string &, vec &, unsigned>(&FunctionalModel::genData),
+             py::arg("N"), py::arg("generator_type"), py::arg("covariance"), py::arg("seed") = 0,
              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 
         // ! The implementation in pybind11/iostream.h is NOT thread safe. Multiple threads writing to a redirected ostream concurrently cause data races and potentially buffer overflows.
-        .def("importanceSampling", [](FunctionalModel &self, py::list proposition_gmms_py, const mat &y, const mat &y_err, const vec &covariance, unsigned N_0, unsigned B, unsigned J, int verbose)
+        .def("importanceSampling", [](FunctionalModel &self, py::list proposition_gmms_py, const mat &y, const mat &y_err, const vec &covariance, unsigned N_0, unsigned B, unsigned J, int verbose, unsigned seed)
             {
                 auto proposition_gmms = parse_proposition_gmms(proposition_gmms_py);
-                return self.importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose);
-            },
-            py::arg("proposition_gmms"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
-            py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+                return self.importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose, seed); }, py::arg("proposition_gmms"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1, py::arg("seed") = 0, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
         
-        .def("importanceSampling", py::overload_cast<FullGMMResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
-            py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
-            py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+        .def("importanceSampling", py::overload_cast<FullGMMResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int, unsigned>(&FunctionalModel::importanceSampling), py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1, py::arg("seed") = 0, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
         
-        .def("importanceSampling", py::overload_cast<MergedGMMResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
-            py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
-            py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+        .def("importanceSampling", py::overload_cast<MergedGMMResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int, unsigned>(&FunctionalModel::importanceSampling), py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1, py::arg("seed") = 0, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
         
-        .def("importanceSampling", py::overload_cast<MergedGMMResult, unsigned, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int>(&FunctionalModel::importanceSampling),
-            py::arg("predictions"), py::arg("idx_gaussian"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1,
-            py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
+        .def("importanceSampling", py::overload_cast<MergedGMMResult, unsigned, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int, unsigned>(&FunctionalModel::importanceSampling), py::arg("predictions"), py::arg("idx_gaussian"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1, py::arg("seed") = 0, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
 
     py::class_<TestModel, std::shared_ptr<TestModel>, FunctionalModel>(m, "TestModel")
         .def(py::init<>());

@@ -74,7 +74,7 @@ public:
      * @param seed : seed number for random generators
      * @return A generated dataset composed of a pair (x_gen, y_gen) with x_gen of shape (N,L) and y_gen of shape (N,D)
      */
-    std::tuple<mat, mat> genData(unsigned N, const std::string &generator_type, vec &covariance, unsigned seed);
+    std::tuple<mat, mat> genData(unsigned N, const std::string &generator_type, vec &covariance, unsigned seed = 0);
 
     /** @brief This method generates a complete learning data set from the generator type and the @class Functional model.
      * @param N : number of generated observation
@@ -85,10 +85,10 @@ public:
      */
     std::tuple<mat, mat> genData(unsigned N, const std::string &generator_type, double noise_ratio, unsigned seed = 0);
 
-    ImportanceSamplingResult importanceSampling(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
-    ImportanceSamplingResult importanceSampling(FullGMMResult fullGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
-    ImportanceSamplingResult importanceSampling(MergedGMMResult mergedGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1);
-    ImportanceSamplingResult importanceSampling(MergedGMMResult mergedGMM, unsigned idx_gaussian, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B, const unsigned J, int verbose);
+    ImportanceSamplingResult importanceSampling(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1, unsigned seed = 0);
+    ImportanceSamplingResult importanceSampling(FullGMMResult fullGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1, unsigned seed = 0);
+    ImportanceSamplingResult importanceSampling(MergedGMMResult mergedGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1, unsigned seed = 0);
+    ImportanceSamplingResult importanceSampling(MergedGMMResult mergedGMM, unsigned idx_gaussian, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1, unsigned seed = 0);
 
 protected:
     /**
