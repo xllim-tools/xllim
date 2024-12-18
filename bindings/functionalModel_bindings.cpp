@@ -39,7 +39,27 @@ void bind_functional_model(pybind11::module &m)
         .def_readwrite("predictions_variance", &ImportanceSamplingResult::predictions_variance)
         .def_readwrite("nb_effective_sample", &ImportanceSamplingResult::nb_effective_sample)
         .def_readwrite("effective_sample_size", &ImportanceSamplingResult::effective_sample_size)
-        .def_readwrite("qn", &ImportanceSamplingResult::qn);
+        .def_readwrite("qn", &ImportanceSamplingResult::qn)
+        .def(py::pickle(                                                                                                            // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
+            [](const ImportanceSamplingResult &p) {                                                                                 // __getstate__
+                return py::make_tuple(p.predictions, p.predictions_variance, p.nb_effective_sample, p.effective_sample_size, p.qn); // Return a tuple that fully encodes the state of the object
+            },
+            [](py::tuple t) { // __setstate__
+                if (t.size() != 5)
+                    throw std::runtime_error("Invalid state!");
+
+                // Create a new C++ instance
+                ImportanceSamplingResult p(0, 0);
+
+                // Restore the state from the tuple
+                p.predictions = t[0].cast<decltype(p.predictions)>();
+                p.predictions_variance = t[1].cast<decltype(p.predictions_variance)>();
+                p.nb_effective_sample = t[2].cast<decltype(p.nb_effective_sample)>();
+                p.effective_sample_size = t[3].cast<decltype(p.effective_sample_size)>();
+                p.qn = t[4].cast<decltype(p.qn)>();
+
+                return p;
+            }));
 
     py::class_<FunctionalModel, std::shared_ptr<FunctionalModel>>(m, "FunctionalModel")
         .def("F", [](FunctionalModel &self, py::array_t<double> x)
@@ -72,14 +92,14 @@ void bind_functional_model(pybind11::module &m)
 
         // ! The implementation in pybind11/iostream.h is NOT thread safe. Multiple threads writing to a redirected ostream concurrently cause data races and potentially buffer overflows.
         .def("importanceSampling", [](FunctionalModel &self, py::list proposition_gmms_py, const mat &y, const mat &y_err, const vec &covariance, unsigned N_0, unsigned B, unsigned J, int verbose, unsigned seed)
-            {
+             {
                 auto proposition_gmms = parse_proposition_gmms(proposition_gmms_py);
                 return self.importanceSampling(proposition_gmms, y, y_err, covariance, N_0, B, J, verbose, seed); }, py::arg("proposition_gmms"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1, py::arg("seed") = 0, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
-        
+
         .def("importanceSampling", py::overload_cast<FullGMMResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int, unsigned>(&FunctionalModel::importanceSampling), py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1, py::arg("seed") = 0, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
-        
+
         .def("importanceSampling", py::overload_cast<MergedGMMResult, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int, unsigned>(&FunctionalModel::importanceSampling), py::arg("predictions"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1, py::arg("seed") = 0, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
-        
+
         .def("importanceSampling", py::overload_cast<MergedGMMResult, unsigned, const mat, const mat, const vec, const unsigned, const unsigned, const unsigned, int, unsigned>(&FunctionalModel::importanceSampling), py::arg("predictions"), py::arg("idx_gaussian"), py::arg("y"), py::arg("y_err"), py::arg("covariance"), py::arg("N_0"), py::arg("B") = 0, py::arg("J") = 0, py::arg("verbose") = 1, py::arg("seed") = 0, py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
 
     py::class_<TestModel, std::shared_ptr<TestModel>, FunctionalModel>(m, "TestModel")
