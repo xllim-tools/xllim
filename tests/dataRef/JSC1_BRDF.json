@@ -1,3 +1,7 @@
+// Schmitt, Bernard; Bollard, Philippe; Albert, Damien; Garenne, Alexandre; Gorbacheva, Maria; Bonal, Lydie; Volcke, Pierre, and the SSHADE partner's consortium (2018).
+// SSHADE: "Solid Spectroscopy Hosting Architecture of Databases and Expertise" and its databases. OSUG Data Center. Service/Database Infrastructure.
+// https://doi.org/10.26302/SSHADE
+
 {
 	"JSC1_analogue": {
 		"geometries": 		[
