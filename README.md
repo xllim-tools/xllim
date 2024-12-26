@@ -132,7 +132,7 @@ docker start xllim_notebook
 Depending on your OS and Docker version you may face permission issues on the mounted volume (/home/jovyan/work/ directory).
 You can overcome this issue by granting file access to the virtual user (*jovyan*) when creating the container.
 ```
-docker run -it --name xllim_notebook -p 8888:8888 -v "${PWD}":/home/jovyan/work bash -c "chown -R jovyan:users /home/jovyan/work && start-notebook.py"
+docker run -it --name xllim_notebook -p 8888:8888 -v "${PWD}":/home/jovyan/work xllim_jupyter_notebook bash -c "chown -R jovyan:users /home/jovyan/work && start-notebook.py"
 ```
 After stopping the Docker container you should need to grant back file access to your host machine's user.
 ```
