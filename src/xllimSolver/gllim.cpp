@@ -115,7 +115,7 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         gmm.learn(t, K, maha_dist, keep_existing, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, false);
 
 // compute log_rnk using the posterior of the GMM after the training
-#pragma omp parallel for default(none) schedule(static) shared(log_r, gmm, t, K)
+// #pragma omp parallel for default(none) schedule(static) shared(log_r, gmm, t, K)
         for (unsigned k = 0; k < K; k++)
         {
             log_r.col(k) = gmm.log_p(t, k).t();

@@ -69,7 +69,7 @@ void EmEstimator<TGamma, TSigma>::expectation_W_step(const mat &t, const mat &y,
 
     if (theta.L_w > 0)
     {
-#pragma omp parallel for default(none) schedule(static) shared(t, y, theta, mu_w, S_w)
+// #pragma omp parallel for default(none) schedule(static) shared(t, y, theta, mu_w, S_w)
         for (unsigned k = 0; k < theta.K; k++)
         {
             TGamma inv_Gamma_w_k = theta.Gamma[k].tail(theta.L_w).inv(); // (L_w, L_w)
@@ -104,7 +104,7 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
 
     unsigned N = t.n_cols;
 
-#pragma omp parallel for default(none) schedule(static) shared(t, y, theta, log_r, N)
+// #pragma omp parallel for default(none) schedule(static) shared(t, y, theta, log_r, N)
     for (unsigned k = 0; k < theta.K; k++)
     {
         // compute log_r only if the the weight of the k_th gaussian in the mixture is not zero
@@ -187,7 +187,7 @@ void EmEstimator<TGamma, TSigma>::maximization_step(const mat &t, const mat &y, 
 
     unsigned N = log_r.n_rows;
 
-#pragma omp parallel for default(none) schedule(static) shared(t, y, theta, log_r, mu_w, S_w, floor, N)
+// #pragma omp parallel for default(none) schedule(static) shared(t, y, theta, log_r, mu_w, S_w, floor, N)
     for (unsigned k = 0; k < theta.K; k++)
     {
         double log_r_k = utils::logSumExp(log_r.col(k)); // r(k) = Σ(n=1:N)[r(n,k)]

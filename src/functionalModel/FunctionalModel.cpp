@@ -23,7 +23,7 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     std::mt19937_64 engine;
     engine.seed(seed);
 
-#pragma omp parallel for
+// #pragma omp parallel for
     for (unsigned i = 0; i < N; i++)
     {
         vec noise(dimension_D);
@@ -59,7 +59,7 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     std::mt19937_64 engine;
     engine.seed(seed);
 
-#pragma omp parallel for
+// #pragma omp parallel for
     for (unsigned i = 0; i < N; i++)
     {
         vec noise(dimension_D);
@@ -196,7 +196,7 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const std::vector<s
     }
 
 // You should use 'default(none)' by default: be specific about what you'resharing
-#pragma omp parallel for default(none) schedule(static) shared(logger, importanceSamplingResult, N_samples, L, N_obs, proposition_gmms, y, y_err, covariance, N_0, B, J, verbose, seed)
+// #pragma omp parallel for default(none) schedule(static) shared(logger, importanceSamplingResult, N_samples, L, N_obs, proposition_gmms, y, y_err, covariance, N_0, B, J, verbose, seed)
     for (size_t n_obs = 0; n_obs < N_obs; n_obs++)
     {
         mat samples(L, N_samples);
