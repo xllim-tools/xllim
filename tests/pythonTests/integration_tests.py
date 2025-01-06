@@ -284,35 +284,35 @@ for gamma_type in covariance_type_list:
         assert np.allclose(gllim_params_initialised.Sigma, gllim_params_initialised_ref.Sigma), error_msg + " > " + "Sigma"
 
 
-        # # ! ####################  TEST : inverseDensities()  ######################
+        # ! ####################  TEST : inverseDensities()  ######################
 
-        # prediction_floor = 1e-10
+        prediction_floor = 1e-10
 
-        # prediction_results = gllim.inverseDensities(
-        #     np.array(y_gen_random.T),
-        #     np.zeros(D),
-        #     K_merged,
-        #     prediction_floor,
-        # )  # vectorized
+        prediction_results = gllim.inverseDensities(
+            np.array(y_gen_random.T),
+            np.zeros(D),
+            K_merged,
+            prediction_floor,
+        )  # vectorized
 
         # # ! Only run once to generate ref
         # with open("../dataRef/prediction_results_ref/prediction_results_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
         #     pickle.dump(prediction_results, f)
         #     f.close()
 
-        # with open("../dataRef/prediction_results_ref/prediction_results_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
-        #     prediction_results_ref = pickle.load(f)
-        #     f.close()
+        with open("../dataRef/prediction_results_ref/prediction_results_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
+            prediction_results_ref = pickle.load(f)
+            f.close()
 
-        # # compare results
-        # error_msg = "inverseDensities" + " > " + gamma_type + "/" + sigma_type
-        # assert np.allclose(prediction_results.fullGMM.weights, prediction_results_ref.fullGMM.weights), error_msg + " > " + "fullGMM.weights"
-        # assert np.allclose(prediction_results.fullGMM.means, prediction_results_ref.fullGMM.means), error_msg + " > " + "fullGMM.means"
-        # assert np.allclose(prediction_results.fullGMM.covs, prediction_results_ref.fullGMM.covs), error_msg + " > " + "fullGMM.covs"
-        # assert np.allclose(prediction_results.fullGMM.mean, prediction_results_ref.fullGMM.mean), error_msg + " > " + "fullGMM.mean"
-        # assert np.allclose(prediction_results.fullGMM.variance, prediction_results_ref.fullGMM.variance), error_msg + " > " + "fullGMM.variance"
-        # assert np.allclose(prediction_results.mergedGMM.weights, prediction_results_ref.mergedGMM.weights), error_msg + " > " + "mergedGMM.weights"
-        # assert np.allclose(prediction_results.mergedGMM.means, prediction_results_ref.mergedGMM.means), error_msg + " > " + "mergedGMM.means"
-        # assert np.allclose(prediction_results.mergedGMM.covs, prediction_results_ref.mergedGMM.covs), error_msg + " > " + "mergedGMM.covs"
-        # assert np.allclose(prediction_results.mergedGMM.mean, prediction_results_ref.mergedGMM.mean), error_msg + " > " + "mergedGMM.mean"
-        # assert np.allclose(prediction_results.mergedGMM.variance, prediction_results_ref.mergedGMM.variance), error_msg + " > " + "mergedGMM.variance"
+        # compare results
+        error_msg = "inverseDensities" + " > " + gamma_type + "/" + sigma_type
+        assert np.allclose(prediction_results.fullGMM.weights, prediction_results_ref.fullGMM.weights), error_msg + " > " + "fullGMM.weights"
+        assert np.allclose(prediction_results.fullGMM.means, prediction_results_ref.fullGMM.means), error_msg + " > " + "fullGMM.means"
+        assert np.allclose(prediction_results.fullGMM.covs, prediction_results_ref.fullGMM.covs), error_msg + " > " + "fullGMM.covs"
+        assert np.allclose(prediction_results.fullGMM.mean, prediction_results_ref.fullGMM.mean), error_msg + " > " + "fullGMM.mean"
+        assert np.allclose(prediction_results.fullGMM.variance, prediction_results_ref.fullGMM.variance), error_msg + " > " + "fullGMM.variance"
+        assert np.allclose(prediction_results.mergedGMM.weights, prediction_results_ref.mergedGMM.weights), error_msg + " > " + "mergedGMM.weights"
+        assert np.allclose(prediction_results.mergedGMM.means, prediction_results_ref.mergedGMM.means), error_msg + " > " + "mergedGMM.means"
+        assert np.allclose(prediction_results.mergedGMM.covs, prediction_results_ref.mergedGMM.covs), error_msg + " > " + "mergedGMM.covs"
+        assert np.allclose(prediction_results.mergedGMM.mean, prediction_results_ref.mergedGMM.mean), error_msg + " > " + "mergedGMM.mean"
+        assert np.allclose(prediction_results.mergedGMM.variance, prediction_results_ref.mergedGMM.variance), error_msg + " > " + "mergedGMM.variance"

@@ -59,11 +59,11 @@ void bind_gllim(pybind11::module &m)
                   FullGMMResult p(0, 0, 0);
 
                   // Restore the state from the tuple
-                  p.mean = t[0].cast<decltype(p.mean)>();
-                  p.variance = t[1].cast<decltype(p.variance)>();
-                  p.weights = t[2].cast<decltype(p.weights)>();
-                  p.means = t[3].cast<decltype(p.means)>();
-                  p.covs = t[4].cast<decltype(p.covs)>();
+                  p.mean = carma::arr_to_mat(t[0].cast<py::array_t<double>>());
+                  p.variance = carma::arr_to_cube(t[1].cast<py::array_t<double>>());
+                  p.weights = carma::arr_to_mat(t[2].cast<py::array_t<double>>());
+                  p.means = carma::arr_to_cube(t[3].cast<py::array_t<double>>());
+                  p.covs = carma::arr_to_cube(t[4].cast<py::array_t<double>>());
 
                   return p;
              }));
@@ -74,10 +74,10 @@ void bind_gllim(pybind11::module &m)
          .def_readwrite("variance", &MergedGMMResult::variance)
          .def_readwrite("weights", &MergedGMMResult::weights)
          .def_readwrite("means", &MergedGMMResult::means)
-         .def_property("covs", &get_covs, &set_covs)                                     // Specific definition of getter and setter because the 'complex' structure is not handle properly by Pybind11/carma
-         .def(py::pickle(                                                                // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
-             [](const MergedGMMResult &p) {                                              // __getstate__
-                  return py::make_tuple(p.mean, p.variance, p.weights, p.means, p.covs); // Return a tuple that fully encodes the state of the object
+         .def_property("covs", &get_covs, &set_covs)                                          // Specific definition of getter and setter because the 'complex' structure is not handle properly by Pybind11/carma
+         .def(py::pickle(                                                                     // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
+             [](const MergedGMMResult &p) {                                                   // __getstate__
+                  return py::make_tuple(p.mean, p.variance, p.weights, p.means, get_covs(p)); // Return a tuple that fully encodes the state of the object
              },
              [](py::tuple t) { // __setstate__
                   if (t.size() != 5)
@@ -87,11 +87,11 @@ void bind_gllim(pybind11::module &m)
                   MergedGMMResult p(0, 0, 0);
 
                   // Restore the state from the tuple
-                  p.mean = t[0].cast<decltype(p.mean)>();
-                  p.variance = t[1].cast<decltype(p.variance)>();
-                  p.weights = t[2].cast<decltype(p.weights)>();
-                  p.means = t[3].cast<decltype(p.means)>();
-                  p.covs = t[4].cast<decltype(p.covs)>();
+                  p.mean = carma::arr_to_mat(t[0].cast<py::array_t<double>>());
+                  p.variance = carma::arr_to_cube(t[1].cast<py::array_t<double>>());
+                  p.weights = carma::arr_to_mat(t[2].cast<py::array_t<double>>());
+                  p.means = carma::arr_to_cube(t[3].cast<py::array_t<double>>());
+                  set_covs(p, t[4].cast<std::vector<py::array_t<double>>>());
 
                   return p;
              }));
@@ -109,11 +109,11 @@ void bind_gllim(pybind11::module &m)
                        throw std::runtime_error("Invalid state!");
 
                   // Create a new C++ instance
-                  PredictionResult p(0, 0, 0);
+                  PredictionResult p(0, 0, 0, 0);
 
                   // Restore the state from the tuple
-                  p.fullGMM = t[0].cast<decltype(p.fullGMM)>();
-                  p.mergedGMM = t[1].cast<decltype(p.mergedGMM)>();
+                  p.fullGMM = t[0].cast<FullGMMResult>();
+                  p.mergedGMM = t[1].cast<MergedGMMResult>();
 
                   return p;
              }));
