@@ -59,7 +59,7 @@ test_job:
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
         - make install
         - ctest
-        - python3 tests/pythonTests/integration_tests.py
+        - python3 ../tests/pythonTests/integration_tests.py
 
 build_job:
     stage: deploy
