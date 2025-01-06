@@ -59,12 +59,12 @@ test_job:
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
         - make install
         - ctest
+        - ls ..
+        - ls /usr/lib/python3/dist-packages
+        - cp ../*.so /usr/lib/python3/dist-packages/xllim.so
+        - ls ..
+        - ls /usr/lib/python3/dist-packages
         - cd ../tests/pythonTests/
-        - ls
-        - ls /usr/lib/python3/dist-packages
-        - cp *.so /usr/lib/python3/dist-packages/xllim.so
-        - ls
-        - ls /usr/lib/python3/dist-packages
         - python3 integration_tests.py
 
 build_job:
