@@ -52,11 +52,11 @@ void bind_functional_model(pybind11::module &m)
                 ImportanceSamplingResult p(0, 0);
 
                 // Restore the state from the tuple
-                p.predictions = t[0].cast<decltype(p.predictions)>();
-                p.predictions_variance = t[1].cast<decltype(p.predictions_variance)>();
-                p.nb_effective_sample = t[2].cast<decltype(p.nb_effective_sample)>();
-                p.effective_sample_size = t[3].cast<decltype(p.effective_sample_size)>();
-                p.qn = t[4].cast<decltype(p.qn)>();
+                p.predictions = carma::arr_to_mat(t[0].cast<py::array_t<double>>());
+                p.predictions_variance = carma::arr_to_mat(t[1].cast<py::array_t<double>>());
+                p.nb_effective_sample = carma::arr_to_row(t[2].cast<py::array_t<double>>());
+                p.effective_sample_size = carma::arr_to_row(t[3].cast<py::array_t<double>>());
+                p.qn = carma::arr_to_row(t[4].cast<py::array_t<double>>());
 
                 return p;
             }));
