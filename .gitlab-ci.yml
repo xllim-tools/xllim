@@ -60,6 +60,11 @@ test_job:
         - make install
         - ctest
         - cd ../tests/pythonTests/
+        - ls
+        - ls /usr/lib/python3/dist-packages
+        - cp *.so /usr/lib/python3/dist-packages/xllim.so
+        - ls
+        - ls /usr/lib/python3/dist-packages
         - python3 integration_tests.py
 
 build_job:
