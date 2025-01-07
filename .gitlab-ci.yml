@@ -31,7 +31,7 @@ build-lib-job:
             - build/
     tags:
         - ci.inria.fr
-        - small
+        - large
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
         - apt-get update
@@ -42,9 +42,7 @@ build-lib-job:
         - rm -rf build && mkdir build && cd build
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)" -DCMAKE_BUILD_TYPE=Release
         - make install
-        - ls
-        - ls ..
-        # - mv xllim*.so xllim.so
+
 
 # ------------------------------ test stage ------------------------------
 
@@ -53,7 +51,7 @@ test-job:
     when: manual
     tags:
         - ci.inria.fr
-        - small
+        - large
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     dependencies:
         - build-lib-job  # Only fetch artifacts from the build job
@@ -74,6 +72,7 @@ test-job:
         - ctest
         - cd ../tests/pythonTests/
         - python3 integration_tests.py
+
 
 # ------------------------------ deploy stage ------------------------------
 
