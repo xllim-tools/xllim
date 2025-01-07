@@ -28,8 +28,7 @@ build-lib-job:
     when: manual
     artifacts:
         paths:
-            - build/
-            - install/
+            - xllim.so
     tags:
         - ci.inria.fr
         - small
@@ -43,10 +42,11 @@ build-lib-job:
         - rm -rf build && mkdir build && cd build
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
         - make install
+        - ls
+        - ls ..
         - mv xllim*.so xllim.so
         - ls
-        - ls build
-        - ls install
+        - ls ..
 
 # ------------------------------ test stage ------------------------------
 
@@ -81,8 +81,7 @@ deploy-lib-job:
     when: manual
     artifacts:
         paths:
-            - xllim*.so
-            - install/xllim*.so
+            - xllim.so
     tags:
         - ci.inria.fr
         - small
