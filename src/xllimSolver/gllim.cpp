@@ -775,8 +775,8 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
 
     // Logger::getInstance().log(INFO, 2, verbose, "Inverse theta");
     GLLiMParameters<FullCovariance, FullCovariance> theta_star_altered = inverse(theta_altered);
-    theta_altered.Gamma.print();
-    theta_star_altered.Sigma.print();
+    theta_altered.Gamma[0].print();
+    theta_star_altered.Sigma[0].print();
 
     // ==================== Construct the GMM of the inverse conditional model ====================
 
