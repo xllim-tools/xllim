@@ -670,6 +670,9 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
 
     // means
     cube means(N_obs, theta.D, theta.K);
+    theta.A.slice(0).print("A");
+    x.print("x");
+    theta.B.col(0).print("B");
     for (unsigned k = 0; k < theta.K; ++k)
     {
         // Compute the means for each k
@@ -678,6 +681,7 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
         means.slice(k).each_row() += theta.B.col(k).t();
         // means.slice(k) = (theta.A.slice(k) * x).t() + arma::repmat(theta.B.col(k).t(), N_obs, 1);
     }
+    means.slice(0).row(0).print("constructGMM");
 
     // covariances
     cube covariances(theta.D, theta.D, theta.K); // The covariance is indenpendent from x
