@@ -287,8 +287,6 @@ for gamma_type in covariance_type_list:
         # ! ####################  TEST : inverseDensities()  ######################
 
         prediction_floor = 1e-10
-        print(x_gen_random)
-        print(y_gen_random)
         prediction_results = gllim.inverseDensities(
             np.array(y_gen_random.T),
             np.zeros(D),
@@ -305,9 +303,9 @@ for gamma_type in covariance_type_list:
             prediction_results_ref = pickle.load(f)
             f.close()
 
-        print(prediction_results.fullGMM.means)
-        print(prediction_results_ref.fullGMM.means)
-        print(prediction_results.fullGMM.means - prediction_results_ref.fullGMM.means)
+        print(prediction_results.fullGMM.means[:,:,0])
+        print(prediction_results_ref.fullGMM.means[:,:,0])
+        print(prediction_results.fullGMM.means[:,:,0] - prediction_results_ref.fullGMM.means[:,:,0])
         for k in range(K):
             print(np.allclose(prediction_results.fullGMM.means[:,:,k], prediction_results_ref.fullGMM.means[:,:,k]))
         # print(prediction_results.fullGMM.weights)
