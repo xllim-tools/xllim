@@ -28,12 +28,10 @@ FullCovariance FullCovariance::inv() const
     bool success = arma::inv_sympd(inv, covariances_);
     if (success)
     {
-        std::cout << "inv_sympd" << std::endl;
         return FullCovariance(inv);
     }
     else
     {
-        std::cout << "arma::inv" << std::endl;
         return FullCovariance(arma::inv(covariances_));
     }
 }
