@@ -307,6 +307,9 @@ for gamma_type in covariance_type_list:
         # compare results
         error_msg = "inverseDensities" + " > " + gamma_type + "/" + sigma_type
         assert np.allclose(prediction_results.fullGMM.weights, prediction_results_ref.fullGMM.weights), error_msg + " > " + "fullGMM.weights"
+        print(prediction_results.fullGMM.means)
+        print(prediction_results_ref.fullGMM.means)
+        print(prediction_results.fullGMM.means - prediction_results_ref.fullGMM.means)
         assert np.allclose(prediction_results.fullGMM.means, prediction_results_ref.fullGMM.means), error_msg + " > " + "fullGMM.means"
         assert np.allclose(prediction_results.fullGMM.covs, prediction_results_ref.fullGMM.covs), error_msg + " > " + "fullGMM.covs"
         assert np.allclose(prediction_results.fullGMM.mean, prediction_results_ref.fullGMM.mean), error_msg + " > " + "fullGMM.mean"
