@@ -28,7 +28,8 @@ build-lib-job:
     when: manual
     artifacts:
         paths:
-            - xllim.so
+            - build/
+            - install/
     tags:
         - ci.inria.fr
         - small
@@ -40,10 +41,12 @@ build-lib-job:
         - git submodule update
         - git submodule
         - rm -rf build && mkdir build && cd build
-        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
+        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/../install" -DCMAKE_BUILD_TYPE=Release
         - make install
+        - ls
+        - ls ..
         - cd ..
-        - mv xllim*.so xllim.so
+        # - mv xllim*.so xllim.so
 
 # ------------------------------ test stage ------------------------------
 
@@ -67,9 +70,9 @@ test-job:
         # - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
         # - make install
         - ls
+        - cp install/xllim*.so /usr/lib/python3/dist-packages/xllim.so
         - cd build
         - ctest
-        - cp ../*.so /usr/lib/python3/dist-packages/xllim.so
         - cd ../tests/pythonTests/
         - python3 integration_tests.py
 
@@ -97,6 +100,9 @@ deploy-lib-job:
         # - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
         # - make install
         - ls
+        - ls build
+        - ls install
+        - mv install/xllim*.so install/xllim.so
 
 deploy-xllim-minimal-job:
     stage: deploy
