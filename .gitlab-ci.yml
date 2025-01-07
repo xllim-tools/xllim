@@ -42,11 +42,8 @@ build-lib-job:
         - rm -rf build && mkdir build && cd build
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
         - make install
-        - ls
-        - ls ..
+        - cd ..
         - mv xllim*.so xllim.so
-        - ls
-        - ls ..
 
 # ------------------------------ test stage ------------------------------
 
@@ -56,7 +53,7 @@ test-job:
     tags:
         - ci.inria.fr
         - small
-    image: "$CI_REGISTRY_IMAGE/xllim_runner"
+    image: "$CI_REGISTRY_IMAGE/xllim_builder"
     dependencies:
         - build-lib-job  # Only fetch artifacts from the build job
     script:
@@ -69,6 +66,8 @@ test-job:
         # # On est censé build ici et dans build_job... redondant !
         # - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
         # - make install
+        - ls
+        - cd build
         - ctest
         - cp ../*.so /usr/lib/python3/dist-packages/xllim.so
         - cd ../tests/pythonTests/
