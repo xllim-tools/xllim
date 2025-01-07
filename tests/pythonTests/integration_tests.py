@@ -287,7 +287,8 @@ for gamma_type in covariance_type_list:
         # ! ####################  TEST : inverseDensities()  ######################
 
         prediction_floor = 1e-10
-
+        print(x_gen_random)
+        print(y_gen_random)
         prediction_results = gllim.inverseDensities(
             np.array(y_gen_random.T),
             np.zeros(D),
@@ -309,9 +310,9 @@ for gamma_type in covariance_type_list:
         print(prediction_results.fullGMM.means - prediction_results_ref.fullGMM.means)
         for k in range(K):
             print(np.allclose(prediction_results.fullGMM.means[:,:,k], prediction_results_ref.fullGMM.means[:,:,k]))
-        print(prediction_results.fullGMM.weights)
-        print(prediction_results_ref.fullGMM.weights)
-        print(prediction_results.fullGMM.weights - prediction_results_ref.fullGMM.weights)
+        # print(prediction_results.fullGMM.weights)
+        # print(prediction_results_ref.fullGMM.weights)
+        # print(prediction_results.fullGMM.weights - prediction_results_ref.fullGMM.weights)
 
         # compare results
         error_msg = "inverseDensities" + " > " + gamma_type + "/" + sigma_type
