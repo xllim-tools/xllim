@@ -24,7 +24,7 @@ build-dockers-job:
         # - docker push "$CI_REGISTRY_IMAGE/kernelo_coverage"
 
 build-lib-job:
-    stage: deploy
+    stage: build
     when: manual
     artifacts:
         paths:
