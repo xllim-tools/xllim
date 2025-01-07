@@ -29,7 +29,6 @@ build-lib-job:
     artifacts:
         paths:
             - build/
-            - install/
     tags:
         - ci.inria.fr
         - small
@@ -41,11 +40,10 @@ build-lib-job:
         - git submodule update
         - git submodule
         - rm -rf build && mkdir build && cd build
-        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/../install" -DCMAKE_BUILD_TYPE=Release
+        - cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release
         - make install
         - ls
         - ls ..
-        - cd ..
         # - mv xllim*.so xllim.so
 
 # ------------------------------ test stage ------------------------------
@@ -70,7 +68,8 @@ test-job:
         # - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
         # - make install
         - ls
-        - cp install/xllim*.so /usr/lib/python3/dist-packages/xllim.so
+        - ls build
+        - cp build/xllim*.so /usr/lib/python3/dist-packages/xllim.so
         - cd build
         - ctest
         - cd ../tests/pythonTests/
@@ -101,8 +100,7 @@ deploy-lib-job:
         # - make install
         - ls
         - ls build
-        - ls install
-        - mv install/xllim*.so install/xllim.so
+        - mv build/xllim*.so xllim.so
 
 deploy-xllim-minimal-job:
     stage: deploy
@@ -111,16 +109,18 @@ deploy-xllim-minimal-job:
         - ci.inria.fr
         - small
     image: docker:stable
+    dependencies:
+        - build-lib-job  # Only fetch artifacts from the build job
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-        - apk update
-        - apk add curl
-        - 'curl --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/jobs/artifacts/v2/download?job=build_job"'
-        - unzip artifacts.zip
-        - rm artifacts.zip
+        # - apk update
+        # - apk add curl
+        # - 'curl --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/jobs/artifacts/v2/download?job=build_job"'
+        # - unzip artifacts.zip
+        # - rm artifacts.zip
         - docker pull $CI_REGISTRY_IMAGE/xllim_runner
         - docker run -it -d --rm --name xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_runner
-        - docker cp *.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
+        - docker cp build/xllim*.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
         - docker commit xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_minimal
         - docker stop xllim_minimal_temp_container
         - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"
