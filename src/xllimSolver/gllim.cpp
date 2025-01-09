@@ -638,12 +638,12 @@ GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(G
             theta_star.B.col(k) = theta_star.Sigma[k] * vec(gamma_inv * vec(theta.C.col(k)) - mat(theta.A.slice(k).t()) * sigma_inv * vec(theta.B.col(k)));
         }
     }
-    std::cout << std::setprecision(9) << theta_star.A(0,0,0) << std::endl; // ! ERROR
-    std::cout << std::setprecision(9) << theta_star.B(0,0) << std::endl; // ! ERROR
-    std::cout << std::setprecision(9) << theta_star.C(0,0) << std::endl; // ! OK
-    std::cout << std::setprecision(9) << theta_star.Pi(0) << std::endl; // ! OK
-    std::cout << std::setprecision(9) << theta_star.Gamma[0].get_mat()(0,0) << std::endl; // ! OK
-    std::cout << std::setprecision(9) << theta_star.Sigma[0].get_mat()(0,0) << std::endl; // ! ERROR
+    std::cout << std::setprecision(9) << theta_star.A(0,0,4) << std::endl; // ! ERROR
+    std::cout << std::setprecision(9) << theta_star.B(0,4) << std::endl; // ! ERROR
+    std::cout << std::setprecision(9) << theta_star.C(0,4) << std::endl; // ! OK
+    std::cout << std::setprecision(9) << theta_star.Pi(4) << std::endl; // ! OK
+    std::cout << std::setprecision(9) << theta_star.Gamma[4].get_mat()(0,0) << std::endl; // ! OK
+    std::cout << std::setprecision(9) << theta_star.Sigma[4].get_mat()(0,0) << std::endl; // ! ERROR
     // ! Dependences avec sigma_inv et gamma_inv
     return theta_star;
 }
@@ -685,9 +685,9 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
     // means
     cube means(N_obs, theta.D, theta.K);
     std::cout << "constructGMM" << std::endl;
-    std::cout << std::setprecision(9) << theta.A(0,0,0) << std::endl; // ! error
+    std::cout << std::setprecision(9) << theta.A(0,0,4) << std::endl; // ! error
     std::cout << std::setprecision(9) << x(0,0) << std::endl;
-    std::cout << std::setprecision(9) << theta.B(0,0) << std::endl; // ! error
+    std::cout << std::setprecision(9) << theta.B(0,4) << std::endl; // ! error
     for (unsigned k = 0; k < theta.K; ++k)
     {
         // Compute the means for each k
@@ -696,7 +696,7 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
         means.slice(k).each_row() += theta.B.col(k).t();
         // means.slice(k) = (theta.A.slice(k) * x).t() + arma::repmat(theta.B.col(k).t(), N_obs, 1);
     }
-    std::cout << std::setprecision(9) << means(0,0,0) << std::endl; // ! error
+    std::cout << std::setprecision(9) << means(0,0,4) << std::endl; // ! error
 
     // covariances
     cube covariances(theta.D, theta.D, theta.K); // The covariance is indenpendent from x
@@ -795,9 +795,9 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     // Logger::getInstance().log(INFO, 2, verbose, "Inverse theta");
     GLLiMParameters<FullCovariance, FullCovariance> theta_star_altered = inverse(theta_altered);
     std::cout << "theta_altered" << std::endl;
-    std::cout << std::setprecision(9) << theta_altered.A(0,0,0) << std::endl; // ! OK
+    std::cout << std::setprecision(9) << theta_altered.A(0,0,4) << std::endl; // ! OK
     std::cout << "theta_star_altered" << std::endl;
-    std::cout << std::setprecision(9) << theta_star_altered.A(0,0,0) << std::endl; // ! ERROR
+    std::cout << std::setprecision(9) << theta_star_altered.A(0,0,4) << std::endl; // ! ERROR
 
     // ==================== Construct the GMM of the inverse conditional model ====================
 
