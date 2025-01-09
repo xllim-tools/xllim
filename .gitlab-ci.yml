@@ -27,19 +27,27 @@ build-lib-job:
     stage: build
     when: manual
     artifacts:
+        expire_in: 24h
         paths:
             - build/
     tags:
         - ci.inria.fr
-        - large
+        - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
+        - apk update
+        - apk add curl
+        - 'curl --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/jobs/artifacts/v2/download?job=build-lib-job"'
+        - unzip artifacts.zip
+        - rm artifacts.zip
+
         - apt-get update
         - apt-get install -y --no-install-recommends git
         - git submodule init
         - git submodule update
         - git submodule
-        - rm -rf build && mkdir build && cd build
+        # - rm -rf build && mkdir build && cd build
+        - cd build
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)" -DCMAKE_BUILD_TYPE=Release
         - make install
 
@@ -51,7 +59,7 @@ test-job:
     when: manual
     tags:
         - ci.inria.fr
-        - large
+        - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     dependencies:
         - build-lib-job  # Only fetch artifacts from the build job
