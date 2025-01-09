@@ -623,7 +623,9 @@ GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(G
         {
             theta_star.Pi(k) = theta.Pi(k);
             TSigma sigma_inv = theta.Sigma[k].inv();
+            std::cout << std::setprecision(9) << sigma_inv.get_mat()(0,0) << std::endl; // !
             TGamma gamma_inv = theta.Gamma[k].inv();
+            std::cout << std::setprecision(9) << gamma_inv.get_mat()(0,0) << std::endl; // !
             theta_star.C.col(k) = theta.A.slice(k) * theta.C.col(k) + theta.B.col(k);
             theta_star.Gamma[k] = FullCovariance(theta.Sigma[k] + theta.A.slice(k) * theta.Gamma[k] * theta.A.slice(k).t());
             theta_star.Sigma[k] = FullCovariance((gamma_inv + mat(theta.A.slice(k).t()) * sigma_inv * mat(theta.A.slice(k))).i());
@@ -631,12 +633,13 @@ GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(G
             theta_star.B.col(k) = theta_star.Sigma[k] * vec(gamma_inv * vec(theta.C.col(k)) - mat(theta.A.slice(k).t()) * sigma_inv * vec(theta.B.col(k)));
         }
     }
-    std::cout << std::setprecision(9) << theta_star.A(0,0,0) << std::endl;
-    std::cout << std::setprecision(9) << theta_star.B(0,0) << std::endl;
-    std::cout << std::setprecision(9) << theta_star.C(0,0) << std::endl;
-    std::cout << std::setprecision(9) << theta_star.Pi(0) << std::endl;
-    std::cout << std::setprecision(9) << theta_star.Gamma[0].get_mat()(0,0) << std::endl;
-    std::cout << std::setprecision(9) << theta_star.Sigma[0].get_mat()(0,0) << std::endl;
+    std::cout << std::setprecision(9) << theta_star.A(0,0,0) << std::endl; // ! ERROR
+    std::cout << std::setprecision(9) << theta_star.B(0,0) << std::endl; // ! ERROR
+    std::cout << std::setprecision(9) << theta_star.C(0,0) << std::endl; // ! OK
+    std::cout << std::setprecision(9) << theta_star.Pi(0) << std::endl; // ! OK
+    std::cout << std::setprecision(9) << theta_star.Gamma[0].get_mat()(0,0) << std::endl; // ! OK
+    std::cout << std::setprecision(9) << theta_star.Sigma[0].get_mat()(0,0) << std::endl; // ! ERROR
+    // ! Dependences avec sigma_inv et gamma_inv
     return theta_star;
 }
 

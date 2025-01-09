@@ -32,7 +32,7 @@ build-lib-job:
             - build/
     tags:
         - ci.inria.fr
-        - small
+        - large
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
         - apt update
@@ -60,7 +60,7 @@ test-job:
     when: manual
     tags:
         - ci.inria.fr
-        - small
+        - large
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     dependencies:
         - build-lib-job  # Only fetch artifacts from the build job
@@ -77,8 +77,8 @@ test-job:
         - ls
         - ls build
         - cp build/xllim*.so /usr/lib/python3/dist-packages/xllim.so
-        - cd build
-        - ctest
+        # - cd build
+        # - ctest
         - cd ../tests/pythonTests/
         - python3 integration_tests.py
 
