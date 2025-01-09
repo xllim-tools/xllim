@@ -194,14 +194,16 @@ train_floor = 1e-12
 K_merged = 2
 
 covariance_type_list = ["full", "diag", "iso"]
-K, D, L, N = 5, 9, 4, 100
+K, D, L, N_gen, N_test = 5, 9, 4, 1000, 10
 
 for gamma_type in covariance_type_list:
     for sigma_type in covariance_type_list:
         np.random.seed(seed)
-        x_gen_random = np.random.rand(N, L)
+        x_gen_random = np.random.rand(N_gen, L)
         np.random.seed(seed)
-        y_gen_random = np.random.rand(N, D)
+        y_gen_random = np.random.rand(N_gen, D)
+        np.random.seed(seed)
+        y_test_random = np.random.rand(N_test, D)
 
         #####################  Set up specific GLLiM model  #######################
 
@@ -288,7 +290,7 @@ for gamma_type in covariance_type_list:
 
         prediction_floor = 1e-10
         prediction_results = gllim.inverseDensities(
-            np.array(y_gen_random.T),
+            np.array(y_test_random.T),
             np.zeros(D),
             K_merged,
             prediction_floor,
@@ -315,7 +317,7 @@ for gamma_type in covariance_type_list:
         # compare results
         error_msg = "inverseDensities" + " > " + gamma_type + "/" + sigma_type
         assert np.allclose(prediction_results.fullGMM.weights, prediction_results_ref.fullGMM.weights), error_msg + " > " + "fullGMM.weights"
-        assert np.allclose(prediction_results.fullGMM.means, prediction_results_ref.fullGMM.means, rtol=1e-3), error_msg + " > " + "fullGMM.means" # ! <-- error in CI whith default no.allclose() values
+        assert np.allclose(prediction_results.fullGMM.means, prediction_results_ref.fullGMM.means), error_msg + " > " + "fullGMM.means" # ! <-- error in CI whith default no.allclose() values
         assert np.allclose(prediction_results.fullGMM.covs, prediction_results_ref.fullGMM.covs), error_msg + " > " + "fullGMM.covs" # ! <-- error in CI whith default no.allclose() values
         assert np.allclose(prediction_results.fullGMM.mean, prediction_results_ref.fullGMM.mean), error_msg + " > " + "fullGMM.mean"
         assert np.allclose(prediction_results.fullGMM.variance, prediction_results_ref.fullGMM.variance), error_msg + " > " + "fullGMM.variance"

@@ -622,10 +622,12 @@ GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(G
         if (theta.Pi(k) != 0)
         {
             std::cout << k << std::endl;
+            theta.Sigma[k].print("Sigma");
             theta_star.Pi(k) = theta.Pi(k);
             TSigma sigma_inv = theta.Sigma[k].inv();
             std::cout << std::setprecision(9) << theta.Sigma[k].get_mat()(0,0) << std::endl;
             std::cout << std::setprecision(9) << sigma_inv.get_mat()(0,0) << std::endl; // !
+            sigma_inv.print("Sigma_inv");
             TGamma gamma_inv = theta.Gamma[k].inv();
             std::cout << std::setprecision(9) << theta.Gamma[k].get_mat()(0,0) << std::endl;
             std::cout << std::setprecision(9) << gamma_inv.get_mat()(0,0) << std::endl; // !
