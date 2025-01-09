@@ -671,9 +671,9 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
     // means
     cube means(N_obs, theta.D, theta.K);
     std::cout << "constructGMM" << std::endl;
-    std::cout << std::setprecision(9) << theta.A(0,0,0) << std::endl;
+    std::cout << std::setprecision(9) << theta.A(0,0,0) << std::endl; // ! error
     std::cout << std::setprecision(9) << x(0,0) << std::endl;
-    std::cout << std::setprecision(9) << theta.B(0,0) << std::endl;
+    std::cout << std::setprecision(9) << theta.B(0,0) << std::endl; // ! error
     for (unsigned k = 0; k < theta.K; ++k)
     {
         // Compute the means for each k
@@ -682,7 +682,7 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
         means.slice(k).each_row() += theta.B.col(k).t();
         // means.slice(k) = (theta.A.slice(k) * x).t() + arma::repmat(theta.B.col(k).t(), N_obs, 1);
     }
-    std::cout << std::setprecision(9) << means(0,0,0) << std::endl;
+    std::cout << std::setprecision(9) << means(0,0,0) << std::endl; // ! error
 
     // covariances
     cube covariances(theta.D, theta.D, theta.K); // The covariance is indenpendent from x
@@ -780,6 +780,10 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
 
     // Logger::getInstance().log(INFO, 2, verbose, "Inverse theta");
     GLLiMParameters<FullCovariance, FullCovariance> theta_star_altered = inverse(theta_altered);
+    std::cout << "theta_altered" << std::endl;
+    std::cout << std::setprecision(9) << theta_altered.A(0,0,0) << std::endl; // ?
+    std::cout << "theta_star_altered" << std::endl;
+    std::cout << std::setprecision(9) << theta_star_altered.A(0,0,0) << std::endl; // ?
 
     // ==================== Construct the GMM of the inverse conditional model ====================
 
