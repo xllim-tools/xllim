@@ -36,7 +36,7 @@ build-lib-job:
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
         - apt update
-        - apt install -y --no-install-recommends curl
+        - apt install -y --no-install-recommends curl unzip
         - 'curl --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/jobs/artifacts/v2/download?job=build-lib-job"'
         - unzip artifacts.zip
         - rm artifacts.zip
