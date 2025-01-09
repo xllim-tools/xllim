@@ -1,7 +1,7 @@
 # List of stages for jobs, and their order of execution
 stages:
     - build
-    - test
+    - xllim
     - deploy
 
 
@@ -23,13 +23,20 @@ build-dockers-job:
         - docker push "$CI_REGISTRY_IMAGE/xllim_builder"
         # - docker push "$CI_REGISTRY_IMAGE/kernelo_coverage"
 
+
+# ------------------------------ xllim stage ------------------------------
+# this on-job stage run build + test + deployement of xllim library
+# The build is made thanks to cmake
+# the tests are done with ctest for unittest and python script for integration tests
+# If the two precedent steps succeded then the xllim.so library is deploy through Gitlab artifacts
+
 build-lib-job:
-    stage: build
+    stage: xllim
     when: manual
     artifacts:
         expire_in: 24h
         paths:
-            - build/
+            - build/xllim*.so
     tags:
         - ci.inria.fr
         - small
@@ -42,6 +49,7 @@ build-lib-job:
         # - unzip artifacts.zip
         # - rm artifacts.zip
 
+        # build step
         - apt-get update
         - apt-get install -y --no-install-recommends git
         - git submodule init
@@ -52,69 +60,17 @@ build-lib-job:
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)" -DCMAKE_BUILD_TYPE=Release
         - make install
 
+        # cpp unit test step
+        - cp xllim*.so /usr/lib/python3/dist-packages/xllim.so
+        - ctest
         - cd ..
-        - cp build/xllim*.so /usr/lib/python3/dist-packages/xllim.so
-        - cd tests/pythonTests/
-        - python3 integration_tests.py
-
-
-# ------------------------------ test stage ------------------------------
-
-test-job:
-    stage: test
-    when: manual
-    tags:
-        - ci.inria.fr
-        - small
-    image: "$CI_REGISTRY_IMAGE/xllim_builder"
-    dependencies:
-        - build-lib-job  # Only fetch artifacts from the build job
-    script:
-        # - apt-get update
-        # - apt-get install -y --no-install-recommends git
-        # - git submodule init
-        # - git submodule update
-        # - git submodule
-        # - rm -rf build && mkdir build && cd build
-        # # On est censé build ici et dans build_job... redondant !
-        # - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
-        # - make install
-        - ls
-        - ls build
-        - cp build/xllim*.so /usr/lib/python3/dist-packages/xllim.so
-        # - cd build
-        # - ctest
-        # - cd ../tests/pythonTests/
+        
+        # python integration test step
         - cd tests/pythonTests/
         - python3 integration_tests.py
 
 
 # ------------------------------ deploy stage ------------------------------
-
-deploy-lib-job:
-    stage: deploy
-    when: manual
-    artifacts:
-        paths:
-            - xllim.so
-    tags:
-        - ci.inria.fr
-        - small
-    image: "$CI_REGISTRY_IMAGE/xllim_builder"
-    dependencies:
-        - build-lib-job  # Only fetch artifacts from the build job
-    script:
-        # - apt-get update
-        # - apt-get install -y --no-install-recommends git
-        # - git submodule init
-        # - git submodule update
-        # - git submodule
-        # - rm -rf build && mkdir build && cd build
-        # - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
-        # - make install
-        - ls
-        - ls build
-        - mv build/xllim*.so xllim.so
 
 deploy-xllim-minimal-job:
     stage: deploy
@@ -134,7 +90,7 @@ deploy-xllim-minimal-job:
         # - rm artifacts.zip
         - docker pull $CI_REGISTRY_IMAGE/xllim_runner
         - docker run -it -d --rm --name xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_runner
-        - docker cp build/xllim*.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
+        - docker cp xllim*.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
         - docker commit xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_minimal
         - docker stop xllim_minimal_temp_container
         - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"

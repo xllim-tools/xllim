@@ -616,6 +616,7 @@ void GLLiM<TGamma, TSigma>::setParamSigmaArray(const typename TSigma::Type &Sigm
 template <typename TGamma, typename TSigma>
 GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(GLLiMParameters<TGamma, TSigma> &theta)
 {
+    std::cout.precision(11);
     GLLiMParameters<FullCovariance, FullCovariance> theta_star(theta.K, theta.L, theta.D, theta.L_w);
     for (unsigned k = 0; k < theta_.K; k++)
     {
@@ -624,21 +625,22 @@ GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(G
             std::cout << k << std::endl;
             theta_star.Pi(k) = theta.Pi(k);
 
-            theta.Sigma[k].print("Sigma");
+            theta.Sigma[k].get_mat().raw_print("Sigma");
             TSigma sigma_inv = theta.Sigma[k].inv();
-            sigma_inv.print("Sigma_inv");
+            sigma_inv.get_mat().raw_print("Sigma_inv");
             std::cout << std::setprecision(9) << theta.Sigma[k].get_mat()(0,0) << std::endl;
             std::cout << std::setprecision(9) << sigma_inv.get_mat()(0,0) << std::endl; // !
 
-            theta.Gamma[k].print("Gamma");
+            theta.Gamma[k].get_mat().raw_print("Gamma");
             TGamma gamma_inv = theta.Gamma[k].inv();
-            gamma_inv.print("Gamma_inv");
+            gamma_inv.get_mat().raw_print("Gamma_inv");
             std::cout << std::setprecision(9) << theta.Gamma[k].get_mat()(0,0) << std::endl;
             std::cout << std::setprecision(9) << gamma_inv.get_mat()(0,0) << std::endl; // !
 
             theta_star.C.col(k) = theta.A.slice(k) * theta.C.col(k) + theta.B.col(k);
             theta_star.Gamma[k] = FullCovariance(theta.Sigma[k] + theta.A.slice(k) * theta.Gamma[k] * theta.A.slice(k).t());
             theta_star.Sigma[k] = FullCovariance((gamma_inv + mat(theta.A.slice(k).t()) * sigma_inv * mat(theta.A.slice(k))).i());
+            theta_star.Sigma[k].get_mat().raw_print("theta_star.Sigma[k]");
             theta_star.A.slice(k) = theta_star.Sigma[k] * mat(theta.A.slice(k).t()) * sigma_inv;
             theta_star.B.col(k) = theta_star.Sigma[k] * vec(gamma_inv * vec(theta.C.col(k)) - mat(theta.A.slice(k).t()) * sigma_inv * vec(theta.B.col(k)));
         }
