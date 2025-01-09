@@ -37,7 +37,7 @@ build-lib-job:
     script:
         - apt update
         - apt install -y --no-install-recommends curl unzip
-        - 'curl --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/jobs/5143652/artifacts/*"'
+        - 'curl --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/jobs/5143652/artifacts/."'
         - ls
         - unzip artifacts.zip
         - rm artifacts.zip
