@@ -79,7 +79,8 @@ test-job:
         - cp build/xllim*.so /usr/lib/python3/dist-packages/xllim.so
         # - cd build
         # - ctest
-        - cd ../tests/pythonTests/
+        # - cd ../tests/pythonTests/
+        - cd tests/pythonTests/
         - python3 integration_tests.py
 
 
