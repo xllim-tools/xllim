@@ -48,7 +48,7 @@ build-lib-job:
         - git submodule update
         - git submodule
         - rm -rf build && mkdir build && cd build
-        - cd build
+        # - cd build
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)" -DCMAKE_BUILD_TYPE=Release
         - make install
 
