@@ -622,15 +622,20 @@ GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(G
         if (theta.Pi(k) != 0)
         {
             std::cout << k << std::endl;
-            theta.Sigma[k].print("Sigma");
             theta_star.Pi(k) = theta.Pi(k);
+
+            theta.Sigma[k].print("Sigma");
             TSigma sigma_inv = theta.Sigma[k].inv();
+            sigma_inv.print("Sigma_inv");
             std::cout << std::setprecision(9) << theta.Sigma[k].get_mat()(0,0) << std::endl;
             std::cout << std::setprecision(9) << sigma_inv.get_mat()(0,0) << std::endl; // !
-            sigma_inv.print("Sigma_inv");
+
+            theta.Gamma[k].print("Gamma");
             TGamma gamma_inv = theta.Gamma[k].inv();
+            gamma_inv.print("Gamma_inv");
             std::cout << std::setprecision(9) << theta.Gamma[k].get_mat()(0,0) << std::endl;
             std::cout << std::setprecision(9) << gamma_inv.get_mat()(0,0) << std::endl; // !
+
             theta_star.C.col(k) = theta.A.slice(k) * theta.C.col(k) + theta.B.col(k);
             theta_star.Gamma[k] = FullCovariance(theta.Sigma[k] + theta.A.slice(k) * theta.Gamma[k] * theta.A.slice(k).t());
             theta_star.Sigma[k] = FullCovariance((gamma_inv + mat(theta.A.slice(k).t()) * sigma_inv * mat(theta.A.slice(k))).i());

@@ -52,6 +52,11 @@ build-lib-job:
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)" -DCMAKE_BUILD_TYPE=Release
         - make install
 
+        - cd ..
+        - cp build/xllim*.so /usr/lib/python3/dist-packages/xllim.so
+        - cd tests/pythonTests/
+        - python3 integration_tests.py
+
 
 # ------------------------------ test stage ------------------------------
 
