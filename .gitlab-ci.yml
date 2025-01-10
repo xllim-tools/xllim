@@ -35,7 +35,7 @@ compile-and-test-xllim:
     when: manual
     artifacts:
         paths:
-            - build/xllim*.so
+            - xllim*.so
     tags:
         - ci.inria.fr
         - small
@@ -48,7 +48,7 @@ compile-and-test-xllim:
         - git submodule update
         - git submodule
         - rm -rf build && mkdir build && cd build
-        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)" -DCMAKE_BUILD_TYPE=Release
+        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
         - make install
 
         # cpp unit test step
@@ -76,7 +76,7 @@ deploy-xllim-minimal-docker-image:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
         - docker pull $CI_REGISTRY_IMAGE/xllim_runner
         - docker run -it -d --rm --name xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_runner
-        - docker cp build/xllim*.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
+        - docker cp xllim*.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
         - docker commit xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_minimal
         - docker stop xllim_minimal_temp_container
         - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"
