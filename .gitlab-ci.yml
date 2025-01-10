@@ -71,7 +71,7 @@ deploy-xllim-minimal-docker-image:
         - small
     image: docker:stable
     dependencies:
-        - build-lib-job  # Only fetch artifacts from the build job
+        - compile-and-test-xllim  # Only fetch artifacts from the build job
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
         # - apk update
