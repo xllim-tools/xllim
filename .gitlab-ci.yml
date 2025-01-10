@@ -7,7 +7,7 @@ stages:
 
 # ------------------------------ build stage ------------------------------
 
-build-dockers-job:
+build-docker-images:
     stage: build
     when: manual
     tags:
@@ -30,11 +30,10 @@ build-dockers-job:
 # the tests are done with ctest for unittest and python script for integration tests
 # If the two precedent steps succeded then the xllim.so library is deploy through Gitlab artifacts
 
-build-lib-job:
+compile-and-test-xllim:
     stage: xllim
     when: manual
     artifacts:
-        expire_in: 24h
         paths:
             - build/xllim*.so
     tags:
@@ -42,13 +41,6 @@ build-lib-job:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder"
     script:
-        # - apt update
-        # - apt install -y --no-install-recommends curl unzip
-        # - 'curl --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/jobs/5143652/artifacts/."'
-        # - ls
-        # - unzip artifacts.zip
-        # - rm artifacts.zip
-
         # build step
         - apt-get update
         - apt-get install -y --no-install-recommends git
@@ -56,7 +48,6 @@ build-lib-job:
         - git submodule update
         - git submodule
         - rm -rf build && mkdir build && cd build
-        # - cd build
         - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)" -DCMAKE_BUILD_TYPE=Release
         - make install
 
@@ -72,7 +63,7 @@ build-lib-job:
 
 # ------------------------------ deploy stage ------------------------------
 
-deploy-xllim-minimal-job:
+deploy-xllim-minimal-docker-image:
     stage: deploy
     when: manual
     tags:
@@ -90,7 +81,7 @@ deploy-xllim-minimal-job:
         # - rm artifacts.zip
         - docker pull $CI_REGISTRY_IMAGE/xllim_runner
         - docker run -it -d --rm --name xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_runner
-        - docker cp xllim*.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
+        - docker cp build/xllim*.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
         - docker commit xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_minimal
         - docker stop xllim_minimal_temp_container
         - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"
