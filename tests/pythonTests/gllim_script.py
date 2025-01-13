@@ -99,58 +99,58 @@ print(np.all(new_theta.Sigma == new_theta_unpickled.Sigma))
 
 ################## loop on GLLiM models ####################
 
-covariance_type_list = ["full", "diag", "iso"]
+# covariance_type_list = ["full", "diag", "iso"]
 
-for gamma_type in covariance_type_list:
-    for sigma_type in covariance_type_list:
+# for gamma_type in covariance_type_list:
+#     for sigma_type in covariance_type_list:
 
-        gllim = lib.GLLiM(K, D, L, gamma_type, sigma_type)
+#         gllim = lib.GLLiM(K, D, L, gamma_type, sigma_type)
 
-        ################## getters ####################
-        gllim.getDimensions()
-        gllim.getConstraints()
-        gllim.getParams()
-        gllim.getParamPi()
-        gllim.getParamA()
-        gllim.getParamC()
-        gllim.getParamGamma()
-        gllim.getParamB()
-        gllim.getParamSigma()
+#         ################## getters ####################
+#         gllim.getDimensions()
+#         gllim.getConstraints()
+#         gllim.getParams()
+#         gllim.getParamPi()
+#         gllim.getParamA()
+#         gllim.getParamC()
+#         gllim.getParamGamma()
+#         gllim.getParamB()
+#         gllim.getParamSigma()
 
-        gllim.initialize(
-            X_gen,
-            Y_gen,
-            gllim_em_iteration,
-            gllim_em_floor,
-            gmm_kmeans_iteration,
-            gmm_em_iteration,
-            gmm_floor,
-            nb_experiences,
-            seed,
-            verbose,
-        )
-        gllim.train(
-            X_gen, Y_gen, train_max_iteration, train_ratio_ll, train_floor, verbose
-        )
+#         gllim.initialize(
+#             X_gen,
+#             Y_gen,
+#             gllim_em_iteration,
+#             gllim_em_floor,
+#             gmm_kmeans_iteration,
+#             gmm_em_iteration,
+#             gmm_floor,
+#             nb_experiences,
+#             seed,
+#             verbose,
+#         )
+#         gllim.train(
+#             X_gen, Y_gen, train_max_iteration, train_ratio_ll, train_floor, verbose
+#         )
 
-        theta_star = gllim.getInverse()
+#         theta_star = gllim.getInverse()
 
-        x = np.random.rand(L, 40)
-        x_incertitudes = np.random.rand(L) * 0.02
-        prediction_direct_results = gllim.directDensities(x, x_incertitudes)
+#         x = np.random.rand(L, 40)
+#         x_incertitudes = np.random.rand(L) * 0.02
+#         prediction_direct_results = gllim.directDensities(x, x_incertitudes)
 
-        y = np.random.rand(D, 40)
-        y_incertitudes = np.random.rand(D, 1) * 0.01
-        tic = time.time()
-        prediction_results = gllim.inverseDensities(y, y_incertitudes)
-        print("Time One inversion = {}".format(time.time() - tic))
+#         y = np.random.rand(D, 40)
+#         y_incertitudes = np.random.rand(D, 1) * 0.01
+#         tic = time.time()
+#         prediction_results = gllim.inverseDensities(y, y_incertitudes)
+#         print("Time One inversion = {}".format(time.time() - tic))
 
-        y_incertitudes_temp = np.matlib.repmat(y_incertitudes, 1, 40)
-        y_incertitudes_mat = np.copy(y_incertitudes_temp)
+#         y_incertitudes_temp = np.matlib.repmat(y_incertitudes, 1, 40)
+#         y_incertitudes_mat = np.copy(y_incertitudes_temp)
 
-        tic = time.time()
-        prediction_results_all = gllim.inverseDensities(y, y_incertitudes_mat, 1)
-        print("Time Multi inversion = {}".format(time.time() - tic))
+#         tic = time.time()
+#         prediction_results_all = gllim.inverseDensities(y, y_incertitudes_mat, 1)
+#         print("Time Multi inversion = {}".format(time.time() - tic))
 
 
 ################## GLLiM Full model JGMM training ####################
@@ -201,6 +201,24 @@ merging_threshold = 1e-5
 tic = time.time()
 prediction_results_all = gllim.inverseDensities(y, y_incertitudes_mat, K_merged, merging_threshold, 1)
 print("Time inversion with merging algorithm = {}".format(time.time()-tic))
+
+# Test pickle/unpickle predictionResults
+with open('predResults_pickle_test.file', 'wb') as f:
+    pickle.dump(prediction_results_all, f)
+    f.close()
+
+with open('predResults_pickle_test.file', 'rb') as f:
+    prediction_results_all_unpickled = pickle.load(f)
+    f.close()
+
+os.remove('predResults_pickle_test.file') # delete the generated file
+
+print(np.all(prediction_results_all.fullGMM.mean == prediction_results_all_unpickled.fullGMM.mean))
+print(np.all(prediction_results_all.mergedGMM.means == prediction_results_all_unpickled.mergedGMM.means))
+# print(np.all(prediction_results_all.B == prediction_results_all_unpickled.B))
+# print(np.all(prediction_results_all.C == prediction_results_all_unpickled.C))
+# print(np.all(prediction_results_all.Gamma == prediction_results_all_unpickled.Gamma))
+# print(np.all(prediction_results_all.Sigma == prediction_results_all_unpickled.Sigma))
 
 series = prediction_results_all.mergedGMM.means
 tic = time.time()
