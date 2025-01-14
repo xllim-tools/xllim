@@ -196,14 +196,11 @@ K_merged = 2
 covariance_type_list = ["full", "diag", "iso"]
 K, D, L, N_gen, N_test = 5, 9, 4, 1000, 10
 
+x_gen, y_gen = xllim.TestModel().genData(N_gen, "random", 20, seed)
+x_test, y_test = xllim.TestModel().genData(N_test, "random", 20, seed)
+
 for gamma_type in covariance_type_list:
     for sigma_type in covariance_type_list:
-        np.random.seed(seed)
-        x_gen_random = np.random.rand(N_gen, L)
-        np.random.seed(seed)
-        y_gen_random = np.random.rand(N_gen, D)
-        np.random.seed(seed)
-        y_test_random = np.random.rand(N_test, D)
 
         #####################  Set up specific GLLiM model  #######################
 
@@ -214,8 +211,8 @@ for gamma_type in covariance_type_list:
         # ! #######################  TEST : initialize()  #########################
 
         gllim.initialize(
-            np.array(x_gen_random.T),
-            np.array(y_gen_random.T),
+            np.array(x_gen.T),
+            np.array(y_gen.T),
             gllim_em_iteration,
             gllim_em_floor,
             gmm_kmeans_iteration,
@@ -227,10 +224,10 @@ for gamma_type in covariance_type_list:
         )
         gllim_params_initialised = gllim.getParams()
 
-        # # ! Only run once to generate ref
-        # with open("../dataRef/gllim_params_initialised_ref/gllim_params_initialised_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
-        #     pickle.dump(gllim_params_initialised, f)
-        #     f.close()
+        # ! Only run once to generate ref
+        with open("../dataRef/gllim_params_initialised_ref/gllim_params_initialised_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
+            pickle.dump(gllim_params_initialised, f)
+            f.close()
 
         with open("../dataRef/gllim_params_initialised_ref/gllim_params_initialised_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
             gllim_params_initialised_ref = pickle.load(f)
@@ -249,8 +246,8 @@ for gamma_type in covariance_type_list:
 
         if gamma_type == "full" and sigma_type == "full":
             gllim.train(
-                np.array(x_gen_random.T),
-                np.array(y_gen_random.T),
+                np.array(x_gen.T),
+                np.array(y_gen.T),
                 gmm_kmeans_iteration,
                 train_ratio_ll,
                 train_floor,
@@ -258,8 +255,8 @@ for gamma_type in covariance_type_list:
             )
         else:
             gllim.train(
-                np.array(x_gen_random.T),
-                np.array(y_gen_random.T),
+                np.array(x_gen.T),
+                np.array(y_gen.T),
                 train_max_iteration,
                 train_ratio_ll,
                 train_floor,
@@ -267,10 +264,10 @@ for gamma_type in covariance_type_list:
             )
         gllim_params_trained = gllim.getParams()
 
-        # # ! Only run once to generate ref
-        # with open("../dataRef/gllim_params_trained_ref/gllim_params_trained_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
-        #     pickle.dump(gllim_params_trained, f)
-        #     f.close()
+        # ! Only run once to generate ref
+        with open("../dataRef/gllim_params_trained_ref/gllim_params_trained_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
+            pickle.dump(gllim_params_trained, f)
+            f.close()
 
         with open("../dataRef/gllim_params_trained_ref/gllim_params_trained_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
             gllim_params_trained_ref = pickle.load(f)
@@ -278,28 +275,28 @@ for gamma_type in covariance_type_list:
 
         # compare results
         error_msg = "train" + " > " + gamma_type + "/" + sigma_type
-        assert np.allclose(gllim_params_initialised.Pi, gllim_params_initialised_ref.Pi), error_msg + " > " + "Pi"
-        assert np.allclose(gllim_params_initialised.A, gllim_params_initialised_ref.A), error_msg + " > " + "A"
-        assert np.allclose(gllim_params_initialised.B, gllim_params_initialised_ref.B), error_msg + " > " + "B"
-        assert np.allclose(gllim_params_initialised.C, gllim_params_initialised_ref.C), error_msg + " > " + "C"
-        assert np.allclose(gllim_params_initialised.Gamma, gllim_params_initialised_ref.Gamma), error_msg + " > " + "Gamma"
-        assert np.allclose(gllim_params_initialised.Sigma, gllim_params_initialised_ref.Sigma), error_msg + " > " + "Sigma"
+        assert np.allclose(gllim_params_trained.Pi, gllim_params_trained_ref.Pi), error_msg + " > " + "Pi"
+        assert np.allclose(gllim_params_trained.A, gllim_params_trained_ref.A), error_msg + " > " + "A"
+        assert np.allclose(gllim_params_trained.B, gllim_params_trained_ref.B), error_msg + " > " + "B"
+        assert np.allclose(gllim_params_trained.C, gllim_params_trained_ref.C), error_msg + " > " + "C"
+        assert np.allclose(gllim_params_trained.Gamma, gllim_params_trained_ref.Gamma), error_msg + " > " + "Gamma"
+        assert np.allclose(gllim_params_trained.Sigma, gllim_params_trained_ref.Sigma), error_msg + " > " + "Sigma"
 
 
         # ! ####################  TEST : inverseDensities()  ######################
 
         prediction_floor = 1e-10
         prediction_results = gllim.inverseDensities(
-            np.array(y_test_random.T),
+            np.array(y_test.T),
             np.zeros(D),
             K_merged,
             prediction_floor,
         )  # vectorized
 
-        # # ! Only run once to generate ref
-        # with open("../dataRef/prediction_results_ref/prediction_results_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
-        #     pickle.dump(prediction_results, f)
-        #     f.close()
+        # ! Only run once to generate ref
+        with open("../dataRef/prediction_results_ref/prediction_results_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
+            pickle.dump(prediction_results, f)
+            f.close()
 
         with open("../dataRef/prediction_results_ref/prediction_results_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
             prediction_results_ref = pickle.load(f)
