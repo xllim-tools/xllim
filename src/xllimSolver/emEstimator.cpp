@@ -32,10 +32,18 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     unsigned iteration = 0;
     do
     {
+        cout.precision(11);
+        cout.setf(ios::fixed);
         iteration++;
         expectation_W_step(t, y, theta, mu_w, S_w);
+        log_r.row(0).raw_print("log_r"); // ! temp test
+        theta.Pi.raw_print("theta"); // ! temp test
         expectation_Z_step(t, y, theta, log_r, iteration);
+        log_r.row(0).raw_print("log_r"); // ! temp test
+        theta.Pi.raw_print("theta"); // ! temp test
         maximization_step(t, y, theta, log_r, mu_w, S_w, floor);
+        log_r.row(0).raw_print("log_r"); // ! temp test
+        theta.Pi.raw_print("theta"); // ! temp test
 
         if (verbose >= 1)
         {
