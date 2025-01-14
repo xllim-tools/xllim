@@ -128,6 +128,11 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
             {
                 log_det_Sigma_k = theta.Sigma[k].log_det(); // xCovariance log_det() method
             }
+            std::cout << "log_det_Gamma_t_k : " << std::setprecision(11) << log_det_Gamma_t_k << std::endl; // ! temp test
+            std::cout << "log_det_Sigma_k : " << std::setprecision(11) << log_det_Sigma_k << std::endl; // ! temp test
+
+            std::cout << "rcond Gamma_t_k : " << std::setprecision(11) << rcond(theta.Gamma[k].head(theta.L_t).get_mat()) << std::endl; // ! temp test
+            std::cout << "rcond Sigma_k : " << std::setprecision(11) << rcond(theta.Sigma[k].get_mat()) << std::endl; // ! temp test
 
             // compute log_r only if both the covariances have non zero determinants
             if (log_det_Sigma_k != -datum::inf && log_det_Gamma_t_k != -datum::inf)
@@ -146,6 +151,11 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
                 {
                     Sigma_k_inv = theta.Sigma[k].inv(); // xCovariance inv() method
                 }
+
+                cout.precision(11);
+                cout.setf(ios::fixed);
+                Gamma_t_k_inv.get_mat().row(0).raw_print("Gamma_t_k_inv"); // ! temp test
+                Sigma_k_inv.get_mat().row(0).raw_print("Sigma_k_inv"); // ! temp test
 
                 // compute all vector (y_n - A_k*[t_n;C_w_k] - B_k)
                 mat y_u = y - theta.A.slice(k).head_cols(theta.L_t) * t;
@@ -173,15 +183,9 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
         }
     }
 
-    cout.precision(11);
-    cout.setf(ios::fixed);
-    log_r.row(0).raw_print("log_r"); // ! temp test
-
     // Vector of shape (N) corresponding to Σ(j=1:K)[Pi(j) p(y_n,t_n|Z_n=j;θ)]
     // It is useful for log_r normalisation and computing average log-likelihood
     vec log_r_n = utils::logSumExp(log_r, 1);
-
-    log_r_n.rows(0,7).t().raw_print("log_r_n"); // ! temp test
 
     // compute average log-likelihood
     //      The observed-data log-likelihood is defined by:
@@ -192,8 +196,6 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
 
     // normalization on K
     log_r.each_col() -= log_r_n;
-
-    log_r.row(0).raw_print("log_r_normalization"); // ! temp test
 }
 
 template <typename TGamma, typename TSigma>
