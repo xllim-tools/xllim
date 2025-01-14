@@ -205,6 +205,10 @@ x_gen = np.load("../dataRef/x_gen_TestModel.npy")
 y_gen = np.load("../dataRef/y_gen_TestModel.npy")
 y_test = np.load("../dataRef/y_test_TestModel.npy")
 
+print(x_gen[:10])
+print(y_gen[:10])
+print(y_test)
+
 for gamma_type in covariance_type_list:
     for sigma_type in covariance_type_list:
 
@@ -238,6 +242,9 @@ for gamma_type in covariance_type_list:
         with open("../dataRef/gllim_params_initialised_ref/gllim_params_initialised_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
             gllim_params_initialised_ref = pickle.load(f)
             f.close()
+
+        print(gllim_params_initialised.Pi)
+        print(gllim_params_initialised_ref.Pi)
 
         # compare results
         error_msg = "initialize" + " > " + gamma_type + "/" + sigma_type
