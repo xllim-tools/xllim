@@ -128,15 +128,9 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
             {
                 log_det_Sigma_k = theta.Sigma[k].log_det(); // xCovariance log_det() method
             }
-            std::cout << "log_det_Gamma_t_k : " << std::setprecision(11) << log_det_Gamma_t_k << std::endl; // ! temp test
-            std::cout << "log_det_Sigma_k : " << std::setprecision(11) << log_det_Sigma_k << std::endl; // ! temp test
 
             std::cout << "rcond Gamma_t_k : " << std::setprecision(11) << rcond(theta.Gamma[k].head(theta.L_t).get_mat()) << std::endl; // ! temp test
             std::cout << "rcond Sigma_k : " << std::setprecision(11) << rcond(theta.Sigma[k].get_mat()) << std::endl; // ! temp test
-            
-            // cout.precision(11);
-            // cout.setf(ios::fixed);
-            // theta.Sigma[k].get_mat().raw_print("SIGMA");
             
             // compute log_r only if both the covariances have non zero determinants
             if (log_det_Sigma_k != -datum::inf && log_det_Gamma_t_k != -datum::inf)
@@ -155,11 +149,6 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
                 {
                     Sigma_k_inv = theta.Sigma[k].inv(); // xCovariance inv() method
                 }
-
-                cout.precision(11);
-                cout.setf(ios::fixed);
-                Gamma_t_k_inv.get_mat().row(0).raw_print("Gamma_t_k_inv"); // ! temp test
-                Sigma_k_inv.get_mat().row(0).raw_print("Sigma_k_inv"); // ! temp test
 
                 // compute all vector (y_n - A_k*[t_n;C_w_k] - B_k)
                 mat y_u = y - theta.A.slice(k).head_cols(theta.L_t) * t;

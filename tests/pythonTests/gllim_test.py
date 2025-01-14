@@ -21,7 +21,7 @@ import pickle
 import xllim
 
 # Fix the random seed for reproducibility across all tests
-SEED = 12345
+SEED = 4444
 
 # General GLLiM parameters
 GLLIM_EM_ITERATION = 10
@@ -44,10 +44,15 @@ K, D, L, N_GEN, N_TEST = 5, 9, 4, 1000, 10  # Dimensions and dataset sizes
 # X_GEN, Y_GEN = xllim.TestModel().genData(N_gen, "sobol", 20, seed)
 # X_TEST, Y_TEST = xllim.TestModel().genData(N_test, "sobol", 20, seed)
 # ! Yet GenData() is not returning the expected same dataset with a fixed seed
-X_GEN = np.load("../dataRef/x_gen_TestModel.npy")
-Y_GEN = np.load("../dataRef/y_gen_TestModel.npy")
-Y_TEST = np.load("../dataRef/y_test_TestModel.npy")
-
+# X_GEN = np.load("../dataRef/x_gen_TestModel.npy")
+# Y_GEN = np.load("../dataRef/y_gen_TestModel.npy")
+# Y_TEST = np.load("../dataRef/y_test_TestModel.npy")
+np.random.seed(SEED)
+X_GEN = np.random.rand(N_GEN, L)
+np.random.seed(SEED)
+Y_GEN = np.random.rand(N_GEN, D)
+np.random.seed(SEED)
+Y_TEST = np.random.rand(N_TEST, D)
 
 @pytest.mark.parametrize("gamma_type", COVARIANCE_TYPE_LIST)
 @pytest.mark.parametrize("sigma_type", COVARIANCE_TYPE_LIST)

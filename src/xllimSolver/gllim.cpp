@@ -122,10 +122,6 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
             log_r.col(k) = gmm.log_p(t, k).t();
         }
 
-        cout.precision(11);
-        cout.setf(ios::fixed);
-        // log_r.row(0).raw_print("log_r"); // ! temp test OK
-
         if (verbose >= 1)
             logger.log(INFO, "\tCompute Initial theta vector of the GLLiM model from GMM");
         // Hybrid model : latent variables follow a normal distribution
@@ -135,15 +131,10 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         log_r.each_col() -= utils::logSumExp(log_r, 1); // normalization on K
         gllimEmEstimator.maximization_step(t, y, local_theta, log_r, mu_w_normal_distr, S_w_normal_distr, gllim_em_floor);
 
-        // local_theta.Pi.raw_print("local_theta"); // ! temp test : OK
-
         if (verbose >= 1)
             logger.log(INFO, "\tTrain the initial GLLiM model");
         // ! Simplification : just use train() method. If ratio_ll is set to 0, the new version it is equivalent (must be verified) to the old version.
         gllimEmEstimator.train(t, y, local_theta, gllim_em_iteration, -1.0, gllim_em_floor, 0);
-
-        // log_r.row(0).raw_print("log_r"); // ! temp test OK
-        // local_theta.Pi.raw_print("local_theta"); // ! temp test ERROR !!!
 
         vec log_likelihood_list = gllimEmEstimator.get_log_likelihood();      // log_likelihood for each iteration
         log_likelihood = log_likelihood_list[log_likelihood_list.n_elem - 1]; // log_likelihood of last iteration
@@ -632,10 +623,13 @@ GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(G
         if (theta.Pi(k) != 0)
         {
             theta_star.Pi(k) = theta.Pi(k);
+            std::cout << "rcond Gamma_k : " << std::setprecision(11) << rcond(theta.Gamma[k].get_mat()) << std::endl; // ! temp test
+            std::cout << "rcond Sigma_k : " << std::setprecision(11) << rcond(theta.Sigma[k].get_mat()) << std::endl; // ! temp test
             TSigma sigma_inv = theta.Sigma[k].inv();
             TGamma gamma_inv = theta.Gamma[k].inv();
             theta_star.C.col(k) = theta.A.slice(k) * theta.C.col(k) + theta.B.col(k);
             theta_star.Gamma[k] = FullCovariance(theta.Sigma[k] + theta.A.slice(k) * theta.Gamma[k] * theta.A.slice(k).t());
+            std::cout << "rcond temp mat : " << std::setprecision(11) << rcond(mat(gamma_inv + mat(theta.A.slice(k).t()) * sigma_inv * mat(theta.A.slice(k)))) << std::endl; // ! temp test
             theta_star.Sigma[k] = FullCovariance((gamma_inv + mat(theta.A.slice(k).t()) * sigma_inv * mat(theta.A.slice(k))).i());
             theta_star.A.slice(k) = theta_star.Sigma[k] * mat(theta.A.slice(k).t()) * sigma_inv;
             theta_star.B.col(k) = theta_star.Sigma[k] * vec(gamma_inv * vec(theta.C.col(k)) - mat(theta.A.slice(k).t()) * sigma_inv * vec(theta.B.col(k)));
