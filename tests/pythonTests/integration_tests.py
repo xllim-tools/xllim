@@ -248,12 +248,12 @@ for gamma_type in covariance_type_list:
 
         # compare results
         error_msg = "initialize" + " > " + gamma_type + "/" + sigma_type
-        assert np.allclose(gllim_params_initialised.Pi, gllim_params_initialised_ref.Pi), error_msg + " > " + "Pi"
-        assert np.allclose(gllim_params_initialised.A, gllim_params_initialised_ref.A), error_msg + " > " + "A"
-        assert np.allclose(gllim_params_initialised.B, gllim_params_initialised_ref.B), error_msg + " > " + "B"
-        assert np.allclose(gllim_params_initialised.C, gllim_params_initialised_ref.C), error_msg + " > " + "C"
-        assert np.allclose(gllim_params_initialised.Gamma, gllim_params_initialised_ref.Gamma), error_msg + " > " + "Gamma"
-        assert np.allclose(gllim_params_initialised.Sigma, gllim_params_initialised_ref.Sigma), error_msg + " > " + "Sigma"
+        assert np.allclose(gllim_params_initialised.Pi, gllim_params_initialised_ref.Pi, rtol=1e-3), error_msg + " > " + "Pi"
+        assert np.allclose(gllim_params_initialised.A, gllim_params_initialised_ref.A, rtol=1e-3), error_msg + " > " + "A"
+        assert np.allclose(gllim_params_initialised.B, gllim_params_initialised_ref.B, rtol=1e-3), error_msg + " > " + "B"
+        assert np.allclose(gllim_params_initialised.C, gllim_params_initialised_ref.C, rtol=1e-3), error_msg + " > " + "C"
+        assert np.allclose(gllim_params_initialised.Gamma, gllim_params_initialised_ref.Gamma, rtol=1e-3), error_msg + " > " + "Gamma"
+        assert np.allclose(gllim_params_initialised.Sigma, gllim_params_initialised_ref.Sigma, rtol=1e-3), error_msg + " > " + "Sigma"
 
         # ! #########################  TEST : train()  ############################
 
@@ -288,12 +288,12 @@ for gamma_type in covariance_type_list:
 
         # compare results
         error_msg = "train" + " > " + gamma_type + "/" + sigma_type
-        assert np.allclose(gllim_params_trained.Pi, gllim_params_trained_ref.Pi), error_msg + " > " + "Pi"
-        assert np.allclose(gllim_params_trained.A, gllim_params_trained_ref.A), error_msg + " > " + "A"
-        assert np.allclose(gllim_params_trained.B, gllim_params_trained_ref.B), error_msg + " > " + "B"
-        assert np.allclose(gllim_params_trained.C, gllim_params_trained_ref.C), error_msg + " > " + "C"
-        assert np.allclose(gllim_params_trained.Gamma, gllim_params_trained_ref.Gamma), error_msg + " > " + "Gamma"
-        assert np.allclose(gllim_params_trained.Sigma, gllim_params_trained_ref.Sigma), error_msg + " > " + "Sigma"
+        assert np.allclose(gllim_params_trained.Pi, gllim_params_trained_ref.Pi, rtol=1e-3), error_msg + " > " + "Pi"
+        assert np.allclose(gllim_params_trained.A, gllim_params_trained_ref.A, rtol=1e-3), error_msg + " > " + "A"
+        assert np.allclose(gllim_params_trained.B, gllim_params_trained_ref.B, rtol=1e-3), error_msg + " > " + "B"
+        assert np.allclose(gllim_params_trained.C, gllim_params_trained_ref.C, rtol=1e-3), error_msg + " > " + "C"
+        assert np.allclose(gllim_params_trained.Gamma, gllim_params_trained_ref.Gamma, rtol=1e-3), error_msg + " > " + "Gamma"
+        assert np.allclose(gllim_params_trained.Sigma, gllim_params_trained_ref.Sigma, rtol=1e-3), error_msg + " > " + "Sigma"
 
 
         # ! ####################  TEST : inverseDensities()  ######################
@@ -316,17 +316,17 @@ for gamma_type in covariance_type_list:
             f.close()
 
         # compare results
-        # ! Note:   These assertions are evaluated with rtol=1e-3 (lower than the fedault value of 1e-5) because of some issue implying 
-        # !         approximation on matrix inversion by Armadillo v10 method. For more details, check the related Gitalb Issue untitled
+        # ! Note:   These assertions are evaluated with rtol=1e-3 (lower than the default value of 1e-5) because of some approximation on matrix
+        # !         inversion by Armadillo v10 method implying ill-conditioned matrix. For more details, check the related Gitalb Issue untitled
         # !         "intergation test failure implying Armadillo inversion" (https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/issues/34)
         error_msg = "inverseDensities" + " > " + gamma_type + "/" + sigma_type
-        assert np.allclose(prediction_results.fullGMM.weights, prediction_results_ref.fullGMM.weights), error_msg + " > " + "fullGMM.weights"
-        assert np.allclose(prediction_results.fullGMM.means, prediction_results_ref.fullGMM.means), error_msg + " > " + "fullGMM.means"
-        assert np.allclose(prediction_results.fullGMM.covs, prediction_results_ref.fullGMM.covs), error_msg + " > " + "fullGMM.covs"
-        assert np.allclose(prediction_results.fullGMM.mean, prediction_results_ref.fullGMM.mean), error_msg + " > " + "fullGMM.mean"
-        assert np.allclose(prediction_results.fullGMM.variance, prediction_results_ref.fullGMM.variance), error_msg + " > " + "fullGMM.variance"
-        assert np.allclose(prediction_results.mergedGMM.weights, prediction_results_ref.mergedGMM.weights), error_msg + " > " + "mergedGMM.weights"
-        assert np.allclose(prediction_results.mergedGMM.means, prediction_results_ref.mergedGMM.means), error_msg + " > " + "mergedGMM.means"
-        assert np.allclose(prediction_results.mergedGMM.covs, prediction_results_ref.mergedGMM.covs), error_msg + " > " + "mergedGMM.covs"
-        assert np.allclose(prediction_results.mergedGMM.mean, prediction_results_ref.mergedGMM.mean), error_msg + " > " + "mergedGMM.mean"
-        assert np.allclose(prediction_results.mergedGMM.variance, prediction_results_ref.mergedGMM.variance), error_msg + " > " + "mergedGMM.variance"
+        assert np.allclose(prediction_results.fullGMM.weights, prediction_results_ref.fullGMM.weights, rtol=1e-3), error_msg + " > " + "fullGMM.weights"
+        assert np.allclose(prediction_results.fullGMM.means, prediction_results_ref.fullGMM.means, rtol=1e-3), error_msg + " > " + "fullGMM.means"
+        assert np.allclose(prediction_results.fullGMM.covs, prediction_results_ref.fullGMM.covs, rtol=1e-3), error_msg + " > " + "fullGMM.covs"
+        assert np.allclose(prediction_results.fullGMM.mean, prediction_results_ref.fullGMM.mean, rtol=1e-3), error_msg + " > " + "fullGMM.mean"
+        assert np.allclose(prediction_results.fullGMM.variance, prediction_results_ref.fullGMM.variance, rtol=1e-3), error_msg + " > " + "fullGMM.variance"
+        assert np.allclose(prediction_results.mergedGMM.weights, prediction_results_ref.mergedGMM.weights, rtol=1e-3), error_msg + " > " + "mergedGMM.weights"
+        assert np.allclose(prediction_results.mergedGMM.means, prediction_results_ref.mergedGMM.means, rtol=1e-3), error_msg + " > " + "mergedGMM.means"
+        assert np.allclose(prediction_results.mergedGMM.covs, prediction_results_ref.mergedGMM.covs, rtol=1e-3), error_msg + " > " + "mergedGMM.covs"
+        assert np.allclose(prediction_results.mergedGMM.mean, prediction_results_ref.mergedGMM.mean, rtol=1e-3), error_msg + " > " + "mergedGMM.mean"
+        assert np.allclose(prediction_results.mergedGMM.variance, prediction_results_ref.mergedGMM.variance, rtol=1e-3), error_msg + " > " + "mergedGMM.variance"

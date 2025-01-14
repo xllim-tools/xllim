@@ -133,7 +133,11 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
 
             std::cout << "rcond Gamma_t_k : " << std::setprecision(11) << rcond(theta.Gamma[k].head(theta.L_t).get_mat()) << std::endl; // ! temp test
             std::cout << "rcond Sigma_k : " << std::setprecision(11) << rcond(theta.Sigma[k].get_mat()) << std::endl; // ! temp test
-
+            
+            cout.precision(11);
+            cout.setf(ios::fixed);
+            theta.Sigma[k].get_mat().raw_print("SIGMA");
+            
             // compute log_r only if both the covariances have non zero determinants
             if (log_det_Sigma_k != -datum::inf && log_det_Gamma_t_k != -datum::inf)
             {
