@@ -58,7 +58,7 @@ compile-and-test-xllim:
         
         # python integration test step
         - cd tests/pythonTests/
-        - python3 integration_tests.py
+        - pytest -v --tb=short --color=yes --show-capture=log
 
 
 # ------------------------------ deploy stage ------------------------------
