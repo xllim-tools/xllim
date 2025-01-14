@@ -21,7 +21,7 @@ import pickle
 import xllim
 
 # Fix the random seed for reproducibility across all tests
-SEED = 4444
+SEED = 777
 
 # General GLLiM parameters
 GLLIM_EM_ITERATION = 10
