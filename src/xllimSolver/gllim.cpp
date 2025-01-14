@@ -112,6 +112,7 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
             logger.log(INFO, "\tTrain the GMM model");
         gmm_full gmm;
         gmm.set_params(gmm_means, gmm_covs, gmm_weights);
+        utils::set_seed_armadillo(seed);
         gmm.learn(t, K, maha_dist, keep_existing, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, false);
 
 // compute log_rnk using the posterior of the GMM after the training
