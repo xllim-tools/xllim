@@ -36,14 +36,14 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
         cout.setf(ios::fixed);
         iteration++;
         expectation_W_step(t, y, theta, mu_w, S_w);
-        log_r.row(0).raw_print("log_r"); // ! temp test
-        theta.Pi.raw_print("theta"); // ! temp test
+        // log_r.row(0).raw_print("log_r"); // ! temp test OK
+        // theta.Pi.raw_print("theta");     // ! temp test OK
         expectation_Z_step(t, y, theta, log_r, iteration);
-        log_r.row(0).raw_print("log_r"); // ! temp test
-        theta.Pi.raw_print("theta"); // ! temp test
+        // log_r.row(0).raw_print("log_r"); // ! temp test ERROR!!!!
+        // theta.Pi.raw_print("theta");     // ! temp test OK
         maximization_step(t, y, theta, log_r, mu_w, S_w, floor);
-        log_r.row(0).raw_print("log_r"); // ! temp test
-        theta.Pi.raw_print("theta"); // ! temp test
+        // log_r.row(0).raw_print("log_r"); // ! temp test same ERROR!!!
+        // theta.Pi.raw_print("theta");     // ! temp test ERROR!!!
 
         if (verbose >= 1)
         {
@@ -77,7 +77,7 @@ void EmEstimator<TGamma, TSigma>::expectation_W_step(const mat &t, const mat &y,
 
     if (theta.L_w > 0)
     {
-// #pragma omp parallel for default(none) schedule(static) shared(t, y, theta, mu_w, S_w)
+        // #pragma omp parallel for default(none) schedule(static) shared(t, y, theta, mu_w, S_w)
         for (unsigned k = 0; k < theta.K; k++)
         {
             TGamma inv_Gamma_w_k = theta.Gamma[k].tail(theta.L_w).inv(); // (L_w, L_w)
@@ -173,9 +173,15 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
         }
     }
 
+    cout.precision(11);
+    cout.setf(ios::fixed);
+    log_r.row(0).raw_print("log_r"); // ! temp test
+
     // Vector of shape (N) corresponding to Σ(j=1:K)[Pi(j) p(y_n,t_n|Z_n=j;θ)]
     // It is useful for log_r normalisation and computing average log-likelihood
     vec log_r_n = utils::logSumExp(log_r, 1);
+
+    log_r_n.rows(0,7).t().raw_print("log_r_n"); // ! temp test
 
     // compute average log-likelihood
     //      The observed-data log-likelihood is defined by:
@@ -186,6 +192,8 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
 
     // normalization on K
     log_r.each_col() -= log_r_n;
+
+    log_r.row(0).raw_print("log_r_normalization"); // ! temp test
 }
 
 template <typename TGamma, typename TSigma>
