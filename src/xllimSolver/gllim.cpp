@@ -121,6 +121,7 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         {
             log_r.col(k) = gmm.log_p(t, k).t();
         }
+        log_r.row(0).print("log_r"); // ! temp test
 
         if (verbose >= 1)
             logger.log(INFO, "\tCompute Initial theta vector of the GLLiM model from GMM");
@@ -135,7 +136,7 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
             logger.log(INFO, "\tTrain the initial GLLiM model");
         // ! Simplification : just use train() method. If ratio_ll is set to 0, the new version it is equivalent (must be verified) to the old version.
         gllimEmEstimator.train(t, y, local_theta, gllim_em_iteration, -1.0, gllim_em_floor, 0);
-
+        log_r.row(0).print("log_r"); // ! temp test
         vec log_likelihood_list = gllimEmEstimator.get_log_likelihood();      // log_likelihood for each iteration
         log_likelihood = log_likelihood_list[log_likelihood_list.n_elem - 1]; // log_likelihood of last iteration
 

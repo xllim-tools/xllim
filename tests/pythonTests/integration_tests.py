@@ -205,9 +205,9 @@ x_gen = np.load("../dataRef/x_gen_TestModel.npy")
 y_gen = np.load("../dataRef/y_gen_TestModel.npy")
 y_test = np.load("../dataRef/y_test_TestModel.npy")
 
-print(x_gen[:10])
-print(y_gen[:10])
-print(y_test)
+# print(x_gen[:10])
+# print(y_gen[:10])
+# print(y_test)
 
 for gamma_type in covariance_type_list:
     for sigma_type in covariance_type_list:
@@ -230,7 +230,7 @@ for gamma_type in covariance_type_list:
             gmm_floor,
             nb_experiences,
             seed,
-            0,
+            1,
         )
         gllim_params_initialised = gllim.getParams()
 
