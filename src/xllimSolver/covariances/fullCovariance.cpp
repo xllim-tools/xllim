@@ -1,4 +1,5 @@
 #include "covariance.hpp"
+#include "../../utils/utils.hpp"
 
 // ==================== Constructors ====================
 
@@ -11,6 +12,7 @@ FullCovariance::FullCovariance(unsigned dimension) : covariances_(mat(dimension,
 double FullCovariance::log_det() const
 {
     double result;
+    utils::set_seed_armadillo(12345);
     bool success = arma::log_det_sympd(result, covariances_);
     if (success)
     {
@@ -18,6 +20,7 @@ double FullCovariance::log_det() const
     }
     else
     {
+        utils::set_seed_armadillo(12345);
         return arma::log_det(covariances_).real();
     }
 }
@@ -25,6 +28,7 @@ double FullCovariance::log_det() const
 FullCovariance FullCovariance::inv() const
 {
     mat inv;
+    utils::set_seed_armadillo(12345);
     bool success = arma::inv_sympd(inv, covariances_);
     if (success)
     {
@@ -32,6 +36,7 @@ FullCovariance FullCovariance::inv() const
     }
     else
     {
+        utils::set_seed_armadillo(12345);
         return FullCovariance(arma::inv(covariances_));
     }
 }
