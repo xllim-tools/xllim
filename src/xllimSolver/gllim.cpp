@@ -112,7 +112,6 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
             logger.log(INFO, "\tTrain the GMM model");
         gmm_full gmm;
         gmm.set_params(gmm_means, gmm_covs, gmm_weights);
-        utils::set_seed_armadillo(seed);
         gmm.learn(t, K, maha_dist, keep_existing, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, false);
 
 // compute log_rnk using the posterior of the GMM after the training
@@ -623,13 +622,10 @@ GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(G
         if (theta.Pi(k) != 0)
         {
             theta_star.Pi(k) = theta.Pi(k);
-            std::cout << "rcond Gamma_k : " << std::setprecision(11) << rcond(theta.Gamma[k].get_mat()) << std::endl; // ! temp test
-            std::cout << "rcond Sigma_k : " << std::setprecision(11) << rcond(theta.Sigma[k].get_mat()) << std::endl; // ! temp test
             TSigma sigma_inv = theta.Sigma[k].inv();
             TGamma gamma_inv = theta.Gamma[k].inv();
             theta_star.C.col(k) = theta.A.slice(k) * theta.C.col(k) + theta.B.col(k);
             theta_star.Gamma[k] = FullCovariance(theta.Sigma[k] + theta.A.slice(k) * theta.Gamma[k] * theta.A.slice(k).t());
-            std::cout << "rcond temp mat : " << std::setprecision(11) << rcond(mat(gamma_inv + mat(theta.A.slice(k).t()) * sigma_inv * mat(theta.A.slice(k)))) << std::endl; // ! temp test
             theta_star.Sigma[k] = FullCovariance((gamma_inv + mat(theta.A.slice(k).t()) * sigma_inv * mat(theta.A.slice(k))).i());
             theta_star.A.slice(k) = theta_star.Sigma[k] * mat(theta.A.slice(k).t()) * sigma_inv;
             theta_star.B.col(k) = theta_star.Sigma[k] * vec(gamma_inv * vec(theta.C.col(k)) - mat(theta.A.slice(k).t()) * sigma_inv * vec(theta.B.col(k)));

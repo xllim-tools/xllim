@@ -1,5 +1,4 @@
 #include "covariance.hpp"
-#include "../../utils/utils.hpp"
 
 // ==================== Constructors ====================
 

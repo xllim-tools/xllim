@@ -32,18 +32,10 @@ void EmEstimator<TGamma, TSigma>::train(const mat &t, const mat &y, GLLiMParamet
     unsigned iteration = 0;
     do
     {
-        cout.precision(11);
-        cout.setf(ios::fixed);
         iteration++;
         expectation_W_step(t, y, theta, mu_w, S_w);
-        // log_r.row(0).raw_print("log_r"); // ! temp test OK
-        // theta.Pi.raw_print("theta");     // ! temp test OK
         expectation_Z_step(t, y, theta, log_r, iteration);
-        // log_r.row(0).raw_print("log_r"); // ! temp test ERROR!!!!
-        // theta.Pi.raw_print("theta");     // ! temp test OK
         maximization_step(t, y, theta, log_r, mu_w, S_w, floor);
-        // log_r.row(0).raw_print("log_r"); // ! temp test same ERROR!!!
-        // theta.Pi.raw_print("theta");     // ! temp test ERROR!!!
 
         if (verbose >= 1)
         {
@@ -129,9 +121,6 @@ void EmEstimator<TGamma, TSigma>::expectation_Z_step(const mat &t, const mat &y,
                 log_det_Sigma_k = theta.Sigma[k].log_det(); // xCovariance log_det() method
             }
 
-            std::cout << "rcond Gamma_t_k : " << std::setprecision(11) << rcond(theta.Gamma[k].head(theta.L_t).get_mat()) << std::endl; // ! temp test
-            std::cout << "rcond Sigma_k : " << std::setprecision(11) << rcond(theta.Sigma[k].get_mat()) << std::endl; // ! temp test
-            
             // compute log_r only if both the covariances have non zero determinants
             if (log_det_Sigma_k != -datum::inf && log_det_Gamma_t_k != -datum::inf)
             {
