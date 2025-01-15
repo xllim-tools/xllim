@@ -1,19 +1,34 @@
+# General exclusions
+.idea/
+*.pyc
+*.pyo
+*.pyd
+*.o
+*.out
+*.so
+*.exe
+*.log
+*.tmp
+
+# macOS cache
+.DS_Store
+
+# Windows cache
+Thumbs.db
+
+# Visual Studio Code related
 .vscode/
 .devcontainer/
 
-# builds directories
-**/build
+# Build directories
+build/
 
-local_test/*
-
-
+# Python cache
 __pycache__/
-test
-# exclude everything
-pytest/savedFiles/*
-# exception to the rule
-!pytest/savedFiles/.gitkeep
 
-
-# tests
+# Tests
 tests/pythonTests/comparative_performance_table.csv
+# exclude everything
+tests/dataRef/savedFiles/*
+# exception to the rule
+!tests/pythonTests/dataRef/savedFiles/.gitkeep
