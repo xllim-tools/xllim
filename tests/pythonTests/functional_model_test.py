@@ -97,8 +97,61 @@ physical_models = set_up_models()
 
 @pytest.mark.parametrize("physical_model", physical_models, ids=lambda pm: pm["name"])
 def test_importanceSampling(physical_model):
-    # physical_models = set_up_models()
-    # for physical_model in physical_models:
+    """
+    Test the importance sampling functionality of the GLLiM model for various physical models.
+
+    This test validates the correctness of the `importanceSampling` method in the GLLiM implementation
+    by comparing its outputs against precomputed reference results. The test ensures that the 
+    importance sampling method produces consistent and accurate predictions, variances, and 
+    effective sample sizes across different physical models.
+
+    Parameters:
+        physical_model (dict): A dictionary containing the following keys:
+            - "name" (str): The name of the physical model (used for test identification and reference files).
+            - "xllim" (object): An instance of the GLLiM model or related class providing the `importanceSampling` method
+            and dimensionality functions (`getDimensionX`, `getDimensionY`).
+
+    Setup:
+        - Sets the random seed for reproducibility.
+        - Generates synthetic observations (`y_obs`) and associated errors (`y_err`) based on the dimensions
+        of the physical model.
+        - Constructs Gaussian Mixture Models (GMMs) as proposal distributions for importance sampling,
+        using random means and covariance matrices.
+
+    Test Steps:
+        1. Generate the required inputs for the `importanceSampling` method:
+            - `proposition_gmms`: A list of Gaussian Mixture Models (weights, means, and covariances).
+            - `y_obs`: Synthetic observations.
+            - `y_err`: Observation errors (scaled from `y_obs`).
+            - `covariance`: Fixed covariance matrix for the observations.
+        2. Call the `importanceSampling` method using these inputs.
+        3. Compare the results (`predictions`, `predictions_variance`, `nb_effective_sample`, 
+        `effective_sample_size`, and `qn`) against reference outputs stored in files.
+        4. Assert that all outputs are close to their respective references using `np.allclose`.
+
+    Reference Data:
+        Precomputed reference results for each physical model are stored in 
+        `../dataRef/is_results_ref/is_results_ref_<model_name>.file`. If required, uncomment the 
+        lines to generate new reference data.
+
+    Assertions:
+        - The test asserts that:
+            - Predicted values (`predictions`) match the reference.
+            - Prediction variances (`predictions_variance`) match the reference.
+            - Number of effective samples (`nb_effective_sample`) matches the reference.
+            - Effective sample sizes (`effective_sample_size`) match the reference.
+            - Quantile predictions (`qn`) match the reference.
+
+    Error Reporting:
+        - Includes the name of the physical model in error messages for better traceability.
+        - Error messages indicate which aspect of the `importanceSampling` output failed.
+
+    Marks:
+        - `pytest.mark.parametrize`: Dynamically tests multiple physical models, with their names
+        used for better identification in test reports.
+
+    """
+
     L = physical_model["xllim"].getDimensionX()
     D = physical_model["xllim"].getDimensionY()
     covariance = np.ones(D) * 1e-5
@@ -141,3 +194,11 @@ def test_importanceSampling(physical_model):
     assert np.allclose(is_results.nb_effective_sample, is_results_ref.nb_effective_sample), error_msg + " > " + "nb_effective_sample"
     assert np.allclose(is_results.effective_sample_size, is_results_ref.effective_sample_size), error_msg + " > " + "effective_sample_size"
     assert np.allclose(is_results.qn, is_results_ref.qn), error_msg + " > " + "qn"
+
+
+# ! #####################  TODO  #######################
+# !     - importanceSampling() (4 signatures)
+# !     - F()
+# !     - genData() (2 signatures)
+# !     - getDimension{X/Y}()
+# !     - {to/from}Physic()
