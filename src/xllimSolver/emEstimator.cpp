@@ -69,7 +69,7 @@ void EmEstimator<TGamma, TSigma>::expectation_W_step(const mat &t, const mat &y,
 
     if (theta.L_w > 0)
     {
-// #pragma omp parallel for default(none) schedule(static) shared(t, y, theta, mu_w, S_w)
+        // #pragma omp parallel for default(none) schedule(static) shared(t, y, theta, mu_w, S_w)
         for (unsigned k = 0; k < theta.K; k++)
         {
             TGamma inv_Gamma_w_k = theta.Gamma[k].tail(theta.L_w).inv(); // (L_w, L_w)

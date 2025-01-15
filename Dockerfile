@@ -33,9 +33,9 @@ RUN apt-get install -y --no-install-recommends libopenblas-dev liblapack-dev lib
 # Install Python-related dependencies
 RUN apt-get install -y --no-install-recommends python3-dev
 
-# python3-pip is for documention and pip install sphinx
+# python3-pip is for documention and pytest
 RUN apt-get install -y --no-install-recommends python3-pip
-RUN pip3 install -U sphinx sphinx-rtd-theme
+RUN pip3 install -U sphinx sphinx-rtd-theme pytest
 
 # ! Boost required but only used for boost/property_tree
 RUN apt-get install -y --no-install-recommends libboost-dev
