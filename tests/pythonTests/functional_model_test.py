@@ -202,3 +202,4 @@ def test_importanceSampling(physical_model):
 # !     - genData() (2 signatures)
 # !     - getDimension{X/Y}()
 # !     - {to/from}Physic()
+# !     - ImportanceSamplingResult pickable ?

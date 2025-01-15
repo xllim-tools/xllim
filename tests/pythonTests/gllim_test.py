@@ -231,3 +231,6 @@ def test_gllim_workflow(gamma_type, sigma_type):
 # !     - getInsights()
 # !     - getters
 # !     - setters
+# !     - Insights pickable ?
+# !     - PredictionResult pickable ?
+# !     - GLLiMParametersArray pickable ?
