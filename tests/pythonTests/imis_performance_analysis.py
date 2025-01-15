@@ -1,3 +1,27 @@
+"""
+Performance Analysis of Importance Sampling methods.
+
+This script evaluates and compares the computational performance and quality performance of several 'prediction'
+methods (GLLiM predictions, IS, IMIS-1, IMIS-2) for centroids and for the mean. The comparison is performed by 
+measuring the time taken for prediction, error on x and reconstruction error.
+
+Outputs:
+--------
+1. A plot showing:
+    - Computation time (in seconds) for both C++ and Python implementations as a function of the number of observations.
+    - The legend differentiates between the two implementations, with the x-axis representing the number of observations 
+      and the y-axis representing computation time.
+
+1. Severeal plot showing:
+    - Errors
+
+Usage:
+------
+This script is designed to be run standalone. Ensure that the `xllim` module is correctly installed and that the 
+`../dataRef/externalPythonModels` directory contains the necessary Python model files. 
+
+"""
+
 import os.path
 import numpy as np
 import math
