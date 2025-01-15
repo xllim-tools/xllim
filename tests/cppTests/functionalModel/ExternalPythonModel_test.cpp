@@ -17,7 +17,7 @@ protected:
         D = 50;
         scaling = {1.0, 1.5, 1.5, 1.5, 1.5};
         offset = {0, 0, 0.2, 0, 0};
-        model = std::unique_ptr<ExternalPythonModel>((new ExternalPythonModel("ShkuratovModel5p", "ShkuratovModel5pPython", "../tests/dataRef/")));
+        model = std::unique_ptr<ExternalPythonModel>((new ExternalPythonModel("ShkuratovModel5p", "ShkuratovModel5pPython", "../tests/dataRef/externalPythonModels")));
         std::cout << "extern" << std::endl;
     };
 
