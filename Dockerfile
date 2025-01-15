@@ -15,7 +15,7 @@ RUN apt-get install -y --no-install-recommends \
 
 # (optional) Copy some python scripts to test xllim in docker container
 RUN mkdir /home/pythonTests && mkdir /home/dataRef
-COPY tests/pythonTests/*_script.py /home/pythonTests/
+COPY tests/pythonTests /home/pythonTests/
 COPY tests/dataRef /home/dataRef
 
 
