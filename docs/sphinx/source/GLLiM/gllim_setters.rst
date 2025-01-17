@@ -3,7 +3,7 @@
    <div style="text-align: center; font-size: 36px; font-weight: bold;">GLLiM</div>
 
 
-This page describes the :ref:`GLLiM <gllim-class>` methods implying setting :ref:`GLLiMParameters <gllim-parameters-structure>`.
+This page describes the :ref:`GLLiM <gllim-class>` methods implying setting :ref:`GLLiMParameters <gllim-parameters-struct>`.
 
 
 .. _setters:
@@ -17,7 +17,7 @@ Setters
 
         Set the parameters of the GLLiM model.
 
-        :param GLLiMParameters theta: The model parameters to set.
+        :param GLLiMParameters theta:
 
 
 .. _set-param-pi-method:
@@ -26,7 +26,7 @@ Setters
 
         Set the mixture coefficients `Pi`.
 
-        :param ndarray Pi: The mixture coefficients to set.
+        :param ndarray of shape (K) Pi:
 
 
 .. _set-param-a-method:
@@ -35,7 +35,7 @@ Setters
 
         Set the parameter matrix `A`.
 
-        :param ndarray A: The parameter matrix to set.
+        :param ndarray of shape (D, L, K) A:
 
 
 .. _set-param-b-method:
@@ -44,7 +44,7 @@ Setters
 
         Set the parameter matrix `B`.
 
-        :param ndarray B: The parameter matrix to set.
+        :param ndarray of shape (D, K) B:
 
 
 .. _set-param-c-method:
@@ -53,22 +53,30 @@ Setters
 
         Set the parameter matrix `C`.
 
-        :param ndarray C: The parameter matrix to set.
+        :param ndarray of shape (L, K) C:
 
 
 .. _set-param-gamma-method:
 
     .. method:: setParamGamma(Gamma)
 
-        Set the gamma parameters.
+        Set the gamma parameters. Shape depends on Gamma constraints.
+        Gamma is a ndarray containing the K covariance matrices of the mixture of Gaussian distributions that define the low-dimensional data.
+            - In the case of Full covariance matrix (*gamma_type = 'full'*), Gamma is of shape (K, L, L).
+            - In the case of Diagonal covariance matrix (*gamma_type = 'diag'*), Gamma is of shape (K, L) with Gamma[k] representing the variances vector of the k^{th} gaussian.
+            - In the case of Isotropic covariance matrix (*gamma_type = 'iso'*), Gamma is of shape (K) with Gamma[k] representing the unique variance of the k^{th} gaussian.
 
-        :param ndarray Gamma: The gamma parameters to set. Shape depends on Gamma constraints.
+        :param ndarray of shape (K, L*, L*) Gamma:
 
 
 .. _set-param-sigma-method:
 
     .. method:: setParamSigma(Sigma)
 
-        Set the sigma parameters.
+        Set the sigma parameters. Shape depends on Gamma constraints.
+        Sigma is a ndarray containing the K covariance matrices of the mixture of Gaussian distributions that define the high-dimensional data.
+            - In the case of Full covariance matrix (*gamma_type = 'full'*), Sigma is of shape (K, D, D).
+            - In the case of Diagonal covariance matrix (*gamma_type = 'diag'*), Sigma is of shape (K, D) with Sigma[k] representing the variances vector of the k^{th} gaussian.
+            - In the case of Isotropic covariance matrix (*gamma_type = 'iso'*), Sigma is of shape (K) with Sigma[k] representing the unique variance of the k^{th} gaussian.
 
-        :param ndarray Sigma: The sigma parameters to set. Shape depends on Sigma constraints.
+        :param ndarray of shape (K, D*, D*) Sigma:

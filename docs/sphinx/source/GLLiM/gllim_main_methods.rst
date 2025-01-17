@@ -17,8 +17,8 @@ Main methods
 
         Initialize the GLLiM model with given data and parameters.
 
-        :param ndarray t: Input matrix `t` with shape (N, L).
-        :param ndarray y: Input matrix `y` with shape (N, D).
+        :param ndarray of shape (N, L) t: Input matrix `t` with shape (N, L).
+        :param ndarray of shape (N, D) y: Input matrix `y` with shape (N, D).
         :param int gllim_em_iteration: Number of EM iterations for GLLiM.
         :param float gllim_em_floor: Floor value for EM iterations in GLLiM.
         :param int gmm_kmeans_iteration: Number of k-means iterations for GMM.
@@ -35,8 +35,8 @@ Main methods
 
         Train the GLLiM model with given data and parameters.
 
-        :param ndarray x: Input matrix `x` with shape (N, L).
-        :param ndarray y: Input matrix `y` with shape (N, D).
+        :param ndarray of shape (N, L) x: Input matrix `x` with shape (N, L).
+        :param ndarray of shape (N, D) y: Input matrix `y` with shape (N, D).
         :param int max_iteration: Maximum number of iterations.
         :param float ratio_ll: Ratio for log-likelihood convergence.
         :param float floor: Floor value for the training process.
@@ -49,7 +49,7 @@ Main methods
 
         Get the inverse parameters of the GLLiM model.
 
-        :returns: An instance of `GLLiMParameters` containing the inverse parameters.
+        :returns: (*GLLiMParameters*) An instance of :ref:`GLLiMParameters <gllim-parameters-struct>` containing the inverse parameters.
 
 
 .. _direct-densities-method:
@@ -58,9 +58,9 @@ Main methods
 
         Compute the direct densities given input matrix `x` and its uncertainties.
 
-        :param ndarray x: Input matrix `x` with shape (N_obs, L).
-        :param ndarray, optional x_incertitude: Uncertainty in `x` with shape (N_obs, L).
-        :returns: An instance of `PredictionResult` containing the direct densities.
+        :param ndarray of shape (N_obs, L) x: Input matrix `x` with shape (N_obs, L).
+        :param ndarray of shape (N_obs, L), optional x_incertitude: Uncertainty in `x` with shape (N_obs, L).
+        :returns: (*PredictionResult*) An instance of :ref:`PredictionResult <prediction-result-struct>` containing the direct densities.
 
 
 .. _inverse-densities-method:
@@ -69,18 +69,18 @@ Main methods
 
         Compute the inverse densities given input matrix `y` and its uncertainties.
 
-        :param ndarray y: Input matrix `y` with shape (N_obs, D).
-        :param ndarray, optional y_incertitude: Uncertainty in `y` with shape (N_obs, D).
+        :param ndarray of shape (N_obs, D) y: Input matrix `y` with shape (N_obs, D).
+        :param ndarray of shape (N_obs, D), optional y_incertitude: Uncertainty in `y` with shape (N_obs, D).
         :param int, optional K_merged: Merged the full GMM (K components) into K_merged gaussian components.
         :param float, optional merging_threshold: Threshold on the merged GMM weights. Gaussian component with a weight below this threshold are ignored.
         :param int verbose: Verbosity level (default is 0).
-        :returns: An instance of `PredictionResult` containing the inverse densities.
+        :returns: (*PredictionResult*) An instance of :ref:`PredictionResult <prediction-result-struct>` containing the inverse densities.
 
 
 .. _get-insights-method:
 
     .. method:: getInsights()
 
-        Returns ann Insights structure with informations about initialisation and training time, log-likelihood and arguments.
+        Returns an Insights structure with informations about initialisation and training time, log-likelihood and arguments.
 
-        :returns: An instance of `Insights` containing total initialisation and trining time, training log-likelihood, initialisation specific infirmation and training specific information.
+        :returns: (*Insights*) An instance of :ref:`Insights <insights-struct>` containing total initialisation and trining time, training log-likelihood, initialisation specific infirmation and training specific information.
