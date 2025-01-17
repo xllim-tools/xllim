@@ -16,8 +16,8 @@ Contents:
 
    introduction
    getting_started/getting_started
+   Functional <functional/functional_class_overall>
    GLLiM <GLLiM/gllim_class_overall>
-   functional_model
 
 
 Indices and tables
