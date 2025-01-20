@@ -7,7 +7,7 @@ This page describes the :ref:`GLLiM <gllim-class>` structures.
 
 
 
-.. _structures:
+.. _gllim-structures:
 
 Structures
 ----------

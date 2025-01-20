@@ -6,7 +6,7 @@
 This page describes the :ref:`GLLiM <gllim-class>` methods implying getting information on GLLiM's dimensions, constraints and :ref:`GLLiMParameters <gllim-parameters-struct>`.
 
 
-.. _getters:
+.. _gllim-getters:
 
 Getters
 -------

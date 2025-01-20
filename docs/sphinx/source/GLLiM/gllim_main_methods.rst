@@ -6,7 +6,7 @@
 This page describes the :ref:`GLLiM <gllim-class>` main methods.
 
 
-.. _main-methods:
+.. _gllim-main-methods:
 
 Main methods
 ------------

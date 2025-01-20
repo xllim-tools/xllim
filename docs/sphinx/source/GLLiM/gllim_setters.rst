@@ -6,7 +6,7 @@
 This page describes the :ref:`GLLiM <gllim-class>` methods implying setting :ref:`GLLiMParameters <gllim-parameters-struct>`.
 
 
-.. _setters:
+.. _gllim-setters:
 
 Setters
 -------

@@ -16,8 +16,8 @@ GLLiM class overall
     :param int L: The latent space dimension.
     :param int D: The observed space dimension.
     :param int K: The number of Gaussian components.
-    :param str gamma_type: The type of gamma parameter among {`'full'`, `'diag'`, `'iso'`}.
-    :param str sigma_type: The type of sigma parameter among {`'full'`, `'diag'`, `'iso'`}.
+    :param str gamma_type: The type of gamma parameter among {*'full'*, *'diag'*, *'iso'*}.
+    :param str sigma_type: The type of sigma parameter among {*'full'*, *'diag'*, *'iso'*}.
     :returns: An instance of the GLLiM class.
 
 
@@ -30,8 +30,8 @@ GLLiM class overall
         gllim_structures
 
             
-    :ref:`Main methods <main-methods>`
-    ----------------------------------
+    :ref:`Main methods <gllim-main-methods>`
+    ----------------------------------------
 
     +----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
     | :ref:`initialize<initialize-method>`               | Initialize the GLLiM model with given data and parameters.                                                             |
@@ -48,8 +48,8 @@ GLLiM class overall
     +----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
 
 
-    :ref:`Getters <getters>`
-    ------------------------
+    :ref:`Getters <gllim-getters>`
+    ------------------------------
 
     +------------------------------------------------+-----------------------------------------+
     | :ref:`getDimensions <get-dimensions-method>`   | Get the dimensions of the GLLiM model.  |
@@ -72,8 +72,8 @@ GLLiM class overall
     +------------------------------------------------+-----------------------------------------+
 
 
-    :ref:`Setters <setters>`
-    ------------------------
+    :ref:`Setters <gllim-setters>`
+    ------------------------------
 
     +-----------------------------------------------+----------------------------------------+
     | :ref:`setParams <set-params-method>`          | Set the parameters of the GLLiM model. |
@@ -92,8 +92,8 @@ GLLiM class overall
     +-----------------------------------------------+----------------------------------------+
 
 
-    :ref:`Structures <structures>`
-    ------------------------------
+    :ref:`Structures <gllim-structures>`
+    ------------------------------------
 
     +----------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
     | :ref:`GLLiMParameters <gllim-parameters-struct>`               | Describes the parameters of the GLLiM model **theta** = {**Pi**, **A**, **B**, **C**, **Gamma**, **Sigma**}. |
