@@ -8,6 +8,7 @@ This is a very concise summary of the general workflow.
 - Without functional model, from a dataset:
 
     .. code-block:: python
+
         gllim = xllim.GLLiM(K, D, L, gamma_type="full", sigma_type="diag", n_hidden_variables=n_hidden_variables)
         gllim.initialize(x_gen, y_gen, *initialisation args*)
         gllim.train(x_gen, y_gen, *training args*)
@@ -17,6 +18,7 @@ This is a very concise summary of the general workflow.
 - With functional model:
 
     .. code-block:: python
+
         model = xllim.TestModel()
         x_gen, y_gen = model.genData(N, *args*)
         gllim = xllim.GLLiM(K, D, L, gamma_type="full", sigma_type="diag", n_hidden_variables=n_hidden_variables)

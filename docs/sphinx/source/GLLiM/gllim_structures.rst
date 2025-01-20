@@ -115,7 +115,7 @@ Structures
         The result of the center prediction.
 
 
-.. _mean-prediction-result-struct:
+.. _full-gmm-result-struct:
 
 .. class:: FullGMMResult(N_obs, D, K)
 
@@ -151,7 +151,7 @@ Structures
         The covariance matrices of each component in the GMM (D, D, K). The covariance is indenpendent from the observations thus it is the same for all predictions.
 
 
-.. _center-prediction-result-struct:
+.. _merged-gmm-result-struct:
 
 .. class:: MergedGMMResult
 

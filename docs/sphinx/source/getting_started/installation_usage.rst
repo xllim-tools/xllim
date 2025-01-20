@@ -4,7 +4,7 @@ Installation and Usage
 ----------------------
 
 xLLiM is distributed as a compiled shared library in a Docker container thus Docker is required. For this example we suggest you build the **Jupyter notebook image**.
-The image is built from the offical [jupyter/scipy-notebook](https://jupyter-docker-stacks.readthedocs.io/en/latest/) image adapted to xLLiM dependencies. 
+The image is built from the offical `jupyter/scipy-notebook <https://jupyter-docker-stacks.readthedocs.io/en/latest/>`_ image adapted to xLLiM dependencies. 
 This image offers the familiar JupyterLab user interface within a Python-based datascience environment.
 
 First steps

@@ -19,7 +19,7 @@ Hapke Model
 .. class:: HapkeModel (geometries, variant, adapter, theta_bar_scaling, b0, h)
 
     The class :class:`HapkeModel` is a representation of the Hapke's photometric model.
-    For more details check the scientific :ref:`documentation <DocHapkeModel>`.
+    For more details check the scientific `documentation <https://kernelo-mistis.gitlabpages.inria.fr/planet-gllim-front-end/rst/scientific_doc/photometric_models/hapke.html>`_.
 
     There are two variants of the Hapke's formulation, the initial 1993 version and the 2002 version.
     The calculation in the class are initially designed for a 4 parameters model. The class can
@@ -33,9 +33,11 @@ Hapke Model
 
     :param ndarray of shape (n_geometries,3) geometries: The matrix of geometries that will be used by the model. The shape of the Numpy array should be (n_geometries,3).
         The three geometric angles must be this particular order :
+
             - At [:,0] the incidence angle (*inc*) also called the solar zenith angle (*sza*)
             - At [:,1] the emergence angle (*eme*) also called the vertical zenith angle (*vza*)
             - At [:,2] the phi angle (*phi*)
+
         Thus the geometries matrix should look like this
 
         >>> geometries
@@ -60,7 +62,7 @@ Shkuratov Model
 .. class:: ShkuratovModel (geometries, variant, scaling_coeffs, offset)
 
     The class :class:`ShkuratovModel` is a representation of the Shkuratov's photometric model.
-    For more details check the scientific :ref:`documentation <DocShkuratovModel>`.
+    For more details check the scientific `documentation <https://kernelo-mistis.gitlabpages.inria.fr/planet-gllim-front-end/rst/scientific_doc/photometric_models/shkuratov.html>`_.
 
     There are two variants of the Shkuratov's formulation, the original model with 5 parameters and a reduced model with 3 parameters.
     The *scaling_coeffs* and *offset* arguments are  to perform affine transformation between the physical space and the mathematical space, such as, 
@@ -68,9 +70,11 @@ Shkuratov Model
 
     :param ndarray of shape (n_geometries,3) geometries: The matrix of geometries that will be used by the model. The shape of the Numpy array should be (n_geometries,3).
         The three geometric angles must be this particular order :
+
             - At [:,0] the incidence angle (*inc*) also called the solar zenith angle (*sza*)
             - At [:,1] the emergence angle (*eme*) also called the vertical zenith angle (*vza*)
             - At [:,2] the phi angle (*phi*)
+
         Thus the geometries matrix should look like this
 
         >>> geometries
@@ -170,6 +174,7 @@ Test Model
 
     The class :class:`TestModel` is low-dimensional functional model implemented in order to test the GLLiM method with simple but not trivial example.
     The functional F is designed so as to exhibit 2 solutions with D=9 and L=4. :math:`F = A ◦ G ◦ H`, where
+
         - :math:`A` is a (DxL) injective matrix,
     
         .. math::
