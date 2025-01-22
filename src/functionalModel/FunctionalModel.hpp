@@ -85,10 +85,13 @@ public:
      */
     std::tuple<mat, mat> genData(unsigned N, const std::string &generator_type, double noise_ratio, unsigned seed = 0);
 
-    ImportanceSamplingResult importanceSampling(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1, unsigned seed = 0);
-    ImportanceSamplingResult importanceSampling(FullGMMResult fullGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1, unsigned seed = 0);
-    ImportanceSamplingResult importanceSampling(MergedGMMResult mergedGMM, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1, unsigned seed = 0);
-    ImportanceSamplingResult importanceSampling(MergedGMMResult mergedGMM, unsigned idx_gaussian, const mat y, const mat y_err, const vec covariance, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, int verbose = 1, unsigned seed = 0);
+    ImportanceSamplingResult importanceSampling(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, const vec covariance = 0, int idx_gaussian = -1, int verbose = 1, unsigned seed = 0);
+    ImportanceSamplingResult importanceSampling(const FullGMMResult fullGMM, const mat y, const mat y_err, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, const vec covariance = 0, int idx_gaussian = -1, int verbose = 1, unsigned seed = 0);
+    ImportanceSamplingResult importanceSampling(const MergedGMMResult mergedGMM, const mat y, const mat y_err, const unsigned N_0, const unsigned B = 0, const unsigned J = 0, const vec covariance = 0, int idx_gaussian = -1, int verbose = 1, unsigned seed = 0);
+
+    ImportanceSamplingResult importanceSamplingParsedGMMCheck(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const unsigned N_0, const unsigned B, const unsigned J, const vec covariance, int verbose, unsigned seed = 0);
+
+    ImportanceSamplingResult importanceSamplingCore(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const unsigned N_0, const unsigned B, const unsigned J, const vec covariance, int verbose, unsigned seed);
 
 protected:
     /**
