@@ -175,7 +175,7 @@ def test_importanceSampling(physical_model):
     y_err = y_obs * 0.001
 
     is_results = physical_model["xllim"].importanceSampling(
-        proposition_gmms, y_obs, y_err, covariance, N_0, B, J, 0, SEED
+        proposition_gmms, y_obs, y_err, N_0, B, J, covariance, verbose=0, seed=SEED
     )
 
     # # ! Only run once to generate ref

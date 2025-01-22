@@ -1131,7 +1131,7 @@ def run_one_experience(
     is_time = [[] for i in range(nb_centers + 1)]
 
     ts = time.time()
-    is_results = physical_model.importanceSampling(predictions.mergedGMM, np.array(y_obs.T), np.array(var_obs.T), np.ones(D) * 0.001, N_samples, 0, 0, 1)
+    is_results = physical_model.importanceSampling(predictions.mergedGMM, np.array(y_obs.T), np.array(var_obs.T), N_samples, 0, 0, np.ones(D) * 0.001, verbose=1)
     is_time[0].append(time.time() - ts)
 
     # compute IMIS-1
@@ -1144,7 +1144,7 @@ def run_one_experience(
     imis_1_time = [[] for i in range(nb_centers + 1)]
 
     ts = time.time()
-    imis_1_results = physical_model.importanceSampling(predictions.mergedGMM, np.array(y_obs.T), np.array(var_obs.T), np.ones(D) * 0.001, N_0, B, J, 1)
+    imis_1_results = physical_model.importanceSampling(predictions.mergedGMM, np.array(y_obs.T), np.array(var_obs.T), N_0, B, J, np.ones(D) * 0.001, verbose=1)
     imis_1_time[0].append(time.time() - ts)
 
     # compute IMIS-2
@@ -1157,7 +1157,7 @@ def run_one_experience(
     imis_2_time = [[] for i in range(nb_centers + 1)]
 
     ts = time.time()
-    imis_2_results = physical_model.importanceSampling(predictions.mergedGMM, np.array(y_obs.T), np.array(var_obs.T), np.ones(D) * 0.001, N_0, B, J, 1)
+    imis_2_results = physical_model.importanceSampling(predictions.mergedGMM, np.array(y_obs.T), np.array(var_obs.T), N_0, B, J, np.ones(D) * 0.001, verbose=1)
     imis_2_time[0].append(time.time() - ts)
 
 

@@ -245,11 +245,11 @@ for physical_model in physical_models:
                     proposition_gmms,
                     y_obs,
                     y_err,
-                    covariance,
                     N_0,
-                    B,
-                    J,
-                    0,
+                    B=B,
+                    J=J,
+                    covariance=covariance,
+                    verbose=0,
                 )
                 time_xllim = time.perf_counter() - start
 

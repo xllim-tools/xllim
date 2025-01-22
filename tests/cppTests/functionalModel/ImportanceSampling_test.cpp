@@ -48,7 +48,7 @@ TEST_F(ImportanceSamplingTest, ISReturnsGoodShape)
 {
     unsigned N_obs = 20, K = 2, N_0 = 1000;
     SetUp(K, N_obs);
-    ImportanceSamplingResult results = model->importanceSampling(proposition_gmms, y, y_err, N_0);
+    ImportanceSamplingResult results = model->importanceSampling(proposition_gmms, y, y_err, N_0, 0, 0, y_covariance);
     ASSERT_EQ(results.predictions.n_rows, L);     // X dimension
     ASSERT_EQ(results.predictions.n_cols, N_obs); // nb observation
 };
