@@ -25,7 +25,7 @@ This is a very concise summary of the general workflow.
         gllim.initialize(x_gen, y_gen, *initialisation args*)
         gllim.train(x_gen, y_gen, *training args*)
         predictions = gllim.inverseDensities(y_obs, y_obs_noise)
-        is_results = model.importanceSampling(predictions.fullGMM, y_obs, y_obs_noise, *args*)
+        is_results = model.importanceSampling(predictions.fullGMM, y_obs, y_obs_noise, N_0, *kwargs*)
 
 
 
