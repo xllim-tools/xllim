@@ -16,8 +16,8 @@ protected:
 
 TEST_F(GeneratorTest, RandomGenerator5x5Seed12345)
 {
-    mat X_gen = mat(N, L);
-    mat X_gen_seed_12345 = mat(N, L);
+    mat X_gen = mat(L, N);
+    mat X_gen_seed_12345 = mat(L, N);
     X_gen_seed_12345 = {
         {0.3576, 0.2077, 0.0039, 0.4106, 0.0039},
         {0.4004, 0.0287, 0.0130, 0.2608, 0.9401},
@@ -31,14 +31,14 @@ TEST_F(GeneratorTest, RandomGenerator5x5Seed12345)
 
 TEST_F(GeneratorTest, SobolGenerator5x5)
 {
-    mat X_gen = mat(N, L);
-    mat X_gen_sobol = mat(N, L);
+    mat X_gen = mat(L, N);
+    mat X_gen_sobol = mat(L, N);
     X_gen_sobol = {
-        {0.5000,   0.5000,   0.5000,   0.5000,   0.5000},
-        {0.7500,   0.2500,   0.2500,   0.2500,   0.7500},
-        {0.2500,   0.7500,   0.7500,   0.7500,   0.2500},
-        {0.3750,   0.3750,   0.6250,   0.8750,   0.3750},
-        {0.8750,   0.8750,   0.1250,   0.3750,   0.8750}};
+        {0.5000, 0.7500, 0.2500, 0.3750, 0.8750},
+        {0.5000, 0.2500, 0.7500, 0.3750, 0.8750},
+        {0.5000, 0.2500, 0.7500, 0.6250, 0.1250},
+        {0.5000, 0.2500, 0.7500, 0.8750, 0.3750},
+        {0.5000, 0.7500, 0.2500, 0.3750, 0.8750}};
     generator = std::shared_ptr<Generator>(new SobolGenerator());
     generator->execute(X_gen);
     ASSERT_TRUE(approx_equal(X_gen, X_gen_sobol, "absdiff", 1e-4));

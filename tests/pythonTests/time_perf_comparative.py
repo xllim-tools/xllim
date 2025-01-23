@@ -337,8 +337,8 @@ for gamma_type in covariance_type_list:
         for N in [100, 1000]:
             for D in [9, 99]:
                 for L in [4, 14]:
-                    x_gen_random = np.random.rand(N, L)
-                    y_gen_random = np.random.rand(N, D)
+                    x_gen_random = np.random.rand(L, N)
+                    y_gen_random = np.random.rand(D, N)
                     for K in [5, 50]:
 
                         #####################  Set up specific GLLiM model  #######################
@@ -373,8 +373,8 @@ for gamma_type in covariance_type_list:
 
                         start = time.perf_counter()
                         gllim_xllim.initialize(
-                            np.array(x_gen_random.T),
-                            np.array(y_gen_random.T),
+                            x_gen_random,
+                            y_gen_random,
                             gllim_em_iteration,
                             gllim_em_floor,
                             gmm_kmeans_iteration,
@@ -409,8 +409,8 @@ for gamma_type in covariance_type_list:
                         if gamma_type == "Full" and sigma_type == "Full":
                             start = time.perf_counter()
                             gllim_xllim.train(
-                                np.array(x_gen_random.T),
-                                np.array(y_gen_random.T),
+                                x_gen_random,
+                                y_gen_random,
                                 gmm_kmeans_iteration,
                                 train_ratio_ll,
                                 train_floor,
@@ -420,8 +420,8 @@ for gamma_type in covariance_type_list:
                         else:
                             start = time.perf_counter()
                             gllim_xllim.train(
-                                np.array(x_gen_random.T),
-                                np.array(y_gen_random.T),
+                                x_gen_random,
+                                y_gen_random,
                                 train_max_iteration,
                                 train_ratio_ll,
                                 train_floor,
@@ -459,7 +459,7 @@ for gamma_type in covariance_type_list:
 
                             start = time.perf_counter()
                             prediction_dataset_xllim = gllim_xllim.inverseDensities(
-                                np.array(y_gen_random.T),
+                                y_gen_random,
                                 np.zeros(D),
                                 K_merged,
                                 prediction_floor,

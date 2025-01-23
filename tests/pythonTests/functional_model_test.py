@@ -157,7 +157,7 @@ def test_importanceSampling(physical_model):
     covariance = np.ones(D) * 1e-5
 
     np.random.seed(SEED)
-    y_obs = np.random.rand(N_obs, D)
+    y_obs = np.random.rand(N_obs, D).T
 
     proposition_gmms = []
     for n in range(N_obs):

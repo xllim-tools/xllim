@@ -42,11 +42,11 @@ K, D, L, N_GEN, N_TEST = 5, 9, 4, 1000, 10  # Dimensions and dataset sizes
 
 # Seed-generated datasets
 np.random.seed(SEED)
-X_GEN = np.random.rand(N_GEN, L)
+X_GEN = np.random.rand(N_GEN, L).T
 np.random.seed(SEED)
-Y_GEN = np.random.rand(N_GEN, D)
+Y_GEN = np.random.rand(N_GEN, D).T
 np.random.seed(SEED)
-Y_TEST = np.random.rand(N_TEST, D)
+Y_TEST = np.random.rand(N_TEST, D).T
 
 
 @pytest.mark.parametrize("gamma_type", COVARIANCE_TYPE_LIST)
@@ -120,8 +120,8 @@ def test_gllim_workflow(gamma_type, sigma_type):
     # ! #######################  TEST : initialize()  #########################
 
     gllim.initialize(
-        np.array(X_GEN.T),
-        np.array(Y_GEN.T),
+        X_GEN,
+        Y_GEN,
         GLLIM_EM_ITERATION,
         GLLIM_EM_FLOOR,
         GMM_KMEANS_ITERATION,
@@ -155,8 +155,8 @@ def test_gllim_workflow(gamma_type, sigma_type):
 
     if gamma_type == "full" and sigma_type == "full":
         gllim.train(
-            np.array(X_GEN.T),
-            np.array(Y_GEN.T),
+            X_GEN,
+            Y_GEN,
             GMM_KMEANS_ITERATION,
             TRAIN_RATIO_LL,
             TRAIN_FLOOR,
@@ -164,8 +164,8 @@ def test_gllim_workflow(gamma_type, sigma_type):
         )
     else:
         gllim.train(
-            np.array(X_GEN.T),
-            np.array(Y_GEN.T),
+            X_GEN,
+            Y_GEN,
             TRAIN_MAX_ITERATION,
             TRAIN_RATIO_LL,
             TRAIN_FLOOR,
@@ -195,7 +195,7 @@ def test_gllim_workflow(gamma_type, sigma_type):
     # ! ####################  TEST : inverseDensities()  ######################
 
     prediction_results = gllim.inverseDensities(
-        np.array(Y_TEST.T),
+        Y_TEST,
         np.zeros(D),
         K_MERGED,
         1e-10, # prediction_floor

@@ -66,7 +66,7 @@ Methods
     :param str generator_type: The type of the generator used to generate x_gen matrix values.
     :param float, ndarray noise: Vector of dimension D corresponding to the y_i variances.
     :param int seed: Seed number for random generators.
-    :returns: A generated dataset composed of a pair (x_gen, y_gen) with x_gen of shape (N, L) and y_gen of shape (N, D).
+    :returns: A generated dataset composed of a pair (x_gen, y_gen) with x_gen of shape (L, N) and y_gen of shape (D, N).
 
 
 .. _importance-sampling-method:
@@ -89,8 +89,8 @@ Methods
 
     :type proposition_gmms: list[(1-D ndarray, 2-D ndarray, 3-D ndarray)], :class:`FullGMMResult`, :class:`MergedGMMResult`
         
-    :param ndarray with shape(N_obs, D) y: Matrix y.
-    :param ndarray with shape(N_obs, D) y_err: Matrix of y errors.
+    :param ndarray with shape(D, N_obs) y: Matrix y.
+    :param ndarray with shape(D, N_obs) y_err: Matrix of y errors.
     
     :param int N_0: Initial number of samples.
     :param int B: (optional) Parameter B.

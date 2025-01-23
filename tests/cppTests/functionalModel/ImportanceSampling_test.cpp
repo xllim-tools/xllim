@@ -26,8 +26,8 @@ protected:
             }
             proposition_gmms.push_back(std::make_tuple(weight, mean, covariance));
         }
-        y = mat(N_obs, D, fill::randn);
-        y_err = mat(N_obs, D, fill::randu) * 0.001;
+        y = mat(D, N_obs, fill::randn);
+        y_err = mat(D, N_obs, fill::randu) * 0.001;
         y_covariance = vec(D, fill::randu) * 0.1;
     }
     std::unique_ptr<TestModel> model;
@@ -76,7 +76,7 @@ TEST_F(ImportanceSamplingTest, Performance)
         for (unsigned n = 0; n < N_obs; n++)
         {
             model->F(x_obs.col(n), y_obs);
-            y.row(n) = y_obs.t();
+            y.col(n) = y_obs;
         }
         double error_on_x_is = 0;
         double error_reconstruction_is = 0;

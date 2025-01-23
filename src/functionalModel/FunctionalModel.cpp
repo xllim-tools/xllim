@@ -11,8 +11,8 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
 {
     unsigned dimension_D = getDimensionY();
     unsigned dimension_L = getDimensionX();
-    mat x_gen = mat(N, dimension_L);
-    mat y_gen = mat(N, dimension_D);
+    mat x_gen = mat(dimension_L, N);
+    mat y_gen = mat(dimension_D, N);
 
     // generate X
     std::shared_ptr<DataGeneration::Generator> generator = createGenerator(generator_type, seed);
@@ -24,19 +24,19 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     engine.seed(seed);
 
     // #pragma omp parallel for
-    for (unsigned i = 0; i < N; i++)
+    for (unsigned j = 0; j < N; j++)
     {
-        vec noise(dimension_D);
+        double noise;
         vec y_temp(dimension_D);
 
         // calculate F(X)
-        F(x_gen.row(i).t(), y_temp);
+        F(x_gen.col(j), y_temp);
 
         // add noise
-        for (unsigned j = 0; j < dimension_D; j++)
+        for (unsigned i = 0; i < dimension_D; i++)
         {
-            noise(j) = normal_distribution(engine);
-            y_gen(i, j) = y_temp(j) + noise(j) * covariance(j);
+            noise = normal_distribution(engine);
+            y_gen(i, j) = y_temp(i) + noise * covariance(i);
         }
     }
 
@@ -47,8 +47,8 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
 {
     unsigned dimension_D = getDimensionY();
     unsigned dimension_L = getDimensionX();
-    mat x_gen = mat(N, dimension_L);
-    mat y_gen = mat(N, dimension_D);
+    mat x_gen = mat(dimension_L, N);
+    mat y_gen = mat(dimension_D, N);
 
     // generate X
     std::shared_ptr<DataGeneration::Generator> generator = createGenerator(generator_type, seed);
@@ -60,19 +60,19 @@ std::tuple<mat, mat> FunctionalModel::genData(unsigned N, const std::string &gen
     engine.seed(seed);
 
     // #pragma omp parallel for
-    for (unsigned i = 0; i < N; i++)
+    for (unsigned j = 0; j < N; j++)
     {
-        vec noise(dimension_D);
+        double noise;
         vec y_temp(dimension_D);
 
         // calculate F(X)
-        F(x_gen.row(i).t(), y_temp);
+        F(x_gen.col(j), y_temp);
 
         // add noise
-        for (unsigned j = 0; j < dimension_D; j++)
+        for (unsigned i = 0; i < dimension_D; i++)
         {
-            noise(j) = normal_distribution(engine);
-            y_gen(i, j) = y_temp(j) + noise(j) * y_temp(j) * noise_ratio / 100.;
+            noise = normal_distribution(engine);
+            y_gen(i, j) = y_temp(i) + noise * y_temp(i) * noise_ratio / 100.;
         }
     }
 
@@ -230,8 +230,9 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const MergedGMMResu
 
 ImportanceSamplingResult FunctionalModel::importanceSamplingParsedGMMCheck(const std::vector<std::tuple<vec, mat, cube>> &proposition_gmms, const mat y, const mat y_err, const unsigned N_0, const unsigned B, const unsigned J, const vec covariance, int verbose, unsigned seed)
 {
+    // TODO check sizes y, y_err,...
     // Parse the covariance argument
-    const unsigned D = y.n_cols;
+    const unsigned D = y.n_rows;
     vec covariance_parsed(D);
     if (covariance.n_elem == 1)
     {
@@ -265,7 +266,7 @@ ImportanceSamplingResult FunctionalModel::importanceSamplingCore(const std::vect
 
     unsigned N_samples = N_0 + B * J;                     // for imis
     unsigned L = std::get<1>(proposition_gmms[0]).n_rows; // get the number of rows in the first GMM mean matrix
-    unsigned N_obs = y.n_rows;
+    unsigned N_obs = y.n_cols;
     // mat results(L, N_obs);
     ImportanceSamplingResult importanceSamplingResult(L, N_obs);
 
@@ -292,7 +293,7 @@ ImportanceSamplingResult FunctionalModel::importanceSamplingCore(const std::vect
         proposition_gmm.set_params(std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs]), std::get<0>(proposition_gmms[n_obs]).t());
         utils::set_seed_armadillo(seed);
         samples.cols(0, N_0 - 1) = proposition_gmm.generate(N_0);                                                                                                                                                      // sample with GLLiM-GMM
-        target_log_densities.subvec(0, N_0 - 1) = targetDensity(samples.cols(0, N_0 - 1), y.row(n_obs).t(), y_err.row(n_obs).t(), covariance);                                                                         // compute the target log probability density function (PDF)
+        target_log_densities.subvec(0, N_0 - 1) = targetDensity(samples.cols(0, N_0 - 1), y.col(n_obs), y_err.col(n_obs), covariance);                                                                         // compute the target log probability density function (PDF)
         proposition_log_densities.subvec(0, N_0 - 1) = propositionDensity(samples.cols(0, N_0 - 1), std::get<0>(proposition_gmms[n_obs]), std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs])); // compute the target log probability density function (PDF)
         weights.subvec(0, N_0 - 1) = target_log_densities.subvec(0, N_0 - 1) - proposition_log_densities.subvec(0, N_0 - 1);                                                                                           // compute weights verifying numerical stability
 
@@ -356,7 +357,7 @@ ImportanceSamplingResult FunctionalModel::importanceSamplingCore(const std::vect
                 log_phi_list.col(n) = gmm_step[n].log_p(samples.cols(N_j, N_j1 - 1)).t();
             }
             vec log_sum_phi = utils::logSumExp(log_phi_list, 1);
-            target_log_densities.subvec(N_j, N_j1 - 1) = targetDensity(samples.cols(N_j, N_j1 - 1), y.row(n_obs).t(), y_err.row(n_obs).t(), covariance);                                                     // compute the target log probability density function (PDF)
+            target_log_densities.subvec(N_j, N_j1 - 1) = targetDensity(samples.cols(N_j, N_j1 - 1), y.col(n_obs), y_err.col(n_obs), covariance);                                                     // compute the target log probability density function (PDF)
             proposition_log_densities_0 = propositionDensity(samples.cols(N_j, N_j1 - 1), std::get<0>(proposition_gmms[n_obs]), std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs])); // compute the target log probability density function (PDF)
             proposition_log_densities.subvec(N_j, N_j1 - 1) = utils::weightedLogSumExp(N_0, proposition_log_densities_0, B, log_sum_phi) - log(N_j1);
 

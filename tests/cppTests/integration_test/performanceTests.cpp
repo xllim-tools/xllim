@@ -37,21 +37,21 @@ TEST_F(PerformanceTest, TestModel)
     unsigned seed = 12345;
     int verbose = 1;
     auto start0 = std::chrono::high_resolution_clock::now();
-    gllim->initialize(std::get<0>(data).t(), std::get<1>(data).t(), gllim_em_iteration, gllim_em_floor, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, nb_experiences, seed, verbose);
+    gllim->initialize(std::get<0>(data), std::get<1>(data), gllim_em_iteration, gllim_em_floor, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, nb_experiences, seed, verbose);
     auto end0 = std::chrono::high_resolution_clock::now();
     auto duration0 = std::chrono::duration_cast<std::chrono::milliseconds>(end0 - start0);
     std::cout << "init : " << duration0.count() << std::endl;
 
     std::cout << "Train GLLiM :" << std::endl;
     auto start1 = std::chrono::high_resolution_clock::now();
-    gllim->train(std::get<0>(data).t(), std::get<1>(data).t(), 30, 1e-3, 1e-12, verbose);
+    gllim->train(std::get<0>(data), std::get<1>(data), 30, 1e-3, 1e-12, verbose);
     auto end1 = std::chrono::high_resolution_clock::now();
     auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end1 - start1);
     std::cout << "train : " << duration1.count() << std::endl;
 
     // prediction
     std::cout << "Prediction :" << std::endl;
-    mat y_test = mat(std::get<1>(data).rows(1, 50).t());
+    mat y_test = mat(std::get<1>(data).cols(1, 50));
     auto start2 = std::chrono::high_resolution_clock::now();
     gllim->inverseDensities(y_test);
     auto end2 = std::chrono::high_resolution_clock::now();

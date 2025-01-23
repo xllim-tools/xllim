@@ -1003,8 +1003,8 @@ def set_up_gllim(physical_model_name, datasize):
     print("initializing GLLIM model")
     initialisation_time = time.time()
     gllim.initialize(
-        np.array(x_gen.T),
-        np.array(y_gen.T),
+        x_gen,
+        y_gen,
         gllim_em_iteration,
         gllim_em_floor,
         gmm_kmeans_iteration,
@@ -1023,7 +1023,7 @@ def set_up_gllim(physical_model_name, datasize):
 
     print("training model")
     training_time = time.time()
-    gllim.train(np.array(x_gen.T), np.array(y_gen.T), train_max_iteration, train_ratio_ll, train_floor, 1)
+    gllim.train(x_gen, y_gen, train_max_iteration, train_ratio_ll, train_floor, 1)
     training_time = time.time() - training_time
 
     #     gllim_parameters = gllim.exportModel()
@@ -1131,7 +1131,7 @@ def run_one_experience(
     is_time = [[] for i in range(nb_centers + 1)]
 
     ts = time.time()
-    is_results = physical_model.importanceSampling(predictions.mergedGMM, np.array(y_obs.T), np.array(var_obs.T), N_samples, 0, 0, np.ones(D) * 0.001, verbose=1)
+    is_results = physical_model.importanceSampling(predictions.mergedGMM,y_obs,var_obs, N_samples, 0, 0, np.ones(D) * 0.001, verbose=1)
     is_time[0].append(time.time() - ts)
 
     # compute IMIS-1
@@ -1144,7 +1144,7 @@ def run_one_experience(
     imis_1_time = [[] for i in range(nb_centers + 1)]
 
     ts = time.time()
-    imis_1_results = physical_model.importanceSampling(predictions.mergedGMM, np.array(y_obs.T), np.array(var_obs.T), N_0, B, J, np.ones(D) * 0.001, verbose=1)
+    imis_1_results = physical_model.importanceSampling(predictions.mergedGMM,y_obs,var_obs, N_0, B, J, np.ones(D) * 0.001, verbose=1)
     imis_1_time[0].append(time.time() - ts)
 
     # compute IMIS-2
@@ -1157,7 +1157,7 @@ def run_one_experience(
     imis_2_time = [[] for i in range(nb_centers + 1)]
 
     ts = time.time()
-    imis_2_results = physical_model.importanceSampling(predictions.mergedGMM, np.array(y_obs.T), np.array(var_obs.T), N_0, B, J, np.ones(D) * 0.001, verbose=1)
+    imis_2_results = physical_model.importanceSampling(predictions.mergedGMM,y_obs,var_obs, N_0, B, J, np.ones(D) * 0.001, verbose=1)
     imis_2_time[0].append(time.time() - ts)
 
 

@@ -11,13 +11,13 @@ typedef sobol_engine< boost::uint_least64_t, 64u, default_sobol_table > Sobol;
 void SobolGenerator::execute(mat &x) {
 
     // Initialize the engine to draw randomness out of thin air
-    Sobol engine(x.n_cols);
+    Sobol engine(x.n_rows);
 
     std::uniform_real_distribution<double> unif(0, 1);
 
     // generate numbers
-    for(unsigned i=0; i<x.n_rows ; i++){
-        for(unsigned j=0; j<x.n_cols; j++){
+    for(unsigned j=0; j<x.n_cols; j++){
+        for(unsigned i=0; i<x.n_rows ; i++){
             x(i,j) = unif(engine);
         }
     }

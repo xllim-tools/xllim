@@ -24,10 +24,10 @@ TEST_P(DataGenerationTest, GenDataReturnsXYGoodShape)
     // vec covariance = vec(9, fill::randu) * 1e-5;
     double noise_ratio = 0.01;
     std::tuple<mat, mat> data = model->genData(N, GetParam(), noise_ratio, seed);
-    ASSERT_EQ(std::get<0>(data).n_rows, N) << "X_gen shape (rows) error on " << GetParam();
-    ASSERT_EQ(std::get<0>(data).n_cols, 4) << "X_gen shape (cols) error on " << GetParam();
-    ASSERT_EQ(std::get<1>(data).n_rows, N) << "Y_gen shape (rows) error on " << GetParam();
-    ASSERT_EQ(std::get<1>(data).n_cols, 9) << "Y_gen shape (cols) error on " << GetParam();
+    ASSERT_EQ(std::get<0>(data).n_rows, 4) << "X_gen shape (rows) error on " << GetParam();
+    ASSERT_EQ(std::get<0>(data).n_cols, N) << "X_gen shape (cols) error on " << GetParam();
+    ASSERT_EQ(std::get<1>(data).n_rows, 9) << "Y_gen shape (rows) error on " << GetParam();
+    ASSERT_EQ(std::get<1>(data).n_cols, N) << "Y_gen shape (cols) error on " << GetParam();
 }
 
 TEST_P(DataGenerationTest, YGenApproxEqualFOnXGen)
@@ -41,8 +41,8 @@ TEST_P(DataGenerationTest, YGenApproxEqualFOnXGen)
     vec y(9);
     for (unsigned int i = 0; i < N; i++)
     {
-        model->F(std::get<0>(data).row(i).t(), y);
-        ASSERT_TRUE(approx_equal(std::get<1>(data).row(i).t(), y, "reldiff", 1e-3));
+        model->F(std::get<0>(data).col(i), y);
+        ASSERT_TRUE(approx_equal(std::get<1>(data).col(i), y, "reldiff", 1e-3));
     }
 }
 
