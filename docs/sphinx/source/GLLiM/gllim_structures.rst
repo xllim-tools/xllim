@@ -126,14 +126,14 @@ Structures
     :param int K: Number of components in the GMM.
 
     .. attribute:: mean
-        :type: ndarray of shape (N_obs, D)
+        :type: ndarray of shape (D, N_obs)
 
-        The mean of the GMM prediction (N_obs, D).
+        The mean of the GMM prediction (D, N_obs).
 
     .. attribute:: variance
-        :type: ndarray of shape (N_obs, D, D)
+        :type: ndarray of shape (D, D, N_obs)
 
-        The variance of the GMM prediction (N_obs, D, D).
+        The variance of the GMM prediction (D, D, N_obs).
 
     .. attribute:: weights
         :type: ndarray of shape (N_obs, K)
@@ -141,9 +141,9 @@ Structures
         The weights of the components of the GMM (N_obs, K).
 
     .. attribute:: means
-        :type: ndarray of shape (N_obs, D, K)
+        :type: ndarray of shape (D, N_obs, K)
 
-        The means of each component in the GMM (N_obs, D, K).
+        The means of each component in the GMM (D, N_obs, K).
 
     .. attribute:: covs
         :type: ndarray of shape (D, D, K)
@@ -153,7 +153,7 @@ Structures
 
 .. _merged-gmm-result-struct:
 
-.. class:: MergedGMMResult
+.. class:: MergedGMMResult(N_obs, D, K_merged)
 
     This structure holds the results of the center predictions for a Gaussian Mixture Model (GMM).
 
@@ -162,14 +162,14 @@ Structures
     :param int K_merged: Number of components in the merged GMM.
 
     .. attribute:: mean
-        :type: ndarray of shape (N_obs, D)
+        :type: ndarray of shape (D, N_obs)
 
-        The mean of the merged GMM prediction (N_obs, D).
+        The mean of the merged GMM prediction (D, N_obs).
 
     .. attribute:: variance
-        :type: ndarray of shape (N_obs, D, D)
+        :type: ndarray of shape (D, D, N_obs)
 
-        The variance of the merged GMM prediction (N_obs, D, D).
+        The variance of the merged GMM prediction (D, D, N_obs).
 
     .. attribute:: weights
         :type: ndarray of shape (N_obs, K_merged)
@@ -177,9 +177,9 @@ Structures
         The weights of the components of the merged GMM (N_obs, K_merged).
 
     .. attribute:: means
-        :type: ndarray of shape (N_obs, D, K_merged)
+        :type: ndarray of shape (D, N_obs, K_merged)
 
-        The means of each component in the merged GMM (N_obs, D, K_merged). It corresponds to the centers that stands for the predictions
+        The means of each component in the merged GMM (D, N_obs, K_merged). It corresponds to the centers that stands for the predictions
 
     .. attribute:: covs
         :type: list with length N_obs[ndarray of shape (D, D, K_merged)]

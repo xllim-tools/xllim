@@ -213,15 +213,15 @@ def test_gllim_workflow(gamma_type, sigma_type):
     # compare results
     error_msg = "inverseDensities" + " > " + gamma_type + "/" + sigma_type
     assert np.allclose(prediction_results.fullGMM.weights, prediction_results_ref.fullGMM.weights), error_msg + " > " + "fullGMM.weights"
-    assert np.allclose(prediction_results.fullGMM.means, prediction_results_ref.fullGMM.means), error_msg + " > " + "fullGMM.means"
+    assert np.allclose(prediction_results.fullGMM.means, np.transpose(prediction_results_ref.fullGMM.means, (1, 0, 2))), error_msg + " > " + "fullGMM.means"
     assert np.allclose(prediction_results.fullGMM.covs, prediction_results_ref.fullGMM.covs), error_msg + " > " + "fullGMM.covs"
-    assert np.allclose(prediction_results.fullGMM.mean, prediction_results_ref.fullGMM.mean), error_msg + " > " + "fullGMM.mean"
-    assert np.allclose(prediction_results.fullGMM.variance, prediction_results_ref.fullGMM.variance), error_msg + " > " + "fullGMM.variance"
+    assert np.allclose(prediction_results.fullGMM.mean, np.transpose(prediction_results_ref.fullGMM.mean, (1, 0))), error_msg + " > " + "fullGMM.mean"
+    assert np.allclose(prediction_results.fullGMM.variance, np.transpose(prediction_results_ref.fullGMM.variance, (1, 2, 0))), error_msg + " > " + "fullGMM.variance"
     assert np.allclose(prediction_results.mergedGMM.weights, prediction_results_ref.mergedGMM.weights), error_msg + " > " + "mergedGMM.weights"
-    assert np.allclose(prediction_results.mergedGMM.means, prediction_results_ref.mergedGMM.means), error_msg + " > " + "mergedGMM.means"
+    assert np.allclose(prediction_results.mergedGMM.means, np.transpose(prediction_results_ref.mergedGMM.means, (1, 0, 2))), error_msg + " > " + "mergedGMM.means"
     assert np.allclose(prediction_results.mergedGMM.covs, prediction_results_ref.mergedGMM.covs), error_msg + " > " + "mergedGMM.covs"
-    assert np.allclose(prediction_results.mergedGMM.mean, prediction_results_ref.mergedGMM.mean), error_msg + " > " + "mergedGMM.mean"
-    assert np.allclose(prediction_results.mergedGMM.variance, prediction_results_ref.mergedGMM.variance), error_msg + " > " + "mergedGMM.variance"
+    assert np.allclose(prediction_results.mergedGMM.mean, np.transpose(prediction_results_ref.mergedGMM.mean, (1, 0))), error_msg + " > " + "mergedGMM.mean"
+    assert np.allclose(prediction_results.mergedGMM.variance, np.transpose(prediction_results_ref.mergedGMM.variance, (1, 2, 0))), error_msg + " > " + "mergedGMM.variance"
 
 
 # ! #####################  TODO  #######################

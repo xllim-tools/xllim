@@ -135,12 +135,12 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const std::vector<s
         cube covs_cube(D, D, 1);
         std::vector<std::tuple<vec, mat, cube>> proposition_gmm_one_gaussian;
 
-        for (size_t i = 0; i < N_obs; i++)
+        for (size_t n = 0; n < N_obs; n++)
         {
-            covs_cube.slice(0) = std::get<2>(proposition_gmms[i]).slice(idx_gaussian);
+            covs_cube.slice(0) = std::get<2>(proposition_gmms[n]).slice(idx_gaussian);
             proposition_gmm_one_gaussian.push_back(std::make_tuple(
                 vec(1, fill::value(1)),
-                mat(std::get<1>(proposition_gmms[i]).col(idx_gaussian)),
+                mat(std::get<1>(proposition_gmms[n]).col(idx_gaussian)),
                 covs_cube));
         }
         return importanceSamplingParsedGMMCheck(proposition_gmm_one_gaussian, y, y_err, N_0, B, J, covariance, verbose, seed);
@@ -160,11 +160,11 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const FullGMMResult
 
     if (idx_gaussian == -1) // apply IMIS on all gaussians
     {
-        for (size_t i = 0; i < N_obs; i++)
+        for (size_t n = 0; n < N_obs; n++)
         {
             proposition_gmms.push_back(std::make_tuple(
-                fullGMM.weights.row(i).t(),
-                fullGMM.means.row(i),
+                fullGMM.weights.row(n).t(),
+                fullGMM.means.col(n),
                 fullGMM.covs // The covariance is indenpendent from y thus it is the same for all predictions
                 ));
         }
@@ -172,13 +172,13 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const FullGMMResult
     else if (idx_gaussian >= 0 && idx_gaussian < K) // apply IMIS on specific gaussian
     {
 
-        for (size_t i = 0; i < N_obs; i++)
+        for (size_t n = 0; n < N_obs; n++)
         {
-            cube covs_cube(fullGMM.means.n_cols, fullGMM.means.n_cols, 1); // ! TODO terrible code
+            cube covs_cube(fullGMM.means.n_rows, fullGMM.means.n_rows, 1); // ! TODO terrible code
             covs_cube.slice(0) = fullGMM.covs.slice(idx_gaussian);
             proposition_gmms.push_back(std::make_tuple(
                 vec(1, fill::value(1)),
-                mat(fullGMM.means.slice(idx_gaussian).row(i).t()),
+                mat(fullGMM.means.slice(idx_gaussian).col(n)),
                 covs_cube));
         }
     }
@@ -199,24 +199,24 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const MergedGMMResu
 
     if (idx_gaussian == -1) // apply IMIS on all gaussians
     {
-        for (size_t i = 0; i < N_obs; i++)
+        for (size_t n = 0; n < N_obs; n++)
         {
             proposition_gmms.push_back(std::make_tuple(
-                mergedGMM.weights.row(i).t(),
-                mergedGMM.means.row(i),
-                mergedGMM.covs[i]));
+                mergedGMM.weights.row(n).t(),
+                mergedGMM.means.col(n),
+                mergedGMM.covs[n]));
         }
     }
     else if (idx_gaussian >= 0 && idx_gaussian < K) // apply IMIS on specific gaussian
     {
 
-        for (size_t i = 0; i < N_obs; i++)
+        for (size_t n = 0; n < N_obs; n++)
         {
-            cube covs_cube(mergedGMM.means.n_cols, mergedGMM.means.n_cols, 1); // ! TODO terrible code
-            covs_cube.slice(0) = mergedGMM.covs[i].slice(idx_gaussian);
+            cube covs_cube(mergedGMM.means.n_rows, mergedGMM.means.n_rows, 1); // ! TODO terrible code
+            covs_cube.slice(0) = mergedGMM.covs[n].slice(idx_gaussian);
             proposition_gmms.push_back(std::make_tuple(
                 vec(1, fill::value(1)),
-                mat(mergedGMM.means.slice(idx_gaussian).row(i).t()),
+                mat(mergedGMM.means.slice(idx_gaussian).col(n)),
                 covs_cube));
         }
     }
@@ -293,7 +293,7 @@ ImportanceSamplingResult FunctionalModel::importanceSamplingCore(const std::vect
         proposition_gmm.set_params(std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs]), std::get<0>(proposition_gmms[n_obs]).t());
         utils::set_seed_armadillo(seed);
         samples.cols(0, N_0 - 1) = proposition_gmm.generate(N_0);                                                                                                                                                      // sample with GLLiM-GMM
-        target_log_densities.subvec(0, N_0 - 1) = targetDensity(samples.cols(0, N_0 - 1), y.col(n_obs), y_err.col(n_obs), covariance);                                                                         // compute the target log probability density function (PDF)
+        target_log_densities.subvec(0, N_0 - 1) = targetDensity(samples.cols(0, N_0 - 1), y.col(n_obs), y_err.col(n_obs), covariance);                                                                                 // compute the target log probability density function (PDF)
         proposition_log_densities.subvec(0, N_0 - 1) = propositionDensity(samples.cols(0, N_0 - 1), std::get<0>(proposition_gmms[n_obs]), std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs])); // compute the target log probability density function (PDF)
         weights.subvec(0, N_0 - 1) = target_log_densities.subvec(0, N_0 - 1) - proposition_log_densities.subvec(0, N_0 - 1);                                                                                           // compute weights verifying numerical stability
 
@@ -357,7 +357,7 @@ ImportanceSamplingResult FunctionalModel::importanceSamplingCore(const std::vect
                 log_phi_list.col(n) = gmm_step[n].log_p(samples.cols(N_j, N_j1 - 1)).t();
             }
             vec log_sum_phi = utils::logSumExp(log_phi_list, 1);
-            target_log_densities.subvec(N_j, N_j1 - 1) = targetDensity(samples.cols(N_j, N_j1 - 1), y.col(n_obs), y_err.col(n_obs), covariance);                                                     // compute the target log probability density function (PDF)
+            target_log_densities.subvec(N_j, N_j1 - 1) = targetDensity(samples.cols(N_j, N_j1 - 1), y.col(n_obs), y_err.col(n_obs), covariance);                                                             // compute the target log probability density function (PDF)
             proposition_log_densities_0 = propositionDensity(samples.cols(N_j, N_j1 - 1), std::get<0>(proposition_gmms[n_obs]), std::get<1>(proposition_gmms[n_obs]), std::get<2>(proposition_gmms[n_obs])); // compute the target log probability density function (PDF)
             proposition_log_densities.subvec(N_j, N_j1 - 1) = utils::weightedLogSumExp(N_0, proposition_log_densities_0, B, log_sum_phi) - log(N_j1);
 

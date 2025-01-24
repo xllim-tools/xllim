@@ -1170,8 +1170,8 @@ def run_one_experience(
     for n in range(N_obs):
 
         # prediction
-        prediction_reconstruction_error[0].append(compute_reconstruction_error(physical_model.F(predictions.fullGMM.mean[n]), y_obs[:,n]))
-        prediction_error_on_x[0].append(np.linalg.norm(predictions.fullGMM.mean[n] - x_obs[n], np.inf))
+        prediction_reconstruction_error[0].append(compute_reconstruction_error(physical_model.F(predictions.fullGMM.mean[:,n]), y_obs[:,n]))
+        prediction_error_on_x[0].append(np.linalg.norm(predictions.fullGMM.mean[:,n] - x_obs[n], np.inf))
 
         # IS
         is_reconstruction_error[0].append(compute_reconstruction_error(physical_model.F(is_results.predictions[n]), y_obs[:,n]))

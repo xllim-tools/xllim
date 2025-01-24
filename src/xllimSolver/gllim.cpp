@@ -114,8 +114,8 @@ void GLLiM<TGamma, TSigma>::initialize(const mat &t, const mat &y, unsigned glli
         gmm.set_params(gmm_means, gmm_covs, gmm_weights);
         gmm.learn(t, K, maha_dist, keep_existing, gmm_kmeans_iteration, gmm_em_iteration, gmm_floor, false);
 
-// compute log_rnk using the posterior of the GMM after the training
-// #pragma omp parallel for default(none) schedule(static) shared(log_r, gmm, t, K)
+        // compute log_rnk using the posterior of the GMM after the training
+        // #pragma omp parallel for default(none) schedule(static) shared(log_r, gmm, t, K)
         for (unsigned k = 0; k < K; k++)
         {
             log_r.col(k) = gmm.log_p(t, k).t();
@@ -222,18 +222,17 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
     // Logger::getInstance().log(INFO, 1, verbose, "Construct the GMM of the forward conditional model");
     std::tuple<mat, cube, cube> GMMs = constructGMM(x, theta_altered);
     result.fullGMM.weights = std::get<0>(GMMs); // (N_obs, K)
-    result.fullGMM.means = std::get<1>(GMMs);   // (N_obs, D, K)
+    result.fullGMM.means = std::get<1>(GMMs);   // (D, N_obs, K)
     result.fullGMM.covs = std::get<2>(GMMs);    // (D, D, K) (The covariance is indenpendent from x)
 
     // ============================= Prediction mean estimations ==================================
 
     // Compute the mean of the means in the mixture
     // Logger::getInstance().log(INFO, 1, verbose, "Compute the weighted mean of the means in the mixture");
-    result.fullGMM.mean = mat(N_obs, theta_.D);
     // #pragma omp parallel for default(none) schedule(static) shared(result, K)
     for (unsigned k = 0; k < theta_.K; ++k)
     {
-        result.fullGMM.mean += diagmat(result.fullGMM.weights.col(k)) * result.fullGMM.means.slice(k);
+        result.fullGMM.mean += result.fullGMM.means.slice(k) * diagmat(result.fullGMM.weights.col(k));
     }
 
     // Compute the mean of covariances in the mixture
@@ -245,8 +244,8 @@ PredictionResult GLLiM<TGamma, TSigma>::directDensities(const mat &x, const vec 
     {
         for (unsigned k = 0; k < theta_.K; ++k)
         {
-            rowvec mean_diff = result.fullGMM.means.slice(k).row(n) - result.fullGMM.mean.row(n);
-            result.fullGMM.variance.row(n) += result.fullGMM.weights(n, k) * (result.fullGMM.covs.slice(k) + mean_diff.t() * mean_diff);
+            vec mean_diff = result.fullGMM.means.slice(k).col(n) - result.fullGMM.mean.col(n);
+            result.fullGMM.variance.slice(n) += result.fullGMM.weights(n, k) * (result.fullGMM.covs.slice(k) + mean_diff * mean_diff.t());
         }
     }
 
@@ -284,17 +283,17 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensities(const mat &y, const mat
         {
             PredictionResult res_n = GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(mat(y.col(n)), vec(y_incertitude.col(n)), K_merged, merging_threshold, verbose);
 
-            result.fullGMM.weights.row(n) = res_n.fullGMM.weights;   // (N_obs, K)
-            result.fullGMM.means.row(n) = res_n.fullGMM.means;       // (N_obs, D, K)
-            result.fullGMM.covs = res_n.fullGMM.covs;                // (D, D, K) (The covariance is indenpendent from y)
-            result.fullGMM.mean.row(n) = res_n.fullGMM.mean;         // (N_obs, D)
-            result.fullGMM.variance.row(n) = res_n.fullGMM.variance; // (N_obs, D, D)
+            result.fullGMM.weights.row(n) = res_n.fullGMM.weights;     // (N_obs, K)
+            result.fullGMM.means.col(n) = res_n.fullGMM.means;         // (D, N_obs,K)
+            result.fullGMM.covs = res_n.fullGMM.covs;                  // (D, D, K) (The covariance is indenpendent from y)
+            result.fullGMM.mean.col(n) = res_n.fullGMM.mean;           // (D, N_obs)
+            result.fullGMM.variance.slice(n) = res_n.fullGMM.variance; // (D, D, N_obs)
 
-            result.mergedGMM.weights.row(n) = res_n.mergedGMM.weights;   // (N_obs, K_merged)
-            result.mergedGMM.means.row(n) = res_n.mergedGMM.means;       // (N_obs, D, K_merged)
-            result.mergedGMM.covs[n] = res_n.mergedGMM.covs[0];          // (N_obs, D, D, K_merged) (vector<cube>) (Depends on other gaussians means thus y)
-            result.mergedGMM.mean.row(n) = res_n.mergedGMM.mean;         // (N_obs, D)
-            result.mergedGMM.variance.row(n) = res_n.mergedGMM.variance; // (N_obs, D, D)
+            result.mergedGMM.weights.row(n) = res_n.mergedGMM.weights;     // (N_obs, K_merged)
+            result.mergedGMM.means.col(n) = res_n.mergedGMM.means;         // (D, N_obs, K_merged)
+            result.mergedGMM.covs[n] = res_n.mergedGMM.covs[0];            // N_obs[(D, D, K_merged)] (vector<cube>) (Depends on other gaussians means thus y)
+            result.mergedGMM.mean.col(n) = res_n.mergedGMM.mean;           // (D, N_obs)
+            result.mergedGMM.variance.slice(n) = res_n.mergedGMM.variance; // (D, D, N_obs)
 
             if (verbose >= 1)
                 logger.getProgressBar().update(n + 1);
@@ -669,14 +668,13 @@ std::tuple<mat, cube, cube> GLLiM<TGamma, TSigma>::constructGMM(const mat &x, GL
     weights = exp(weights); // normalized real weights
 
     // means
-    cube means(N_obs, theta.D, theta.K);
+    cube means(theta.D, N_obs, theta.K);
     for (unsigned k = 0; k < theta.K; ++k)
     {
         // Compute the means for each k
         // Each column of 'x' is multiplied by A.slice(k) and then B.col(k) is added
-        means.slice(k) = (theta.A.slice(k) * x).t();
-        means.slice(k).each_row() += theta.B.col(k).t();
-        // means.slice(k) = (theta.A.slice(k) * x).t() + arma::repmat(theta.B.col(k).t(), N_obs, 1);
+        means.slice(k) = theta.A.slice(k) * x;
+        means.slice(k).each_col() += theta.B.col(k);
     }
 
     // covariances
@@ -781,31 +779,29 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
     // Logger::getInstance().log(INFO, 2, verbose, "Construct the GMM of the inverse conditional model");
     std::tuple<mat, cube, cube> GMMs = constructGMM(y, theta_star_altered);
     result.fullGMM.weights = std::get<0>(GMMs); // (N_obs, K)
-    result.fullGMM.means = std::get<1>(GMMs);   // (N_obs, D, K)
+    result.fullGMM.means = std::get<1>(GMMs);   // (D, N_obs, K)
     result.fullGMM.covs = std::get<2>(GMMs);    // (D, D, K) (The covariance is indenpendent from y)
 
     // ============================= Prediction mean estimations ==================================
 
     // Compute the mean of the means in the mixture
     // Logger::getInstance().log(INFO, 2, verbose, "Compute the weighted mean of the means in the mixture");
-    result.fullGMM.mean = mat(N_obs, theta_star_altered.D); // theta_star_altered.D or theta_altered.L (the second one is more explicit. )
     // #pragma omp parallel for default(none) schedule(static) shared(result, K_star_altered)
     for (unsigned k = 0; k < theta_star_altered.K; ++k)
     {
-        result.fullGMM.mean += diagmat(result.fullGMM.weights.col(k)) * result.fullGMM.means.slice(k);
+        result.fullGMM.mean += result.fullGMM.means.slice(k) * diagmat(result.fullGMM.weights.col(k)); // (D, N_obs)
     }
 
     // Compute the mean of covariances in the mixture
     // Logger::getInstance().log(INFO, 2, verbose, "Compute the weighted covariance of the covariances in the mixture");
     // TODO voir formule dans Kugler 2021.  can be simplified
-    result.fullGMM.variance = cube(N_obs, theta_star_altered.D, theta_star_altered.D);
     // #pragma omp parallel for default(none) schedule(static) shared(result, N_obs, K_star_altered)
     for (unsigned n = 0; n < N_obs; ++n)
     {
         for (unsigned k = 0; k < theta_star_altered.K; ++k)
         {
-            rowvec mean_diff = result.fullGMM.means.slice(k).row(n) - result.fullGMM.mean.row(n);
-            result.fullGMM.variance.row(n) += result.fullGMM.weights(n, k) * (result.fullGMM.covs.slice(k) + mean_diff.t() * mean_diff);
+            vec mean_diff = result.fullGMM.means.slice(k).col(n) - result.fullGMM.mean.col(n);
+            result.fullGMM.variance.slice(n) += result.fullGMM.weights(n, k) * (result.fullGMM.covs.slice(k) + mean_diff * mean_diff.t());
         }
     }
 
@@ -835,7 +831,7 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
                 unsigned k_in_GMMs = thresholded_indices(k);
                 gaussians[k].second = !DELETED;
                 gaussians[k].first.weight = std::get<0>(GMMs)(n, k_in_GMMs);
-                gaussians[k].first.mean = std::get<1>(GMMs).slice(k_in_GMMs).row(n).t();
+                gaussians[k].first.mean = std::get<1>(GMMs).slice(k_in_GMMs).col(n);
                 gaussians[k].first.covariance = std::get<2>(GMMs).slice(k_in_GMMs);
             }
             if (K_thresholded <= K_merged)
@@ -857,21 +853,21 @@ PredictionResult GLLiM<TGamma, TSigma>::inverseDensitiesOneInversion(const mat &
             {
                 if (!element.second) // if gaussian is not DELETED
                 {
-                    result.mergedGMM.weights(n, k) = element.first.weight;           // mat (N_obs, K_merged)
-                    result.mergedGMM.means.slice(k).row(n) = element.first.mean.t(); // cube (N_obs, D, K_merged)
-                    result.mergedGMM.covs[n].slice(k) = element.first.covariance;    // vector<cube> (N_obs, D, D, K_merged) (Depends on other gaussians means thus y)
+                    result.mergedGMM.weights(n, k) = element.first.weight;        // mat (N_obs, K_merged)
+                    result.mergedGMM.means.slice(k).col(n) = element.first.mean;  // cube (D, N_obs, K_merged)
+                    result.mergedGMM.covs[n].slice(k) = element.first.covariance; // vector<cube> (N_obs, D, D, K_merged) (Depends on other gaussians means thus y)
                     k++;
                 }
             }
             // Logger::getInstance().log(INFO, 2, verbose, "Compute mean and variance of merged GMMs");
             for (unsigned k = 0; k < K_merged; ++k)
             {
-                result.mergedGMM.mean += diagmat(result.mergedGMM.weights.col(k)) * result.mergedGMM.means.slice(k); // mat (N_obs, D)
+                result.mergedGMM.mean += result.mergedGMM.means.slice(k) * diagmat(result.mergedGMM.weights.col(k)); // mat (D, N_obs)
             }
             for (unsigned k = 0; k < K_merged; ++k)
             {
-                rowvec mean_diff = result.mergedGMM.means.slice(k).row(n) - result.mergedGMM.mean.row(n);
-                result.mergedGMM.variance.row(n) += result.mergedGMM.weights(n, k) * (result.mergedGMM.covs[n].slice(k) + mean_diff.t() * mean_diff); // mat (N_obs, D, D)
+                vec mean_diff = result.mergedGMM.means.slice(k).col(n) - result.mergedGMM.mean.col(n);
+                result.mergedGMM.variance.slice(n) += result.mergedGMM.weights(n, k) * (result.mergedGMM.covs[n].slice(k) + mean_diff * mean_diff.t()); // mat (D, D, N_obs)
             }
         }
     }
