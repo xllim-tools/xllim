@@ -312,14 +312,14 @@ umat generatePermutations(unsigned N)
 
 umat utils::regularize(const cube &series)
 {
-    // series is with shape (N_obs, L, K_merged) = (nb_wavelengths,L,nb_centers)
-    unsigned N_obs = series.n_rows, L = series.n_cols, K = series.n_slices;
+    // series is with shape (L, N_obs, K_merged) = (L, nb_wavelengths ,nb_centers)
+    unsigned L = series.n_rows, N_obs = series.n_cols, K = series.n_slices;
     umat permutations = generatePermutations(K); // (K!, K)
     umat chosen_permutations(K, N_obs);          // (K, N_obs)
     for (unsigned k = 0; k < K; k++)
         chosen_permutations(k, 0) = k;
 
-    mat current_choice = series.row(0); // (L, K)
+    mat current_choice = series.col(0); // (L, K)
     mat proposition(L, K);              // (L, K)
     vec diff(permutations.n_rows);      // (K!)
 
@@ -331,7 +331,7 @@ umat utils::regularize(const cube &series)
         {
             for (unsigned k = 0; k < K; k++)
             {
-                proposition.col(k) = series.slice(permutations(p, k)).row(n + 1).t();
+                proposition.col(k) = series.slice(permutations(p, k)).col(n + 1);
             }
             diff(p) = sum(sqrt(sum(pow(current_choice - proposition, 2), 0)));
         }
@@ -340,7 +340,7 @@ umat utils::regularize(const cube &series)
 
         for (unsigned k = 0; k < K; k++)
         {
-            current_choice.col(k) = series.slice(permutations(best_permutation_index, k)).row(n + 1).t();
+            current_choice.col(k) = series.slice(permutations(best_permutation_index, k)).col(n + 1);
         }
     }
     return chosen_permutations;
