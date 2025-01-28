@@ -27,7 +27,7 @@ namespace utils
 
     // It implements the regularization algorithm to get predictions more adapter to a context that requires 
     // regularity between the predictions of different observations.
-    // arg : series - cube of shape series is with shape (N_obs, L, K_merged) = (nb_wavelengths,L,nb_centers)
+    // arg : series - cube of shape series is with shape (L, N_obs, K_merged) = (L, nb_wavelengths, nb_centers)
     // return : chosen permutation - Mat<unsigned int> of shape (K, N_obs)
     // ! The complexity is O(N_obs*K!*K)
     umat regularize(const cube &series);
