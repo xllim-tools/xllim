@@ -25,7 +25,10 @@ struct GLLiMParameters
     // For more information on these parameters, see the formula 2 in Antoine Deleforge, Florence Forbes, and Radu Horaud.
     // High-Dimensional Regression with Gaussian Mixtures and Partially-Latent Response Variables. Statistics and Computing 25(5): 893-911, September 2015.
 
-    GLLiMParameters(unsigned K, unsigned D, unsigned L_t, unsigned L_w) : K(K), D(D), L(L_t + L_w), L_t(L_t), L_w(L_w), Pi(K), A(D, L_t + L_w, K), C(L_t + L_w, K), B(D, K), Gamma(K, TGamma(L_t + L_w)), Sigma(K, TSigma(D)) {}
+    GLLiMParameters(unsigned K, unsigned D, unsigned L_t, unsigned L_w) : K(K), D(D), L(L_t + L_w), L_t(L_t), L_w(L_w), A(D, L_t + L_w, K), C(L_t + L_w, K), B(D, K), Gamma(K, TGamma(L_t + L_w)), Sigma(K, TSigma(D))
+    {
+        Pi = rowvec(K, fill::ones) * 1 / K;
+    }
 };
 
 #endif // GLLIMPARAMETERS_HPP
