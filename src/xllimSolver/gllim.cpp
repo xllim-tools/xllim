@@ -618,9 +618,9 @@ GLLiMParameters<FullCovariance, FullCovariance> GLLiM<TGamma, TSigma>::inverse(G
     GLLiMParameters<FullCovariance, FullCovariance> theta_star(theta.K, theta.L, theta.D, theta.L_w);
     for (unsigned k = 0; k < theta_.K; k++)
     {
+        theta_star.Pi(k) = theta.Pi(k);
         if (theta.Pi(k) != 0)
         {
-            theta_star.Pi(k) = theta.Pi(k);
             TSigma sigma_inv = theta.Sigma[k].inv();
             TGamma gamma_inv = theta.Gamma[k].inv();
             theta_star.C.col(k) = theta.A.slice(k) * theta.C.col(k) + theta.B.col(k);
