@@ -114,8 +114,164 @@ def test_gllim_workflow(gamma_type, sigma_type):
 
     """
 
-    # Initialize the GLLiM model
+    # Instanciate the GLLiM model
     gllim = xllim.GLLiM(K, D, L, gamma_type, sigma_type, 0)  # hidden_values = 0
+
+    # ! #######################  TEST : Getters  #########################
+
+    error_msg = "getDimensions" + " > " + gamma_type + "/" + sigma_type
+    gllim_dimensions_ref = f"GLLiM dimensions are (L={L}, D={D}, K={K})"
+    assert gllim.getDimensions() ==  gllim_dimensions_ref, error_msg
+
+    error_msg = "getConstraints" + " > " + gamma_type + "/" + sigma_type
+    gllim_constraints_ref = "GLLiM constraints are gamma_type = '" + gamma_type + "', sigma_type = '" + sigma_type + "'"
+    assert gllim.getConstraints() == gllim_constraints_ref , error_msg
+    
+    gllim_params_ref = {
+        "Pi"    : np.ones(K) / K,
+        "A"     : np.zeros((K,D,L)),
+        "B"     : np.zeros((K,D)),
+        "C"     : np.zeros((K,L)),
+        "Gamma" : {
+            "full" : np.tile(np.eye(L), (K, 1, 1)),
+            "diag" : np.ones((K,L)),
+            "iso"  : np.ones(K),
+        },
+        "Sigma" : {
+            "full" : np.tile(np.eye(D), (K, 1, 1)),
+            "diag" : np.ones((K,D)),
+            "iso"  : np.ones(K),
+        }
+    }
+    gllim_params = gllim.getParams()
+    error_msg = "getParams" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_params.Pi      == gllim_params_ref["Pi"]),                  error_msg + " > " + "Pi"
+    assert np.all(gllim_params.A       == gllim_params_ref["A"]),                   error_msg + " > " + "A"
+    assert np.all(gllim_params.B       == gllim_params_ref["B"]),                   error_msg + " > " + "B"
+    assert np.all(gllim_params.C       == gllim_params_ref["C"]),                   error_msg + " > " + "C"
+    assert np.all(gllim_params.Gamma   == gllim_params_ref["Gamma"][gamma_type]),   error_msg + " > " + "Gamma"
+    assert np.all(gllim_params.Sigma   == gllim_params_ref["Sigma"][sigma_type]),   error_msg + " > " + "Sigma"
+
+    gllim_param_Pi= gllim.getParamPi()
+    error_msg = "getParamPi" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_Pi == gllim_params_ref["Pi"]), error_msg + " > " + "Pi"
+
+    gllim_param_A= gllim.getParamA()
+    error_msg = "getParamA" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_A == gllim_params_ref["A"]), error_msg + " > " + "A"
+
+    gllim_param_B= gllim.getParamB()
+    error_msg = "getParamB" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_B == gllim_params_ref["B"]), error_msg + " > " + "B"
+
+    gllim_param_C= gllim.getParamC()
+    error_msg = "getParamC" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_C == gllim_params_ref["C"]), error_msg + " > " + "C"
+
+    gllim_param_Gamma= gllim.getParamGamma()
+    error_msg = "getParamGamma" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_Gamma == gllim_params_ref["Gamma"][gamma_type]), error_msg + " > " + "Gamma"
+
+    gllim_param_Sigma= gllim.getParamSigma()
+    error_msg = "getParamSigma" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_Sigma == gllim_params_ref["Sigma"][sigma_type]), error_msg + " > " + "Sigma"
+    
+
+    # ! #######################  TEST : Setters  #########################
+    
+    gllim_params_ref = {
+        "Pi"    : np.concatenate(([1], np.zeros(K - 1))),
+        "A"     : np.ones((K,D,L)) * 3,
+        "B"     : np.ones((K,D)) * 2.2,
+        "C"     : np.ones((K,L)) * 1.4,
+        "Gamma" : {
+            "full" : np.tile(np.eye(L), (K, 1, 1)) * 8.6,
+            "diag" : np.ones((K,L)) * 8.6,
+            "iso"  : np.ones(K) * 8.6,
+        },
+        "Sigma" : {
+            "full" : np.tile(np.eye(D), (K, 1, 1)) * 8.6,
+            "diag" : np.ones((K,D)) * 8.6,
+            "iso"  : np.ones(K) * 8.6,
+        }
+    }
+    gllim = xllim.GLLiM(K, D, L, gamma_type, sigma_type, 0)
+    gllim_params_ref_xllim = xllim.GLLiMParameters(K, D, L, gamma_type, sigma_type)
+    gllim_params_ref_xllim.Pi = gllim_params_ref["Pi"]
+    gllim_params_ref_xllim.A = gllim_params_ref["A"]
+    gllim_params_ref_xllim.B = gllim_params_ref["B"]
+    gllim_params_ref_xllim.C = gllim_params_ref["C"]
+    gllim_params_ref_xllim.Gamma = gllim_params_ref["Gamma"][gamma_type]
+    gllim_params_ref_xllim.Sigma = gllim_params_ref["Sigma"][sigma_type]
+    gllim.setParams(gllim_params_ref_xllim)
+    gllim_params = gllim.getParams()
+    error_msg = "setParams" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_params.Pi      == gllim_params_ref["Pi"]),                  error_msg + " > " + "Pi"
+    assert np.all(gllim_params.A       == gllim_params_ref["A"]),                   error_msg + " > " + "A"
+    assert np.all(gllim_params.B       == gllim_params_ref["B"]),                   error_msg + " > " + "B"
+    assert np.all(gllim_params.C       == gllim_params_ref["C"]),                   error_msg + " > " + "C"
+    assert np.all(gllim_params.Gamma   == gllim_params_ref["Gamma"][gamma_type]),   error_msg + " > " + "Gamma"
+    assert np.all(gllim_params.Sigma   == gllim_params_ref["Sigma"][sigma_type]),   error_msg + " > " + "Sigma"
+
+    gllim = xllim.GLLiM(K, D, L, gamma_type, sigma_type, 0)
+    gllim.setParamPi(gllim_params_ref["Pi"])
+    gllim_param_Pi = gllim.getParamPi()
+    error_msg = "setParamPi" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_Pi == gllim_params_ref["Pi"]), error_msg + " > " + "Pi"
+
+    gllim = xllim.GLLiM(K, D, L, gamma_type, sigma_type, 0)
+    gllim.setParamA(gllim_params_ref["A"])
+    gllim_param_A = gllim.getParamA()
+    error_msg = "setParamA" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_A == gllim_params_ref["A"]), error_msg + " > " + "A"
+
+    gllim = xllim.GLLiM(K, D, L, gamma_type, sigma_type, 0)
+    gllim.setParamB(gllim_params_ref["B"])
+    gllim_param_B = gllim.getParamB()
+    error_msg = "setParamB" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_B == gllim_params_ref["B"]), error_msg + " > " + "B"
+
+    gllim = xllim.GLLiM(K, D, L, gamma_type, sigma_type, 0)
+    gllim.setParamC(gllim_params_ref["C"])
+    gllim_param_C = gllim.getParamC()
+    error_msg = "setParamC" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_C == gllim_params_ref["C"]), error_msg + " > " + "C"
+
+    gllim = xllim.GLLiM(K, D, L, gamma_type, sigma_type, 0)
+    gllim.setParamGamma(gllim_params_ref["Gamma"][gamma_type])
+    gllim_param_Gamma = gllim.getParamGamma()
+    error_msg = "setParamGamma" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_Gamma == gllim_params_ref["Gamma"][gamma_type]), error_msg + " > " + "Gamma"
+
+    gllim = xllim.GLLiM(K, D, L, gamma_type, sigma_type, 0)
+    gllim.setParamSigma(gllim_params_ref["Sigma"][sigma_type])
+    gllim_param_Sigma = gllim.getParamSigma()
+    error_msg = "setParamSigma" + " > " + gamma_type + "/" + sigma_type
+    assert np.all(gllim_param_Sigma == gllim_params_ref["Sigma"][sigma_type]), error_msg + " > " + "Sigma"
+
+
+    gllim = xllim.GLLiM(K, D, L, gamma_type, sigma_type, 0)
+    gllim.setParams(gllim_params_ref_xllim)
+    gllim_params_star = gllim.getInverse()
+
+    # # ! Only run once to generate ref
+    # with open("../dataRef/gllim_params_star_ref/gllim_params_star_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
+    #     pickle.dump(gllim_params_star, f)
+    #     f.close()
+
+    with open("../dataRef/gllim_params_star_ref/gllim_params_star_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
+        gllim_params_star_ref = pickle.load(f)
+        f.close()
+
+    error_msg = "getInverse" + " > " + gamma_type + "/" + sigma_type
+    assert np.allclose(gllim_params_star.Pi   , gllim_params_star_ref.Pi),      error_msg + " > " + "Pi"
+    assert np.allclose(gllim_params_star.A    , gllim_params_star_ref.A),       error_msg + " > " + "A"
+    assert np.allclose(gllim_params_star.B    , gllim_params_star_ref.B),       error_msg + " > " + "B"
+    assert np.allclose(gllim_params_star.C    , gllim_params_star_ref.C),       error_msg + " > " + "C"
+    assert np.allclose(gllim_params_star.Gamma, gllim_params_star_ref.Gamma),   error_msg + " > " + "Gamma"
+    assert np.allclose(gllim_params_star.Sigma, gllim_params_star_ref.Sigma),   error_msg + " > " + "Sigma"
+    
+
 
     # ! #######################  TEST : initialize()  #########################
 
