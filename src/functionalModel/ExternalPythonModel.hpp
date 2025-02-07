@@ -1,5 +1,5 @@
-#ifndef KERNELO_EXTERNALPYTHONMODEL_H
-#define KERNELO_EXTERNALPYTHONMODEL_H
+#ifndef XLLIM_EXTERNALPYTHONMODEL_H
+#define XLLIM_EXTERNALPYTHONMODEL_H
 #pragma GCC diagnostic ignored "-Wattributes" // Do not display (harmless) warning on this file. py::module_ and py::object
 // Warning: ‘Functional::ExternalPythonModel’ declared with greater visibility than the type of its field ‘Functional::ExternalPythonModel::pModule’ [-Wattributes]
 
@@ -36,4 +36,4 @@ private:
     py::object pObj_;
 };
 
-#endif // KERNELO_EXTERNALPYTHONMODEL_H
+#endif // XLLIM_EXTERNALPYTHONMODEL_H

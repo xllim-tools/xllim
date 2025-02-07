@@ -1,5 +1,5 @@
-#ifndef KERNELO_HAPKEMODEL_H
-#define KERNELO_HAPKEMODEL_H
+#ifndef XLLIM_HAPKEMODEL_H
+#define XLLIM_HAPKEMODEL_H
 
 // #include "HapkeAdapter.h"
 #include "FunctionalModel.hpp"
@@ -231,4 +231,4 @@ private:
     void generate_geom_helper_mat();
 };
 
-#endif // KERNELO_HAPKEMODEL_H
+#endif // XLLIM_HAPKEMODEL_H

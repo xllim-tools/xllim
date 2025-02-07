@@ -1,5 +1,5 @@
-#ifndef KERNELO_GENERATOR_H
-#define KERNELO_GENERATOR_H
+#ifndef XLLIM_GENERATOR_H
+#define XLLIM_GENERATOR_H
 
 #include <armadillo>
 
@@ -22,4 +22,4 @@ namespace DataGeneration
     };
 }
 
-#endif // KERNELO_GENERATOR_H
+#endif // XLLIM_GENERATOR_H

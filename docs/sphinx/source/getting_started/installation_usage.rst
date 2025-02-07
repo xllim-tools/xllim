@@ -20,7 +20,7 @@ First steps
 
 .. code-block:: bash
 
-   curl --location -o jupyter.Dockerfile "https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/raw/v2/jupyter.Dockerfile?ref_type=heads&inline=false"
+   curl --location -o jupyter.Dockerfile "https://gitlab.inria.fr/xllim/xllim/-/raw/v2/jupyter.Dockerfile?ref_type=heads&inline=false"
 
 3. Build the docker image named *xllim_jupyter_notebook*:
 

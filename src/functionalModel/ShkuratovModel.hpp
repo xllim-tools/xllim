@@ -1,5 +1,5 @@
-#ifndef KERNELO_SHKURATOVMODEL_H
-#define KERNELO_SHKURATOVMODEL_H
+#ifndef XLLIM_SHKURATOVMODEL_H
+#define XLLIM_SHKURATOVMODEL_H
 
 #include "FunctionalModel.hpp"
 
@@ -71,4 +71,4 @@ private:
     };
 };
 
-#endif // KERNELO_SHKURATOVMODEL_H
+#endif // XLLIM_SHKURATOVMODEL_H

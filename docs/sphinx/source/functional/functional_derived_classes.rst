@@ -19,7 +19,7 @@ Hapke Model
 .. class:: HapkeModel (geometries, variant, adapter, theta_bar_scaling, b0, h)
 
     The class :class:`HapkeModel` is a representation of the Hapke's photometric model.
-    For more details check the scientific `documentation <https://kernelo-mistis.gitlabpages.inria.fr/planet-gllim-front-end/rst/scientific_doc/photometric_models/hapke.html>`_.
+    For more details check the scientific `documentation <https://xllim.gitlabpages.inria.fr/planet-gllim/rst/scientific_doc/photometric_models/hapke.html>`_.
 
     There are two variants of the Hapke's formulation, the initial 1993 version and the 2002 version.
     The calculation in the class are initially designed for a 4 parameters model. The class can
@@ -62,7 +62,7 @@ Shkuratov Model
 .. class:: ShkuratovModel (geometries, variant, scaling_coeffs, offset)
 
     The class :class:`ShkuratovModel` is a representation of the Shkuratov's photometric model.
-    For more details check the scientific `documentation <https://kernelo-mistis.gitlabpages.inria.fr/planet-gllim-front-end/rst/scientific_doc/photometric_models/shkuratov.html>`_.
+    For more details check the scientific `documentation <https://xllim.gitlabpages.inria.fr/planet-gllim/rst/scientific_doc/photometric_models/shkuratov.html>`_.
 
     There are two variants of the Shkuratov's formulation, the original model with 5 parameters and a reduced model with 3 parameters.
     The *scaling_coeffs* and *offset* arguments are  to perform affine transformation between the physical space and the mathematical space, such as, 
@@ -117,7 +117,7 @@ External Python Model
     >>>    Geometries : if your physical model requires geometries as with Shkuratov, the structure and the values of the geometries
     >>>        must be declared within this Python file.
     >>>
-    >>>    See the Planet-Gllim documentation for more informations (https://gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end/-/wikis/home)
+    >>>    See the Planet-Gllim documentation for more informations (https://gitlab.inria.fr/xllim/planet-gllim/-/wikis/home)
     >>>    """
     >>>    
     >>>    #################################################################################################
@@ -157,7 +157,7 @@ External Python Model
     >>>    def optional_but_useful_function():
     >>>        pass
 
-    If the functional model shows interest it can be added in further development in Kernelo as a built-in class to 
+    If the functional model shows interest it can be added in further development in xLLiM as a built-in class to 
     improve speed performance.
 
     :param string className: The exact name of the python class.

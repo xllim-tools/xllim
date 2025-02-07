@@ -25,8 +25,8 @@ sys.path.insert(0, os.path.abspath('../../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Kernelo'
-copyright = '2023, Luc Meyer'
+project = 'xLLiM'
+copyright = '2025, Luc Meyer'
 author = 'Luc Meyer'
 
 # The full version, including alpha/beta/rc tags
@@ -216,7 +216,7 @@ html_css_files = [
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Kernelodoc'
+htmlhelp_basename = 'xLLiMdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -238,7 +238,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Kernelo.tex', 'Kernelo Documentation',
+    (master_doc, 'xLLiM.tex', 'xLLiM Documentation',
      'Sami Djoaudi', 'manual'),
 ]
 
@@ -282,8 +282,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Kernelo', 'Kernelo Documentation',
-     author, 'Kernelo', 'One line description of project.',
+    (master_doc, 'xLLiM', 'xLLiM Documentation',
+     author, 'xLLiM', 'One line description of project.',
      'Miscellaneous'),
 ]
 

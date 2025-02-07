@@ -1,5 +1,5 @@
-// #ifndef KERNELO_GENERATORFACTORY_H
-// #define KERNELO_GENERATORFACTORY_H
+// #ifndef XLLIM_GENERATORFACTORY_H
+// #define XLLIM_GENERATORFACTORY_H
 
 #include "Generator.hpp"
 #include "RandomGenerator.hpp"
@@ -29,4 +29,4 @@ inline std::shared_ptr<Generator> createGenerator(const std::string &generator_t
     }
 }
 
-// #endif //KERNELO_GENERATORFACTORY_H
+// #endif //XLLIM_GENERATORFACTORY_H

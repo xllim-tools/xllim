@@ -17,11 +17,9 @@ build-docker-images:
     script:
         - docker build -t "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH" --target runner .
         - docker build -t "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH" --target builder .
-        # - docker build -f Builder.dockerfile -t "$CI_REGISTRY_IMAGE/kernelo_coverage" --target coveragetester .
         - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
         - docker push "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
         - docker push "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH"
-        # - docker push "$CI_REGISTRY_IMAGE/kernelo_coverage"
 
 
 # ------------------------------ xllim stage ------------------------------

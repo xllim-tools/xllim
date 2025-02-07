@@ -1,5 +1,5 @@
-#ifndef KERNELO_RANDOMGENERATOR_H
-#define KERNELO_RANDOMGENERATOR_H
+#ifndef XLLIM_RANDOMGENERATOR_H
+#define XLLIM_RANDOMGENERATOR_H
 
 #include "Generator.hpp"
 
@@ -23,4 +23,4 @@ namespace DataGeneration{
     };
 }
 
-#endif //KERNELO_RANDOMGENERATOR_H
+#endif //XLLIM_RANDOMGENERATOR_H

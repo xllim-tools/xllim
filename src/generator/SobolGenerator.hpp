@@ -1,5 +1,5 @@
-#ifndef KERNELO_SOBOLGENERATOR_H
-#define KERNELO_SOBOLGENERATOR_H
+#ifndef XLLIM_SOBOLGENERATOR_H
+#define XLLIM_SOBOLGENERATOR_H
 
 #include "Generator.hpp"
 
@@ -25,4 +25,4 @@ namespace DataGeneration{
 }
 
 
-#endif //KERNELO_SOBOLGENERATOR_H
+#endif //XLLIM_SOBOLGENERATOR_H

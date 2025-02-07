@@ -1,5 +1,5 @@
-#ifndef KERNELO_TESTMODEL_H
-#define KERNELO_TESTMODEL_H
+#ifndef XLLIM_TESTMODEL_H
+#define XLLIM_TESTMODEL_H
 
 #include "FunctionalModel.hpp"
 
@@ -29,4 +29,4 @@ private:
     mat A_;
 };
 
-#endif // KERNELO_TESTMODEL_H
+#endif // XLLIM_TESTMODEL_H

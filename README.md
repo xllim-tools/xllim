@@ -5,21 +5,30 @@
  
 # Presentation
 
-``xLLiM`` (formerly Kernelo) is a python module performing efficient inversion of high-dimensional models within a Bayesian framework using GLLiM (Gaussian Locally-Linear Mapping) model approximation. It integrates features such as:
+``xLLiM`` is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping.
+It can be used to perform efficient inversion of high-dimensional models. 
+``xLLiM`` integrates features such as:
 * Forward model functionnals. These can be implemented as C++ or as pure Python functions. The forward model can be used to generate data following a distribution and refine GLLiM results by sampling the PDF using various strategies.
 * Multi-initialization options
 * Post-GLLiM refinement methods such as Importance Sampling (IS) and Iterative Mixture Importance Sampling (IMIS)
 * Post-processing analysis, including confidence quantification on predictions, detection of multiple solutions, andpermutation of predictions in case of signal regularity.
+Currently, ``xLLiM`` supports only Gaussion probability distributions, but other distributions may be added to it in the future.
 
-Kernelo-GLLiM is distributed as a compiled shared library in a Docker container, and is integrated in the [Planet-GLLiM](https://gitlab.inria.fr/kernelo-mistis/planet-gllim-front-end) 
+``xLLiM`` is distributed as a compiled shared library in a Docker container, and is integrated in the [Planet-GLLiM](https://gitlab.inria.fr/xllim/planet-gllim) 
 astrophysics application, that is distributed as a Docker image for local use and as a data processing service
 on [Allgo-18](https://allgo18.inria.fr/).
+
+The ``xLLiM`` method was previously implemented in ``R`` and is available on [CRAN](https://cran.r-project.org/web/packages/xLLiM/index.html)
+An experimental implementation in ``Julia`` exists as well.
+
+This ``xLLiM`` implementation is derived from [Kernelo](https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is).
+``Kernelo`` is obsolete and is no longer maintained.
 
 
 # Documentation and API reference
 
-The API reference of the xLLiM module is available [here](https://kernelo-mistis.gitlabpages.inria.fr/kernelo-gllim-is/). 
-For more information you can find a complete scientific documentation in the [Planet-GLLiM documentation](https://kernelo-mistis.gitlabpages.inria.fr/planet-gllim-front-end/)
+The API reference of the xLLiM module is available [here](https://xllim.gitlabpages.inria.fr/xllim/). 
+For more information you can find a complete scientific documentation in the [Planet-GLLiM documentation](https://xllim.gitlabpages.inria.fr/planet-gllim/)
 
 
 # Dependencies
@@ -65,11 +74,11 @@ This image is built from Ubuntu 22.04 and contains sufficient dependencies for x
 
 1. Pull the docker image
 ```
-docker pull registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/xllim_minimal
+docker pull registry.gitlab.inria.fr/xllim/xllim/xllim_minimal
 ```
 2. Create your container
 ```
-docker run -it --name [myContainer] registry.gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/xllim_minimal
+docker run -it --name [myContainer] registry.gitlab.inria.fr/xllim/xllim/xllim_minimal
 ```
 Once inside the container you can manage your workspace, install dependencies, run commands... Enter *exit* to exit the container.
 
@@ -107,7 +116,7 @@ docker login registry.gitlab.inria.fr
 ```
 2. Get the Dockerfile. You achieve this by using curl or wget.
 ```
-curl --location -o jupyter.Dockerfile "https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/raw/v2/jupyter.Dockerfile?ref_type=heads&inline=false"
+curl --location -o jupyter.Dockerfile "https://gitlab.inria.fr/xllim/xllim/-/raw/v2/jupyter.Dockerfile?ref_type=heads&inline=false"
 ```
 3. Build the docker image named *xllim_jupyter_notebook*
 ```
@@ -144,7 +153,7 @@ sudo chown -R $(id -u):$(id -g) "${PWD}"
 
 ``xLLiM`` is built on Ubuntu 22.04, so if it your OS you can run it without Docker. It may also work with other Linux distribution but it is not tested.
 1. Get the xLLiM extension 
-The extension .so file is then stored as artifact, and can be downloaded from [GitLab's CI page](https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is/-/pipelines). Click on the menu on the right side of the latest succesful job and select ``build_job:archive``. This will download an ``archive.zip`` file containing the extension ``.so`` file.
+The extension .so file is then stored as artifact, and can be downloaded from [GitLab's CI page](https://gitlab.inria.fr/xllim/xllim/-/pipelines). Click on the menu on the right side of the latest succesful job and select ``build_job:archive``. This will download an ``archive.zip`` file containing the extension ``.so`` file.
 2. Install dependecies
 ```
 sudo apt install python3 python3-numpy libarmadillo10 libgomp1
@@ -162,8 +171,8 @@ If you want to build the projet.
 
 1. Clone the projet.
 ```
-git clone https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is.git
-cd kernelo-gllim-is
+git clone https://gitlab.inria.fr/xllim/xllim.git
+cd xllim
 ```
 2. Install xLLiM dependencies
 
@@ -186,7 +195,7 @@ sudo apt-get install -y --no-install-recommends libboost-dev
 
 You have to define target installation directory. It can indicate the path to your Python packages. The Debug build type can be either *Debug* (-O0 -g -fsanitize=address) or *Release* (-O2 -DNDEBUG).
 ```
-cd /path/to/kernelo-gllim-is/build
+cd /path/to/xllim/build
 cmake -S .. -B . -DPYTHON_LIBRARY_DIR="/home/user/.local/lib/python3.10/site-packages"  -DCMAKE_BUILD_TYPE=Debug
 make install
 ```
