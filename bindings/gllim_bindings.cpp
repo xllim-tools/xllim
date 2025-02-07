@@ -1,0 +1,238 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/chrono.h>
+#include <pybind11/iostream.h>
+#include <carma>
+#include <armadillo>
+
+#include "../src/xllimSolver/gllim.hpp"
+#include "../src/xllimSolver/jgmm.hpp"
+#include "../src/xllimSolver/factory.hpp"
+#include "../src/xllimSolver/gllimStructures/gllimParametersArray.hpp"
+
+namespace py = pybind11;
+
+// Getter function to convert C++ std::vector<arma::cube> to Python list of numpy arrays
+std::vector<py::array_t<double>> get_covs(const MergedGMMResult &self)
+{
+     std::vector<py::array_t<double>> covs_list;
+     for (const auto &cube : self.covs)
+     {
+          covs_list.push_back(carma::cube_to_arr(cube)); // Convert each cube to numpy array
+     }
+     return covs_list;
+}
+
+// Setter function to convert Python list of numpy arrays to C++ std::vector<arma::cube>
+void set_covs(MergedGMMResult &self, const std::vector<py::array_t<double>> &covs_list)
+{
+     std::vector<cube> new_covs;
+     for (const auto &array : covs_list)
+     {
+          new_covs.push_back(carma::arr_to_cube(array)); // Convert each numpy array to arma::cube
+     }
+     self.covs = std::move(new_covs); // Assign the new vector to the class attribute
+}
+
+void bind_gllim(pybind11::module &m)
+{
+     py::class_<GLLiMBase, std::shared_ptr<GLLiMBase>>(m, "GLLiMBase");
+
+     py::class_<GLLiMParametersBase, std::shared_ptr<GLLiMParametersBase>>(m, "GLLiMParametersBase");
+
+     py::class_<FullGMMResult>(m, "FullGMMResult")
+         .def(py::init<unsigned, unsigned, unsigned>(), py::arg("N_obs"), py::arg("D"), py::arg("K"))
+         .def_readwrite("mean", &FullGMMResult::mean)
+         .def_readwrite("variance", &FullGMMResult::variance)
+         .def_readwrite("weights", &FullGMMResult::weights)
+         .def_readwrite("means", &FullGMMResult::means)
+         .def_readwrite("covs", &FullGMMResult::covs)
+         .def(py::pickle(                                                                // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
+             [](const FullGMMResult &p) {                                                // __getstate__
+                  return py::make_tuple(p.mean, p.variance, p.weights, p.means, p.covs); // Return a tuple that fully encodes the state of the object
+             },
+             [](py::tuple t) { // __setstate__
+                  if (t.size() != 5)
+                       throw std::runtime_error("Invalid state!");
+
+                  // Create a new C++ instance
+                  FullGMMResult p(0, 0, 0);
+
+                  // Restore the state from the tuple
+                  p.mean = carma::arr_to_mat(t[0].cast<py::array_t<double>>());
+                  p.variance = carma::arr_to_cube(t[1].cast<py::array_t<double>>());
+                  p.weights = carma::arr_to_mat(t[2].cast<py::array_t<double>>());
+                  p.means = carma::arr_to_cube(t[3].cast<py::array_t<double>>());
+                  p.covs = carma::arr_to_cube(t[4].cast<py::array_t<double>>());
+
+                  return p;
+             }));
+
+     py::class_<MergedGMMResult>(m, "MergedGMMResult")
+         .def(py::init<unsigned, unsigned, unsigned>(), py::arg("N_obs"), py::arg("D"), py::arg("K_merged"))
+         .def_readwrite("mean", &MergedGMMResult::mean)
+         .def_readwrite("variance", &MergedGMMResult::variance)
+         .def_readwrite("weights", &MergedGMMResult::weights)
+         .def_readwrite("means", &MergedGMMResult::means)
+         .def_property("covs", &get_covs, &set_covs)                                          // Specific definition of getter and setter because the 'complex' structure is not handle properly by Pybind11/carma
+         .def(py::pickle(                                                                     // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
+             [](const MergedGMMResult &p) {                                                   // __getstate__
+                  return py::make_tuple(p.mean, p.variance, p.weights, p.means, get_covs(p)); // Return a tuple that fully encodes the state of the object
+             },
+             [](py::tuple t) { // __setstate__
+                  if (t.size() != 5)
+                       throw std::runtime_error("Invalid state!");
+
+                  // Create a new C++ instance
+                  MergedGMMResult p(0, 0, 0);
+
+                  // Restore the state from the tuple
+                  p.mean = carma::arr_to_mat(t[0].cast<py::array_t<double>>());
+                  p.variance = carma::arr_to_cube(t[1].cast<py::array_t<double>>());
+                  p.weights = carma::arr_to_mat(t[2].cast<py::array_t<double>>());
+                  p.means = carma::arr_to_cube(t[3].cast<py::array_t<double>>());
+                  set_covs(p, t[4].cast<std::vector<py::array_t<double>>>());
+
+                  return p;
+             }));
+
+     py::class_<PredictionResult>(m, "PredictionResult")
+         .def(py::init<unsigned, unsigned, unsigned, unsigned>(), py::arg("N_obs"), py::arg("D"), py::arg("K"), py::arg("K_merged") = 0)
+         .def_readwrite("fullGMM", &PredictionResult::fullGMM)
+         .def_readwrite("mergedGMM", &PredictionResult::mergedGMM)
+         .def(py::pickle(                                        // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
+             [](const PredictionResult &p) {                     // __getstate__
+                  return py::make_tuple(p.fullGMM, p.mergedGMM); // Return a tuple that fully encodes the state of the object
+             },
+             [](py::tuple t) { // __setstate__
+                  if (t.size() != 2)
+                       throw std::runtime_error("Invalid state!");
+
+                  // Create a new C++ instance
+                  PredictionResult p(0, 0, 0, 0);
+
+                  // Restore the state from the tuple
+                  p.fullGMM = t[0].cast<FullGMMResult>();
+                  p.mergedGMM = t[1].cast<MergedGMMResult>();
+
+                  return p;
+             }));
+
+     py::class_<InitialisationInsights>(m, "InitialisationInsights")
+         .def_readwrite("time", &InitialisationInsights::time)
+         .def_readwrite("start_time", &InitialisationInsights::start_time)
+         .def_readwrite("end_time", &InitialisationInsights::end_time)
+         .def_readwrite("N_obs", &InitialisationInsights::N_obs)
+         .def_readwrite("gllim_em_iteration", &InitialisationInsights::gllim_em_iteration)
+         .def_readwrite("gllim_em_floor", &InitialisationInsights::gllim_em_floor)
+         .def_readwrite("gmm_kmeans_iteration", &InitialisationInsights::gmm_kmeans_iteration)
+         .def_readwrite("gmm_em_iteration", &InitialisationInsights::gmm_em_iteration)
+         .def_readwrite("gmm_floor", &InitialisationInsights::gmm_floor)
+         .def_readwrite("nb_experiences", &InitialisationInsights::nb_experiences);
+
+     py::class_<TrainingInsights>(m, "TrainingInsights")
+         .def_readwrite("time", &TrainingInsights::time)
+         .def_readwrite("start_time", &TrainingInsights::start_time)
+         .def_readwrite("end_time", &TrainingInsights::end_time)
+         .def_readwrite("N_obs", &TrainingInsights::N_obs)
+         .def_readwrite("max_iteration", &TrainingInsights::max_iteration)
+         .def_readwrite("ratio_ll", &TrainingInsights::ratio_ll)
+         .def_readwrite("floor", &TrainingInsights::floor);
+
+     py::class_<Insights>(m, "Insights")
+         .def_readwrite("time", &Insights::time)
+         .def_readwrite("log_likelihood", &Insights::log_likelihood)
+         .def_readwrite("initialisation", &Insights::initialisation)
+         .def_readwrite("training", &Insights::training);
+
+     m.def("GLLiM", &create_gllim, "A function to create GLLiM instances",
+           py::arg("K"), py::arg("D"), py::arg("L"), py::arg("gamma_type"), py::arg("sigma_type"), py::arg("n_hidden_variables") = 0);
+     m.def("GLLiMParameters", &create_gllim_parameters, "A function to create a GLLiM parameters structure",
+           py::arg("K"), py::arg("D"), py::arg("L"), py::arg("gamma_type"), py::arg("sigma_type"));
+}
+
+template <typename TGamma, typename TSigma>
+void bind_gllim_templates(pybind11::module &m, const std::string &str)
+{
+     std::string GLLiMParameters_pyname = std::string("_GLLiMParameters") + str;
+     py::class_<GLLiMParametersArray<TGamma, TSigma>, std::shared_ptr<GLLiMParametersArray<TGamma, TSigma>>>(m, GLLiMParameters_pyname.c_str())
+         .def(py::init<unsigned, unsigned, unsigned>())
+         .def_readwrite("Pi", &GLLiMParametersArray<TGamma, TSigma>::Pi)
+         .def_readwrite("A", &GLLiMParametersArray<TGamma, TSigma>::A)
+         .def_readwrite("B", &GLLiMParametersArray<TGamma, TSigma>::B)
+         .def_readwrite("C", &GLLiMParametersArray<TGamma, TSigma>::C)
+         .def_readwrite("Gamma", &GLLiMParametersArray<TGamma, TSigma>::Gamma)
+         .def_readwrite("Sigma", &GLLiMParametersArray<TGamma, TSigma>::Sigma)
+         .def(py::pickle(                                                       // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#pickling-support
+             [](const GLLiMParametersArray<TGamma, TSigma> &p) {                // __getstate__
+                  return py::make_tuple(p.Pi, p.A, p.B, p.C, p.Gamma, p.Sigma); // Return a tuple that fully encodes the state of the object
+             },
+             [](py::tuple t) { // __setstate__
+                  if (t.size() != 6)
+                       throw std::runtime_error("Invalid state!");
+
+                  // Create a new C++ instance
+                  GLLiMParametersArray<TGamma, TSigma> p(0, 0, 0);
+
+                  // Restore the state from the tuple
+                  p.Pi = t[0].cast<decltype(p.Pi)>();
+                  p.A = t[1].cast<decltype(p.A)>();
+                  p.B = t[2].cast<decltype(p.B)>();
+                  p.C = t[3].cast<decltype(p.C)>();
+                  p.Gamma = t[4].cast<decltype(p.Gamma)>();
+                  p.Sigma = t[5].cast<decltype(p.Sigma)>();
+
+                  return p;
+             }));
+
+     std::string GLLiM_pyname = std::string("_GLLiM") + str;
+     py::class_<GLLiM<TGamma, TSigma>, std::shared_ptr<GLLiM<TGamma, TSigma>>>(m, GLLiM_pyname.c_str()) // exposed to Pybind11 and hide in Python with the underscore
+         .def(py::init<unsigned, unsigned, unsigned, std::string, std::string, unsigned>(), py::arg("K"), py::arg("D"), py::arg("L"), py::arg("gamma_type"), py::arg("sigma_type"), py::arg("n_hidden_variables") = 0,
+              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+
+         .def("getDimensions", &GLLiM<TGamma, TSigma>::getDimensions,
+              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>(),
+              "some info :)")
+         .def("getConstraints", &GLLiM<TGamma, TSigma>::getConstraints,
+              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+         .def("getParams", &GLLiM<TGamma, TSigma>::getParamsArray)
+         .def("getParamPi", &GLLiM<TGamma, TSigma>::getParamPi)
+         .def("getParamA", &GLLiM<TGamma, TSigma>::getParamA)
+         .def("getParamB", &GLLiM<TGamma, TSigma>::getParamB)
+         .def("getParamC", &GLLiM<TGamma, TSigma>::getParamC)
+         .def("getParamGamma", &GLLiM<TGamma, TSigma>::getParamGammaArray)
+         .def("getParamSigma", &GLLiM<TGamma, TSigma>::getParamSigmaArray)
+
+         .def("setParams", &GLLiM<TGamma, TSigma>::setParamsArray)
+         .def("setParamPi", &GLLiM<TGamma, TSigma>::setParamPi)
+         .def("setParamA", &GLLiM<TGamma, TSigma>::setParamA)
+         .def("setParamB", &GLLiM<TGamma, TSigma>::setParamB)
+         .def("setParamC", &GLLiM<TGamma, TSigma>::setParamC)
+         .def("setParamGamma", &GLLiM<TGamma, TSigma>::setParamGammaArray)
+         .def("setParamSigma", &GLLiM<TGamma, TSigma>::setParamSigmaArray)
+
+         .def("getInverse", &GLLiM<TGamma, TSigma>::getInverseArray)
+
+         .def("getInsights", &GLLiM<TGamma, TSigma>::getInsights)
+
+         // ! The implementation in pybind11/iostream.h is NOT thread safe. Multiple threads writing to a redirected ostream concurrently cause data races and potentially buffer overflows.
+         .def("directDensities", py::overload_cast<const mat &, const vec &, int>(&GLLiM<TGamma, TSigma>::directDensities), py::arg("x"), py::arg("x_incertitude"), py::arg("verbose") = 0,
+              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+         .def("directDensities", py::overload_cast<const mat &, int>(&GLLiM<TGamma, TSigma>::directDensities), py::arg("x"), py::arg("verbose") = 0,
+              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+         .def("inverseDensities", py::overload_cast<const mat &, const mat &, unsigned, double, int>(&GLLiM<TGamma, TSigma>::inverseDensities), py::arg("y"), py::arg("y_incertitude"), py::arg("K_merged") = 0, py::arg("merging_threshold") = 1e-10, py::arg("verbose") = 0,
+              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+         .def("inverseDensities", py::overload_cast<const mat &, unsigned, double, int>(&GLLiM<TGamma, TSigma>::inverseDensities), py::arg("y"), py::arg("K_merged") = 0, py::arg("merging_threshold") = 1e-10, py::arg("verbose") = 0,
+              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+
+         .def("initialize", &GLLiM<TGamma, TSigma>::initialize,
+              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+         .def("train", &GLLiM<TGamma, TSigma>::train,
+              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+         .def("trainJGMM", &GLLiM<TGamma, TSigma>::trainJGMM,
+              py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+
+         .doc() = R"mydelimiter(
+            GLLiM class
+        )mydelimiter";
+}
