@@ -1,5 +1,3 @@
-🔥**NEW : xLLiM v2 is available**🔥
-> The new version of xLLiM is available. It has a more efficient code structure, new optimized and parallelised methods and depenbdencies update (*armadillo10*, *pybind11*, *carma*) 
 
 [[_TOC_]]
  
