@@ -33,9 +33,15 @@ RUN apt-get install -y --no-install-recommends libopenblas-dev liblapack-dev lib
 # Install Python-related dependencies
 RUN apt-get install -y --no-install-recommends python3-dev
 
-# python3-pip is for documention and pytest
-RUN apt-get install -y --no-install-recommends python3-pip
-RUN pip3 install -U sphinx sphinx-rtd-theme pytest
+# Set timezone non-interactively for python3-sphinx
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
+
+# Install documention related packages
+RUN apt-get install -y --no-install-recommends python3-sphinx python3-sphinx-rtd-theme
+
+# Install python tests related packages
+RUN apt-get install -y --no-install-recommends python3-pytest
+
 
 # ! Boost required but only used for boost/property_tree
 RUN apt-get install -y --no-install-recommends libboost-dev

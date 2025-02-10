@@ -114,7 +114,7 @@ docker login registry.gitlab.inria.fr
 ```
 2. Get the Dockerfile. You achieve this by using curl or wget.
 ```
-curl --location -o jupyter.Dockerfile "https://gitlab.inria.fr/xllim/xllim/-/raw/v2/jupyter.Dockerfile?ref_type=heads&inline=false"
+curl --location -o jupyter.Dockerfile "https://gitlab.inria.fr/xllim/xllim/-/raw/master/jupyter.Dockerfile?ref_type=heads&inline=false"
 ```
 3. Build the docker image named *xllim_jupyter_notebook*
 ```
@@ -151,7 +151,7 @@ sudo chown -R $(id -u):$(id -g) "${PWD}"
 
 ``xLLiM`` is built on Ubuntu 22.04, so if it your OS you can run it without Docker. It may also work with other Linux distribution but it is not tested.
 1. Get the xLLiM extension 
-The extension .so file is then stored as artifact, and can be downloaded from [GitLab's CI page](https://gitlab.inria.fr/xllim/xllim/-/pipelines). Click on the menu on the right side of the latest succesful job and select ``build_job:archive``. This will download an ``archive.zip`` file containing the extension ``.so`` file.
+The extension .so file is then stored as artifact, and can be downloaded from [GitLab's CI page](https://gitlab.inria.fr/xllim/xllim/-/pipelines). Click on the menu on the right side of the latest succesful job and select ``compile-and-test-xllim:archive``. This will download an ``archive.zip`` file containing the extension ``.so`` file.
 2. Install dependecies
 ```
 sudo apt install python3 python3-numpy libarmadillo10 libgomp1

@@ -10,14 +10,14 @@ RUN conda install -y --no-pin conda-forge::armadillo=10.8.2
 FROM base AS install
 # Download and place xllim shared library in python local packages
 RUN mkdir -p /home/jovyan/.local/lib/python3.10/site-packages
-RUN curl --location -o artefact.zip "https://gitlab.inria.fr/api/v4/projects/xllim%2Fxllim/jobs/artifacts/v2/download?job=build_job"
+RUN curl --location -o artefact.zip "https://gitlab.inria.fr/api/v4/projects/xllim%2Fxllim/jobs/artifacts/master/download?job=compile-and-test-xllim"
 RUN unzip artefact.zip
 RUN rm artefact.zip
 RUN mv *.so /home/jovyan/.local/lib/python3.10/site-packages/xllim.so
 
 # Copy the examples directory notebook
-RUN curl --location -o examples.zip  "https://gitlab.inria.fr/xllim/xllim/-/archive/v2/xllim-v2.zip?path=examples"
+RUN curl --location -o examples.zip  "https://gitlab.inria.fr/xllim/xllim/-/archive/master/xllim-master.zip?path=examples"
 RUN unzip examples.zip
-RUN mv xllim-v2-examples/examples .
+RUN mv xllim-master-examples/examples .
 RUN rm examples.zip
-RUN rmdir xllim-v2-examples
+RUN rmdir xllim-master-examples

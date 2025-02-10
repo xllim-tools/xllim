@@ -43,6 +43,23 @@ Main methods
         :param int verbose: Verbosity level (default is 1).
 
 
+.. _train-jgmm-method:
+
+    .. method:: trainJGMM(x, y, kmeans_iteration, em_iteration, floor, verbose = 1);
+
+        Train the GLLiM model with given data and parameters. A classic GMM training is applied on the equivalent joint-GMM to GLLiM.
+        The algorithm is provided by the Armadillo library. Check out the corresponding `Armadillo documentation <https://arma.sourceforge.net/docs.html#learn>`_ 
+        for more details. This option is only available whith (*gamma_type* = 'full', *sigma_type* = 'full') constraints. The training 
+        is equivalent and faster than the GLLiM-EM algorithm.
+
+        :param ndarray of shape (L, N) x: Input matrix `x` with shape (L, N).
+        :param ndarray of shape (D, N) y: Input matrix `y` with shape (D, N).
+        :param int kmeans_iteration: The number of iterations of the k-means algorithm.
+        :param int em_iteration: The number of iterations of the EM algorithm.
+        :param float floor: The variance floor (smallest allowed value) for the diagonal covariances; setting this to a small non-zero value can help with convergence and/or better quality parameter estimates.
+        :param int verbose: Verbosity level (default is 1).
+
+
 .. _get-inverse-method:
 
     .. method:: getInverse()
