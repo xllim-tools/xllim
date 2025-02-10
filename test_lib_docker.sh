@@ -4,7 +4,7 @@
 # 2nd argument = backup directory path = $2
 
 echo "\033[35m \n-> Run the builder docker container bounded to xllim app \033[0m"
-docker run -it -d --rm --name xllim_builder_temp_container -v $(pwd):/home xllim_builder_jammy
+docker run -it -d --rm --name xllim_builder_temp_container -v $(pwd):/home xllim_builder:jammy
 
 
 echo "\033[35m \n-> CPP unit tests \033[0m"

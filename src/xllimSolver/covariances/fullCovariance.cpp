@@ -25,6 +25,8 @@ double FullCovariance::log_det() const
 FullCovariance FullCovariance::inv() const
 {
     mat inv;
+    // double rcond_val;
+    // bool success = arma::inv_sympd(inv, rcond_val, covariances_); // There is an approximation when  rcond_val < 1e-8. This approximation is revealed by python test, showing slight differences between CI runners approx and host machine approx.
     bool success = arma::inv_sympd(inv, covariances_);
     if (success)
     {

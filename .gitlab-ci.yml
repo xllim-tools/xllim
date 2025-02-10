@@ -87,7 +87,6 @@ pages:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH"
     script:
-        - pip install -U sphinx sphinx-rtd-theme myst_parser sphinx-copybutton
         - sphinx-build -b html docs/sphinx/source public
     artifacts:
         paths:

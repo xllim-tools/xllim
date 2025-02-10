@@ -31,11 +31,13 @@ RUN apt-get install -y --no-install-recommends g++ cmake make
 RUN apt-get install -y --no-install-recommends libopenblas-dev liblapack-dev libarpack2-dev libsuperlu-dev libarmadillo-dev
 
 # Install Python-related dependencies
-RUN apt-get install -y --no-install-recommends python3-dev
+RUN apt-get install -y --no-install-recommends python3-dev python3-pip
 
-# python3-pip is for documention and pytest
-RUN apt-get install -y --no-install-recommends python3-pip
-RUN pip3 install -U sphinx sphinx-rtd-theme pytest
+# Install documention related packages
+RUN pip install -U sphinx sphinx-rtd-theme myst_parser sphinx-copybutton
+
+# Install python tests related packages
+RUN pip install -U pytest
 
 # ! Boost required but only used for boost/property_tree
 RUN apt-get install -y --no-install-recommends libboost-dev
