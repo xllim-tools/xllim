@@ -31,17 +31,13 @@ RUN apt-get install -y --no-install-recommends g++ cmake make
 RUN apt-get install -y --no-install-recommends libopenblas-dev liblapack-dev libarpack2-dev libsuperlu-dev libarmadillo-dev
 
 # Install Python-related dependencies
-RUN apt-get install -y --no-install-recommends python3-dev
-
-# Set timezone non-interactively for python3-sphinx
-RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
+RUN apt-get install -y --no-install-recommends python3-dev python3-pip
 
 # Install documention related packages
-RUN apt-get install -y --no-install-recommends python3-sphinx python3-sphinx-rtd-theme
+RUN pip install -U sphinx sphinx-rtd-theme myst_parser sphinx-copybutton
 
 # Install python tests related packages
-RUN apt-get install -y --no-install-recommends python3-pytest
-
+RUN pip install -U pytest
 
 # ! Boost required but only used for boost/property_tree
 RUN apt-get install -y --no-install-recommends libboost-dev

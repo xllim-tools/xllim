@@ -16,7 +16,7 @@ docker cp $1/xllim.so xllim_builder_temp_container:/usr/lib/python3/dist-package
 # docker exec -i xllim_builder_temp_container bash -c "cd /home/tests/pythonTests && python3 gllim_script.py"
 # docker exec -i xllim_builder_temp_container bash -c "cd /home/tests/pythonTests && python3 functional_model_script.py"
 # docker exec -i xllim_builder_temp_container bash -c "cd /home/tests/pythonTests && /usr/bin/python3 integration_tests.py"
-docker exec -i xllim_builder_temp_container bash -c "cd /home/tests/pythonTests && pytest-3 -v --tb=short --color=yes" # -s for stdout and prints
+docker exec -i xllim_builder_temp_container bash -c "cd /home/tests/pythonTests && pytest -v --tb=short --color=yes" # -s for stdout and prints
 
 echo "\033[35m \n-> Stop the docker container \033[0m"
 docker stop xllim_builder_temp_container

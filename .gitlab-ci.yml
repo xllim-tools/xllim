@@ -56,7 +56,7 @@ compile-and-test-xllim:
         
         # python integration test step
         - cd tests/pythonTests/
-        - pytest-3 -v --tb=short --color=yes
+        - pytest -v --tb=short --color=yes
 
 
 # ------------------------------ deploy stage ------------------------------
@@ -87,7 +87,6 @@ pages:
         - small
     image: "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH"
     script:
-        - pip install -U sphinx sphinx-rtd-theme myst_parser sphinx-copybutton
         - sphinx-build -b html docs/sphinx/source public
     artifacts:
         paths:
