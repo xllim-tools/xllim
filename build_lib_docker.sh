@@ -49,7 +49,7 @@ docker exec -i xllim_builder_temp_container bash -c "\
 echo "\033[35m \n-> Copy xllim library to host python site-packages at $lib_dir \033[0m"
 file="xllim.cpython-310-x86_64-linux-gnu.so"
 # file="xllim.cpython-312-x86_64-linux-gnu.so" # depending on python version
-docker cp xllim_builder_temp_container:/usr/lib/python3/dist-packages/file $lib_dir
+docker cp xllim_builder_temp_container:/usr/lib/python3/dist-packages/$file $lib_dir
 
 
 echo "\033[35m \n-> Rename library and move it to back-up ($backup_dir) directories \033[0m"
