@@ -1,13 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Comamnd line script for xllim
+# Comamnd line script for xllim.
+#
+# Usage: xllim_cli.py COMMAND H5_FILE <OTHER_FILE>
+#
+# Commands:
+#   edit-config
+#   import-direct-model
+#   import-geometries
+#   import-model
+#   import-train
 # 
+#
 # Usage examples:
-# 1. Use model.h5 to inverse the observations in observations.h5:
-#      xllim_cli.py model.h5 observations.h5
-# 2. Use xllim_cli to modify the configuration in a model.h5 file:
-#      xllim_cli.py model.h5
+#      xllim_cli.py print model.h5
+#      xllim_cli.py edit  model.h5
+#      xllim_cli.py train model.h5
+#      xllim_cli.py predict -o output_file model.h5 observations.json
+#      xllim_cli.py import [direct-model|geometries|train-data|model] source.[py|h5|json] target_model.h5
+#      xllim_cli.py export [train-data|model|predictions] model.h5 output_file
+# 2. Edit the configuration in a model.h5 file and import geometries if provided:
+#      xllim_cli.py --edit  model.h5 <--geometries geometries.json>
+# 3. Import functional model from an external model implementation, import configuration from a h5 file
+#      xllim_cli.py --import-direct-model functional_model_file.[h5,py] target.h5
+# 4. Import train data
+#      xllim_cli.py --import-train-data train_data.[h5,py] target.h5
+# 5. 
 #
 # model.h5 is a hdf5 file containing the following datasets:
 # /synthetic_data/functional_model_config
@@ -20,7 +39,7 @@
 
 import argparse
 import h5py
-import hashlib
+# import hashlib
 import os
 # import numpy as np
 # import xllim
@@ -29,6 +48,13 @@ import os
 H5_STRING = h5py.string_dtype(encoding='utf-8')
 H5_INT = 'i4'
 H5_FLOAT = 'f8'
+H5_GROUPS = {"functional": "/sythetic_data/functional_model_config",
+            "generator":   "/sythetic_data/functional_model_config/data_generator",
+            "gllim_model": "/xllim/gllim",
+            "prediction_module": "/prediction_module_config",
+            "importance_sampling": "/importance_sampling_config"}
+H5_DATA_SETS = {"geometries": "/sythetic_data/functional_model_config/geometries",
+                "train_data": "/sythetic_data/train_data"}
 
 
 def config_dialog(h5_file: str, group_or_dataset, options):
@@ -62,7 +88,6 @@ def config_dialog(h5_file: str, group_or_dataset, options):
             i = input(prompt)
             if len(i) > 0:
                 value = float(i)
-                print(f"converted: {value}")
         else:
             print(f"Choose {name} {help}:")
             for i, v in enumerate(vals):
@@ -74,7 +99,8 @@ def config_dialog(h5_file: str, group_or_dataset, options):
         if len(cval_string):  # attribute already exists
             attrs.modify(name, value)
         else:
-            attrs.create(name, value, dtype=type)
+            if value:  # create the attribute only if value is specified
+                attrs.create(name, value, dtype=type)
         print(f"\033[F\033[{len(prompt)}G {attrs.get(name)}")
     
     h5_file.flush()
@@ -95,8 +121,8 @@ def delete_attributes(h5_file, group, options):
     return
 
 
-def configure_data_generator(h5_model_file):
-    group = "/sythetic_data/functional_model_config/data_generator"
+def configure_generator(h5_model_file):
+    group = H5_GROUPS["generator"]
     generator_model_options = (("model","Type of Gaussian statistical model", ("basic", "dependent"), H5_STRING),
                                ("dataset size", "a positive number", None, H5_INT),
                                ("type", "Generator type",("sobol", "random", "latin hypercube"), H5_STRING),
@@ -112,8 +138,8 @@ def configure_data_generator(h5_model_file):
         delete_attributes(h5_model_file, group, basic_generator_options)
 
 
-def configure_gllim(h5_file):
-    group = "/xllim/gllim"
+def configure_gllim_model(h5_file):
+    group = H5_GROUPS["gllim_model"]
     gllim_options = (('K', 'Number of affine transformations', None, H5_INT),
                      ('Gamma type', 'Type of covariance matrix for the K GLLiM components', ("full", "diagonal", "isomorphic"), H5_STRING),
                      ('Sigma type', 'Type of covariance matrix for the Gaussian noise applied to each affine transformation', ("full", "diagonal", "isomorphic"), H5_STRING),
@@ -148,16 +174,16 @@ def configure_gllim(h5_file):
         delete_attributes(h5_file, group, gllim_em_options)
 
 
-def configure_predictions(h5_file):
-    group = '/xllim/prediction_module_config'
+def configure_prediction_module(h5_file):
+    group = H5_GROUPS["prediction_module"]
     config = (('prediction no.', 'Number of components to retain after merging', None, H5_INT),
               ('reduced GMM size', 'Number of components to retain. The prediction is the mean of the reduced mixtures', None, H5_INT),
-              'minimum component weight', 'Components which weight is lower than this threshold are discarded', None, H5_FLOAT)
+              ('minimum component weight', 'Components which weight is lower than this threshold are discarded', None, H5_FLOAT))
     config_dialog(h5_file, group, config)
 
 
 def configure_importance_sampling(h5_file):
-    group = '/xllim/importance_sampling_config'
+    group = H5_GROUPS["importance_sampling"]
     config = (('N', 'Number of samples generated for the importance sampling of the target PDF', None, H5_INT),
               ('N_zero', 'Number of samples at initial stage (IMIS). If unspecified = N/10', None, H5_INT),
               ('B', 'Number of new samples at each step (IMIS). Default: N/20', None, H5_INT),
@@ -165,8 +191,8 @@ def configure_importance_sampling(h5_file):
     config_dialog(h5_file, group, config)
 
 
-def configure_functional_model(h5_model_file, geometries=None, external_model=None):
-    group = "/sythetic_data/functional_model_config"
+def configure_functional(h5_model_file):
+    group = H5_GROUPS["functional"]
     supported_models = (("model", "(functional model) ", ("Hapke 2002", "Shkuratov", "Test model", "External"), H5_STRING), )
     # Hapke model configuration
     common_hapke_config = ( ("variant", "", ("full", "reduced", "hockey_stick"), H5_STRING),
@@ -191,17 +217,18 @@ def configure_functional_model(h5_model_file, geometries=None, external_model=No
 
     # check if required data is provided for the selected model
     model_type = attrs["model"]
-    if model_type == "External" and external_model is None:
-        raise ValueError("External model is required")
-    elif model_type == "Hapke 2002" or model_type == "Shkuratov":
-        if geometries is None:
-            raise ValueError("Geometries are required")
-    
-    if model_type == "External": 
-        attrs.create("path to model", external_model)
-        hash = hashlib.md5(open(external_model,'rb').read()).hexdigest()
-        attrs.create("model file MD5 hash", hash)
+    if model_type == "External":
+        delete_attributes(h5_model_file, group, shkuratov_config)
+        delete_attributes(h5_model_file, group, reduced_or_stick_config)
+        delete_attributes(h5_model_file, group, common_hapke_config)
+        print("Import external model:\n\txllim_cli.py import direct_model your_model.py")
         return
+    
+    # if model_type == "External": 
+    #     attrs.create("path to model", external_model)
+    #     hash = hashlib.md5(open(external_model,'rb').read()).hexdigest()
+    #     attrs.create("model file MD5 hash", hash)
+    #     return
 
     if model_type == "Hapke 2002":
         config_dialog(h5_model_file, group, common_hapke_config)
@@ -216,25 +243,67 @@ def configure_functional_model(h5_model_file, geometries=None, external_model=No
         # remove Hapke related attributes
         delete_attributes(h5_model_file, group, common_hapke_config)
         delete_attributes(h5_model_file, group, reduced_or_stick_config)
+    return
 
-    # write geometries
-    import_geometries(h5_model_file, geometries)
 
-    # wrtie configuration to the file
-    h5_model_file.flush()
+def print_group(h5_file, group_name):
+    if H5_GROUPS[group_name] not in h5_file:
+        print(f"No {group_name} configuration found")
+        return
+    print(f"{group_name} configuration:")
+    attrs = h5_file[H5_GROUPS[group_name]].attrs
+    for key, value in attrs.items():
+        print(f"\t{key} : {value}")
+
+
+def print_geometries(h5_model_file):
+    ds = H5_DATA_SETS["geometries"] 
+    if ds in h5_model_file:
+        for key, value in h5_model_file[ds].items():
+            print(f"    {key} : {value}") 
+
+
+def print_h5(h5f):
+    for short_name, group_name in H5_GROUPS.items():
+        print(f"{short_name} configuration:")
+        if group_name in h5f:
+            for key, val in h5f[group_name].attrs.items():
+                print(f"    {key}: {val}")
+        print("")
     
+    for short_name, group_name in H5_DATA_SETS.items():
+        if group_name in h5f:
+            print(f"{short_name} present")
+            if short_name == "geometries":
+                print_geometries(h5f)
+    return True
+
+
+def edit_config(h5f):
+    for grp in H5_GROUPS.keys():
+        print("")  # print empty line
+        configure = globals()[f"configure_{grp}"]
+        if H5_GROUPS[grp] in h5f:
+            print_group(h5f, grp)
+            if input(f"Edit {grp} configuration? (y/n) : ") == 'y':
+                configure(h5f)
+        else:
+            if input(f"{grp} is not present. Do you want to add it? (y/n) : ") == 'y':
+                configure(h5f)
 
 
 def import_geometries(h5_model_file, geometries):
-    if "/sythetic_data/functional_model_config/geometries" in h5_model_file:
-        del h5_model_file["/sythetic_data/functional_model_config/geometries"]
-    # check if geometries are in a json or hdf5 file
     if not os.path.isfile(geometries):
         raise ValueError("geometries must be a file")
+    
+    group = H5_DATA_SETS["geometries"]
+    if group in h5_model_file:
+        del h5_model_file[group]
+    # check if geometries are in a json or hdf5 file
     filename, file_extension = os.path.splitext(geometries)
 
     # all good. We can create the group
-    group = h5_model_file.create_group("/sythetic_data/functional_model_config/geometries", track_order=True)
+    group = h5_model_file.create_group(group, track_order=True)
     if file_extension == '.h5':
         # copy geometetries from geometries to our model_file
         with h5py.File(geometries, 'r') as h5_geometries:
@@ -251,55 +320,97 @@ def import_geometries(h5_model_file, geometries):
     h5_model_file.flush()
 
 
-def print_functional_model_config(h5_model_file):
-    if "/sythetic_data/functional_model_config" not in h5_model_file:
-        print("No functional model configuration found")
-        return
-    attrs = h5_model_file["/sythetic_data/functional_model_config"].attrs
-    for key, value in attrs.items():
-        print(f"{key} : {value}")
-    
-    # print geometries
-    if "/sythetic_data/functional_model_config/geometries" in h5_model_file:
-        for key, value in h5_model_file["/sythetic_data/functional_model_config/geometries"].items():
-            print(f"{key} : {value}") 
+def import_direct_model(h5_file, python_script):
+    print(f"importing {python_script}")
 
 
-def modify_model_file(args):
-    h5f = h5py.File(args.model,'a')
-    if "/sythetic_data" in h5f:
-        # print current configuration and ask if needs to be modified
-        print("Current configuration:")
-        print("Functional model: XXXX")
-        if input("Edit functional model configuration? (y/n) : ") == 'y':
-            # modifiy the configuration
-            pass
-    else:
-        if input("Do you wish to generate a systhetic data set? (y/n) : ") == 'y':
-            h5f.create_group("/sythetic_data")
-            modify_model_file(args)
+def import_data(what_to_import, source_file_path, h5f):
+    if what_to_import == "geometries":
+        import_geometries(h5f, source_file_path)
+    elif what_to_import == "direct-model":
+        import_direct_model(h5f, source_file_path)
 
-def inverse_observations(args):
-    model = h5py.File(args.model,'r')
-    return
+
+def export_data(what_to_export, from_file, output_file):
+    print(f"exporting {what_to_export}")
+
+
+def train_model(file_path):
+    print("training model")
+        # check if train-condiguration is setup
+        # check if train-data is available
+        # do train
+        # wrtie gllim model to h5f
+
+def predict(file_path, observations_file_path, output):
+    print("predicting")
+
 
 def main():
-    parser = argparse.ArgumentParser(description='Command line interface for xllim')
-    parser.add_argument('model', type=str, help='Model file in hdf5 format')
-    parser.add_argument('observations', type=str, nargs='?', default=None, help='Observations file')
-    # parser.add_argument('--help', action='help', help='Show this help message and exit')
+    short_descr = "xllim_cli.py - Command-line interface for xllim."
+    epilog = "Run 'xllim.py COMMAND --help' for more information on a command."
+    parser = argparse.ArgumentParser(description=short_descr, epilog=epilog)
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # Print command
+    print_parser = subparsers.add_parser("print", help="Print contents of the h5 file")
+    print_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
+
+    # Edit command
+    edit_parser = subparsers.add_parser("edit", help="Edit configuration")
+    edit_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
+
+    # Train command
+    train_parser = subparsers.add_parser("train", help="Train model")
+    train_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
+
+    # Predict command
+    predict_parser = subparsers.add_parser("predict", help="Make predictions using the model")
+    predict_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
+    predict_parser.add_argument("observations_file", help="Path to the observations file (e.g., observations.json)")
+    predict_parser.add_argument("-o", "--output", required=True, help="Path to the output file")
+
+    # Import command
+    import_parser = subparsers.add_parser("import", help="Import data into the model")
+    import_parser.add_argument("import_type", choices=["direct-model", "geometries", "train-data", "model"], help="Type of data to import")
+    import_parser.add_argument("source_file", help="Path to the source file (e.g., source.py, source.h5, source.json)")
+    import_parser.add_argument("model_file", help="Path to the target model file (e.g., target_model.h5)")
+
+    # Export command
+    export_parser = subparsers.add_parser("export", help="Export data from the model")
+    export_parser.add_argument("export_type", choices=["train-data", "model", "predictions"], help="Type of data to export")
+    export_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
+    export_parser.add_argument("output_file", help="Path to the output file")
+
+    # Parse arguments
     args = parser.parse_args()
+    
+    h5_file_name = args.model_file
+    if not os.path.isfile(h5_file_name):
+        print(f"File {h5_file_name} not found")
+        return 
+    # read-only commands
+    with h5py.File(h5_file_name, 'r') as h5f:
+        if args.command == "print":
+            print_h5(h5f)
+            return
+        elif args.command == "export":
+            export_data(args.export_type, h5f, args.output_file)
+            return
+    
+    # open the file for wrting
+    with h5py.File(h5_file_name, 'a') as h5f:
+        if args.command == "edit":
+            edit_config(h5f)
+        elif args.command == "train":
+            train_model(h5f)
+        elif args.command == "predict":
+            predict(h5f, args.observations_file, args.output)
+        elif args.command == "import":
+            import_data(args.import_type, args.source_file, h5f)
+        else:
+            parser.print_help()
 
-    if args.observations is None:
-        modify_model_file(args)
-    else:
-        inverse_observations(args)
 
-
-    # config = xllim.Configuration()
-    # config.direct_model_type = direct_model_type
-    # config.write(args.write_config)
-    return
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
