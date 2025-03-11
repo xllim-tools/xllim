@@ -297,14 +297,14 @@ def edit_config(h5f):
 
 def import_geometries(source_path: str, dest_h5f: h5py.File) -> None:
     """
-    Import geometries from a JSON or HDF5 file into an HDF5 file.
+    Import geometries from a JSON file into an HDF5 file.
 
     Args:
-        source_path (str): Path to the source file (JSON or HDF5).
+        source_path (str): Path to the source JSON file.
         dest_h5f (h5py.File): Destination HDF5 file object.
 
     Raises:
-        ValueError: If the source file is not a JSON or HDF5 file.
+        ValueError: If the source file is not a JSON file.
         IOError: If there are issues reading or writing files.
     """
     group = H5_DATA_SETS["geometries"]
@@ -325,14 +325,8 @@ def import_geometries(source_path: str, dest_h5f: h5py.File) -> None:
                 for k, v in data.items():
                     group.create_dataset(k, (len(v)), dtype=H5_FLOAT, data=v)
         
-        elif file_extension == '.h5':
-            with h5py.File(source_path, 'r') as src_h5:
-                if group not in src_h5:
-                    logger.error("Geometries are not present in source file. Aborting")
-                    return
-            _h5_copy(H5_GROUPS["functional"], source_path, dest_h5f)
         else:
-            raise ValueError("geometries must be a json or hdf5 file")
+            raise ValueError("geometries must be a json file")
 
         # write configuration to the file
         dest_h5f.flush()
