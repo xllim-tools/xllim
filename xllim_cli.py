@@ -369,6 +369,35 @@ def import_data(what_to_import, source_file_path, h5f):
         logger.error(f"Invalid option: {what_to_import}")
 
 
+def copy_h5_section_dialog(src_h5: str, dst_h5):
+    """List all group and datas set names present in src and ask user what to copy to dst."""
+    # construct dict with data present in source file
+    data = {}
+    i = 1
+    print(src_h5)
+    with h5py.File(src_h5, 'r') as src_h5f:
+        for k, v in H5_GROUPS.items():
+            if v in src_h5f:
+                data[i] = k
+                i += 1
+        for k, v in H5_DATA_SETS.items():
+            if v in src_h5f:
+                data[i] = k
+                i += 1
+    print(f"Data present in {src_h5}:")
+    for k, v  in data.items():
+        print(f"{k}. {v}")
+
+    input_str = input("What to copy (coma seprated list ex. 1,3): ")
+    for i in input_str.split(","):
+        obj_id = data[int(i)]
+        if obj_id in H5_GROUPS.keys():
+            _h5_copy(H5_GROUPS[obj_id], src_h5, dst_h5)
+        else:
+            _h5_copy(H5_DATA_SETS[obj_id], src_h5, dst_h5)
+    return
+
+
 def export_data(what_to_export, from_file, output_file):
     print(f"exporting {what_to_export}")
 
@@ -392,39 +421,52 @@ def main():
 
     # Print command
     print_parser = subparsers.add_parser("print", help="Print contents of the h5 file")
-    print_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
+    print_parser.add_argument("target_file", help="Path to the model file (e.g., model.h5)")
 
     # Edit command
     edit_parser = subparsers.add_parser("edit", help="Edit configuration")
-    edit_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
+    edit_parser.add_argument("target_file", help="Path to the model file (e.g., model.h5)")
+
+    # Copy command
+    import_parser = subparsers.add_parser("cp", help="Copy data from one hfd5 file to another")
+    import_parser.add_argument("source_file", help="Path to the source file (e.g. experiment1.h5)")
+    import_parser.add_argument("target_file", help="Path to the target file (e.g., experiment2.h5)")
 
     # Train command
     train_parser = subparsers.add_parser("train", help="Train model")
-    train_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
+    train_parser.add_argument("target_file", help="Path to the model file (e.g., model.h5)")
 
     # Predict command
     predict_parser = subparsers.add_parser("predict", help="Make predictions using the model")
     predict_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
     predict_parser.add_argument("observations_file", help="Path to the observations file (e.g., observations.json)")
-    predict_parser.add_argument("-o", "--output", required=True, help="Path to the output file")
+    predict_parser.add_argument("-o", "--output", required=False, help="Path to the output file")
 
     # Import command
     import_parser = subparsers.add_parser("import", help="Import data into the model")
     import_parser.add_argument("import_type", choices=["geometries", "train-data"], help="Type of data to import")
     import_parser.add_argument("source_file", help="Path to the source file (e.g. geometries.json)")
-    import_parser.add_argument("model_file", help="Path to the target model file (e.g., target_model.h5)")
+    import_parser.add_argument("target_file", help="Path to the target model file (e.g., target_model.h5)")
 
     # Export command
     export_parser = subparsers.add_parser("export", help="Export data from the model")
-    export_parser.add_argument("export_type", choices=["train-data", "model", "predictions"], help="Type of data to export")
-    export_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
-    export_parser.add_argument("output_file", help="Path to the output file")
+    export_parser.add_argument("source_file", help="Path to the model file (e.g., experiment_1.h5)")
+    export_parser.add_argument("target_file", help="Path to the output file (e.g. predictions.json)")
 
     # Parse arguments
     args = parser.parse_args()
     
-    h5_file_name = args.model_file
-    # read-only commands
+    if hasattr(args, 'target_file'):
+        h5_file_name = args.target_file
+    else:
+        h5_file_name = args.model_file
+    
+    if hasattr(args, 'source_file'):
+        if not os.path.isfile(args.source_file):
+                print(f"source_file must exist. Aborting")
+                return
+    
+    # process read-only commands
     if args.command in ('print', 'export'):
         if not os.path.isfile(h5_file_name):
             print(f"File {h5_file_name} not found")
@@ -437,6 +479,7 @@ def main():
                 export_data(args.export_type, h5f, args.output_file)
                 return
     
+    # process read-write commands
     # open the file for wrting
     if not os.path.isfile(h5_file_name):
         print(f"Creating new file: {h5_file_name}")
@@ -444,14 +487,13 @@ def main():
     with h5py.File(h5_file_name, 'a') as h5f:
         if args.command == "edit":
             edit_config(h5f)
+        elif args.command == "cp":
+            copy_h5_section_dialog(args.source_file, h5f)
         elif args.command == "train":
             train_model(h5f)
         elif args.command == "predict":
             predict(h5f, args.observations_file, args.output)
         elif args.command == "import":
-            if not os.path.isfile(args.source_file):
-                print(f"source_file must exist. Aborting")
-                return
             import_data(args.import_type, args.source_file, h5f)
         else:
             parser.print_help()
