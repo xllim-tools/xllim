@@ -392,8 +392,19 @@ def copy_h5_section_dialog(src_h5: str, dst_h5):
     return
 
 
+def generate_data(h5f):
+    """Generates sythetic train data, if functional model and generator configurations are present."""
+    if H5_GROUPS["functional"] in h5f and H5_GROUPS["generator"] in h5f:
+        # TODO generate
+        pass
+    else:
+        logger.error("Configuration is not complete. Cannot generate data.")
+        exit(1)
+    return
+
+
 def export_data(what_to_export, from_file, output_file):
-    print(f"exporting {what_to_export}")
+    print(f"TODO exporting {what_to_export}")
 
 
 def train_model(file_path):
@@ -425,6 +436,10 @@ def main():
     import_parser = subparsers.add_parser("cp", help="Copy data from one hfd5 file to another")
     import_parser.add_argument("source_file", help="Path to the source file (e.g. experiment1.h5)")
     import_parser.add_argument("target_file", help="Path to the target file (e.g., experiment2.h5)")
+
+    # Generate command
+    train_parser = subparsers.add_parser("generate", help="Generate sythetic data")
+    train_parser.add_argument("target_file", help="Path to the model file (e.g., model.h5)")
 
     # Train command
     train_parser = subparsers.add_parser("train", help="Train model")
@@ -483,6 +498,8 @@ def main():
             edit_config(h5f)
         elif args.command == "cp":
             copy_h5_section_dialog(args.source_file, h5f)
+        elif args.command == "generate":
+            generate_data(h5f)
         elif args.command == "train":
             train_model(h5f)
         elif args.command == "predict":
