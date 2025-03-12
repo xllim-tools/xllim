@@ -23,11 +23,16 @@
 # Outputs are in netcdf format
 
 import argparse
+import ast
 import h5py
 import logging
 import os
-# import numpy as np
-# import xllim
+import numpy as np
+try:
+    import json
+    import xllim
+except ImportError as e:
+    print(f"\nWARNING: Import error: {e}.\nSome commands my not work.\n")
 
 
 # Configure logging
@@ -39,17 +44,37 @@ H5_STRING = h5py.string_dtype(encoding='utf-8')
 H5_INT = 'i4'
 H5_FLOAT = 'f8'
 H5_GROUPS = {"functional": "/sythetic_data/functional_model/config",
-            "generator":   "/sythetic_data/functional_model/data_generator",
-            "gllim_model": "/xllim/gllim",
-            "prediction_module": "/prediction_module_config",
-            "importance_sampling": "/importance_sampling_config"}
+             "generator":   "/sythetic_data/functional_model/data_generator",
+             "gllim_model": "/xllim/gllim",
+             "prediction_module": "/prediction_module_config",
+             "importance_sampling": "/importance_sampling_config"}
 H5_DATA_SETS = {"geometries": "/sythetic_data/functional_model/geometries",
                 "train_data": "/sythetic_data/train_data"}
+SUPPORTED_MODELS = (("model", "functional model", ("Hapke",
+                    "Shkuratov", "External", "Test model"), H5_STRING), )
+HAPKE_OPTIONS = (("variant", "", ("1993", "2002"), H5_STRING),
+                 ("adapter", "Number of Hapke's model parameters",
+                  ("three", "four", "six"), H5_STRING),
+                 ("theta_bar maximum", "Value used to transform theta_bar between physical and mathematical spaces (eg. 30)", None, H5_INT),
+                 ("b0", "The amplitude of the opposition effect", None, H5_FLOAT),
+                 ("h", "Angular width of the opposition effect (0, XXX)", None, H5_FLOAT))
+SHKURATOV_OPTIONS = (("variant", "Number of model parameters", ("3p", "5p"), H5_STRING),
+                     ("scaling_coeffs",
+                      "A set of L coefficients used in the transformation between physical and mathematical spaces ([0.1, 0.2])", None, H5_STRING),
+                     ("offset", "A set of L offsets used in the transformation between physical and mathematical spaces", None, H5_STRING))
+EXTERNAL_MODEL_OPTIONS = (("class name", "", None, H5_STRING),
+                          ("file name", "", None, H5_STRING),
+                          ("file path", "", None, H5_STRING))
+GENERATOR_OPTIONS = (("N", "Dataset size; a positive number", None, H5_INT),
+                     ("type", "Generator type",
+                      ("sobol", "random", "latin hypercube"), H5_STRING),
+                     ("covariance", "Covariances value. Same for all D.", None, H5_FLOAT),
+                     ("seed", "Seed used by the random generator", None, H5_INT))
 
 
 def config_dialog(h5_file: str, group_or_dataset, options) -> list:
     """Go through options, ask user input and set properties on group_ordataset in the h5_file
-    
+
     Parameters
     ----------
     options : a tupple of tupples with format:
@@ -74,23 +99,23 @@ def config_dialog(h5_file: str, group_or_dataset, options) -> list:
         if len(help):
             help = f"({help}) "
 
-        if type(vals) is tuple: 
+        if type(vals) is tuple:
             print(f"Choose {name} {help}:")
             for i, v in enumerate(vals):
                 print(f"{i+1}. {v}")
-            prompt = f"{cval_string} : " 
+            prompt = f"{cval_string} : "
             i = input(prompt)
             if len(i) > 0:
                 value = vals[int(i)-1]
         else:
-            prompt = f"{name} {help} {cval_string}: " 
+            prompt = f"{name} {help} {cval_string}: "
             i = input(prompt)
             if len(i) > 0:
                 if dtype == H5_FLOAT:
                     value = float(i)
                 else:
                     value = i
-        
+
         # modify or create an attribute
         if len(cval_string):  # attribute already exists
             attrs.modify(name, value)
@@ -99,7 +124,7 @@ def config_dialog(h5_file: str, group_or_dataset, options) -> list:
                 attrs.create(name, value, dtype=dtype)
         print(f"\033[F\033[{len(prompt)}G {attrs.get(name)}")
         modified.append(name)
-    
+
     h5_file.flush()
     return modified
 
@@ -128,52 +153,46 @@ def delete_all_attributes_except(h5_file, group, attrs_to_keep):
 
 def configure_generator(h5_model_file):
     group = H5_GROUPS["generator"]
-    generator_model_options = (("model","Type of Gaussian statistical model", ("basic", "dependent"), H5_STRING),
-                               ("dataset size", "a positive number", None, H5_INT),
-                               ("type", "Generator type",("sobol", "random", "latin hypercube"), H5_STRING),
-                               ("seed", "Seed used by the random generator", None, H5_INT))
-    basic_generator_options = (("variances", "Isometric fixed variance of the Gaussian noise (in %)", None, H5_FLOAT), )
-    dependent_generator_options = (("noise effect", "signal to noise ratio", None, H5_FLOAT), )
-    changed = config_dialog(h5_model_file, group, generator_model_options)
-    if h5_model_file[group].attrs["model"] == "basic":
-        changed += config_dialog(h5_model_file, group, basic_generator_options)
-    else:
-        changed += config_dialog(h5_model_file, group, dependent_generator_options)
-
+    changed = config_dialog(h5_model_file, group, GENERATOR_OPTIONS)
     delete_all_attributes_except(h5_model_file, group, changed)
 
 
 def configure_gllim_model(h5_file):
     group = H5_GROUPS["gllim_model"]
     gllim_options = (('K', 'Number of affine transformations', None, H5_INT),
-                     ('Gamma type', 'Type of covariance matrix for the K GLLiM components', ("full", "diagonal", "isomorphic"), H5_STRING),
-                     ('Sigma type', 'Type of covariance matrix for the Gaussian noise applied to each affine transformation', ("full", "diagonal", "isomorphic"), H5_STRING),
-                     ('floor', 'Minimum threshold for the covariance values', None, H5_FLOAT),
-                     ('init variant', 'Initialisation strategy applied to the GLLiM learning', ('fixed', 'multiple'), H5_STRING),
+                     ('Gamma type', 'Type of covariance matrix for the K GLLiM components',
+                      ("full", "diagonal", "isomorphic"), H5_STRING),
+                     ('Sigma type', 'Type of covariance matrix for the Gaussian noise applied to each affine transformation',
+                      ("full", "diagonal", "isomorphic"), H5_STRING),
+                     ('floor', 'Minimum threshold for the covariance values',
+                      None, H5_FLOAT),
+                     ('init variant', 'Initialisation strategy applied to the GLLiM learning',
+                      ('fixed', 'multiple'), H5_STRING),
                      ('learning variant', 'Learning step strategy', ('GLLiM-EM', 'GMM-EM'), H5_STRING))
     multiple_init_options = (('initialisations no.', 'Number of initialization experiments', None, H5_INT),
-                            ('init seed', 'The seed used by random generators', None, H5_INT),
-                            ('init k-means iterations', '', None, H5_INT),
-                            ('init GMM-EM iterations', '', None, H5_INT),
-                            ('init GLLiM-EM iterations', '', None, H5_INT))
+                             ('init seed', 'The seed used by random generators',
+                              None, H5_INT),
+                             ('init k-means iterations', '', None, H5_INT),
+                             ('init GMM-EM iterations', '', None, H5_INT),
+                             ('init GLLiM-EM iterations', '', None, H5_INT))
     fixed_init_options = (('init seed', 'The seed used by random generators', None, H5_INT),
                           ('init k-means iterations', '', None, H5_INT),
                           ('init GMM-EM iterations', '', None, H5_INT))
     gllim_em_options = (('GLLiM-EM iterations', '', None, H5_INT),
                         ('likelihood increase', '', None, H5_FLOAT))
     gmm_em_options = (('GMM-EM iterations', '', None, H5_INT),
-                        ('k-means iterations', '', None, H5_FLOAT))
+                      ('k-means iterations', '', None, H5_FLOAT))
     changed = config_dialog(h5_file, group, gllim_options)
     if h5_file[group].attrs["init variant"] == 'fixed':
         changed += config_dialog(h5_file, group, fixed_init_options)
     else:
         changed += config_dialog(h5_file, group, multiple_init_options)
-    
+
     if h5_file[group].attrs['learning variant'] == 'GLLiM-EM':
         changed += config_dialog(h5_file, group, gllim_em_options)
     else:
         changed += config_dialog(h5_file, group, gmm_em_options)
-    
+
     delete_all_attributes_except(h5_file, group, changed)
 
 
@@ -196,45 +215,24 @@ def configure_importance_sampling(h5_file):
 
 def configure_functional(h5_model_file):
     group = H5_GROUPS["functional"]
-    supported_models = (("model", "(functional model) ", ("Hapke 1993", "Hapke 2002", "Shkuratov", "External", "Test model"), H5_STRING), )
-    # Hapke model configuration
-    common_hapke_config = ( ("variant", "", ("full", "reduced", "hockey_stick"), H5_STRING),
-                            ("theta_bar maximum", "(a positive number [0, 30]) ", None, H5_FLOAT)
-    )
-    reduced_or_stick_config = (("B0", "Magnitude of the opposition effect (0, XXX)", None, H5_FLOAT),
-                               ("H", "Angular width of the opposition effect (0, XXX)", None, H5_FLOAT))
-    # Shkuratov model configuration
-    shkuratov_config = (("Max An" , "Value used to normalise the An parameter into the mathematical parameter space [0,1]", None, H5_FLOAT),
-                        ("Min An" , "Minimum value used to normalise the An parameter", None, H5_FLOAT),
-                        ("Max mu1",  "Value used to normalise the mu1 parameter into the mathematical parameter space [0,1]", None, H5_FLOAT),
-                        ("Min mu1",  "Minimum value used to normalise the mu1 parameter", None, H5_FLOAT),
-                        ("Max nu" , "Value used to normalise the nu parameter into the mathematical parameter space [0,1]", None, H5_FLOAT),
-                        ("Min nu" , "Minimum value used to normalise the nu parameter", None, H5_FLOAT),
-                        ("Max m0" , "Value used to normalise the m0 parameter into the mathematical parameter space [0,1]", None, H5_FLOAT),
-                        ("Min m0" , "Minimum value used to normalise the m0 parameter", None, H5_FLOAT),
-                        ("Max mu2",  "Value used to normalise the mu2 parameter into the mathematical parameter space [0,1]", None, H5_FLOAT),
-                        ("Min mu2",  "Minimum value used to normalise the mu2 parameter", None, H5_FLOAT),
-    )
-    external_model_config = (("class name", "", None, H5_STRING),
-                             ("file name", "", None, H5_STRING),
-                             ("file path", "", None, H5_STRING))
-    
+
     # set model type
-    changed_attrs = config_dialog(h5_model_file, group, supported_models)
+    changed_attrs = config_dialog(h5_model_file, group, SUPPORTED_MODELS)
 
     # check if required data is provided for the selected model
     model_type = h5_model_file[group].attrs["model"]
     if model_type == "External":
-        changed_attrs += config_dialog(h5_model_file, group, external_model_config)
-    elif model_type == "Hapke 2002":
-        changed_attrs += config_dialog(h5_model_file, group, common_hapke_config)
-        if h5_model_file[group].attrs["variant"] != "full":
-            changed_attrs += config_dialog(h5_model_file, group, reduced_or_stick_config)
+        changed_attrs += config_dialog(h5_model_file,
+                                       group, EXTERNAL_MODEL_OPTIONS)
+    elif model_type == "Hapke":
+        changed_attrs += config_dialog(h5_model_file, group, HAPKE_OPTIONS)
     elif model_type == "Shkuratov":
-        changed_attrs += config_dialog(h5_model_file, group, shkuratov_config)
+        changed_attrs += config_dialog(h5_model_file, group, SHKURATOV_OPTIONS)
+    elif model_type == "Test model":
+        pass
     else:
         logger.error("Invalid functional model type")
-    
+
     delete_all_attributes_except(h5_model_file, group, changed_attrs)
     return
 
@@ -250,10 +248,10 @@ def print_group(h5_file, group_name):
 
 
 def print_geometries(h5_model_file):
-    ds = H5_DATA_SETS["geometries"] 
+    ds = H5_DATA_SETS["geometries"]
     if ds in h5_model_file:
         for key, value in h5_model_file[ds].items():
-            print(f"    {key} : {value}") 
+            print(f"    {key} : {value}")
 
 
 def print_h5(h5f):
@@ -263,7 +261,7 @@ def print_h5(h5f):
             for key, val in h5f[group_name].attrs.items():
                 print(f"    {key}: {val}")
         print("")
-    
+
     for short_name, group_name in H5_DATA_SETS.items():
         if group_name in h5f:
             print(f"{short_name} present")
@@ -284,7 +282,7 @@ def edit_config(h5f):
             print_group(h5f, grp)
             prompt = f"Edit {grp} configuration? (y/n/q) : "
 
-        k = input(prompt) 
+        k = input(prompt)
         if k == 'y':
             configure(h5f)
         elif k == 'q':
@@ -315,16 +313,15 @@ def import_geometries(source_path: str, dest_h5f: h5py.File) -> None:
             if group in dest_h5f:
                 logger.info(f"Removing exisitng {group}")
                 del dest_h5f[group]
-            
+
             logger.info(f'Importing geometries from {source_path}')
             group = dest_h5f.create_group(group, track_order=True)
-            
-            import json
+
             with open(source_path, 'r') as json_file:
                 data = json.load(json_file)
                 for k, v in data.items():
                     group.create_dataset(k, (len(v)), dtype=H5_FLOAT, data=v)
-        
+
         else:
             raise ValueError("geometries must be a json file")
 
@@ -379,7 +376,7 @@ def copy_h5_section_dialog(src_h5: str, dst_h5):
                 data[i] = k
                 i += 1
     print(f"Data present in {src_h5}:")
-    for k, v  in data.items():
+    for k, v in data.items():
         print(f"{k}. {v}")
 
     input_str = input("What to copy (coma seprated list ex. 1,3): ")
@@ -392,11 +389,90 @@ def copy_h5_section_dialog(src_h5: str, dst_h5):
     return
 
 
+def _hapke_config(attrs):
+    """Returns variant, adapter, t_bar_scaling, b0, h"""
+    res = []
+    for opt in HAPKE_OPTIONS:
+        res.append(attrs[opt[0]])
+    return res
+
+
+def _shkuratov_config(attrs):
+    """Returns: variant, scalingCoeffs, offset"""
+    variant = attrs[SHKURATOV_OPTIONS[0][0]]
+    scaling = attrs[SHKURATOV_OPTIONS[1][0]]
+    offsets = attrs[SHKURATOV_OPTIONS[2][0]]
+    # parse scalingCoeffs and offsets
+    scaling = ast.literal_eval(scaling)
+    offsets = ast.literal_eval(offsets)
+    if len(scaling) != len(offsets):
+        logger.error("Scaling and offset vectors must hae the same length in Shkuratov config. Aborting.")
+        exit(1)
+    return variant, scaling, offsets
+
+
+def _external_model_config(attrs):
+    """Returns: class_name, file_nam, file_path"""
+    res = []
+    for opt in EXTERNAL_MODEL_OPTIONS:
+        res.append(attrs[opt[0]])
+    return res
+
+
+def _generator_config(h5f):
+    """Returns N, generator_type, covariance, seed"""
+
+    attrs = h5f[H5_GROUPS["generator"]].attrs
+    res = []
+    for opt in GENERATOR_OPTIONS:
+        res.append(attrs[opt[0]])
+    # consctruct covariance vector
+    YD = h5f[H5_DATA_SETS["geometries"]]["sza"].shape[0]  # len of the first geometries vector
+    res[2] = np.ones(YD) * res[2]
+    return res
+
+
+def _geometries(h5f):
+    """Reads geometries from the h5f file."""
+
+    group = h5f[H5_DATA_SETS["geometries"]]
+    d = group["sza"].shape[0]  # len of the first geometries vector
+    data = np.zeros((d, 3), dtype=np.float64)
+    for i, ds in enumerate(["sza", "vza", "phi"]):
+        data[:, i] = group.get(ds)
+    return data
+
+
 def generate_data(h5f):
     """Generates sythetic train data, if functional model and generator configurations are present."""
+    
+    logger.info("Generating train dataset")
     if H5_GROUPS["functional"] in h5f and H5_GROUPS["generator"] in h5f:
-        # TODO generate
-        pass
+        attrs = h5f[H5_GROUPS["functional"]].attrs
+        model_type = attrs["model"]
+        if model_type == "Test model":
+            f_model = xllim.TestModel()
+        elif model_type == "Hapke":
+            variant, adapter, t_bar_scaling, b0, h = _hapke_config(attrs)
+            f_model = xllim.HapkeModel(_geometries(h5f), variant, adapter, t_bar_scaling, b0, h)
+        elif model_type == "Shkuratov":
+            geoms, variant, scalingCoeffs, offset = _shkuratov_config(attrs)
+            f_model = xllim.Shkuratov(_geometries(h5f), variant, scalingCoeffs, offset)
+        elif model_type == "External":
+            class_name, file_name, file_path = _external_model_config(attrs)
+            f_model = xllim.ExternalPythonModel(class_name, file_name, file_path)
+
+        N, generator_type, covariance, seed = _generator_config(h5f)
+        x_gen, y_gen = f_model.genData(N, generator_type, covariance, seed)
+
+        # store x_gen and y_gen in a dataset
+        if H5_DATA_SETS["train_data"] in h5f:
+            del h5f[H5_DATA_SETS["train_data"]]
+        group = h5f.create_group(H5_DATA_SETS["train_data"], track_order=True)
+        group.create_dataset("X", x_gen.shape, dtype=H5_FLOAT, data=x_gen)
+        group.create_dataset("Y", y_gen.shape, dtype=H5_FLOAT, data=y_gen)
+
+        h5f.flush()
     else:
         logger.error("Configuration is not complete. Cannot generate data.")
         exit(1)
@@ -409,10 +485,11 @@ def export_data(what_to_export, from_file, output_file):
 
 def train_model(file_path):
     print("training model")
-        # check if train-condiguration is setup
-        # check if train-data is available
-        # do train
-        # wrtie gllim model to h5f
+    # check if train-condiguration is setup
+    # check if train-data is available
+    # do train
+    # wrtie gllim model to h5f
+
 
 def predict(file_path, observations_file_path, output):
     print("predicting")
@@ -422,64 +499,85 @@ def main():
     short_descr = "xllim_cli.py - Command-line interface for xllim."
     epilog = "Run 'xllim.py COMMAND --help' for more information on a command."
     parser = argparse.ArgumentParser(description=short_descr, epilog=epilog)
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    subparsers = parser.add_subparsers(
+        dest="command", help="Available commands")
 
     # Print command
-    print_parser = subparsers.add_parser("print", help="Print contents of the h5 file")
-    print_parser.add_argument("target_file", help="Path to the model file (e.g., model.h5)")
+    print_parser = subparsers.add_parser(
+        "print", help="Print contents of the h5 file")
+    print_parser.add_argument(
+        "target_file", help="Path to the model file (e.g., model.h5)")
 
     # Edit command
     edit_parser = subparsers.add_parser("edit", help="Edit configuration")
-    edit_parser.add_argument("target_file", help="Path to the model file (e.g., model.h5)")
+    edit_parser.add_argument(
+        "target_file", help="Path to the model file (e.g., model.h5)")
 
     # Copy command
-    import_parser = subparsers.add_parser("cp", help="Copy data from one hfd5 file to another")
-    import_parser.add_argument("source_file", help="Path to the source file (e.g. experiment1.h5)")
-    import_parser.add_argument("target_file", help="Path to the target file (e.g., experiment2.h5)")
+    import_parser = subparsers.add_parser(
+        "cp", help="Copy data from one hfd5 file to another")
+    import_parser.add_argument(
+        "source_file", help="Path to the source file (e.g. experiment1.h5)")
+    import_parser.add_argument(
+        "target_file", help="Path to the target file (e.g., experiment2.h5)")
 
     # Generate command
-    train_parser = subparsers.add_parser("generate", help="Generate sythetic data")
-    train_parser.add_argument("target_file", help="Path to the model file (e.g., model.h5)")
+    train_parser = subparsers.add_parser(
+        "generate", help="Generate sythetic data")
+    train_parser.add_argument(
+        "target_file", help="Path to the model file (e.g., model.h5)")
 
     # Train command
     train_parser = subparsers.add_parser("train", help="Train model")
-    train_parser.add_argument("target_file", help="Path to the model file (e.g., model.h5)")
+    train_parser.add_argument(
+        "target_file", help="Path to the model file (e.g., model.h5)")
 
     # Predict command
-    predict_parser = subparsers.add_parser("predict", help="Make predictions using the model")
-    predict_parser.add_argument("model_file", help="Path to the model file (e.g., model.h5)")
-    predict_parser.add_argument("observations_file", help="Path to the observations file (e.g., observations.json)")
-    predict_parser.add_argument("-o", "--output", required=False, help="Path to the output file")
+    predict_parser = subparsers.add_parser(
+        "predict", help="Make predictions using the model")
+    predict_parser.add_argument(
+        "model_file", help="Path to the model file (e.g., model.h5)")
+    predict_parser.add_argument(
+        "observations_file", help="Path to the observations file (e.g., observations.json)")
+    predict_parser.add_argument(
+        "-o", "--output", required=False, help="Path to the output file")
 
     # Import command
-    import_parser = subparsers.add_parser("import", help="Import data into the model")
-    import_parser.add_argument("import_type", choices=["geometries", "train-data"], help="Type of data to import")
-    import_parser.add_argument("source_file", help="Path to the source file (e.g. geometries.json)")
-    import_parser.add_argument("target_file", help="Path to the target model file (e.g., target_model.h5)")
+    import_parser = subparsers.add_parser(
+        "import", help="Import data into the model")
+    import_parser.add_argument("import_type", choices=[
+                               "geometries", "train-data"], help="Type of data to import")
+    import_parser.add_argument(
+        "source_file", help="Path to the source file (e.g. geometries.json)")
+    import_parser.add_argument(
+        "target_file", help="Path to the target model file (e.g., target_model.h5)")
 
     # Export command
-    export_parser = subparsers.add_parser("export", help="Export data from the model")
-    export_parser.add_argument("source_file", help="Path to the model file (e.g., experiment_1.h5)")
-    export_parser.add_argument("target_file", help="Path to the output file (e.g. predictions.json)")
+    export_parser = subparsers.add_parser(
+        "export", help="Export data from the model")
+    export_parser.add_argument(
+        "source_file", help="Path to the model file (e.g., experiment_1.h5)")
+    export_parser.add_argument(
+        "target_file", help="Path to the output file (e.g. predictions.json)")
 
     # Parse arguments
     args = parser.parse_args()
-    
+
     if hasattr(args, 'target_file'):
         h5_file_name = args.target_file
     else:
         h5_file_name = args.model_file
-    
+
     if hasattr(args, 'source_file'):
         if not os.path.isfile(args.source_file):
-                print(f"source_file must exist. Aborting")
-                return
-    
+            print(f"source_file must exist. Aborting")
+            return
+
     # process read-only commands
     if args.command in ('print', 'export'):
         if not os.path.isfile(h5_file_name):
             print(f"File {h5_file_name} not found")
-            return 
+            return
         with h5py.File(h5_file_name, 'r') as h5f:
             if args.command == "print":
                 print_h5(h5f)
@@ -487,12 +585,12 @@ def main():
             elif args.command == "export":
                 export_data(args.export_type, h5f, args.output_file)
                 return
-    
+
     # process read-write commands
     # open the file for wrting
     if not os.path.isfile(h5_file_name):
         print(f"Creating new file: {h5_file_name}")
-    
+
     with h5py.File(h5_file_name, 'a') as h5f:
         if args.command == "edit":
             edit_config(h5f)
