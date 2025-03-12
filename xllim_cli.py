@@ -88,7 +88,7 @@ def config_dialog(h5_file: str, group_or_dataset, options) -> list:
             if len(i) > 0:
                 if dtype == H5_FLOAT:
                     value = float(i)
-                elif dtype == H5_STRING:
+                else:
                     value = i
         
         # modify or create an attribute
