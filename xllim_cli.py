@@ -322,6 +322,10 @@ def import_geometries(source_path: str, dest_h5f: h5py.File) -> None:
                 for k, v in data.items():
                     group.create_dataset(k, (len(v)), dtype=H5_FLOAT, data=v)
 
+            # set source attribute to filename
+            attrs = dest_h5f[group].attrs
+            attrs.create("source", source_path, dtype=H5_STRING)
+
         else:
             raise ValueError("geometries must be a json file")
 
@@ -350,12 +354,9 @@ def _h5_copy(group_name: str, src_h5: str, dst_h5: h5py.File):
 def import_data(what_to_import, source_file_path, h5f):
     if what_to_import == "geometries":
         import_geometries(source_file_path, h5f)
-    elif what_to_import == "functional":
-        _h5_copy(H5_GROUPS["functional"], source_file_path, h5f)
     elif what_to_import == "train-data":
+        # TODO implement import from other sources (JSON?)
         _h5_copy(H5_DATA_SETS["train_data"], source_file_path, h5f)
-    elif what_to_import == "model":
-        _h5_copy(H5_GROUPS["gllim_model"], source_file_path, h5f)
     else:
         logger.error(f"Invalid option: {what_to_import}")
 
@@ -485,9 +486,8 @@ def export_data(what_to_export, from_file, output_file):
 
 def train_model(file_path):
     print("training model")
-    # check if train-condiguration is setup
     # check if train-data is available
-    # do train
+    # train
     # wrtie gllim model to h5f
 
 
