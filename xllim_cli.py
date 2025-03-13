@@ -71,6 +71,28 @@ GENERATOR_OPTIONS = (("N", "Dataset size; a positive number", None, H5_INT),
                       ("sobol", "random", "latin hypercube"), H5_STRING),
                      ("covariance", "Covariances value. Same for all D.", None, H5_FLOAT),
                      ("seed", "Seed used by the random generator", None, H5_INT))
+GLLIM_OPTIONS = (('K', 'Number of affine transformations', None, H5_INT),
+                 ('Gamma type', 'Type of covariance matrix for the K GLLiM components',
+                  ("full", "diagonal", "isomorphic"), H5_STRING),
+                 ('Sigma type', 'Type of covariance matrix for the Gaussian noise applied to each affine transformation',
+                  ("full", "diagonal", "isomorphic"), H5_STRING),
+                 ('n_hidden', 'Number of hidden variables', None, H5_INT))
+GLLIM_INIT_OPTIONS = (('gllim_em_iteration', 'Number of EM iterations for GLLiM', None, H5_INT),
+                      ('gllim_em_floor',
+                       'Floor value for EM iterations in GLLiM', None, H5_FLOAT),
+                      ('gmm_kmeans_iteration',
+                       'Number of k-means iterations for GMM', None, H5_INT),
+                      ('gmm_em_iteration',
+                       'Number of EM iterations for GMM', None, H5_INT),
+                      ('gmm_floor', 'Floor value for EM iterations in GMM', None, H5_FLOAT),
+                      ('nb_experiences', 'Number of experiences', None, H5_INT))
+GLLIM_TRAIN_VARIANTS = (('train_variant', 'Which training method to apply', ('GLLiM', 'JGMM', 'GLLiM and JGMM'), H5_STRING), )
+GLLIM_TRAIN_OPTIONS = (('train_max_iteration', 'Maximum number of iterations', None, H5_INT),
+                       ('train_ratio_ll', 'Ratio for log-likelihood convergence', None, H5_FLOAT),
+                       ('train_floor', 'Floor value for the training process', None, H5_FLOAT))
+JGMM_TRAIN_OPTIONS = (('jgmm_train_kmeans_iteration', 'The number of iterations of the k-means algorithm', None, H5_INT),
+                      ('jgmm_train_em_iteration', 'The number of iterations of the EM algorithm', None, H5_INT),
+                      ('jgmm_train_floor', 'The variance floor (smallest allowed value) for the diagonal covariances', None, H5_FLOAT))
 
 
 def config_dialog(h5_file: str, group_or_dataset, options) -> list:
@@ -160,39 +182,17 @@ def configure_generator(h5_model_file):
 
 def configure_gllim_model(h5_file):
     group = H5_GROUPS["gllim_model"]
-    gllim_options = (('K', 'Number of affine transformations', None, H5_INT),
-                     ('Gamma type', 'Type of covariance matrix for the K GLLiM components',
-                      ("full", "diagonal", "isomorphic"), H5_STRING),
-                     ('Sigma type', 'Type of covariance matrix for the Gaussian noise applied to each affine transformation',
-                      ("full", "diagonal", "isomorphic"), H5_STRING),
-                     ('floor', 'Minimum threshold for the covariance values',
-                      None, H5_FLOAT),
-                     ('init variant', 'Initialisation strategy applied to the GLLiM learning',
-                      ('fixed', 'multiple'), H5_STRING),
-                     ('learning variant', 'Learning step strategy', ('GLLiM-EM', 'GMM-EM'), H5_STRING))
-    multiple_init_options = (('initialisations no.', 'Number of initialization experiments', None, H5_INT),
-                             ('init seed', 'The seed used by random generators',
-                              None, H5_INT),
-                             ('init k-means iterations', '', None, H5_INT),
-                             ('init GMM-EM iterations', '', None, H5_INT),
-                             ('init GLLiM-EM iterations', '', None, H5_INT))
-    fixed_init_options = (('init seed', 'The seed used by random generators', None, H5_INT),
-                          ('init k-means iterations', '', None, H5_INT),
-                          ('init GMM-EM iterations', '', None, H5_INT))
-    gllim_em_options = (('GLLiM-EM iterations', '', None, H5_INT),
-                        ('likelihood increase', '', None, H5_FLOAT))
-    gmm_em_options = (('GMM-EM iterations', '', None, H5_INT),
-                      ('k-means iterations', '', None, H5_FLOAT))
-    changed = config_dialog(h5_file, group, gllim_options)
-    if h5_file[group].attrs["init variant"] == 'fixed':
-        changed += config_dialog(h5_file, group, fixed_init_options)
-    else:
-        changed += config_dialog(h5_file, group, multiple_init_options)
 
-    if h5_file[group].attrs['learning variant'] == 'GLLiM-EM':
-        changed += config_dialog(h5_file, group, gllim_em_options)
-    else:
-        changed += config_dialog(h5_file, group, gmm_em_options)
+    changed = config_dialog(h5_file, group, GLLIM_OPTIONS)
+    changed += config_dialog(h5_file, group, GLLIM_INIT_OPTIONS)
+
+    changed += config_dialog(h5_file, group, GLLIM_TRAIN_VARIANTS)
+    train_variant = h5_file[group].attrs['train_variant']
+    
+    if train_variant == 'GLLiM' or train_variant == 'GLLiM and JGMM':
+        changed += config_dialog(h5_file, group, GLLIM_TRAIN_OPTIONS)
+    if train_variant == 'JGMM' or train_variant == 'GLLiM and JGMM':
+        changed += config_dialog(h5_file, group, JGMM_TRAIN_OPTIONS)
 
     delete_all_attributes_except(h5_file, group, changed)
 
@@ -408,7 +408,8 @@ def _shkuratov_config(attrs):
     scaling = ast.literal_eval(scaling)
     offsets = ast.literal_eval(offsets)
     if len(scaling) != len(offsets):
-        logger.error("Scaling and offset vectors must hae the same length in Shkuratov config. Aborting.")
+        logger.error(
+            "Scaling and offset vectors must hae the same length in Shkuratov config. Aborting.")
         exit(1)
     return variant, scaling, offsets
 
@@ -429,7 +430,8 @@ def _generator_config(h5f):
     for opt in GENERATOR_OPTIONS:
         res.append(attrs[opt[0]])
     # consctruct covariance vector
-    YD = h5f[H5_DATA_SETS["geometries"]]["sza"].shape[0]  # len of the first geometries vector
+    # len of the first geometries vector
+    YD = h5f[H5_DATA_SETS["geometries"]]["sza"].shape[0]
     res[2] = np.ones(YD) * res[2]
     return res
 
@@ -447,7 +449,7 @@ def _geometries(h5f):
 
 def generate_data(h5f):
     """Generates sythetic train data, if functional model and generator configurations are present."""
-    
+
     logger.info("Generating train dataset")
     if H5_GROUPS["functional"] in h5f and H5_GROUPS["generator"] in h5f:
         attrs = h5f[H5_GROUPS["functional"]].attrs
@@ -456,13 +458,16 @@ def generate_data(h5f):
             f_model = xllim.TestModel()
         elif model_type == "Hapke":
             variant, adapter, t_bar_scaling, b0, h = _hapke_config(attrs)
-            f_model = xllim.HapkeModel(_geometries(h5f), variant, adapter, t_bar_scaling, b0, h)
+            f_model = xllim.HapkeModel(_geometries(
+                h5f), variant, adapter, t_bar_scaling, b0, h)
         elif model_type == "Shkuratov":
             geoms, variant, scalingCoeffs, offset = _shkuratov_config(attrs)
-            f_model = xllim.Shkuratov(_geometries(h5f), variant, scalingCoeffs, offset)
+            f_model = xllim.Shkuratov(_geometries(
+                h5f), variant, scalingCoeffs, offset)
         elif model_type == "External":
             class_name, file_name, file_path = _external_model_config(attrs)
-            f_model = xllim.ExternalPythonModel(class_name, file_name, file_path)
+            f_model = xllim.ExternalPythonModel(
+                class_name, file_name, file_path)
 
         N, generator_type, covariance, seed = _generator_config(h5f)
         x_gen, y_gen = f_model.genData(N, generator_type, covariance, seed)
