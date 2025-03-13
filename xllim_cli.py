@@ -28,6 +28,7 @@ import h5py
 import logging
 import os
 import numpy as np
+from datetime import datetime
 try:
     import json
     import xllim
@@ -43,13 +44,13 @@ logger = logging.getLogger("xllim_cli")
 H5_STRING = h5py.string_dtype(encoding='utf-8')
 H5_INT = 'i4'
 H5_FLOAT = 'f8'
-H5_GROUPS = {"functional": "/sythetic_data/functional_model/config",
-             "generator":   "/sythetic_data/functional_model/data_generator",
-             "gllim_model": "/xllim/gllim",
+H5_GROUPS = {"functional": "/functional_model/config",
+             "generator":   "/functional_model/data_generator",
+             "gllim_model": "/gllim",
              "prediction_module": "/prediction_module_config",
              "importance_sampling": "/importance_sampling_config"}
-H5_DATA_SETS = {"geometries": "/sythetic_data/functional_model/geometries",
-                "train_data": "/sythetic_data/train_data"}
+H5_DATA_SETS = {"geometries": "/functional_model/geometries",
+                "train_data": "/train_data"}
 SUPPORTED_MODELS = (("model", "functional model", ("Hapke",
                     "Shkuratov", "External", "Test model"), H5_STRING), )
 HAPKE_OPTIONS = (("variant", "", ("1993", "2002"), H5_STRING),
@@ -472,6 +473,12 @@ def generate_data(h5f):
         group = h5f.create_group(H5_DATA_SETS["train_data"], track_order=True)
         group.create_dataset("X", x_gen.shape, dtype=H5_FLOAT, data=x_gen)
         group.create_dataset("Y", y_gen.shape, dtype=H5_FLOAT, data=y_gen)
+        # write source of the train dataset
+        now = datetime.now()
+        date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
+        attrs = group.attrs
+        info_text = f"generated using {model_type} on {date_time}"
+        attrs.create("source", info_text, dtype=H5_STRING)
 
         h5f.flush()
     else:
