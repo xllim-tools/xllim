@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Comamnd line script for xllim.
@@ -24,15 +24,19 @@
 
 import argparse
 import ast
+import json
+import pickle
 import h5py
 import logging
 import os
 import numpy as np
 from datetime import datetime
 try:
-    import json
     import xllim
 except ImportError as e:
+    from unittest.mock import Mock
+    xllim = Mock()
+    xllim.TestModel().genData.return_value = np.ones(100), np.ones(10)
     print(f"\nWARNING: Import error: {e}.\nSome commands my not work.\n")
 
 
@@ -73,9 +77,9 @@ GENERATOR_OPTIONS = (("N", "Dataset size; a positive number", None, H5_INT),
                      ("seed", "Seed used by the random generator", None, H5_INT))
 GLLIM_OPTIONS = (('K', 'Number of affine transformations', None, H5_INT),
                  ('Gamma type', 'Type of covariance matrix for the K GLLiM components',
-                  ("full", "diagonal", "isomorphic"), H5_STRING),
+                  ("full", "diag", "iso"), H5_STRING),
                  ('Sigma type', 'Type of covariance matrix for the Gaussian noise applied to each affine transformation',
-                  ("full", "diagonal", "isomorphic"), H5_STRING),
+                  ("full", "diag", "iso"), H5_STRING),
                  ('n_hidden', 'Number of hidden variables', None, H5_INT))
 GLLIM_INIT_OPTIONS = (('gllim_em_iteration', 'Number of EM iterations for GLLiM', None, H5_INT),
                       ('gllim_em_floor',
@@ -85,13 +89,17 @@ GLLIM_INIT_OPTIONS = (('gllim_em_iteration', 'Number of EM iterations for GLLiM'
                       ('gmm_em_iteration',
                        'Number of EM iterations for GMM', None, H5_INT),
                       ('gmm_floor', 'Floor value for EM iterations in GMM', None, H5_FLOAT),
-                      ('nb_experiences', 'Number of experiences', None, H5_INT))
-GLLIM_TRAIN_VARIANTS = (('train_variant', 'Which training method to apply', ('GLLiM', 'JGMM', 'GLLiM and JGMM'), H5_STRING), )
+                      ('nb_experiences', 'Number of experiences', None, H5_INT),
+                      ('seed', 'Random numer seed', None, H5_INT))
+GLLIM_TRAIN_VARIANTS = (('train_variant', 'Which training method to apply',
+                        ('GLLiM', 'JGMM'), H5_STRING), )
 GLLIM_TRAIN_OPTIONS = (('train_max_iteration', 'Maximum number of iterations', None, H5_INT),
-                       ('train_ratio_ll', 'Ratio for log-likelihood convergence', None, H5_FLOAT),
+                       ('train_ratio_ll',
+                        'Ratio for log-likelihood convergence', None, H5_FLOAT),
                        ('train_floor', 'Floor value for the training process', None, H5_FLOAT))
 JGMM_TRAIN_OPTIONS = (('jgmm_train_kmeans_iteration', 'The number of iterations of the k-means algorithm', None, H5_INT),
-                      ('jgmm_train_em_iteration', 'The number of iterations of the EM algorithm', None, H5_INT),
+                      ('jgmm_train_em_iteration',
+                       'The number of iterations of the EM algorithm', None, H5_INT),
                       ('jgmm_train_floor', 'The variance floor (smallest allowed value) for the diagonal covariances', None, H5_FLOAT))
 
 
@@ -188,7 +196,7 @@ def configure_gllim_model(h5_file):
 
     changed += config_dialog(h5_file, group, GLLIM_TRAIN_VARIANTS)
     train_variant = h5_file[group].attrs['train_variant']
-    
+
     if train_variant == 'GLLiM' or train_variant == 'GLLiM and JGMM':
         changed += config_dialog(h5_file, group, GLLIM_TRAIN_OPTIONS)
     if train_variant == 'JGMM' or train_variant == 'GLLiM and JGMM':
@@ -324,7 +332,7 @@ def import_geometries(source_path: str, dest_h5f: h5py.File) -> None:
                     group.create_dataset(k, (len(v)), dtype=H5_FLOAT, data=v)
 
             # set source attribute to filename
-            attrs = dest_h5f[group].attrs
+            attrs = group.attrs
             attrs.create("source", source_path, dtype=H5_STRING)
 
         else:
@@ -391,49 +399,18 @@ def copy_h5_section_dialog(src_h5: str, dst_h5):
     return
 
 
-def _hapke_config(attrs):
-    """Returns variant, adapter, t_bar_scaling, b0, h"""
-    res = []
-    for opt in HAPKE_OPTIONS:
-        res.append(attrs[opt[0]])
-    return res
-
-
 def _shkuratov_config(attrs):
     """Returns: variant, scalingCoeffs, offset"""
-    variant = attrs[SHKURATOV_OPTIONS[0][0]]
-    scaling = attrs[SHKURATOV_OPTIONS[1][0]]
-    offsets = attrs[SHKURATOV_OPTIONS[2][0]]
+
+    variant, s, o = _option_values(attrs, SHKURATOV_OPTIONS)
     # parse scalingCoeffs and offsets
-    scaling = ast.literal_eval(scaling)
-    offsets = ast.literal_eval(offsets)
+    scaling = ast.literal_eval(s)
+    offsets = ast.literal_eval(o)
     if len(scaling) != len(offsets):
         logger.error(
             "Scaling and offset vectors must hae the same length in Shkuratov config. Aborting.")
         exit(1)
     return variant, scaling, offsets
-
-
-def _external_model_config(attrs):
-    """Returns: class_name, file_nam, file_path"""
-    res = []
-    for opt in EXTERNAL_MODEL_OPTIONS:
-        res.append(attrs[opt[0]])
-    return res
-
-
-def _generator_config(h5f):
-    """Returns N, generator_type, covariance, seed"""
-
-    attrs = h5f[H5_GROUPS["generator"]].attrs
-    res = []
-    for opt in GENERATOR_OPTIONS:
-        res.append(attrs[opt[0]])
-    # consctruct covariance vector
-    # len of the first geometries vector
-    YD = h5f[H5_DATA_SETS["geometries"]]["sza"].shape[0]
-    res[2] = np.ones(YD) * res[2]
-    return res
 
 
 def _geometries(h5f):
@@ -457,19 +434,18 @@ def generate_data(h5f):
         if model_type == "Test model":
             f_model = xllim.TestModel()
         elif model_type == "Hapke":
-            variant, adapter, t_bar_scaling, b0, h = _hapke_config(attrs)
-            f_model = xllim.HapkeModel(_geometries(
-                h5f), variant, adapter, t_bar_scaling, b0, h)
+            f_model = xllim.HapkeModel(_geometries(h5f), *_option_values(attrs, HAPKE_OPTIONS))
         elif model_type == "Shkuratov":
-            geoms, variant, scalingCoeffs, offset = _shkuratov_config(attrs)
-            f_model = xllim.Shkuratov(_geometries(
-                h5f), variant, scalingCoeffs, offset)
+            variant, scalingCoeffs, offset = _shkuratov_config(attrs)
+            f_model = xllim.Shkuratov(_geometries(h5f), variant, scalingCoeffs, offset)
         elif model_type == "External":
-            class_name, file_name, file_path = _external_model_config(attrs)
-            f_model = xllim.ExternalPythonModel(
-                class_name, file_name, file_path)
+            f_model = xllim.ExternalPythonModel(*_option_values(attrs, EXTERNAL_MODEL_OPTIONS))
 
-        N, generator_type, covariance, seed = _generator_config(h5f)
+        attrs = h5f[H5_GROUPS["generator"]].attrs
+        N, generator_type, covariance, seed = _option_values(attrs, GENERATOR_OPTIONS)
+        D = f_model.getDimensionY()
+        covariance = np.ones(D) * covariance
+
         x_gen, y_gen = f_model.genData(N, generator_type, covariance, seed)
 
         # store x_gen and y_gen in a dataset
@@ -496,11 +472,50 @@ def export_data(what_to_export, from_file, output_file):
     print(f"TODO exporting {what_to_export}")
 
 
-def train_model(file_path):
-    print("training model")
+def _option_values(attrs, options):
+    """Returns option values stored in attrs.
+
+    Args:
+        attrs : hdf5 attributes object
+        options (tuple of tuples): A tuple of tuples where the first element is the key to look up in attrs.
+
+    Returns:
+        list: A list of values corresponding to the keys in options.
+    """
+    return [attrs[opt[0]] for opt in options]
+
+
+def train_model(h5f):
     # check if train-data is available
+    train_group_name = H5_DATA_SETS["train_data"]
+    if train_group_name not in h5f:
+        logger.error("Train data not available. Aborting")
+        exit(1)
+    train_group = h5f[train_group_name]
+    X = np.array(train_group.get("X"), dtype=np.float64)
+    Y = np.array(train_group.get("Y"), dtype=np.float64)
+
+    L = X.shape[0]
+    D = Y.shape[0]
+    
+    gllim_attrs = h5f[H5_GROUPS["gllim_model"]].attrs
+    K, gamma, sigma, n_hidden = _option_values(gllim_attrs, GLLIM_OPTIONS)
+    gllim = xllim.GLLiM(K, D, L, gamma, sigma, n_hidden)
+
+    verbose = 1
+    gllim.initialize(X, Y, *_option_values(gllim_attrs, GLLIM_INIT_OPTIONS), verbose)
+
     # train
+    train_variant = _option_values(gllim_attrs, GLLIM_TRAIN_VARIANTS)
+    if train_variant == 'GLLiM':
+        gllim.train(X, Y, *_option_values(gllim_attrs, GLLIM_TRAIN_OPTIONS), verbose)
+    else:
+        gllim.trainJGMM(X, Y, *_option_values(gllim_attrs, JGMM_TRAIN_OPTIONS), verbose)
+
     # wrtie gllim model to h5f
+    gllim_serialised = pickle.dumps(gllim.getParams())
+    group_name = H5_GROUPS["gllim_model"]
+    group_name.create_dataset("serialised_gllim", data=gllim_serialised, dtype='V1')
 
 
 def predict(file_path, observations_file_path, output):
