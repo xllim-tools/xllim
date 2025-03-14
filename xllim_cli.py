@@ -54,7 +54,8 @@ H5_GROUPS = {"functional": "/functional_model/config",
              "prediction_module": "/prediction_module_config",
              "importance_sampling": "/importance_sampling_config"}
 H5_DATA_SETS = {"geometries": "/functional_model/geometries",
-                "train_data": "/train_data"}
+                "train_data": "/train_data",
+                "gllim_model": "/gllim/serialised_gllim"}
 SUPPORTED_MODELS = (("model", "functional model", ("Hapke",
                     "Shkuratov", "External", "Test model"), H5_STRING), )
 HAPKE_OPTIONS = (("variant", "", ("1993", "2002"), H5_STRING),
@@ -485,7 +486,7 @@ def _option_values(attrs, options):
     return [attrs[opt[0]] for opt in options]
 
 
-def train_model(h5f):
+def _train_data(h5f):
     # check if train-data is available
     train_group_name = H5_DATA_SETS["train_data"]
     if train_group_name not in h5f:
@@ -495,14 +496,25 @@ def train_model(h5f):
     X = np.array(train_group.get("X"), dtype=np.float64)
     Y = np.array(train_group.get("Y"), dtype=np.float64)
 
+
+def _gllim(h5f):
+    X, Y = _train_data(h5f) 
     L = X.shape[0]
     D = Y.shape[0]
     
     gllim_attrs = h5f[H5_GROUPS["gllim_model"]].attrs
     K, gamma, sigma, n_hidden = _option_values(gllim_attrs, GLLIM_OPTIONS)
-    gllim = xllim.GLLiM(K, D, L, gamma, sigma, n_hidden)
+    return xllim.GLLiM(K, D, L, gamma, sigma, n_hidden)
 
+
+def train_model(h5f):
     verbose = 1
+
+    X, Y = _train_data(h5f)
+
+    gllim = _gllim(h5f)
+
+    gllim_attrs = h5f[H5_GROUPS["gllim_model"]].attrs
     gllim.initialize(X, Y, *_option_values(gllim_attrs, GLLIM_INIT_OPTIONS), verbose)
 
     # train
@@ -515,11 +527,29 @@ def train_model(h5f):
     # wrtie gllim model to h5f
     gllim_serialised = pickle.dumps(gllim.getParams())
     group_name = H5_GROUPS["gllim_model"]
-    group_name.create_dataset("serialised_gllim", data=gllim_serialised, dtype='V1')
+    group_name.create_dataset("serialised_gllim", data=np.void(gllim_serialised))
+    h5f.flush()
+    
+    return
 
 
-def predict(file_path, observations_file_path, output):
+def predict(h5f, observations_file_path, output):
     print("predicting")
+    # get model from file
+    ds_name = H5_DATA_SETS["gllim_model"]
+    if ds_name not in h5f:
+        logger.error("GLLiM model not found. Aborting.")
+        exit(1)
+
+    gllim = _gllim(h5f)
+
+    ds = h5f.get(ds_name)
+    gllim_params = pickle.loads(np.void(ds))
+    gllim.setParams(gllim_params)
+
+    # load observations
+    # predict
+    # write output to file
 
 
 def main():
