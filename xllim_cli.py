@@ -514,7 +514,7 @@ def train_model(h5f):
     gllim.initialize(X, Y, *_option_values(gllim_attrs, GLLIM_INIT_OPTIONS), verbose)
 
     # train
-    train_variant = _option_values(gllim_attrs, GLLIM_TRAIN_VARIANTS)
+    train_variant = _option_values(gllim_attrs, GLLIM_TRAIN_VARIANTS)[0]  # cause it is a list
     if train_variant == 'GLLiM':
         gllim.train(X, Y, *_option_values(gllim_attrs, GLLIM_TRAIN_OPTIONS), verbose)
     else:
@@ -523,7 +523,7 @@ def train_model(h5f):
     # wrtie gllim model to h5f
     gllim_serialised = pickle.dumps(gllim.getParams())
     group_name = H5_GROUPS["gllim_model"]
-    group_name.create_dataset("serialised_gllim", data=np.void(gllim_serialised))
+    h5f[group_name].create_dataset("serialised_gllim", data=np.void(gllim_serialised))
     h5f.flush()
     
     return
