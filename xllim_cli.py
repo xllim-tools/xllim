@@ -102,6 +102,8 @@ JGMM_TRAIN_OPTIONS = (('jgmm_train_kmeans_iteration', 'The number of iterations 
                       ('jgmm_train_em_iteration',
                        'The number of iterations of the EM algorithm', None, H5_INT),
                       ('jgmm_train_floor', 'The variance floor (smallest allowed value) for the diagonal covariances', None, H5_FLOAT))
+PREDICTION_OPTIONS = (('K_merged', 'Merged the full GMM (K components) into K_merged gaussian components', None, H5_INT),
+              ('merging_threshold', 'Threshold on the merged GMM weights. Gaussian component with a weight below this threshold are ignored.', None, H5_FLOAT))
 
 
 def config_dialog(h5_file: str, group_or_dataset, options) -> list:
@@ -169,24 +171,11 @@ def delete_all_attributes_except(h5_file, group, attrs_to_keep):
     return
 
 
-# def delete_attributes(h5_file, group, options):
-#     """ Delete attributes from a hdf5 group.
-
-#     We assume group exists in h5_file.
-#     Options follow the same format as configuration options.
-#     """
-#     attrs = h5_file[group].attrs
-#     for opt in options:
-#         name, _, _, _ = opt
-#         if name in attrs:
-#             del attrs[name]
-#     return
-
-
 def configure_generator(h5_model_file):
     group = H5_GROUPS["generator"]
     changed = config_dialog(h5_model_file, group, GENERATOR_OPTIONS)
     delete_all_attributes_except(h5_model_file, group, changed)
+    return
 
 
 def configure_gllim_model(h5_file):
@@ -204,14 +193,14 @@ def configure_gllim_model(h5_file):
         changed += config_dialog(h5_file, group, JGMM_TRAIN_OPTIONS)
 
     delete_all_attributes_except(h5_file, group, changed)
+    return
 
 
 def configure_prediction_module(h5_file):
     group = H5_GROUPS["prediction_module"]
-    config = (('prediction no.', 'Number of components to retain after merging', None, H5_INT),
-              ('reduced GMM size', 'Number of components to retain. The prediction is the mean of the reduced mixtures', None, H5_INT),
-              ('minimum component weight', 'Components which weight is lower than this threshold are discarded', None, H5_FLOAT))
-    config_dialog(h5_file, group, config)
+    changed = config_dialog(h5_file, group, PREDICTION_OPTIONS)
+    delete_all_attributes_except(h5_file, group, changed)
+    return
 
 
 def configure_importance_sampling(h5_file):
@@ -507,6 +496,12 @@ def _gllim(h5f):
     return xllim.GLLiM(K, D, L, gamma, sigma, n_hidden)
 
 
+def _prediction(h5f):
+    pred_attrs = h5f[H5_GROUPS["prediction_module"]].attrs
+    K_merged, merging_threshold = _option_values(pred_attrs, PREDICTION_OPTIONS)
+    return K_merged, merging_threshold
+
+
 def train_model(h5f):
     verbose = 1
 
@@ -533,9 +528,13 @@ def train_model(h5f):
     return
 
 
+def _load(observations_file_path):
+    pass
+
+
 def predict(h5f, observations_file_path, output):
     print("predicting")
-    # get model from file
+    # get gllim model from file
     ds_name = H5_DATA_SETS["gllim_model"]
     if ds_name not in h5f:
         logger.error("GLLiM model not found. Aborting.")
@@ -548,7 +547,24 @@ def predict(h5f, observations_file_path, output):
     gllim.setParams(gllim_params)
 
     # load observations
+    observations = _load(observations_file_path)
+    # load prediction configuration
+
     # predict
+    nb_samples = observations.shape[0]
+    nb_wavelengths = observations.shape[1]
+    nb_pred = nb_samples * nb_wavelengths
+    # predictions = np.empty((nb_samples, nb_wavelengths), dtype=object)
+    logging.info("[Prediction] Starting estimation of {} predictions composed of {} samples/scenes and {} wavelengths".format(nb_pred, nb_samples, nb_wavelengths))
+    logging.info("[Prediction] Processsing ...")
+    
+    all_reflectances = np.empty((len(observations[0,0]['reflectances']), nb_pred))
+    all_incertitudes = np.empty((len(observations[0,0]['incertitudes']), nb_pred))
+    for id_sample, sample in enumerate(observations):
+        for id_wavelength, wavelength in enumerate(sample):
+            all_reflectances[:, id_wavelength + id_sample * nb_wavelengths] = wavelength['reflectances']
+            all_incertitudes[:, id_wavelength + id_sample * nb_wavelengths] = wavelength['incertitudes']
+    predictions = gllim.inverseDensities(all_reflectances, all_incertitudes, *_prediction(h5f), 0) # PredictionResult(N_obs, L, K)
     # write output to file
 
 
