@@ -484,6 +484,7 @@ def _train_data(h5f):
     train_group = h5f[train_group_name]
     X = np.array(train_group.get("X"), dtype=np.float64)
     Y = np.array(train_group.get("Y"), dtype=np.float64)
+    return X, Y
 
 
 def _gllim(h5f):
