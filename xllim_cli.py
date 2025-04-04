@@ -427,7 +427,7 @@ def generate_data(h5f):
             f_model = xllim.HapkeModel(_geometries(h5f), *_option_values(attrs, HAPKE_OPTIONS))
         elif model_type == "Shkuratov":
             variant, scalingCoeffs, offset = _shkuratov_config(attrs)
-            f_model = xllim.Shkuratov(_geometries(h5f), variant, scalingCoeffs, offset)
+            f_model = xllim.ShkuratovModel(_geometries(h5f), variant, scalingCoeffs, offset)
         elif model_type == "External":
             f_model = xllim.ExternalPythonModel(*_option_values(attrs, EXTERNAL_MODEL_OPTIONS))
 
