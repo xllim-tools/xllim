@@ -530,7 +530,37 @@ def train_model(h5f):
 
 
 def _load(observations_file_path):
-    pass
+    relative_uncertainty = 0.1  # TODO which config should have it?
+    if observations_file_path.endswith('.json'):
+        with open(observations_file_path) as f:
+            observations_data = json.load(f)
+        observations_title = list(observations_data.keys())[0]
+        data = observations_data[observations_title]
+
+        reflectances = []
+        for key in data.keys():
+            if key.startswith('reflectance'):
+                observations = []
+                for wavelength in data[key]:
+                    if len(wavelength) == 2:
+                        observations.append({
+                            'reflectances': wavelength[0],
+                            'incertitudes': wavelength[1]
+                        })
+                    else:
+                        observations.append({
+                            'reflectances': wavelength[0],
+                            'incertitudes': [reflectance * relative_uncertainty for reflectance in wavelength[0]]
+                        })
+                reflectances.append(observations)
+    elif observations_file_path.endswith('.nc'):  # TODO NetCDF or a .zip file with 2 files?
+        pass
+    else:
+        raise ValueError("Observations file must be a json file")
+
+    #return np.array(reflectances)
+    return reflectances
+
 
 
 def predict(h5f, observations_file_path, output):
@@ -547,13 +577,14 @@ def predict(h5f, observations_file_path, output):
     gllim_params = pickle.loads(np.void(ds))
     gllim.setParams(gllim_params)
 
-    # load observations
+    # load observations ------------------
     observations = _load(observations_file_path)
     # load prediction configuration
 
-    # predict
-    nb_samples = observations.shape[0]
-    nb_wavelengths = observations.shape[1]
+    # predict ----------------------------
+    nb_samples = len(observations)
+    nb_wavelengths = len(observations[0])
+    nb_geometries = len(observations[0][0]['reflectances'])
     nb_pred = nb_samples * nb_wavelengths
     # predictions = np.empty((nb_samples, nb_wavelengths), dtype=object)
     logging.info("[Prediction] Starting estimation of {} predictions composed of {} samples/scenes and {} wavelengths".format(nb_pred, nb_samples, nb_wavelengths))
