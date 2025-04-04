@@ -590,14 +590,22 @@ def predict(h5f, observations_file_path, output):
     logging.info("[Prediction] Starting estimation of {} predictions composed of {} samples/scenes and {} wavelengths".format(nb_pred, nb_samples, nb_wavelengths))
     logging.info("[Prediction] Processsing ...")
     
-    all_reflectances = np.empty((len(observations[0,0]['reflectances']), nb_pred))
-    all_incertitudes = np.empty((len(observations[0,0]['incertitudes']), nb_pred))
+    all_reflectances = np.empty((nb_geometries, nb_pred))
+    all_incertitudes = np.empty((nb_geometries, nb_pred))
     for id_sample, sample in enumerate(observations):
         for id_wavelength, wavelength in enumerate(sample):
             all_reflectances[:, id_wavelength + id_sample * nb_wavelengths] = wavelength['reflectances']
             all_incertitudes[:, id_wavelength + id_sample * nb_wavelengths] = wavelength['incertitudes']
     predictions = gllim.inverseDensities(all_reflectances, all_incertitudes, *_prediction(h5f), 0) # PredictionResult(N_obs, L, K)
-    # write output to file
+    logging.info("  Predictions step is done")
+    # write output to file ----------------
+
+
+    # is_results = importance_sampling(predictions, observations, physical_model, config)
+    # logging.info("  Important sampling step is done")
+
+    # results = write_results(predictions, is_results, observations, physical_model)
+    # logging.info("  Results are saved in files")
 
 
 def main():
