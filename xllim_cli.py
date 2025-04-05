@@ -250,23 +250,48 @@ def print_geometries(h5_model_file):
     ds = H5_DATA_SETS["geometries"]
     if ds in h5_model_file:
         for key, value in h5_model_file[ds].items():
-            print(f"    {key} : {value}")
+            print(f"    {key} : {value[()]}")
 
 
-def print_h5(h5f):
-    for short_name, group_name in H5_GROUPS.items():
-        print(f"{short_name} configuration:")
-        if group_name in h5f:
-            for key, val in h5f[group_name].attrs.items():
-                print(f"    {key}: {val}")
-        print("")
+def print_h5(h5f, verbose):
+    if H5_GROUPS["functional"] in h5f and H5_GROUPS["generator"] in h5f:
+        attrs = h5f[H5_GROUPS["functional"]].attrs
+        model_type = attrs["model"]
+        if model_type == "Hapke" or model_type == "Shkuratov":
+            try:
+                g = _geometries(h5f)
+            except ValueError:
+                print(f"Geometries missing for mode: {model_type}")
+            print(f"Direct model:\tYES ({model_type}, geometries{g.shape})")
+        else:
+            print(f"Direct model:\tYES ({model_type})")
+    else:
+        print(f"Direct model:\tNO")
 
-    for short_name, group_name in H5_DATA_SETS.items():
-        if group_name in h5f:
-            print(f"{short_name} present")
-            if short_name == "geometries":
-                print_geometries(h5f)
-    return True
+    if H5_DATA_SETS["train_data"] in h5f:
+        x, y = _train_data(h5f)
+        print(f"Train data:\tYES (X{x.shape}  Y{y.shape})")
+    else:
+        print("Train data:\tNO")
+
+    if H5_DATA_SETS["gllim_model"] in h5f:
+        print("Trained model:\tYES")
+    else:
+        print("Trained model:\tNO")
+
+    if verbose:
+        print("\nConfiguration:\n")
+        for short_name, group_name in H5_GROUPS.items():
+            print(f"{short_name} configuration:")
+            if group_name in h5f:
+                for key, val in h5f[group_name].attrs.items():
+                    print(f"    {key}: {val}")
+            print("")
+
+        if H5_DATA_SETS["geometries"] in h5f:
+            print("geometries:")
+            print_geometries(h5f)
+    return
 
 
 def edit_config(h5f):
@@ -406,6 +431,9 @@ def _shkuratov_config(attrs):
 def _geometries(h5f):
     """Reads geometries from the h5f file."""
 
+    if H5_DATA_SETS["geometries"] not in h5f:
+        raise ValueError("No Geometries")
+     
     group = h5f[H5_DATA_SETS["geometries"]]
     d = group["sza"].shape[0]  # len of the first geometries vector
     data = np.zeros((d, 3), dtype=np.float64)
@@ -417,8 +445,8 @@ def _geometries(h5f):
 def generate_data(h5f):
     """Generates sythetic train data, if functional model and generator configurations are present."""
 
-    logger.info("Generating train dataset")
     if H5_GROUPS["functional"] in h5f and H5_GROUPS["generator"] in h5f:
+        logger.info("Generating train dataset")
         attrs = h5f[H5_GROUPS["functional"]].attrs
         model_type = attrs["model"]
         if model_type == "Test model":
@@ -479,8 +507,9 @@ def _train_data(h5f):
     # check if train-data is available
     train_group_name = H5_DATA_SETS["train_data"]
     if train_group_name not in h5f:
-        logger.error("Train data not available. Aborting")
-        exit(1)
+        logger.info("Train data not available. Generating")
+        generate_data(h5f)
+
     train_group = h5f[train_group_name]
     X = np.array(train_group.get("X"), dtype=np.float64)
     Y = np.array(train_group.get("Y"), dtype=np.float64)
@@ -564,12 +593,10 @@ def _load(observations_file_path):
 
 
 def predict(h5f, observations_file_path, output):
-    print("predicting")
     # get gllim model from file
     ds_name = H5_DATA_SETS["gllim_model"]
     if ds_name not in h5f:
-        logger.error("GLLiM model not found. Aborting.")
-        exit(1)
+        train_model(h5f)
 
     gllim = _gllim(h5f)
 
@@ -620,6 +647,8 @@ def main():
         "print", help="Print contents of the h5 file")
     print_parser.add_argument(
         "target_file", help="Path to the model file (e.g., model.h5)")
+    print_parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose output")
 
     # Edit command
     edit_parser = subparsers.add_parser("edit", help="Edit configuration")
@@ -693,7 +722,7 @@ def main():
             return
         with h5py.File(h5_file_name, 'r') as h5f:
             if args.command == "print":
-                print_h5(h5f)
+                print_h5(h5f, args.verbose)
                 return
             elif args.command == "export":
                 export_data(args.export_type, h5f, args.output_file)
