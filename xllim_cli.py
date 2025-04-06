@@ -634,7 +634,7 @@ def importance_sampling(h5f, all_reflectances, all_incertitudes, predictions, nb
     return is_results
 
 
-def predict(h5f, observations_file_path, output):
+def predict(h5f, observations_file_path, output_dir):
     # get gllim model from file
     ds_name = H5_DATA_SETS["gllim_model"]
     if ds_name not in h5f:
@@ -674,7 +674,7 @@ def predict(h5f, observations_file_path, output):
         is_results = importance_sampling(h5f, all_reflectances, all_incertitudes, predictions, nb_pred)
         logging.info("  Important sampling step is done")
 
-    # write output to file ----------------
+    # write to output folder ----------------
 
     # results = write_results(predictions, is_results, observations, physical_model)
     # logging.info("  Results are saved in files")
@@ -727,7 +727,7 @@ def main():
     predict_parser.add_argument(
         "observations_file", help="Path to the observations file (e.g., observations.json)")
     predict_parser.add_argument(
-        "-o", "--output", required=False, help="Path to the output file")
+        "output_directory", help="Path to the output directory. It will be created if needed.")
 
     # Import command
     import_parser = subparsers.add_parser(
@@ -788,7 +788,9 @@ def main():
         elif args.command == "train":
             train_model(h5f)
         elif args.command == "predict":
-            predict(h5f, args.observations_file, args.output)
+            if not os.path.exists(args.output_directory):
+                os.makedirs(args.output_directory)
+            predict(h5f, args.observations_file, args.output_directory)
         elif args.command == "import":
             import_data(args.import_type, args.source_file, h5f)
         else:
