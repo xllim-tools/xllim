@@ -75,7 +75,7 @@ GENERATOR_OPTIONS = (("N", "Dataset size; a positive number", None, H5_INT),
                      ("type", "Generator type",
                       ("sobol", "random", "latin hypercube"), H5_STRING),
                      ("covariance", "Covariances value. Same for all D.", None, H5_FLOAT),
-                     ("seed", "Seed used by the random generator", None, H5_INT))
+                     ("seed", "Seed used by the random generator", None, H5_INT))  # covariance could be a list of different values
 GLLIM_OPTIONS = (('K', 'Number of affine transformations', None, H5_INT),
                  ('Gamma type', 'Type of covariance matrix for the K GLLiM components',
                   ("full", "diag", "iso"), H5_STRING),
@@ -104,6 +104,9 @@ JGMM_TRAIN_OPTIONS = (('jgmm_train_kmeans_iteration', 'The number of iterations 
                       ('jgmm_train_floor', 'The variance floor (smallest allowed value) for the diagonal covariances', None, H5_FLOAT))
 PREDICTION_OPTIONS = (('K_merged', 'Merged the full GMM (K components) into K_merged gaussian components', None, H5_INT),
               ('merging_threshold', 'Threshold on the merged GMM weights. Gaussian component with a weight below this threshold are ignored.', None, H5_FLOAT))
+IS_OPTIONS = (('N_zero', 'Number of samples at initial stage (IMIS). If unspecified = N/10', None, H5_INT),
+              ('B', 'Number of new samples at each step (IMIS). Default: N/20', None, H5_INT),
+              ('J', 'Number of iterations (IMIS). Default: 18', None, H5_INT))
 
 
 def config_dialog(h5_file: str, group_or_dataset, options) -> list:
@@ -205,11 +208,9 @@ def configure_prediction_module(h5_file):
 
 def configure_importance_sampling(h5_file):
     group = H5_GROUPS["importance_sampling"]
-    config = (('N', 'Number of samples generated for the importance sampling of the target PDF', None, H5_INT),
-              ('N_zero', 'Number of samples at initial stage (IMIS). If unspecified = N/10', None, H5_INT),
-              ('B', 'Number of new samples at each step (IMIS). Default: N/20', None, H5_INT),
-              ('J', 'Number of iterations (IMIS). Default: 18', None, H5_INT))
-    config_dialog(h5_file, group, config)
+    changed = config_dialog(h5_file, group, IS_OPTIONS)
+    delete_all_attributes_except(h5_file, group, changed)
+    return
 
 
 def configure_functional(h5_model_file):
@@ -442,22 +443,27 @@ def _geometries(h5f):
     return data
 
 
+def _physical_model(h5f):
+    attrs = h5f[H5_GROUPS["functional"]].attrs
+    model_type = attrs["model"]
+    if model_type == "Test model":
+        f_model = xllim.TestModel()
+    elif model_type == "Hapke":
+        f_model = xllim.HapkeModel(_geometries(h5f), *_option_values(attrs, HAPKE_OPTIONS))
+    elif model_type == "Shkuratov":
+        variant, scalingCoeffs, offset = _shkuratov_config(attrs)
+        f_model = xllim.ShkuratovModel(_geometries(h5f), variant, scalingCoeffs, offset)
+    elif model_type == "External":
+        f_model = xllim.ExternalPythonModel(*_option_values(attrs, EXTERNAL_MODEL_OPTIONS))
+    return f_model
+
+
 def generate_data(h5f):
     """Generates sythetic train data, if functional model and generator configurations are present."""
 
     if H5_GROUPS["functional"] in h5f and H5_GROUPS["generator"] in h5f:
         logger.info("Generating train dataset")
-        attrs = h5f[H5_GROUPS["functional"]].attrs
-        model_type = attrs["model"]
-        if model_type == "Test model":
-            f_model = xllim.TestModel()
-        elif model_type == "Hapke":
-            f_model = xllim.HapkeModel(_geometries(h5f), *_option_values(attrs, HAPKE_OPTIONS))
-        elif model_type == "Shkuratov":
-            variant, scalingCoeffs, offset = _shkuratov_config(attrs)
-            f_model = xllim.ShkuratovModel(_geometries(h5f), variant, scalingCoeffs, offset)
-        elif model_type == "External":
-            f_model = xllim.ExternalPythonModel(*_option_values(attrs, EXTERNAL_MODEL_OPTIONS))
+        f_model = _physical_model(h5f)
 
         attrs = h5f[H5_GROUPS["generator"]].attrs
         N, generator_type, covariance, seed = _option_values(attrs, GENERATOR_OPTIONS)
@@ -591,6 +597,42 @@ def _load(observations_file_path):
     return reflectances
 
 
+def importance_sampling(h5f, all_reflectances, all_incertitudes, predictions, nb_pred):
+    nb_centers = predictions.mergedGMM.weights.shape[1]
+    is_attrs = h5f[H5_GROUPS["importance_sampling"]].attrs
+    is_results = []
+    logging.info("[Sampling] Starting Incremental Mixture Importance Sampling for the {} predictions by the mean and by the {} centers".format(nb_pred, nb_centers))
+    logging.info("[Sampling] Processsing ...")
+    
+    logging.info("[Sampling] Processsing merged_mean ...")
+    ph_model = _physical_model(h5f)
+    is_results.append(
+        ph_model.importanceSampling(
+            predictions.mergedGMM,
+            all_reflectances,
+            all_incertitudes,
+            *_option_values(is_attrs, IS_OPTIONS),
+            covariance=np.zeros(ph_model.getDimensionY()),
+            verbose=0
+        )
+    )
+
+    for id_center in range(nb_centers):
+        logging.info("[Sampling] Processsing center_{} ...".format(id_center))
+        is_results.append(
+            ph_model.importanceSampling(
+                predictions.mergedGMM,
+                all_reflectances, 
+                all_incertitudes,
+                *_option_values(is_attrs, IS_OPTIONS),
+                covariance=np.zeros(ph_model.getDimensionY()),
+                idx_gaussian=id_center,
+                verbose=0
+            )
+        )
+
+    return is_results
+
 
 def predict(h5f, observations_file_path, output):
     # get gllim model from file
@@ -617,19 +659,22 @@ def predict(h5f, observations_file_path, output):
     logging.info("[Prediction] Starting estimation of {} predictions composed of {} samples/scenes and {} wavelengths".format(nb_pred, nb_samples, nb_wavelengths))
     logging.info("[Prediction] Processsing ...")
     
-    all_reflectances = np.empty((nb_geometries, nb_pred))
-    all_incertitudes = np.empty((nb_geometries, nb_pred))
+    all_reflectances = np.empty((len(observations[0,0]['reflectances']), nb_pred))
+    all_incertitudes = np.empty((len(observations[0,0]['incertitudes']), nb_pred))
     for id_sample, sample in enumerate(observations):
         for id_wavelength, wavelength in enumerate(sample):
-            all_reflectances[:, id_wavelength + id_sample * nb_wavelengths] = wavelength['reflectances']
-            all_incertitudes[:, id_wavelength + id_sample * nb_wavelengths] = wavelength['incertitudes']
+            n_obs = id_wavelength + id_sample * nb_wavelengths
+            all_reflectances[:,n_obs] = wavelength['reflectances']
+            all_incertitudes[:,n_obs] = wavelength['incertitudes']
+
     predictions = gllim.inverseDensities(all_reflectances, all_incertitudes, *_prediction(h5f), 0) # PredictionResult(N_obs, L, K)
     logging.info("  Predictions step is done")
+
+    if H5_GROUPS["importance_sampling"] in h5f:
+        is_results = importance_sampling(h5f, all_reflectances, all_incertitudes, predictions, nb_pred)
+        logging.info("  Important sampling step is done")
+
     # write output to file ----------------
-
-
-    # is_results = importance_sampling(predictions, observations, physical_model, config)
-    # logging.info("  Important sampling step is done")
 
     # results = write_results(predictions, is_results, observations, physical_model)
     # logging.info("  Results are saved in files")
