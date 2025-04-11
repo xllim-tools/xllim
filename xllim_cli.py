@@ -3,34 +3,23 @@
 #
 # Comamnd line script for xllim.
 #
-# Usage: xllim_cli.py COMMAND H5_FILE <OTHER_FILE>
-#
-# Usage examples:
-#      xllim_cli.py print model.h5
-#      xllim_cli.py edit  model.h5
-#      xllim_cli.py train model.h5
-#      xllim_cli.py predict -o output_file model.h5 observations.json
-#      xllim_cli.py import [functional|geometries|train-data|model] source.[py|h5|json] target_model.h5
-#      xllim_cli.py export [train-data|model|predictions] model.h5 output_file
-# 2. Edit the configuration in a model.h5 file and import geometries if provided:
-#      xllim_cli.py edit  model.h5 <--geometries geometries.json>
-# 3. Import functional model from an external model implementation, import configuration from a h5 file
-#      xllim_cli.py import functional file_with_functional_model.h5 target.h5
-# 4. Import train data
-#      xllim_cli.py import train-data train_data.[h5|json] target.h5
-#
-
-# Outputs are in netcdf format
+# Copyright (C) 2025 Inria
 
 import argparse
 import ast
 import json
 import pickle
 import h5py
+from zipfile import ZipFile
 import logging
 import os
+import fnmatch
 import numpy as np
 from datetime import datetime
+try:
+    from osgeo import gdal
+except ImportError:
+    import gdal
 try:
     import xllim
 except ImportError as e:
@@ -482,7 +471,7 @@ def generate_data(h5f):
         now = datetime.now()
         date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
         attrs = group.attrs
-        info_text = f"generated using {model_type} on {date_time}"
+        info_text = f"generated using {f_model} on {date_time}"
         attrs.create("source", info_text, dtype=H5_STRING)
 
         h5f.flush()
@@ -564,37 +553,83 @@ def train_model(h5f):
     return
 
 
+def get_wavelengths_laboratory(data):
+    return data['wavelengths']
+
+def get_wavelengths_remote_sensing(data_rho):
+    header = data_rho.GetMetadata_Dict() # {'Band_1': '0.1', 'Band_10': '0.5', 'Band_11': '0.6' ...}. Bands are not sorted here.
+    wavelengths = list(header.values())
+    wavelengths.sort()
+    return wavelengths
+
+def get_reflectances_laboratory(data, relative_uncertainty):
+    reflectances = []
+    keys = []
+    for key in data.keys():
+        if key.startswith('reflectance'):
+            keys.append(key)
+            observations = []
+            for wavelength in data[key]:
+                if len(wavelength) == 2:
+                    observations.append({
+                        'reflectances': wavelength[0],
+                        'incertitudes': wavelength[1]
+                    })
+                else:
+                    observations.append({
+                        'reflectances': wavelength[0],
+                        'incertitudes': [reflectance * relative_uncertainty for reflectance in wavelength[0]]
+                    })
+            reflectances.append(observations)
+    return reflectances, keys
+
+def get_reflectances_remote_sensing(data_rho, data_drho):
+
+    nb_geometries = data_rho.RasterXSize    # samples
+    nb_scenes = data_rho.RasterYSize        # lines
+    nb_wavelengths = data_rho.RasterCount   # bands
+
+    reflectances_raster = data_rho.ReadAsArray().reshape(nb_wavelengths, nb_scenes, nb_geometries)
+    incertitude_raster = data_drho.ReadAsArray().reshape(nb_wavelengths, nb_scenes, nb_geometries)
+
+    reflectances = []
+    for scene in range(nb_scenes):
+        observations = []
+        for wavelength in range(nb_wavelengths):
+            observations.append({
+                'reflectances': np.array(reflectances_raster[wavelength, scene, :], dtype=np.double),
+                'incertitudes': np.array(incertitude_raster[wavelength, scene, :], dtype=np.double)
+            })
+        reflectances.append(observations)
+
+    return reflectances
+
+
 def _load(observations_file_path):
     relative_uncertainty = 0.1  # TODO which config should have it?
     if observations_file_path.endswith('.json'):
         with open(observations_file_path) as f:
             observations_data = json.load(f)
         observations_title = list(observations_data.keys())[0]
-        data = observations_data[observations_title]
-
-        reflectances = []
-        for key in data.keys():
-            if key.startswith('reflectance'):
-                observations = []
-                for wavelength in data[key]:
-                    if len(wavelength) == 2:
-                        observations.append({
-                            'reflectances': wavelength[0],
-                            'incertitudes': wavelength[1]
-                        })
-                    else:
-                        observations.append({
-                            'reflectances': wavelength[0],
-                            'incertitudes': [reflectance * relative_uncertainty for reflectance in wavelength[0]]
-                        })
-                reflectances.append(observations)
-    elif observations_file_path.endswith('.nc'):  # TODO NetCDF or a .zip file with 2 files?
-        pass
+        observations_content = observations_data[observations_title]
+        data_global_relative_uncertainty = relative_uncertainty
+        wavelengths = get_wavelengths_laboratory(observations_content)
+        observations, keys = get_reflectances_laboratory(observations_content, data_global_relative_uncertainty)
+        observations = np.array(observations)
+    # chaeck if observations_file_path is a directory
+    elif os.path.isdir(observations_file_path):
+        with ZipFile(observations_file_path, 'r') as zip_ref:
+            zip_ref.extractall()
+        data_rho = gdal.Open(os.path.splitext(observations_file_path)[0] + '_rho_mod', gdal.GA_ReadOnly)
+        data_drho = gdal.Open(os.path.splitext(observations_file_path)[0] + '_drho', gdal.GA_ReadOnly)
+        wavelengths = get_wavelengths_remote_sensing(data_rho)
+        observations = get_reflectances_remote_sensing(data_rho, data_drho)
+        observations = np.array(observations)
+        keys = None
     else:
-        raise ValueError("Observations file must be a json file")
-
-    #return np.array(reflectances)
-    return reflectances
+        raise ValueError("Observations file must be a json file or a directory with ENVI data.")
+    
+    return observations, wavelengths, keys
 
 
 def importance_sampling(h5f, all_reflectances, all_incertitudes, predictions, nb_pred):
@@ -634,7 +669,245 @@ def importance_sampling(h5f, all_reflectances, all_incertitudes, predictions, nb
     return is_results
 
 
-def predict(h5f, observations_file_path, output_dir):
+def create_empty_output_indicators(N,M,L):
+    return {
+        'ESTIM_X': np.empty((N,M,L)),
+        'ESTIM_X_PHYSICAL_UNITS': np.empty((N,M,L)),
+        'STD_X': np.empty((N,M,L)),
+        'STD_X_PHYSICAL_UNITS': np.empty((N,M,L)),
+        'ERR_Y': np.empty((N,M))
+    }
+
+
+def create_empty_results_dictionnary(nb_samples, nb_wavelengths, L, nb_centers):
+    results = {
+        'pred_mean': create_empty_output_indicators(nb_samples, nb_wavelengths, L),
+        'imis_mean': create_empty_output_indicators(nb_samples, nb_wavelengths, L),
+        'x_best': create_empty_output_indicators(nb_samples, nb_wavelengths, L),
+        'MULT': np.empty((nb_samples,nb_wavelengths))
+    }
+    for i in range(nb_centers):
+        results['pred_center_' + (i+1).__str__()] = create_empty_output_indicators(nb_samples, nb_wavelengths, L)
+        results['imis_center_' + (i+1).__str__()] = create_empty_output_indicators(nb_samples, nb_wavelengths, L)
+        results['REGU_CENTER_' + (i+1).__str__() + '_PRED_PHYSICAL_UNITS'] = np.empty((nb_samples,nb_wavelengths,L))
+        results['REGU_CENTER_' + (i+1).__str__() + '_IMIS_PHYSICAL_UNITS'] = np.empty((nb_samples,nb_wavelengths,L))
+
+    return results
+
+
+def compute_reconstruction_error(reconstruction, observation):
+    return np.linalg.norm(observation - reconstruction) / (1e-10 + np.linalg.norm(observation))
+
+def compute_multiplicity_index(predictions, observation, reconstructions):
+    M = predictions.shape[0]
+    L = predictions.shape[1]
+
+    # Compute p_tilda
+    p_tilda = np.empty(shape=M)
+    for i in range(M):
+        p_tilda[i] = np.exp(-0.5 * np.sum(np.square(reconstructions[i] - observation)))
+
+    # Compute p
+    p = np.empty(shape=M)
+    sum_p_tilda = np.sum(p_tilda)
+    for i in range(M):
+        p[i] = p_tilda[i] / sum_p_tilda
+
+    # Compute x
+    x_mean = np.zeros(shape=L)
+    for i in range(M):
+        x_mean += p[i] * predictions[i]
+
+    # Compute V
+    V = 0
+    for i in range(M):
+        V += p[i] * np.sum(np.square(predictions[i] - x_mean))
+
+    # Compute V_tilda
+    V_tilda = V / (0.25 - np.sqrt(np.sum(np.square(x_mean - 0.5)))/ L)
+
+    return V_tilda
+
+
+def write_indicators(pred_type, id_sample, id_wavelength, mean, var, obs, results, physical_model, reconstructions, predictions_post, reconstruction_error_min, best_pred_type):
+    
+    reconstruction = physical_model.F(mean)
+    reconstruction_error = compute_reconstruction_error(reconstruction, obs)
+    if reconstruction_error < reconstruction_error_min:
+        reconstruction_error_min = reconstruction_error
+        best_pred_type = pred_type
+    reconstructions.append(reconstruction)
+    predictions_post.append(mean)
+
+    results[pred_type]['ESTIM_X'][id_sample,id_wavelength,:] = mean
+    results[pred_type]['STD_X'][id_sample,id_wavelength,:] = np.sqrt(var)
+    results[pred_type]['ERR_Y'][id_sample,id_wavelength] = reconstruction_error
+    results[pred_type]['ESTIM_X_PHYSICAL_UNITS'][id_sample,id_wavelength,:] = physical_model.toPhysic(mean)
+    results[pred_type]['STD_X_PHYSICAL_UNITS'][id_sample,id_wavelength,:] = physical_model.toPhysic(results[pred_type]['STD_X'][id_sample,id_wavelength,:])
+
+    return best_pred_type, reconstruction_error_min
+
+
+def store_best_prediction(best_pred_type, id_sample, id_wavelength, results):
+    results['x_best']['ESTIM_X'][id_sample,id_wavelength,:] = results[best_pred_type]['ESTIM_X'][id_sample,id_wavelength,:]
+    results['x_best']['STD_X'][id_sample,id_wavelength,:] = results[best_pred_type]['STD_X'][id_sample,id_wavelength,:]
+    results['x_best']['ERR_Y'][id_sample,id_wavelength] = results[best_pred_type]['ERR_Y'][id_sample,id_wavelength]
+    results['x_best']['ESTIM_X_PHYSICAL_UNITS'][id_sample,id_wavelength,:] = results[best_pred_type]['ESTIM_X_PHYSICAL_UNITS'][id_sample,id_wavelength,:]
+    results['x_best']['STD_X_PHYSICAL_UNITS'][id_sample,id_wavelength,:] = results[best_pred_type]['STD_X_PHYSICAL_UNITS'][id_sample,id_wavelength,:]
+
+
+def regularize_sample(id_sample, series, series_imis, results):
+    # series are (L, nb_wavelengths, nb_centers)
+    nb_wavelengths = series.shape[1]
+    nb_centers = series.shape[2]
+    permutations = xllim.regularize(np.array(series, dtype=np.double))
+    permutations_imis = xllim.regularize(np.array(series_imis, dtype=np.double))
+    # permutations have shape (nb_centers, nb_wavelengths)
+    for i in range(nb_wavelengths):
+        for k in range(nb_centers):
+            results['REGU_CENTER_' + (k+1).__str__() + '_PRED_PHYSICAL_UNITS'][id_sample,i,:] = series[:,i,int(permutations[k, i])]
+            results['REGU_CENTER_' + (k+1).__str__() + '_IMIS_PHYSICAL_UNITS'][id_sample,i,:] = series_imis[:,i,int(permutations_imis[k, i])]
+
+
+def compile_results(predictions, imis_results, observations, physical_model):
+
+    nb_centers = predictions.mergedGMM.weights.shape[1]
+    nb_samples = observations.shape[0]
+    nb_wavelengths = observations.shape[1]
+    L = physical_model.getDimensionX()
+
+    # faster handling in large loops (accessing objects attributes much longer than Python slicing)
+    predictions_mean = predictions.mergedGMM.mean                                           # (L, nb_observations)
+    predictions_variance = predictions.mergedGMM.variance                                   # (L, L, nb_observations)
+    predictions_means = predictions.mergedGMM.means                                         # (L, nb_observations, nb_centers)
+    predictions_covs = predictions.mergedGMM.covs                                           # list[(L, L, nb_centers)] with length = nb_observations
+    imis_mean = np.array([result.predictions.T for result in imis_results]).T               # (L, nb_observations, nb_centers + 1)
+    imis_variance = np.array([result.predictions_variance.T for result in imis_results]).T  # (L, nb_observations, nb_centers + 1)
+
+    results = create_empty_results_dictionnary(nb_samples, nb_wavelengths, L, nb_centers)
+
+    for id_sample in range(nb_samples):
+
+        for id_wavelength in range(nb_wavelengths):
+
+            id_observation = id_wavelength + id_sample * nb_wavelengths
+            obs = observations[id_sample, id_wavelength]['reflectances']
+
+            # for multiplicity index
+            predictions_post = []
+            reconstructions = []
+
+            # for X best estimation
+            reconstruction_error_min = np.inf
+            best_pred_type  = 'pred_mean'
+
+            best_pred_type, reconstruction_error_min = write_indicators('pred_mean', id_sample, id_wavelength,
+                                                    predictions_mean[:,id_observation], predictions_variance[:,:,id_observation].diagonal(), obs, results,
+                                                    physical_model, reconstructions, predictions_post, reconstruction_error_min, best_pred_type)
+
+            best_pred_type, reconstruction_error_min = write_indicators('imis_mean', id_sample, id_wavelength,
+                                                    imis_mean[:,id_observation,0], imis_variance[:,id_observation,0], obs, results,
+                                                    physical_model, reconstructions, predictions_post, reconstruction_error_min, best_pred_type)
+
+            for i in range(nb_centers):
+                suffix = f'center_{i + 1}'
+
+                best_pred_type, reconstruction_error_min = write_indicators(f'pred_{suffix}', id_sample, id_wavelength,
+                                                    predictions_means[:,id_observation,i], predictions_covs[id_observation][:, :, i].diagonal(), obs, results,
+                                                    physical_model, reconstructions, predictions_post, reconstruction_error_min, best_pred_type)
+
+                best_pred_type, reconstruction_error_min = write_indicators(f'imis_{suffix}', id_sample, id_wavelength,
+                                                    imis_mean[:,id_observation,i+1], imis_variance[:,id_observation,i+1], obs, results,
+                                                    physical_model, reconstructions, predictions_post, reconstruction_error_min, best_pred_type)
+
+            results['MULT'][id_sample,id_wavelength] = compute_multiplicity_index(np.array(predictions_post), obs, reconstructions)
+            store_best_prediction(best_pred_type, id_sample, id_wavelength, results)
+
+        # Regularize center predictions on wavelengths
+        regularize_sample(id_sample, predictions_means[:,id_sample * nb_wavelengths : (id_sample + 1) * nb_wavelengths,:],
+            imis_mean[:,id_sample * nb_wavelengths : (id_sample + 1) * nb_wavelengths, 1:], results)
+        # Transform to physical space
+        for i in range(nb_centers):
+            for id_wavelength in range(nb_wavelengths):
+                results['REGU_CENTER_' + (i+1).__str__() + '_PRED_PHYSICAL_UNITS'][id_sample, id_wavelength, :] = physical_model.toPhysic(results['REGU_CENTER_' + (i+1).__str__() + '_PRED_PHYSICAL_UNITS'][id_sample, id_wavelength, :])
+                results['REGU_CENTER_' + (i+1).__str__() + '_IMIS_PHYSICAL_UNITS'][id_sample, id_wavelength, :] = physical_model.toPhysic(results['REGU_CENTER_' + (i+1).__str__() + '_IMIS_PHYSICAL_UNITS'][id_sample, id_wavelength, :])
+
+    return results
+
+
+def write_json_file(results, folder_path, wavelengths, keys):
+    file_names = []
+    title = "" #  f"prediction_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+    for element in results.keys():  # loop over prediction type
+        to_write = {title: {
+            "wavelengths": wavelengths
+        }}
+        sample = 0
+        for key in keys:  # loop over samples
+            if key.startswith('reflectance'):
+                to_write[title][key] = {}
+                if any(fnmatch.fnmatch(element, pattern) for pattern in ['MULT', 'REGU_CENTER_*_PRED_PHYSICAL_UNITS', 'REGU_CENTER_*_IS_PHYSICAL_UNITS', 'REGU_CENTER_*_IMIS_PHYSICAL_UNITS']):
+                    to_write[title][key][element] = results[element][sample].tolist()
+                else:
+                    for cube in results[element].keys():  # loop over result type
+                        to_write[title][key][cube] = results[element][cube][sample].tolist()
+                sample += 1
+
+        file_names.append(title + '_' + element + ".json")
+        with open(os.path.join(folder_path, title + '_' + element + ".json"), 'w') as results_file:
+            json.dump(to_write, results_file, indent=4)
+    
+    return
+
+
+def write_envi_file(array, element, folder_path, wavelengths):
+    envi_driver = gdal.GetDriverByName("ENVI")
+    dim_size = len(array.shape)
+    dst_ds = envi_driver.Create(os.path.join(folder_path, element),
+                                xsize=(array.shape[2] if dim_size==3 else 1), # samples (envi) / L (planetgllim) or 1
+                                ysize=array.shape[0], # lines (envi) / nb_scenes (planetgllim)
+                                bands=array.shape[1], # bands (envi) / nb_wave (planetgllim)
+                                eType=gdal.GDT_Float32)
+    for k in range(array.shape[1]): # k is wavelength index
+        band = dst_ds.GetRasterBand(k + 1)
+        if dim_size == 3:
+            band.WriteArray(array[:, k, :])
+        else:
+            band.WriteArray(np.array(array[:, k]).reshape(array.shape[0], 1))
+    dst_ds.FlushCache()
+    envi_label = open(os.path.join(folder_path, element + ".hdr"), "a")
+    envi_label.write('wavelength = { ')
+    envi_label.write(', '.join(map(str, wavelengths)))
+    envi_label.write('}\n')
+    envi_label.close()
+
+
+# def zip_file(folder_path, file_names):
+#     zipObj = ZipFile(os.path.join(folder_path, 'results.zip'), 'w')
+#     for filename in file_names:
+#         zipObj.write(os.path.join(folder_path, filename), filename)
+#         os.remove(os.path.join(folder_path, filename))
+#     zipObj.close()
+
+#     return os.path.join(folder_path, 'results.zip')
+
+
+def write_remote_sensing_file(results, folder_path, wavelengths):
+    file_names = []
+    for element in results.keys():
+        if any(fnmatch.fnmatch(element, pattern) for pattern in ['MULT', 'REGU_CENTER_*_PRED_PHYSICAL_UNITS', 'REGU_CENTER_*_IS_PHYSICAL_UNITS', 'REGU_CENTER_*_IMIS_PHYSICAL_UNITS']):
+            file_names.append(element)
+            write_envi_file(results[element], element, folder_path, wavelengths)
+            file_names.append(element + ".hdr")
+        else:
+            for cube in results[element].keys():
+                file_names.append(element + '_' + cube)
+                write_envi_file(results[element][cube], element + '_' + cube, folder_path, wavelengths)
+                file_names.append(element + '_' + cube + ".hdr")
+    # return zip_file(folder_path, file_names)
+
+
+def predict(h5f, observations_file_path, output_dir, output_format):
     # get gllim model from file
     ds_name = H5_DATA_SETS["gllim_model"]
     if ds_name not in h5f:
@@ -647,13 +920,12 @@ def predict(h5f, observations_file_path, output_dir):
     gllim.setParams(gllim_params)
 
     # load observations ------------------
-    observations = _load(observations_file_path)
+    observations, wavelengths, keys = _load(observations_file_path)
     # load prediction configuration
 
     # predict ----------------------------
-    nb_samples = len(observations)
-    nb_wavelengths = len(observations[0])
-    nb_geometries = len(observations[0][0]['reflectances'])
+    nb_samples = observations.shape[0]
+    nb_wavelengths = observations.shape[1]
     nb_pred = nb_samples * nb_wavelengths
     # predictions = np.empty((nb_samples, nb_wavelengths), dtype=object)
     logging.info("[Prediction] Starting estimation of {} predictions composed of {} samples/scenes and {} wavelengths".format(nb_pred, nb_samples, nb_wavelengths))
@@ -663,10 +935,8 @@ def predict(h5f, observations_file_path, output_dir):
     all_incertitudes = np.empty((len(observations[0,0]['incertitudes']), nb_pred))
     for id_sample, sample in enumerate(observations):
         for id_wavelength, wavelength in enumerate(sample):
-            n_obs = id_wavelength + id_sample * nb_wavelengths
-            all_reflectances[:,n_obs] = wavelength['reflectances']
-            all_incertitudes[:,n_obs] = wavelength['incertitudes']
-
+            all_reflectances[:, id_wavelength + id_sample * nb_wavelengths] = wavelength['reflectances']
+            all_incertitudes[:, id_wavelength + id_sample * nb_wavelengths] = wavelength['incertitudes']
     predictions = gllim.inverseDensities(all_reflectances, all_incertitudes, *_prediction(h5f), 0) # PredictionResult(N_obs, L, K)
     logging.info("  Predictions step is done")
 
@@ -676,8 +946,11 @@ def predict(h5f, observations_file_path, output_dir):
 
     # write to output folder ----------------
 
-    # results = write_results(predictions, is_results, observations, physical_model)
-    # logging.info("  Results are saved in files")
+    results = compile_results(predictions, is_results, observations, _physical_model(h5f))
+    if output_format == 'envi':
+        write_remote_sensing_file(results, output_dir, wavelengths)
+    elif output_format == 'json':
+        write_json_file(results, output_dir, wavelengths, keys)
 
 
 def main():
@@ -727,7 +1000,11 @@ def main():
     predict_parser.add_argument(
         "observations_file", help="Path to the observations file (e.g., observations.json)")
     predict_parser.add_argument(
-        "output_directory", help="Path to the output directory. It will be created if needed.")
+        "output", help="Path to the output directory. It will be created if needed.")
+    # optional output-format argument. format can be JSON or ENVI
+    predict_parser.add_argument(
+        "-f", "--output-format", choices=["json", "envi"], default="json",
+        help="Output format (default: json)")
 
     # Import command
     import_parser = subparsers.add_parser(
@@ -788,9 +1065,9 @@ def main():
         elif args.command == "train":
             train_model(h5f)
         elif args.command == "predict":
-            if not os.path.exists(args.output_directory):
-                os.makedirs(args.output_directory)
-            predict(h5f, args.observations_file, args.output_directory)
+            if not os.path.exists(args.output):
+                os.makedirs(args.output)
+            predict(h5f, args.observations_file, args.output, args.output_format)
         elif args.command == "import":
             import_data(args.import_type, args.source_file, h5f)
         else:
