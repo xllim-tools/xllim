@@ -1053,18 +1053,19 @@ def _write_results_to_npz(h5f, predictions, is_predicitions, name: str, output_d
             np.savez(out_file, mean=a, variance=b, weights=c, means=d, covs=e)
         else:
             logger.info("No data in gllim_mergedGMM results. Skipping")
-    
-    if "is_on_fullGMM" in is_predicitions:
-        is_res = is_predicitions["is_on_fullGMM"]
-        a = is_res.predictions
-        b = is_res.predictions_variance
-        c = is_res.nb_effective_sample
-        d = is_res.effective_sample_size
-        e = is_res.qn
-        out_file = os.path.join(output_dir, name + "is_on_fullGMM")
-        logger.info(f"Writing results: {out_file}")
-        np.savez(out_file, predictions=a, pred_variance=b, nb_effective_sample=c,
-                    effective_sample_size=d, qn=e)
+
+    for variant in ("is_on_fullGMM", "is_on_mergedGMM"): 
+        if variant in is_predicitions:
+            is_res = is_predicitions[variant]
+            a = is_res.predictions
+            b = is_res.predictions_variance
+            c = is_res.nb_effective_sample
+            d = is_res.effective_sample_size
+            e = is_res.qn
+            out_file = os.path.join(output_dir, name + variant)
+            logger.info(f"Writing results: {out_file}")
+            np.savez(out_file, predictions=a, pred_variance=b, nb_effective_sample=c,
+                        effective_sample_size=d, qn=e)
     
     if "is_on_centers" in is_predicitions:
         for i, is_center_res in enumerate(is_predicitions["is_on_centers"]):
