@@ -197,6 +197,11 @@ ImportanceSamplingResult FunctionalModel::importanceSampling(const MergedGMMResu
     const unsigned N_obs = mergedGMM.weights.n_rows;
     const unsigned K = mergedGMM.weights.n_cols;
 
+    if (K == 0)
+    {
+        throw std::invalid_argument("mergedGMM is empty. Check k_merged parameter.");
+    }
+
     if (idx_gaussian == -1) // apply IMIS on all gaussians
     {
         for (size_t n = 0; n < N_obs; n++)
