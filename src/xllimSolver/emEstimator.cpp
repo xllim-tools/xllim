@@ -1,9 +1,9 @@
-#include "omp.h"
+// #include "omp.h"
 #include "emEstimator.hpp"
 #include "../utils/utils.hpp"
 #include "../logging/logger.hpp"
 
-#include <omp.h>
+// #include <omp.h>
 
 // ! Useful notation
 // A_w_k = theta.A.slice(k).tail_cols(theta.L_w) // TODO is it possible to do an alias ?

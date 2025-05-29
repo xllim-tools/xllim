@@ -1,0 +1,30 @@
+# xllim/__init__.py
+from ._core import *
+from .utils import save_gllim_to_npz # Import your Python utility function
+from .cli import main as run_cli # To potentially run cli programmatically
+
+# Define what `from xllim import *` imports (optional, but good practice)
+# __all__ = [
+#     "Gllim",
+#     "save_gllim_to_npz",
+#     "run_cli"
+# ]
+
+# You can also define __version__ here, though scikit-build-core can also inject it
+# from ._version import version as __version__ # If using scikit-build-core versioning
+# Or simply:
+try:
+    from importlib.metadata import version, PackageNotFoundError
+    try:
+        __version__ = version("xllim")
+    except PackageNotFoundError:
+        # package is not installed
+        __version__ = "0.0.0.dev0" # Or some placeholder
+except ImportError:
+    # For Python < 3.8
+    from pkg_resources import get_distribution, DistributionNotFound
+    try:
+        __version__ = get_distribution("xllim").version
+    except DistributionNotFound:
+        # package is not installed
+        __version__ = "0.0.0.dev0"

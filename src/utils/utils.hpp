@@ -2,7 +2,7 @@
 #define UTILS_HPP
 
 #include <armadillo>
-#include <omp.h>
+// #include <omp.h>
 using namespace arma;
 
 namespace utils

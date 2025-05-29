@@ -2,7 +2,7 @@
 
 #include "../../src/utils/utils.hpp"
 #include <armadillo>
-#include <omp.h>
+// #include <omp.h>
 
 using namespace arma;
 
