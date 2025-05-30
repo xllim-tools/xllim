@@ -22,6 +22,11 @@ set(CMAKE_CXX_FLAGS_RELEASE_INIT "-O2 -DNDEBUG")
 # endif()
 # For finer control, scikit-build-core usually passes -DCMAKE_BUILD_TYPE=Release or Debug
 
+# config for carma's cmake
+set(USE_ARMA_VERSION "12.6.x")
+# set(PYBIND11_ROOT_DIR "extern/pybind11")
+set(USE_PYBIND11_VERSION "v2.11.1")
+
 # Option to control test building (good for users installing the Python package)
 option(XLLIM_BUILD_TESTS "Build C++ tests" OFF) # Default to OFF for package builds
 
