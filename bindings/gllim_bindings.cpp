@@ -175,12 +175,12 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
                   GLLiMParametersArray<TGamma, TSigma> p(0, 0, 0);
 
                   // Restore the state from the tuple
-                  p.Pi = t[0].cast<decltype(p.Pi)>();
-                  p.A = t[1].cast<decltype(p.A)>();
-                  p.B = t[2].cast<decltype(p.B)>();
-                  p.C = t[3].cast<decltype(p.C)>();
-                  p.Gamma = t[4].cast<decltype(p.Gamma)>();
-                  p.Sigma = t[5].cast<decltype(p.Sigma)>();
+                  p.Pi = carma::arr_to_row(t[0].cast<py::array_t<double>>());
+                  p.A = carma::arr_to_cube(t[1].cast<py::array_t<double>>());
+                  p.B = carma::arr_to_mat(t[2].cast<py::array_t<double>>());
+                  p.C = carma::arr_to_mat(t[3].cast<py::array_t<double>>());
+                  p.Gamma = TGamma::from_python_array(t[4].cast<py::array_t<double>>());
+                  p.Sigma = TSigma::from_python_array(t[5].cast<py::array_t<double>>());
 
                   return p;
              }));

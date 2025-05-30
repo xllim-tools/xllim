@@ -153,8 +153,9 @@ add_library(xllim_solver STATIC
     src/xllimSolver/covariances/isoCovariance.cpp
 )
 set_target_properties(xllim_solver PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(xllim_solver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(xllim_solver PUBLIC armadillo::armadillo)
+target_include_directories(xllim_solver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CARMA_BINARY_INCLUDE_DIR})
+target_link_libraries(xllim_solver PUBLIC armadillo::armadillo pybind11::headers carma::carma)
 # target_link_libraries(xllim_solver PUBLIC OpenMP::OpenMP_CXX armadillo::armadillo)
 
 # ##############################################################################
