@@ -75,6 +75,7 @@ deploy-xllim-minimal-docker-image:
         - docker pull $CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH
         - docker run -it -d --rm --name xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH
         - docker cp xllim*.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
+        - docker cp xllim_cli.py xllim_minimal_temp_container:/usr/bin/xllim_cli
         - docker commit xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_minimal
         - docker stop xllim_minimal_temp_container
         - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"

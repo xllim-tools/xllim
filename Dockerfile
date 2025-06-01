@@ -11,7 +11,8 @@ RUN apt-get install -y --no-install-recommends \
 	python3-numpy \
 	python3-pybind11 \
 	libarmadillo10 \
-	libgomp1
+	libgomp1 \
+	libpython3.10
 
 # (optional) Copy some python scripts to test xllim in docker container
 RUN mkdir /home/pythonTests && mkdir /home/dataRef
