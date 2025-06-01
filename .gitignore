@@ -9,6 +9,10 @@
 *.exe
 *.log
 *.tmp
+*.h5
+*.npz
+*.nc
+*.conda
 
 # macOS cache
 .DS_Store
@@ -32,3 +36,6 @@ tests/pythonTests/comparative_performance_table.csv
 tests/dataRef/savedFiles/*
 # exception to the rule
 !tests/pythonTests/dataRef/savedFiles/.gitkeep
+
+dist/
+sample_data_allgo/
