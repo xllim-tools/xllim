@@ -10,6 +10,7 @@ RUN apt-get install -y --no-install-recommends \
 	python3 \
 	python3-numpy \
 	python3-pybind11 \
+	python3-h5py \
 	libarmadillo10 \
 	libgomp1 \
 	libpython3.10
