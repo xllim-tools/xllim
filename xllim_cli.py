@@ -29,7 +29,6 @@ except ImportError:
         gdal = Mock()
         print("\nWARNING: GDAL not found. ENVI file operations will not work.\n")
 
-# Attempt xllim import, provide a basic mock if not found
 try:
     import xllim
 except ImportError as e:
@@ -179,6 +178,7 @@ H5_ALL_ORDERED = [FUNCTIONAL, GEOMETRIES, GENERATOR, TRAIN_DATA,
                   GLLIM_MODEL, TRAINED_MODEL,
                   IMPORTANCE_SAMPLING, PREDICTION,
                   OUTPUT]
+H5_DATA_SETS = {"trained_gllim": TRAINED_MODEL, "geometries": GEOMETRIES, "train_data": TRAIN_DATA}
 
 # --- Configuration Options ---
 # Format: (attribute_name, help_string, allowed_values_tuple_or_None, hdf5_dtype)
@@ -617,7 +617,7 @@ def import_data(what_to_import: str, source_file_path: str, h5f: h5py.File):
     try:
         if what_to_import == "geometries":
             import_geometries(source_file_path, h5f)
-        elif what_to_import == "train-data":
+        elif what_to_import == "train_data":
             if not source_file_path.lower().endswith('.npz'):
                 raise ValueError("Train data source file must be an NPZ file.")
             logger.info(f"Importing training data from NPZ: {source_file_path}")
@@ -1116,6 +1116,27 @@ def predict(h5f: h5py.File, observations_file_path: str, output_dir: str, output
     except (ValueError, KeyError, RuntimeError, IOError, AttributeError, TypeError) as e:
         logger.critical(f"--- Prediction Workflow FAILED: {e} ---")
 
+def export_data(h5f: h5py.File, what_to_export: str, output_file: str):
+    if what_to_export not in H5_DATA_SETS.keys():
+        logger.error(f"{what_to_export} must be on of: {H5_DATA_SETS.keys()}")
+        return
+    if not output_file.endswith(".npz"):
+        output_file += ".npz"
+    if os.path.isfile(output_file):
+        logger.warning(f"File {output_file} exists and will be overwritten")
+    ds = H5_DATA_SETS[what_to_export]
+    res = {}
+    for name in ds.datasets:
+        data = ds.get_data_set(h5f, name)
+        if data is not None:
+            res[name] = data
+    if len(res.keys()) > 0:
+        np.savez(output_file, **res)
+        logger.info(f"{what_to_export} exported to {output_file}")
+    else:
+        logger.error(f"File '{h5f.filename}' has no {what_to_export}")
+    
+
 # --- Main Execution ---
 
 def main():
@@ -1163,10 +1184,16 @@ def main():
 
     # Import command
     import_parser = subparsers.add_parser("import", help="Import data into the HDF5 file")
-    import_parser.add_argument("import_type", choices=["geometries", "train-data"], help="Type of data to import")
+    import_parser.add_argument("import_type", choices=["geometries", "train_data"], help="Type of data to import")
     add_source_file_arg(import_parser) # Source format depends on import_type
     add_model_file_arg(import_parser)
 
+    # Export command
+    export_parser = subparsers.add_parser("export", help="Export data from the HDF5 file to .npz")
+    export_parser.add_argument("what_to_export", choices=["geometries", "train_data", "trained_gllim"], help="Which data to export")
+    add_model_file_arg(export_parser)
+    export_parser.add_argument("output_file", help="Name of the file to which data will be exported")
+    
     # Parse arguments
     args = parser.parse_args()
 
@@ -1203,6 +1230,8 @@ def main():
             predict(h5f, args.observations_file, args.output, args.output_format)
         elif args.command == "import":
             import_data(args.import_type, args.source_file, h5f)
+        elif args.command == "export":
+            export_data(h5f, args.what_to_export, args.output_file)
     return # end of main()
 
 
