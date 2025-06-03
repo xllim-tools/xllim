@@ -15,48 +15,42 @@ build:
 
 requirements:
   build:
-    - {{ compiler('cxx') }}     # C++ compiler (e.g., gxx_linux-64, clangxx_osx-64)
+    - {{ compiler('cxx') }}
     - cmake >=3.18
     - ninja
     - make
     - git
 
   host:
-    - python =3.11
+    - python =3.10
     - pip
-    - setuptools >=42            # Needed by pip/build process
-    - wheel                      # Needed by pip/build process
+    - setuptools >=42
+    - wheel
     - scikit-build-core >=0.7.0
-    - numpy >=1.20,<2.0          # Also needed at host/runtime for carma/pybind11 bindings
-    - boost                      # Or boost-cpp for just the C++ libs
-    - openblas                   # Or mkl, blis - provides BLAS and LAPACK
-    - Armadillo         # 12.6.x From conda-forge
-    # - lapack                   # Often provided by the BLAS package (like openblas)
+    - numpy >=1.21,<1.22
+    - boost
+    - openblas >=0.3.29
+    - Armadillo 12.6.7
 
   run:
-    - python =3.11
-    - numpy >=1.20,<2.0
+    - python =3.10
+    - numpy >=1.21,<1.22
     - h5py
-    - openblas
+    - openblas >=0.3.29
     - libstdcxx-ng  # [linux]
 
 test:
   imports:
     - xllim
-    - xllim._core # Try importing the C++ module directly
+    - xllim._core
     - xllim.cli
     - xllim.utils
   commands:
     - xllim_cli --help  # Test if the command-line tool is installed and works
-    # Optional: Run a small Python script that uses the library
-    # - python -c "import xllim; model = xllim.Gllim(2,1); print('Test OK')"
   requires:
     - pip # For pip check
   source_files: # Optional: if you have C++ tests you want to run as part of conda build
     - tests/
-  # To run C++ tests (more advanced, requires tests to be built by CMake during conda build):
-  # script:
-  #   - ctest --output-on-failure # Assuming CMake tests were built and registered
 
 about:
   home: https://gitlab.inria.fr/xllim # Your project's homepage
@@ -65,8 +59,7 @@ about:
   summary: 'Python package for XLLiM with C++ core'
   description: |
     A longer description of your package.
-  doc_url: # URL to your documentation
-  dev_url: https://gitlab.inria.fr/xllim # URL to your development repository
+  doc_url: https://xllim.gitlabpages.inria.fr/xllim/index.html
+  dev_url: https://gitlab.inria.fr/xllim
 
-# Optional: For uploading to Anaconda.org
 anaconda_upload: False

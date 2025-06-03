@@ -1,7 +1,5 @@
-cmake_minimum_required(VERSION 3.18) # Updated for modern CMake practices, 3.4 is very old
+cmake_minimum_required(VERSION 3.18)
 
-# Project name for the C++ build part.
-# The version here is for the C++ build, Python package version is in pyproject.toml
 project(xllim_cpp_core LANGUAGES CXX VERSION 2.0.0)
 
 # ##############################################################################
@@ -10,24 +8,13 @@ project(xllim_cpp_core LANGUAGES CXX VERSION 2.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF) # Good practice
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set compiler flags for different build types
-# These can also be set via CMAKE_BUILD_TYPE by scikit-build-core
 set(CMAKE_CXX_FLAGS_DEBUG_INIT "-O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE_INIT "-O2 -DNDEBUG")
-# Add Armadillo specific flags if needed, but prefer to do this via target_compile_definitions
-# if(CMAKE_BUILD_TYPE STREQUAL "Release")
-#   add_compile_definitions(ARMA_NO_DEBUG ARMA_DONT_USE_OPENMP) # NOPROGRESS can also be added
-# endif()
-# For finer control, scikit-build-core usually passes -DCMAKE_BUILD_TYPE=Release or Debug
 
-# config for carma's cmake
-# set(USE_ARMA_VERSION "12.6.x")
-# set(PYBIND11_ROOT_DIR "extern/pybind11")
 set(USE_PYBIND11_VERSION "v2.11.1")
 
-# Option to control test building (good for users installing the Python package)
 option(XLLIM_BUILD_TESTS "Build C++ tests" OFF) # Default to OFF for package builds
 
 # ##############################################################################
@@ -47,21 +34,9 @@ else()
     message(FATAL_ERROR "BLAS or LAPACK not found by CMake. Armadillo needs them.")
 endif()
 
-# pybind11 (vendored)
-# scikit-build-core can provide pybind11. If you use the vendored one,
-# ensure pybind11_add_module is available.
-# If you want to let scikit-build-core find pybind11, you'd use:
-# find_package(pybind11 REQUIRED)
-# But since you have it in extern/, let's use that.
-add_subdirectory(extern/pybind11) # This makes pybind11::module etc. available
+add_subdirectory(extern/pybind11)
+add_subdirectory(extern/carma)
 
-# carma (vendored)
-# Note: ARMADILLO_ROOT_DIR might not be needed if Armadillo is found correctly by find_package.
-# If carma's CMake needs it, it's okay.
-# set(ARMADILLO_ROOT_DIR ${ARMADILLO_INCLUDE_DIRS}) # More robust if Armadillo_INCLUDE_DIRS is a list
-add_subdirectory(extern/carma) # This makes carma::carma available
-
-# Print carma version (from your original)
 file(READ "${carma_SOURCE_DIR}/CMakeLists.txt" ver)
 string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${ver})
 set(ver_major ${CMAKE_MATCH_1})
@@ -90,6 +65,16 @@ message(STATUS "Effective Python include directories: ${EFFECTIVE_PYTHON_INCLUDE
 # Main include directory for your project headers (e.g., include/gllim.hpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+if(UNIX AND NOT APPLE)
+    # For Linux, ensure RPATH points to the install lib dir and allows $ORIGIN
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    # When building, RPATH should include the install RPATH so it can find libs
+    # from the host environment if they are already in a layout similar to install.
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    # Also add directories from the linker search path (like those from dependencies) to RPATH
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
+
 # ##############################################################################
 #                           INTERNAL C++ LIBRARIES                             #
 # ##############################################################################
@@ -110,7 +95,6 @@ add_library(xllim_logging INTERFACE)
 target_include_directories(xllim_logging INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/logging # As per your original
 )
-# No PIC needed for INTERFACE library, no link libs unless they are INTERFACE usage requirements
 
 add_library(xllim_generator STATIC
     src/generator/RandomGenerator.cpp
@@ -118,7 +102,7 @@ add_library(xllim_generator STATIC
     src/generator/LatinCubeGenerator.cpp
 )
 set_target_properties(xllim_generator PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(xllim_generator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include) # If headers are in include/
+target_include_directories(xllim_generator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(xllim_generator PUBLIC armadillo::armadillo Boost::boost)
 
 add_library(xllim_functionalModel STATIC
@@ -129,8 +113,7 @@ add_library(xllim_functionalModel STATIC
 )
 set_target_properties(xllim_functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(xllim_functionalModel PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(xllim_functionalModel PUBLIC xllim_utils) # utils is also linked via xllim_utils
-# target_link_libraries(xllim_functionalModel PUBLIC xllim_utils OpenMP::OpenMP_CXX) # utils is also linked via xllim_utils
+target_link_libraries(xllim_functionalModel PUBLIC xllim_utils)
 
 set(CARMA_BINARY_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/extern/carma/include)
 add_library(xllim_pythonEmbed STATIC
@@ -142,7 +125,6 @@ target_include_directories(xllim_pythonEmbed PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/
     ${EFFECTIVE_PYTHON_INCLUDE_DIRS} 
     ${CARMA_BINARY_INCLUDE_DIR}
     )
-# target_link_libraries(xllim_pythonEmbed PUBLIC xllim_utils pybind11::embed carma::carma)
 target_link_libraries(xllim_pythonEmbed PUBLIC xllim_utils pybind11::headers carma::carma)
 
 add_library(xllim_solver STATIC
@@ -157,62 +139,33 @@ set_target_properties(xllim_solver PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(xllim_solver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CARMA_BINARY_INCLUDE_DIR})
 target_link_libraries(xllim_solver PUBLIC armadillo::armadillo pybind11::headers carma::carma)
-# target_link_libraries(xllim_solver PUBLIC OpenMP::OpenMP_CXX armadillo::armadillo)
 
 # ##############################################################################
 #                               PYTHON MODULE                                  #
 # ##############################################################################
 
-# The Python module target. Conventionally named `_core`.
-# This will produce xllim/_core.abi3.so or similar in the wheel.
 pybind11_add_module(_core MODULE
     bindings/xllim_bindings.cpp
 )
 
 target_link_libraries(_core PRIVATE
     xllim_functionalModel
-    xllim_pythonEmbed # If ExternalPythonModel is used by bindings
+    xllim_pythonEmbed
     xllim_solver
     xllim_generator
-    xllim_utils     # Already linked by others, but explicit is fine
-    xllim_logging   # Interface library, its include dirs and link libs are propagated
-    carma::carma    # This should bring in Armadillo linkage and includes
+    xllim_utils
+    xllim_logging
+    carma::carma
     Boost::boost
-    pybind11::module   # Link pybind11's module part
-    ${LAPACK_LIBRARIES} # Explicitly link LAPACK
-    ${BLAS_LIBRARIES}   # Explicitly link BLAS
+    pybind11::module
+    ${LAPACK_LIBRARIES}
+    ${BLAS_LIBRARIES}
 )
 
-# Ensure Armadillo include dirs are available to _core if not propagated correctly
-# target_include_directories(_core PRIVATE ${ARMADILLO_INCLUDE_DIRS}) # Already via armadillo::armadillo
-
-# Release build definitions for Armadillo (if not handled by CMAKE_BUILD_TYPE effects)
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR NOT CMAKE_BUILD_TYPE)
     target_compile_definitions(_core PRIVATE ARMA_NO_DEBUG ARMA_DONT_USE_OPENMP)
     # NOPROGRESS can be added if it's a define
 endif()
-
-
-# ##############################################################################
-#                               INSTALLATION (for Python Package)              #
-# ##############################################################################
-# This section is for scikit-build-core to package the Python module.
-# The `DESTINATION "."` combined with `install-dir = "xllim"` in pyproject.toml
-# means the .so/.pyd file will end up as `xllim/_core.xxx.so` in the package.
-
-install(TARGETS _core
-    LIBRARY DESTINATION "."  # Relative to install-dir from pyproject.toml
-    RUNTIME DESTINATION "."  # For Windows DLLs if any, though usually not needed for .pyd
-    COMPONENT python_module  # Optional, but good practice
-)
-
-# If you wanted to install headers for C++ developers (not for typical Python package user):
-# install(
-#     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-#     DESTINATION include/xllim # Standard practice: include/<library_name>
-#     COMPONENT देव
-#     FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
-# )
 
 
 # ##############################################################################
