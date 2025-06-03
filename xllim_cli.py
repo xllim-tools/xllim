@@ -99,16 +99,23 @@ class H5Group():
         return
     
     def print_datasets(self, h5f: h5py.File, verbose=False):
-        if self.datasets:
-            print(f"\t{self.name} datasets:")
+        if not self.datasets:
+            return
+        if self.h5_path + "/" + self.datasets[0] not in h5f and not verbose:
+            return
+        print(f"  {self.name} datasets:")
         for ds in self.datasets:
             path = self.h5_path + "/" + ds
             if path in h5f:
                 data = h5f[path][()] # type: ignore
                 if verbose:
-                    print(f"\t\t{ds} : {data}")
+                    print(f"\t{ds}: {data}")
                 else:
-                    print(f"\t\t{ds} : {data.shape}") # type: ignore
+                    print(f"\t{ds}: {data.shape}") # type: ignore
+            else:
+                if verbose:
+                    print(f"\t{ds}: (NO)")
+        print("")
         return
     
     def option_values(self, h5f: h5py.File, options):
@@ -143,13 +150,14 @@ class H5Group():
                 print(f"  {self.name} configuration:")
                 for key, value in attrs.items():
                     print(f"\t{key} : {value}")
+                print("")
             else:
-                print(f"\t{self.name}: YES")
+                print(f"  {self.name} config: YES")
                 if self.name == "functional":
                     model = FUNCTIONAL.get_value(h5f, "model")
                     print(f"\t\t({model})")
         else:
-            if verbose:
+            if verbose and not self.datasets:
                 print("\t(No attributes)")
     
 
@@ -167,6 +175,10 @@ IMPORTANCE_SAMPLING = H5Group("importance_sampling", "/importance_sampling_confi
 OUTPUT = H5Group("output", "/output_config")
 
 H5_CONFIGURABLE_GROUPS = [FUNCTIONAL, GENERATOR, GLLIM_MODEL, IMPORTANCE_SAMPLING, PREDICTION, OUTPUT]
+H5_ALL_ORDERED = [FUNCTIONAL, GEOMETRIES, GENERATOR, TRAIN_DATA,
+                  GLLIM_MODEL, TRAINED_MODEL,
+                  IMPORTANCE_SAMPLING, PREDICTION,
+                  OUTPUT]
 
 # --- Configuration Options ---
 # Format: (attribute_name, help_string, allowed_values_tuple_or_None, hdf5_dtype)
@@ -503,22 +515,17 @@ def _load_gllim_model(h5f: h5py.File) -> Any:
 
 def print_h5(h5f: h5py.File, verbose: bool):
     """Prints a summary or detailed view of the HDF5 file contents."""
-    print_order = [FUNCTIONAL, GEOMETRIES, GENERATOR, TRAIN_DATA,
-                   GLLIM_MODEL, TRAINED_MODEL,
-                   IMPORTANCE_SAMPLING, PREDICTION,
-                   OUTPUT]
     print(f"\n--- Contents of {h5f.filename} ---")
     
-    for section in print_order:
+    for section in H5_ALL_ORDERED:
         section.print_attributes(h5f, verbose=verbose)
         if section.name == "geometries":
             section.print_datasets(h5f, verbose=verbose)
         else:
             section.print_datasets(h5f, verbose=False)
-        print("") # Spacer
 
     groups = []
-    for gr in print_order:
+    for gr in H5_ALL_ORDERED:
         if gr.exist(h5f):
             groups.append(gr.name)
 
@@ -647,19 +654,17 @@ def import_data(what_to_import: str, source_file_path: str, h5f: h5py.File):
 def copy_h5_section_dialog(src_h5f: h5py.File, dst_h5f: h5py.File):
     """Interactively copies sections from a source HDF5 file to the destination."""
     available_groups = []
-    for group in H5_CONFIGURABLE_GROUPS:
+    for group in H5_ALL_ORDERED:
         if group.exist(src_h5f):
             available_groups.append(group)
-    if TRAIN_DATA.exist(src_h5f):  # has it's own non-configurable group
-        available_groups.append(TRAIN_DATA)
 
     if len(available_groups) == 0:
         print("Nothing to copy in the source file.")
         return
 
-    print("Sections available to copy:")
+    print("Objects available to copy:")
     for idx, group in enumerate(available_groups):
-        print(f"  {idx}. {group.name}")
+        print(f"  {idx+1}. {group.name}")
     idxses = range(len(available_groups))
 
     while True:
@@ -681,7 +686,7 @@ def copy_h5_section_dialog(src_h5f: h5py.File, dst_h5f: h5py.File):
     fail_count = 0
     for idx in selected_indices:
         try:
-            _h5_copy(available_groups[idx], src_h5f, dst_h5f)
+            _h5_copy(available_groups[idx-1], src_h5f, dst_h5f)
             copy_count += 1
         except Exception:
             # Error logged in _h5_copy
@@ -1165,18 +1170,13 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
-    # Determine HDF5 file path based on command
-    if hasattr(args, 'model_file'):
-        h5_file_path = args.model_file
-        if not os.path.isfile(h5_file_path) and args.command != 'edit':
-             print(f"Error: Model HDF5 file not found: {h5_file_path}")
-             return # Exit gracefully
-
     # Check source file existence if applicable
-    if hasattr(args, 'source_file'):
-        if not os.path.exists(args.source_file):
-            parser.error(f"Source file not found: {args.source_file}")
-            return
+    for arg in ('model_file', 'source_file'):
+        if hasattr(args, arg):
+            h5_file_path = vars(args)[arg]
+            if not os.path.isfile(h5_file_path) and args.command != 'edit':
+                print(f"Error: File not found: {h5_file_path}")
+                return # Exit gracefully
 
     # --- Execute Command ---
 
@@ -1192,7 +1192,7 @@ def main():
         elif args.command == "edit":
             edit_config(h5f)
         elif args.command == "copy":
-            with h5py.File(args.target_file) as target_h5f:
+            with h5py.File(args.target_file, 'a') as target_h5f:
                 copy_h5_section_dialog(h5f, target_h5f)
         elif args.command == "generate":
             generate_data(h5f)
