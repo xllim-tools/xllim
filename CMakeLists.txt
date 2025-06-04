@@ -23,9 +23,18 @@ option(XLLIM_BUILD_TESTS "Build C++ tests" OFF) # Default to OFF for package bui
 
 
 find_package(Boost 1.65.0 REQUIRED)
+# find_package(OpenBLAS REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(OpenBLAS REQUIRED openblas)
+
+# Then add the OpenBLAS target
+add_library(OpenBLAS::OpenBLAS INTERFACE IMPORTED)
+set_target_properties(OpenBLAS::OpenBLAS PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${OpenBLAS_INCLUDE_DIRS}"
+  INTERFACE_LINK_LIBRARIES "${OpenBLAS_LINK_LIBRARIES}"
+)
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
-find_package(Armadillo REQUIRED)
 
 if(BLAS_FOUND AND LAPACK_FOUND)
     message(STATUS "BLAS libraries: ${BLAS_LIBRARIES}")
@@ -34,8 +43,22 @@ else()
     message(FATAL_ERROR "BLAS or LAPACK not found by CMake. Armadillo needs them.")
 endif()
 
+add_definitions(-DARMA_DONT_USE_WRAPPER)
+find_package(Armadillo REQUIRED)
+message(STATUS "Top-level Armadillo_INCLUDE_DIRS before Carma: ${Armadillo_INCLUDE_DIRS}")
+if(TARGET armadillo::armadillo) # Check with canonical name
+    get_target_property(ARMA_INCLUDES armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES)
+    message(STATUS "Top-level armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES before Carma: ${ARMA_INCLUDES}")
+else()
+    message(WARNING "armadillo::armadillo target not found before Carma. Check FindArmadillo.cmake.")
+endif()
+
+# add_subdirectory(extern/armadillo)
 add_subdirectory(extern/pybind11)
+
+set(ARMADILLO_ROOT_DIR "/miniconda3/envs/build_xllim/")
 add_subdirectory(extern/carma)
+unset(ARMADILLO_ROOT_DIR)
 
 file(READ "${carma_SOURCE_DIR}/CMakeLists.txt" ver)
 string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${ver})
@@ -45,6 +68,26 @@ set(ver_minor ${CMAKE_MATCH_1})
 string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${ver})
 set(ver_patch ${CMAKE_MATCH_1})
 message(STATUS "-- carma version: ${ver_major}.${ver_minor}.${ver_patch}")
+
+message(STATUS "Top-level Armadillo_INCLUDE_DIRS after Carma: ${Armadillo_INCLUDE_DIRS}")
+if(TARGET armadillo::armadillo)
+    get_target_property(ARMA_INCLUDES_POST_CARMA armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES)
+    message(STATUS "Top-level armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES after Carma: ${ARMA_INCLUDES_POST_CARMA}")
+    if(NOT "${ARMA_INCLUDES_POST_CARMA}" MATCHES "/usr/include")
+         message(WARNING "armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES after carma seems incorrect or changed: ${ARMA_INCLUDES_POST_CARMA}")
+    endif()
+else()
+    message(WARNING "armadillo::armadillo target NOT FOUND after carma processing.")
+endif()
+
+find_package(Armadillo REQUIRED)
+message(STATUS "Top-level Armadillo_INCLUDE_DIRS AFTER AFTER Carma: ${Armadillo_INCLUDE_DIRS}")
+if(TARGET armadillo::armadillo) # Check with canonical name
+    get_target_property(ARMA_INCLUDES armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES)
+    message(STATUS "Top-level armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES before Carma: ${ARMA_INCLUDES}")
+else()
+    message(WARNING "armadillo::armadillo target not found before Carma. Check FindArmadillo.cmake.")
+endif()
 
 if(NOT Python_INCLUDE_DIRS AND NOT Python3_INCLUDE_DIRS) # CMake uses Python3_ for Python 3
     # scikit-build-core might set PYTHON_INCLUDE_DIR directly too
@@ -102,7 +145,7 @@ add_library(xllim_generator STATIC
     src/generator/LatinCubeGenerator.cpp
 )
 set_target_properties(xllim_generator PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(xllim_generator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+# target_include_directories(xllim_generator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(xllim_generator PUBLIC armadillo::armadillo Boost::boost)
 
 add_library(xllim_functionalModel STATIC
@@ -112,7 +155,7 @@ add_library(xllim_functionalModel STATIC
     src/functionalModel/HapkeModel.cpp
 )
 set_target_properties(xllim_functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(xllim_functionalModel PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+# target_include_directories(xllim_functionalModel PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${ARMADILLO_INCLUDE_DIRS})
 target_link_libraries(xllim_functionalModel PUBLIC xllim_utils)
 
 set(CARMA_BINARY_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/extern/carma/include)
@@ -144,6 +187,9 @@ target_link_libraries(xllim_solver PUBLIC armadillo::armadillo pybind11::headers
 #                               PYTHON MODULE                                  #
 # ##############################################################################
 
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
 pybind11_add_module(_core MODULE
     bindings/xllim_bindings.cpp
 )
@@ -158,8 +204,7 @@ target_link_libraries(_core PRIVATE
     carma::carma
     Boost::boost
     pybind11::module
-    ${LAPACK_LIBRARIES}
-    ${BLAS_LIBRARIES}
+    OpenBLAS::OpenBLAS
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR NOT CMAKE_BUILD_TYPE)
