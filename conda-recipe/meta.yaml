@@ -22,19 +22,19 @@ requirements:
     - git
 
   host:
-    - python =3.10
+    - python >=3.11
     - pip
     - setuptools >=42
     - wheel
     - scikit-build-core >=0.7.0
-    - numpy >=1.21,<1.22
+    - numpy >=1.21
     - boost
     - openblas >=0.3.29
-    - Armadillo 12.6.7
+    - Armadillo 14.4.3
 
   run:
-    - python =3.10
-    - numpy >=1.21,<1.22
+    - python >=3.11
+    - numpy >=1.21
     - h5py
     - openblas >=0.3.29
     - libstdcxx-ng  # [linux]

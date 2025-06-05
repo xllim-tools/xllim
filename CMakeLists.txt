@@ -13,81 +13,56 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_DEBUG_INIT "-O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE_INIT "-O2 -DNDEBUG")
 
-set(USE_PYBIND11_VERSION "v2.11.1")
-
 option(XLLIM_BUILD_TESTS "Build C++ tests" OFF) # Default to OFF for package builds
 
+set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON) # Prefer <Package>Config.cmake over Find<Package>.cmake
+if(DEFINED ENV{CONDA_PREFIX})
+    list(PREPEND CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}")
+    message(STATUS "Prepended CONDA_PREFIX to CMAKE_PREFIX_PATH: $ENV{CONDA_PREFIX}")
+else()
+    message(WARNING "CONDA_PREFIX environment variable not set. Dependency resolution might be less predictable.")
+endif()
 # ##############################################################################
 #                                 REQUIREMENTS                                 #
 # ##############################################################################
+# Boost lib for random genrators ---------
+find_package(Boost 1.65.0 REQUIRED COMPONENTS system thread random)
+message(STATUS "Found Boost: Version ${Boost_VERSION}, Libs: ${Boost_LIBRARIES}, Includes: ${Boost_INCLUDE_DIRS}")
 
-
-find_package(Boost 1.65.0 REQUIRED)
-# find_package(OpenBLAS REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(OpenBLAS REQUIRED openblas)
-
-# Then add the OpenBLAS target
-add_library(OpenBLAS::OpenBLAS INTERFACE IMPORTED)
-set_target_properties(OpenBLAS::OpenBLAS PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "${OpenBLAS_INCLUDE_DIRS}"
-  INTERFACE_LINK_LIBRARIES "${OpenBLAS_LINK_LIBRARIES}"
-)
+# OpenBlas, Lapack, blas -----------------
+set(BLA_VENDOR "OpenBLAS" CACHE STRING "Preferred BLAS vendor")
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
+message(STATUS "BLAS libraries: ${BLAS_LIBRARIES}")
+message(STATUS "LAPACK libraries: ${LAPACK_LIBRARIES}")
 
-if(BLAS_FOUND AND LAPACK_FOUND)
-    message(STATUS "BLAS libraries: ${BLAS_LIBRARIES}")
-    message(STATUS "LAPACK libraries: ${LAPACK_LIBRARIES}")
-else()
-    message(FATAL_ERROR "BLAS or LAPACK not found by CMake. Armadillo needs them.")
-endif()
-
+# --- Armadillo (from Conda) ---
 add_definitions(-DARMA_DONT_USE_WRAPPER)
+if(DEFINED ENV{CONDA_PREFIX})
+    set(Armadillo_DIR "$ENV{CONDA_PREFIX}/share/Armadillo/CMake" CACHE PATH "Directory containing ArmadilloConfig.cmake")
+    message(STATUS "Set Armadillo_DIR to: ${Armadillo_DIR}")
+endif()
 find_package(Armadillo REQUIRED)
-message(STATUS "Top-level Armadillo_INCLUDE_DIRS before Carma: ${Armadillo_INCLUDE_DIRS}")
-if(TARGET armadillo::armadillo) # Check with canonical name
-    get_target_property(ARMA_INCLUDES armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES)
-    message(STATUS "Top-level armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES before Carma: ${ARMA_INCLUDES}")
+if(TARGET armadillo AND NOT TARGET armadillo::armadillo)
+    add_library(armadillo::armadillo ALIAS armadillo)
+    message(STATUS "Aliased 'armadillo' target to armadillo::armadillo.")
 else()
-    message(WARNING "armadillo::armadillo target not found before Carma. Check FindArmadillo.cmake.")
+    message(FATAL_ERROR "Armadillo not found")
 endif()
 
-# add_subdirectory(extern/armadillo)
+# --- Pybind11 (vendored) ---
+set(PYBIND11_USE_CMAKE_MODULE OFF) # We use add_subdirectory
+set(PYBIND11_TEST OFF) # Don't build pybind11 tests
 add_subdirectory(extern/pybind11)
 
-set(ARMADILLO_ROOT_DIR "/miniconda3/envs/build_xllim/")
+# --- Carma (vendored) ---
+# Carma will find Armadillo using find_package(Armadillo) internally.
+# It should pick up the same Armadillo target we found above.
+set(CARMA_BUILD_TESTS OFF)
+set(CARMA_BUILD_EXAMPLES OFF)
+# set(ARMADILLO_ROOT_DIR "/miniconda3/envs/build312/")
 add_subdirectory(extern/carma)
-unset(ARMADILLO_ROOT_DIR)
-
-file(READ "${carma_SOURCE_DIR}/CMakeLists.txt" ver)
-string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${ver})
-set(ver_major ${CMAKE_MATCH_1})
-string(REGEX MATCH "VERSION_MINOR ([0-9]*)" _ ${ver})
-set(ver_minor ${CMAKE_MATCH_1})
-string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${ver})
-set(ver_patch ${CMAKE_MATCH_1})
-message(STATUS "-- carma version: ${ver_major}.${ver_minor}.${ver_patch}")
-
-message(STATUS "Top-level Armadillo_INCLUDE_DIRS after Carma: ${Armadillo_INCLUDE_DIRS}")
-if(TARGET armadillo::armadillo)
-    get_target_property(ARMA_INCLUDES_POST_CARMA armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES)
-    message(STATUS "Top-level armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES after Carma: ${ARMA_INCLUDES_POST_CARMA}")
-    if(NOT "${ARMA_INCLUDES_POST_CARMA}" MATCHES "/usr/include")
-         message(WARNING "armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES after carma seems incorrect or changed: ${ARMA_INCLUDES_POST_CARMA}")
-    endif()
-else()
-    message(WARNING "armadillo::armadillo target NOT FOUND after carma processing.")
-endif()
-
-find_package(Armadillo REQUIRED)
-message(STATUS "Top-level Armadillo_INCLUDE_DIRS AFTER AFTER Carma: ${Armadillo_INCLUDE_DIRS}")
-if(TARGET armadillo::armadillo) # Check with canonical name
-    get_target_property(ARMA_INCLUDES armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES)
-    message(STATUS "Top-level armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES before Carma: ${ARMA_INCLUDES}")
-else()
-    message(WARNING "armadillo::armadillo target not found before Carma. Check FindArmadillo.cmake.")
-endif()
+# unset(ARMADILLO_ROOT_DIR)
 
 if(NOT Python_INCLUDE_DIRS AND NOT Python3_INCLUDE_DIRS) # CMake uses Python3_ for Python 3
     # scikit-build-core might set PYTHON_INCLUDE_DIR directly too
@@ -107,36 +82,53 @@ message(STATUS "Effective Python include directories: ${EFFECTIVE_PYTHON_INCLUDE
 
 # Main include directory for your project headers (e.g., include/gllim.hpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/include) # Project headers
 
-if(UNIX AND NOT APPLE)
-    # For Linux, ensure RPATH points to the install lib dir and allows $ORIGIN
+if(APPLE)
+    set(CMAKE_MACOSX_RPATH TRUE)
+    # @loader_path allows finding libraries relative to the current binary/library loading them.
+    # $ENV{CONDA_PREFIX}/lib allows finding other conda libraries.
+    set(_INSTALL_RPATH "@loader_path")
+    if(DEFINED ENV{CONDA_PREFIX})
+        list(APPEND _INSTALL_RPATH "$ENV{CONDA_PREFIX}/lib")
+    endif()
+    set(CMAKE_INSTALL_RPATH "${_INSTALL_RPATH}")
+    message(STATUS "macOS CMAKE_INSTALL_RPATH: ${CMAKE_INSTALL_RPATH}")
+elseif(UNIX) # Linux
+    # Commented code ensures only conda's libs are used, but it make xllim segfault
+    # set(_INSTALL_RPATH "\$ORIGIN")
+    # if(DEFINED ENV{CONDA_PREFIX})
+    #     list(APPEND _INSTALL_RPATH "$ENV{CONDA_PREFIX}/lib")
+    # endif()
+    # list(APPEND _INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    # string(REPLACE ";" ":" _INSTALL_RPATH_STR "${_INSTALL_RPATH}")
+    # set(CMAKE_INSTALL_RPATH "${_INSTALL_RPATH_STR}")
+    # message(STATUS "Linux CMAKE_INSTALL_RPATH: ${CMAKE_INSTALL_RPATH}")
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-    # When building, RPATH should include the install RPATH so it can find libs
-    # from the host environment if they are already in a layout similar to install.
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-    # Also add directories from the linker search path (like those from dependencies) to RPATH
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
+
+if(UNIX)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 endif()
 
 # ##############################################################################
 #                           INTERNAL C++ LIBRARIES                             #
 # ##############################################################################
-# These will be static libraries linked into the final Python module.
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
-add_library(xllim_utils STATIC
-    src/utils/utils.cpp
-)
-set_target_properties(xllim_utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
+add_library(xllim_utils STATIC src/utils/utils.cpp)
 target_include_directories(xllim_utils PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include # If utils.h is in include/
-    # Or PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/utils if utils.h is there
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
 )
-# target_link_libraries(xllim_utils PUBLIC OpenMP::OpenMP_CXX armadillo::armadillo) # Use imported targets
 target_link_libraries(xllim_utils PUBLIC armadillo::armadillo) # Use imported targets
 
 add_library(xllim_logging INTERFACE)
 target_include_directories(xllim_logging INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/logging # As per your original
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/logging>
+    $<INSTALL_INTERFACE:include/logging>
 )
 
 add_library(xllim_generator STATIC
@@ -145,8 +137,7 @@ add_library(xllim_generator STATIC
     src/generator/LatinCubeGenerator.cpp
 )
 set_target_properties(xllim_generator PROPERTIES POSITION_INDEPENDENT_CODE ON)
-# target_include_directories(xllim_generator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(xllim_generator PUBLIC armadillo::armadillo Boost::boost)
+target_link_libraries(xllim_generator PUBLIC armadillo::armadillo Boost::system Boost::thread Boost::random)
 
 add_library(xllim_functionalModel STATIC
     src/functionalModel/FunctionalModel.cpp
@@ -155,7 +146,6 @@ add_library(xllim_functionalModel STATIC
     src/functionalModel/HapkeModel.cpp
 )
 set_target_properties(xllim_functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
-# target_include_directories(xllim_functionalModel PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${ARMADILLO_INCLUDE_DIRS})
 target_link_libraries(xllim_functionalModel PUBLIC xllim_utils)
 
 set(CARMA_BINARY_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/extern/carma/include)
@@ -163,11 +153,13 @@ add_library(xllim_pythonEmbed STATIC
     # src/functionalModel/FunctionalModel.cpp # Already in xllim_functionalModel, avoid ODR issues
     src/functionalModel/ExternalPythonModel.cpp
 )
+target_include_directories(xllim_pythonEmbed PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${EFFECTIVE_PYTHON_INCLUDE_DIRS}
+    ${carma_INCLUDE_DIR} # Use variable set by carma
+)
 set_target_properties(xllim_pythonEmbed PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(xllim_pythonEmbed PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${EFFECTIVE_PYTHON_INCLUDE_DIRS} 
-    ${CARMA_BINARY_INCLUDE_DIR}
-    )
 target_link_libraries(xllim_pythonEmbed PUBLIC xllim_utils pybind11::headers carma::carma)
 
 add_library(xllim_solver STATIC
@@ -179,33 +171,26 @@ add_library(xllim_solver STATIC
     src/xllimSolver/covariances/isoCovariance.cpp
 )
 set_target_properties(xllim_solver PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(xllim_solver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CARMA_BINARY_INCLUDE_DIR})
+target_include_directories(xllim_solver PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${carma_INCLUDE_DIR}
+)
 target_link_libraries(xllim_solver PUBLIC armadillo::armadillo pybind11::headers carma::carma)
 
 # ##############################################################################
 #                               PYTHON MODULE                                  #
 # ##############################################################################
 
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
-
-pybind11_add_module(_core MODULE
-    bindings/xllim_bindings.cpp
-)
-
+pybind11_add_module(_core MODULE bindings/xllim_bindings.cpp)
 target_link_libraries(_core PRIVATE
     xllim_functionalModel
     xllim_pythonEmbed
     xllim_solver
     xllim_generator
-    xllim_utils
     xllim_logging
-    carma::carma
-    Boost::boost
     pybind11::module
-    OpenBLAS::OpenBLAS
-)
+    )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR NOT CMAKE_BUILD_TYPE)
     target_compile_definitions(_core PRIVATE ARMA_NO_DEBUG ARMA_DONT_USE_OPENMP)
@@ -283,8 +268,29 @@ message(STATUS "  Armadillo libraries: ${ARMADILLO_LIBRARIES}")
 message(STATUS "  Pybind11 include dir (from vendored): ${pybind11_INCLUDE_DIR}") # Check actual var from add_sub(pybind11)
 message(STATUS "  Carma include dir (from vendored): ${carma_INCLUDE_DIR}")     # Check actual var
 
+# ##############################################################################
+#                                  INSTALL                                     #
+# ##############################################################################
+
 install(TARGETS _core
     LIBRARY DESTINATION xllim  # <--- Install into a subdirectory named "xllim"
     RUNTIME DESTINATION xllim  # <--- (for DLLs on Windows if _core has them)
     COMPONENT python_module
 )
+
+message(STATUS "XLLiM C++ core configured.")
+message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "  CONDA_PREFIX: $ENV{CONDA_PREFIX}")
+message(STATUS "  CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(STATUS "  Boost includes: ${Boost_INCLUDE_DIRS}, Boost libs: ${Boost_LIBRARIES}")
+message(STATUS "  BLAS libraries: ${BLAS_LIBRARIES}")
+message(STATUS "  LAPACK libraries: ${LAPACK_LIBRARIES}")
+if(TARGET armadillo::armadillo)
+    get_target_property(ARMA_INC armadillo::armadillo INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(ARMA_LIB armadillo::armadillo INTERFACE_LINK_LIBRARIES)
+    message(STATUS "  armadillo::armadillo: Includes: ${ARMA_INC}, Link Libs: ${ARMA_LIB}")
+else()
+    message(WARNING "  armadillo::armadillo target not found after configuration.")
+endif()
+message(STATUS "  Pybind11 include dir: ${pybind11_INCLUDE_DIR}")
+message(STATUS "  Carma include dir: ${carma_INCLUDE_DIR}")

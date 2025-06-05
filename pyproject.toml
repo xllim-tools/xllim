@@ -3,7 +3,7 @@ requires = [
     "setuptools>=42",
     "wheel",
     "scikit-build-core>=0.7.0",
-    "numpy>=1.21,<1.22",
+    "numpy>=1.21",
 ]
 build-backend = "scikit_build_core.build"
 
@@ -12,7 +12,7 @@ name = "xllim"
 version = "2.0.0" # Or your desired Python package version
 # ... other metadata from previous example ...
 dependencies = [
-    "numpy>=1.21,<1.22",
+    "numpy>=1.21",
     "h5py",
 ]
 
@@ -21,6 +21,9 @@ xllim_cli = "xllim.cli:main"
 
 [tool.scikit-build]
 cmake.source-dir = "." # Root CMakeLists.txt
-cmake.args = ["-G", "Ninja"]
+cmake.args = ["-G", "Ninja",
+              "-DBOOST_ROOT=$CONDA_PREFIX",
+              "-DBoost_NO_SYSTEM_PATHS=ON",
+              "-DBoost_NO_BOOST_CMAKE=ON"]
 cmake.build-type = "Release"
 wheel.packages = ["xllim"]
