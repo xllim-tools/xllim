@@ -75,15 +75,24 @@ def set_up_models():
         # Add Shkuratov models (3p, 5p)
         scalingCoeffs = [1.0, 1.5, 1.5, 1.5, 1.5]
         offset = [0, 0, 0.2, 0, 0]
-        for variant in ["3p", "5p"]:
-            physical_models.append(
-                {
-                    "name": "Shkuratov_" + variant + "_" + geometries["name"],
-                    "xllim": xllim.ShkuratovModel(
-                        geometries["data"], variant, scalingCoeffs, offset
-                    ),
-                }
-            )
+        variant = "5p"
+        physical_models.append(
+            {
+                "name": "Shkuratov_" + variant + "_" + geometries["name"],
+                "xllim": xllim.ShkuratovModel(
+                    geometries["data"], variant, scalingCoeffs, offset
+                ),
+            }
+        )
+        variant = "3p"
+        physical_models.append(
+            {
+                "name": "Shkuratov_" + variant + "_" + geometries["name"],
+                "xllim": xllim.ShkuratovModel(
+                    geometries["data"], variant, scalingCoeffs[:3], offset[:3]
+                ),
+            }
+        )
 
     return physical_models
 
