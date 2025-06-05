@@ -1148,8 +1148,6 @@ def main():
     # Common argument parsing logic
     def add_model_file_arg(p):
         p.add_argument("model_file", help="Path to the HDF5 model file (e.g., model.h5)")
-    def add_source_file_arg(p):  # geometries, observations
-        p.add_argument("source_file", help="Path to the source file (format depends on command)")
 
     # Print command
     print_parser = subparsers.add_parser("print", help="Print contents of the HDF5 file")
@@ -1185,7 +1183,7 @@ def main():
     # Import command
     import_parser = subparsers.add_parser("import", help="Import data into the HDF5 file")
     import_parser.add_argument("import_type", choices=["geometries", "train_data"], help="Type of data to import")
-    add_source_file_arg(import_parser) # Source format depends on import_type
+    import_parser.add_argument("source_file", help="Path to the source file (format depends on command)")
     add_model_file_arg(import_parser)
 
     # Export command
@@ -1200,9 +1198,9 @@ def main():
     # Check source file existence if applicable
     for arg in ('model_file', 'source_file'):
         if hasattr(args, arg):
-            h5_file_path = vars(args)[arg]
-            if not os.path.isfile(h5_file_path) and args.command != 'edit':
-                print(f"Error: File not found: {h5_file_path}")
+            file_path = vars(args)[arg]
+            if not os.path.isfile(file_path) and args.command != 'edit':
+                print(f"Error: File not found: {file_path}")
                 return # Exit gracefully
 
     # --- Execute Command ---
@@ -1212,7 +1210,7 @@ def main():
     else:
         mode = 'a'
 
-    with h5py.File(h5_file_path, mode) as h5f:
+    with h5py.File(args.model_file, mode) as h5f:
         # Dispatch to the correct function
         if args.command == "print":
             print_h5(h5f, args.verbose)
