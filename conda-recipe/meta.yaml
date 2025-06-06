@@ -46,19 +46,19 @@ test:
     - xllim.cli
     - xllim.utils
   commands:
-    - xllim_cli --help  # Test if the command-line tool is installed and works
+    - xllim_cli --help
   requires:
-    - pip # For pip check
-  source_files: # Optional: if you have C++ tests you want to run as part of conda build
+    - pip
+  source_files:
     - tests/
 
 about:
-  home: https://gitlab.inria.fr/xllim # Your project's homepage
-  license: CECIL # Or your actual license
+  home: https://gitlab.inria.fr/xllim
+  license: CeCILL-C
   license_file: LICENCE.txt
   summary: 'Python package for XLLiM with C++ core'
   description: |
-    A longer description of your package.
+    xLLiM is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping. It can be used to perform efficient inversion of high-dimensional models.
   doc_url: https://xllim.gitlabpages.inria.fr/xllim/index.html
   dev_url: https://gitlab.inria.fr/xllim
 
