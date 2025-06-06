@@ -10,11 +10,26 @@ build-backend = "scikit_build_core.build"
 [project]
 name = "xllim"
 version = "2.0.0" # Or your desired Python package version
-# ... other metadata from previous example ...
 dependencies = [
     "numpy>=1.21",
     "h5py",
 ]
+authors = [
+  { name="Luc Meyer", email="luc.meyer@inria.fr" },
+]
+description = "xLLiM is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "CeCILL-C"
+license-files = ["LICENCE.txt"]
+
+[project.urls]
+Homepage = "https://xllim.gitlabpages.inria.fr/xllim/index.html"
+Issues = "https://gitlab.inria.fr/xllim/xllim/-/issues"
 
 [project.scripts]
 xllim_cli = "xllim.cli:main"
