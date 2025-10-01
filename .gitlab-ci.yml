@@ -85,9 +85,6 @@ build-apptainer-image:
 deploy-xllim-minimal-docker-image:
     stage: deploy
     when: manual
-    artifacts:
-        paths:
-            - xllim.sif
     tags:
         - ci.inria.fr
         - small
@@ -96,6 +93,7 @@ deploy-xllim-minimal-docker-image:
         - compile-and-test-xllim  # Only fetch artifacts from the build job
     script:
         - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+        - ls xllim*.so
         - docker build -t "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH" --target runner .
         - docker push "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
 
