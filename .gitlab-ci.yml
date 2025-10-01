@@ -15,10 +15,10 @@ build-docker-images:
         - small
     image: docker:stable
     script:
-        - docker build -t "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH" --target runner .
+        - docker build -t "$CI_REGISTRY_IMAGE/xllim_base_image:$CI_COMMIT_BRANCH" --target base_image .
         - docker build -t "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH" --target builder .
         - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
-        - docker push "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
+        - docker push "$CI_REGISTRY_IMAGE/xllim_base_image:$CI_COMMIT_BRANCH"
         - docker push "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH"
 
 
@@ -71,14 +71,9 @@ deploy-xllim-minimal-docker-image:
     dependencies:
         - compile-and-test-xllim  # Only fetch artifacts from the build job
     script:
-        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-        - docker pull $CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH
-        - docker run -it -d --rm --name xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH
-        - docker cp xllim*.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
-        - docker cp xllim_cli.py xllim_minimal_temp_container:/usr/bin/xllim_cli
-        - docker commit xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_minimal
-        - docker stop xllim_minimal_temp_container
-        - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"
+        - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+        - docker build -t "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH" --target runner .
+        - docker push "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
 
 pages:
     stage: deploy
