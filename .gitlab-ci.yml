@@ -73,8 +73,8 @@ tototo:
         - small
     image: docker:stable
     script:
-        - apt update
-        - apt install -y apptainer
+        - cat /proc/version
+        - apk add apptainer
         - apptainer build xllim.sif docker://"$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
 
 deploy-xllim-minimal-docker-image:
