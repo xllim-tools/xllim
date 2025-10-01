@@ -1,6 +1,6 @@
 # List of stages for jobs, and their order of execution
 stages:
-    - build
+    - dockers
     - xllim
     - deploy
     - apptainer
@@ -9,7 +9,7 @@ stages:
 # ------------------------------ build stage ------------------------------
 
 build-docker-images:
-    stage: build
+    stage: dockers
     when: manual
     tags:
         - ci.inria.fr
@@ -72,7 +72,7 @@ build-apptainer-image:
         - ci.inria.fr
         - small
     image: ubuntu
-    dependencies:
+    needs:
         - deploy-xllim-minimal-docker-image
     script:
         - apt update
@@ -89,6 +89,8 @@ deploy-xllim-minimal-docker-image:
         - ci.inria.fr
         - small
     image: docker:stable
+    needs:
+        - compile-and-test-xllim
     dependencies:
         - compile-and-test-xllim  # Only fetch artifacts from the build job
     script:
