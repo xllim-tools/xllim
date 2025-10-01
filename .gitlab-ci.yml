@@ -71,10 +71,10 @@ tototo:
     tags:
         - ci.inria.fr
         - small
-    image: docker:stable
+    image: ubuntu
     script:
         - cat /proc/version
-        - apk add apptainer
+        - apt install -y apptainer
         - apptainer build xllim.sif docker://"$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
 
 deploy-xllim-minimal-docker-image:
