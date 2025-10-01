@@ -65,7 +65,8 @@ deploy-xllim-minimal-docker-image:
     stage: deploy
     when: manual
     artifacts:
-        - xllim.sif
+        paths:
+            - xllim.sif
     tags:
         - ci.inria.fr
         - small
