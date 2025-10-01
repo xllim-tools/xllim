@@ -62,7 +62,7 @@ compile-and-test-xllim:
 
 # ------------------------------ deploy stage ------------------------------
 
-tototo:
+build-apptainer-image:
     stage: tmp
     when: manual
     artifacts:
@@ -73,7 +73,10 @@ tototo:
         - small
     image: ubuntu
     script:
-        - cat /proc/version
+        - apt update
+        - apt install -y software-properties-common
+        - add-apt-repository -y ppa:apptainer/ppa
+        - sudo apt update
         - apt install -y apptainer
         - apptainer build xllim.sif docker://"$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
 
