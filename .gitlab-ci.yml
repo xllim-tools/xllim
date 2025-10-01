@@ -3,7 +3,7 @@ stages:
     - build
     - xllim
     - deploy
-    - tmp
+    - apptainer
 
 
 # ------------------------------ build stage ------------------------------
@@ -63,7 +63,7 @@ compile-and-test-xllim:
 # ------------------------------ deploy stage ------------------------------
 
 build-apptainer-image:
-    stage: tmp
+    stage: apptainer
     when: manual
     artifacts:
         paths:
@@ -76,7 +76,7 @@ build-apptainer-image:
         - apt update
         - apt install -y software-properties-common
         - add-apt-repository -y ppa:apptainer/ppa
-        - sudo apt update
+        - apt update
         - apt install -y apptainer
         - apptainer build xllim.sif docker://"$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
 
