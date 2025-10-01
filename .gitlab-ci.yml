@@ -72,6 +72,8 @@ build-apptainer-image:
         - ci.inria.fr
         - small
     image: ubuntu
+    dependencies:
+        - deploy-xllim-minimal-docker-image
     script:
         - apt update
         - apt install -y software-properties-common
@@ -96,9 +98,6 @@ deploy-xllim-minimal-docker-image:
         - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
         - docker build -t "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH" --target runner .
         - docker push "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
-        - apt update
-        - apt install -y apptainer
-        - apptainer build xllim.sif docker://"$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
 
 pages:
     stage: deploy
