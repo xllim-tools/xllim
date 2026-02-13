@@ -29,8 +29,10 @@ requirements:
     - scikit-build-core >=0.7.0
     - numpy >=1.21
     - boost
-    - openblas >=0.3.29
-    - Armadillo 14.4.3
+    - libblas * *openblas
+    - liblapack * *openblas
+    - openblas
+    - armadillo 14.4.3
 
   run:
     - python >=3.11
