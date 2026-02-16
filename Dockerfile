@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 
-FROM ubuntu:jammy AS runner
+FROM ubuntu:jammy AS base_image
 
 # Install xllim run-time dependencies
 RUN apt-get update
@@ -10,8 +10,10 @@ RUN apt-get install -y --no-install-recommends \
 	python3 \
 	python3-numpy \
 	python3-pybind11 \
+	python3-h5py \
 	libarmadillo10 \
-	libgomp1
+	libgomp1 \
+	libpython3.10
 
 # (optional) Copy some python scripts to test xllim in docker container
 RUN mkdir /home/pythonTests && mkdir /home/dataRef
@@ -19,7 +21,13 @@ COPY tests/pythonTests /home/pythonTests/
 COPY tests/dataRef /home/dataRef
 
 
-FROM runner AS builder
+FROM base_image AS runner
+COPY xllim*.so /usr/lib/python3/dist-packages/xllim.so
+COPY xllim_cli.py /usr/bin/xllim_cli
+ENTRYPOINT [ "/usr/bin/xllim_cli" ]
+
+
+FROM base_image AS builder
 
 # Install xllim compilation dependencies
 RUN apt-get update

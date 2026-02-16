@@ -1,24 +1,25 @@
 # List of stages for jobs, and their order of execution
 stages:
-    - build
+    - dockers
     - xllim
     - deploy
+    - apptainer
 
 
 # ------------------------------ build stage ------------------------------
 
 build-docker-images:
-    stage: build
+    stage: dockers
     when: manual
     tags:
         - ci.inria.fr
         - small
     image: docker:stable
     script:
-        - docker build -t "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH" --target runner .
+        - docker build -t "$CI_REGISTRY_IMAGE/xllim_base_image:$CI_COMMIT_BRANCH" --target base_image .
         - docker build -t "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH" --target builder .
         - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
-        - docker push "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
+        - docker push "$CI_REGISTRY_IMAGE/xllim_base_image:$CI_COMMIT_BRANCH"
         - docker push "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH"
 
 
@@ -61,6 +62,26 @@ compile-and-test-xllim:
 
 # ------------------------------ deploy stage ------------------------------
 
+build-apptainer-image:
+    stage: apptainer
+    when: manual
+    artifacts:
+        paths:
+            - xllim.sif
+    tags:
+        - ci.inria.fr
+        - small
+    image: ubuntu
+    needs:
+        - deploy-xllim-minimal-docker-image
+    script:
+        - apt update
+        - apt install -y software-properties-common
+        - add-apt-repository -y ppa:apptainer/ppa
+        - apt update
+        - apt install -y apptainer
+        - apptainer build xllim.sif docker://"$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
+
 deploy-xllim-minimal-docker-image:
     stage: deploy
     when: manual
@@ -68,16 +89,15 @@ deploy-xllim-minimal-docker-image:
         - ci.inria.fr
         - small
     image: docker:stable
+    needs:
+        - compile-and-test-xllim
     dependencies:
         - compile-and-test-xllim  # Only fetch artifacts from the build job
     script:
-        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-        - docker pull $CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH
-        - docker run -it -d --rm --name xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH
-        - docker cp xllim*.so xllim_minimal_temp_container:/usr/lib/python3/dist-packages/xllim.so
-        - docker commit xllim_minimal_temp_container $CI_REGISTRY_IMAGE/xllim_minimal
-        - docker stop xllim_minimal_temp_container
-        - docker push "$CI_REGISTRY_IMAGE/xllim_minimal"
+        - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+        - ls xllim*.so
+        - docker build -t "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH" --target runner .
+        - docker push "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
 
 pages:
     stage: deploy
