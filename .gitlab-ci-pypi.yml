@@ -1,0 +1,24 @@
+build-wheels:
+  stage: package
+  when: manual
+  image: python:3.11
+  tags:
+    - ci.inria.fr
+    - small
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends docker.io
+    - pip install --upgrade pip
+    - pip install cibuildwheel
+    - pip install auditwheel
+  script:
+    - cibuildwheel --output-dir wheelhouse
+    - auditwheel show wheelhouse/*.whl
+  artifacts:
+    paths:
+      - wheelhouse/*.whl
+    expire_in: 1 week
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    CIBW_BUILD: "cp31*-manylinux_x86_64"
+    CIBW_SKIP: "pp* *-musllinux_*"
