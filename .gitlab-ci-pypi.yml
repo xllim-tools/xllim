@@ -25,6 +25,7 @@ build-wheels:
     # epl-release : for access at Armadillo
     CIBW_BEFORE_ALL_LINUX: >
       dnf install -y epel-release &&
+      dnf module enable -y boost:1.76 &&
       dnf install -y
       boost-devel
       blas-devel

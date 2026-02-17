@@ -26,7 +26,7 @@ endif()
 #                                 REQUIREMENTS                                 #
 # ##############################################################################
 # Boost lib for random genrators ---------
-find_package(Boost 1.65.0 REQUIRED COMPONENTS system thread random)
+find_package(Boost 1.68.0 REQUIRED COMPONENTS system thread random)
 message(STATUS "Found Boost: Version ${Boost_VERSION}, Libs: ${Boost_LIBRARIES}, Includes: ${Boost_INCLUDE_DIRS}")
 
 # OpenBlas, Lapack, blas -----------------
