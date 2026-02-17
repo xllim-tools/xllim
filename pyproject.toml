@@ -36,9 +36,6 @@ xllim_cli = "xllim.cli:main"
 
 [tool.scikit-build]
 cmake.source-dir = "." # Root CMakeLists.txt
-cmake.args = ["-G", "Ninja",
-              "-DBOOST_ROOT=$CONDA_PREFIX",
-              "-DBoost_NO_SYSTEM_PATHS=ON",
-              "-DBoost_NO_BOOST_CMAKE=ON"]
+cmake.args = ["-G", "Ninja"]
 cmake.build-type = "Release"
 wheel.packages = ["xllim"]
