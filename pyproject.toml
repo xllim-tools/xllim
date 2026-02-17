@@ -4,6 +4,8 @@ requires = [
     "wheel",
     "scikit-build-core>=0.7.0",
     "numpy>=1.21",
+    "cmake>=3.21",
+    "ninja",
 ]
 build-backend = "scikit_build_core.build"
 
