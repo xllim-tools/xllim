@@ -7,7 +7,7 @@ build-wheels:
     - small
   before_script:
     - apt-get update
-    - apt-get install -y --no-install-recommends docker.io
+    - apt-get install -y --no-install-recommends docker.cli
     - pip install --upgrade pip
     - pip install cibuildwheel
     - pip install auditwheel
@@ -21,4 +21,4 @@ build-wheels:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     CIBW_BUILD: "cp31*-manylinux_x86_64"
-    CIBW_SKIP: "pp* *-musllinux_*"
+    CIBW_SKIP: "*-musllinux_*"
