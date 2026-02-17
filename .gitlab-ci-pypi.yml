@@ -21,6 +21,14 @@ build-wheels:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-    CIBW_BEFORE_ALL_LINUX: "dnf install -y boost-devel"
+    # Install all necessary dependancies in cibuildwheel conatiners
+    # epl-release : for access at Armadillo
+    CIBW_BEFORE_ALL_LINUX: >
+      dnf install -y epel-release &&
+      dnf install -y
+      boost-devel
+      blas-devel
+      lapack-devel
+      armadillo-devel
     CIBW_BUILD: "cp31*-manylinux_x86_64"
     CIBW_SKIP: "*-musllinux_*"
