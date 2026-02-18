@@ -12,14 +12,15 @@ build-wheels:
     - pip install cibuildwheel
     - pip install auditwheel
   script:
+    # cibuildwheel orchestrates the containerized build, repair (auditwheel), and testing
     - cibuildwheel --output-dir wheelhouse
-    - auditwheel show wheelhouse/*.whl
   artifacts:
     paths:
       - wheelhouse/*.whl
     expire_in: 1 week
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
+    # Use manylinux_2_28 (AlmaLinux 8) to ensure glibc compatibility with most modern distros
     CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
     CIBW_ENVIRONMENT: >
       CXXFLAGS="-fPIC"
@@ -28,8 +29,15 @@ build-wheels:
       -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
       -DCMAKE_SHARED_LINKER_FLAGS='-static-libstdc++'
       -DCMAKE_MODULE_LINKER_FLAGS='-static-libstdc++'"
+      -DBOOST_ROOT=/usr/local
+      -DBoost_NO_SYSTEM_PATHS=ON
+      -DBoost_USE_STATIC_LIBS=ON
+
     # Install all necessary dependancies in cibuildwheel conatiners
     # epl-release : for access at Armadillo
+    # Boost Manual Compilation: We compile Boost 1.78 from source instead of using 
+    # the system's 1.66 to meet the minimum requirement (>1.68 for boost/random/sobol.hpp) 
+    # and ensure ABI compatibility by linking it statically into the final binary.
     CIBW_BEFORE_ALL_LINUX: >
       dnf install -y epel-release &&
       dnf install -y blas-devel lapack-devel armadillo-devel &&
@@ -37,7 +45,8 @@ build-wheels:
       tar -xzf boost.tar.gz &&
       cd boost_1_78_0 &&
       ./bootstrap.sh --prefix=/usr/local &&
-      ./b2 --with-system --with-thread --with-random link=static variant=release cxxflags="-fPIC" cflags="-fPIC" -j4 install &&
+      ./b2 --with-system --with-thread --with-random link=static variant=release cxxflags="-fPIC" cflags="-fPIC" -j$(nproc) install &&
       cd .. && rm -rf boost_1_78_0 boost.tar.gz
+    # Target Python 3.10+ for x86_64 architecture
     CIBW_BUILD: "cp31*-manylinux_x86_64"
     CIBW_SKIP: "*-musllinux_*"
