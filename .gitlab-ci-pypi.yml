@@ -21,15 +21,23 @@ build-wheels:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+    CIBW_ENVIRONMENT: >
+      CXXFLAGS="-fPIC"
+      CFLAGS="-fPIC"
+      CMAKE_ARGS="-DCMAKE_POSITION_INDEPENDENT_CODE=ON
+      -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
+      -DCMAKE_SHARED_LINKER_FLAGS='-static-libstdc++'
+      -DCMAKE_MODULE_LINKER_FLAGS='-static-libstdc++'"
     # Install all necessary dependancies in cibuildwheel conatiners
     # epl-release : for access at Armadillo
     CIBW_BEFORE_ALL_LINUX: >
       dnf install -y epel-release &&
-      dnf module enable -y boost:1.76 &&
-      dnf install -y
-      boost-devel
-      blas-devel
-      lapack-devel
-      armadillo-devel
+      dnf install -y blas-devel lapack-devel armadillo-devel &&
+      curl -L https://archives.boost.io/release/1.78.0/source/boost_1_78_0.tar.gz -o boost.tar.gz &&
+      tar -xzf boost.tar.gz &&
+      cd boost_1_78_0 &&
+      ./bootstrap.sh --prefix=/usr/local &&
+      ./b2 --with-system --with-thread --with-random link=static variant=release cxxflags="-fPIC" cflags="-fPIC" -j4 install &&
+      cd .. && rm -rf boost_1_78_0 boost.tar.gz
     CIBW_BUILD: "cp31*-manylinux_x86_64"
     CIBW_SKIP: "*-musllinux_*"
