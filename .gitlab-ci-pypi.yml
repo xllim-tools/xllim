@@ -28,15 +28,15 @@ build-wheels:
       CMAKE_ARGS="-DCMAKE_POSITION_INDEPENDENT_CODE=ON
       -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
       -DCMAKE_SHARED_LINKER_FLAGS='-static-libstdc++'
-      -DCMAKE_MODULE_LINKER_FLAGS='-static-libstdc++'"
+      -DCMAKE_MODULE_LINKER_FLAGS='-static-libstdc++'
       -DBOOST_ROOT=/usr/local
       -DBoost_NO_SYSTEM_PATHS=ON
-      -DBoost_USE_STATIC_LIBS=ON
+      -DBoost_USE_STATIC_LIBS=ON"
 
     # Install all necessary dependancies in cibuildwheel conatiners
     # epl-release : for access at Armadillo
-    # Boost Manual Compilation: We compile Boost 1.78 from source instead of using 
-    # the system's 1.66 to meet the minimum requirement (>1.68 for boost/random/sobol.hpp) 
+    # Boost Manual Compilation: We compile Boost 1.78 from source instead of using
+    # the system's 1.66 to meet the minimum requirement (>1.68 for boost/random/sobol.hpp)
     # and ensure ABI compatibility by linking it statically into the final binary.
     CIBW_BEFORE_ALL_LINUX: >
       dnf install -y epel-release &&
