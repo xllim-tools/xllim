@@ -37,7 +37,7 @@ Issues = "https://gitlab.inria.fr/xllim/xllim/-/issues"
 xllim_cli = "xllim.cli:main"
 
 [tool.scikit-build.sdist]
-include = ["extern/carma/**/*", "extern/pybind11/**/*"]
+include = ["extern/carma/**/*", "extern/pybind11/**/*", "tests/**/*"]
 
 [tool.scikit-build]
 cmake.source-dir = "." # Root CMakeLists.txt

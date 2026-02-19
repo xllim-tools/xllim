@@ -24,6 +24,8 @@ build-artifacts:
     GIT_SUBMODULE_STRATEGY: recursive
     # Use manylinux_2_28 (AlmaLinux 8) to ensure glibc compatibility with most modern distros
     CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+    CIBW_TEST_REQUIRES: pytest numpy
+    CIBW_TEST_COMMAND: "pytest {project}/tests/pythonTests"
     CIBW_ENVIRONMENT: >
       CXXFLAGS="-fPIC"
       CFLAGS="-fPIC"
