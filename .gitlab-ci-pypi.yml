@@ -69,7 +69,7 @@ release-testpypi:
   script:
     - pip install --upgrade pip twine
     - twine check dist/* wheelhouse/*
-    - python -m twine upload --repository testpypi dist/*.tar.gz wheelhouse/*.whl
+    - python -m twine upload --verbose --repository testpypi dist/*.tar.gz wheelhouse/*.whl
   variables:
     TWINE_USERNAME: __token__
     TWINE_PASSWORD: $TESTPYPI_TOKEN
