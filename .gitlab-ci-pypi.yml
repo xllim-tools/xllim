@@ -1,4 +1,4 @@
-build-wheels:
+build-artifacts:
   stage: package
   when: manual
   image: python:3.11
@@ -9,13 +9,15 @@ build-wheels:
     - apt-get update
     - apt-get install -y --no-install-recommends docker.cli
     - pip install --upgrade pip
+    - pip install build
     - pip install cibuildwheel
-    - pip install auditwheel
   script:
     # cibuildwheel orchestrates the containerized build, repair (auditwheel), and testing
-    - cibuildwheel --output-dir wheelhouse
+    - python -m build --sdist --outdir dist
+    - cibuildwheel dist/*.tar.gz --output-dir wheelhouse
   artifacts:
     paths:
+      - dist/*.tar.gz
       - wheelhouse/*.whl
     expire_in: 1 week
   variables:
