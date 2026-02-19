@@ -54,3 +54,22 @@ build-artifacts:
     # Target Python 3.10+ for x86_64 architecture
     CIBW_BUILD: "cp31*-manylinux_x86_64"
     CIBW_SKIP: "*-musllinux_*"
+
+
+release-testpypi:
+  stage: publish-pypi
+  when: manual
+  image: python:3.11-slim
+  tags:
+    - ci.inria.fr
+    - small
+  needs:
+    - job: build-artifacts
+      artifacts: true
+  script:
+    - pip install --upgrade pip twine
+    - twine check dist/* wheelhouse/*
+    - python -m twine upload --repository testpypi dist/*.tar.gz wheelhouse/*.whl
+  variables:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: $TESTPYPI_TOKEN

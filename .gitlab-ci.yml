@@ -6,6 +6,7 @@ stages:
     - container
     - build
     - package
+    - publish-pypi
     - deploy
     - apptainer
 
