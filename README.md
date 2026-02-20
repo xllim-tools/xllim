@@ -30,14 +30,50 @@ For more information you can find a complete scientific documentation in the [Pl
 
 
 # Dependencies
-The library only runs in a Docker container. All the dependencies are installed in the *xllim_notebook* and the minimal *xllim_runner* docker images. The running dependencies are
+The library only runs in a Docker container. All the dependencies are installed in the *xllim_notebook* and the minimal *xllim_runner* docker images. 
+If you are setting up the environment manually, please refer to the requirements below.
+
+## Runtime Dependencies
+
+### Mandatory
+These packages are required for the core functionality of the library.
 | Name                 | version           |
 |----------------------|-------------------|
 | Armadillo            | 10.8.2            |
 | Python               | 3.10.12           |
 | Numpy                | 1.21.5            |
 
-The library is built with
+### Optional: ENVI / GDAL Support
+xllim requires GDAL specifically for ENVI hyperspectral file support. Because GDAL depends on native system libraries, installation can be complex.
+
+#### Recommended (Most reliable)
+Using Conda is the simplest way to handle linked C libraries:
+```
+conda install gdal
+```
+
+#### Alternative: pip + system package (Advanced users)
+If installing via apt or brew, the Python GDAL version must match the system GDAL version.
+If the versions do not match, the installation will fail.
+
+Example on Ubuntu:
+
+1. Install system libraries
+```
+sudo apt install libgdal-dev gdal-bin
+```
+2. Check the system version
+```
+gdal-config --version 
+```
+3. Install the matching python wrapper (e.g., if version is 3.8.4)
+```
+pip install "gdal==3.8.4"
+```
+
+## Build Dependencies
+
+These are required only if you are compiling the library from source.
 | Name                 | version           |
 |----------------------|-------------------|
 | Ubuntu               | Jammy 22.04.3 LTS |
