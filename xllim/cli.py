@@ -16,7 +16,7 @@ import os
 import numpy as np
 from pathlib import Path
 from datetime import datetime
-from typing import Tuple, List, Dict, Any, Optional, Union
+from typing import Tuple, List, Dict, Any, Optional, Union, TYPE_CHECKING
 
 
 # Optional GDAL support for ENVI hyperspectral data.
@@ -35,6 +35,12 @@ except ImportError:
     except ImportError:
         gdal = None
         HAS_GDAL = False
+
+# ---- Static type checking import (for mypy / IDE only) ----
+# This block is not executed at runtime.
+# Type checkers treat TYPE_CHECKING as True.
+if TYPE_CHECKING:
+    from osgeo import gdal as _gdal
 
 try:
     import xllim
@@ -534,8 +540,8 @@ def _require_gdal() -> None:
             "because it depends on native system libraries.\n\n"
             "Recommended installation method:\n\n"
             "  - Using conda: conda install gdal\n"
-            "Or refer to README.md for advanced pip installation"
-            "After installation, restart your Python session."
+            "Or refer to README.md for advanced pip installation\n"
+            "After installation, restart your Python session.\n"
         )
 
 # --- Core Command Functions ---
@@ -825,7 +831,7 @@ def train_model(h5f: h5py.File):
 
 # --- Prediction Related Functions ---
 
-def get_wavelengths_remote_sensing(data_rho: gdal.Dataset) -> List[str]:
+def get_wavelengths_remote_sensing(data_rho: "_gdal.Dataset") -> List[str]:
     """Extracts sorted wavelengths from GDAL dataset metadata."""
     _require_gdal()
     try:
@@ -850,7 +856,7 @@ def get_wavelengths_remote_sensing(data_rho: gdal.Dataset) -> List[str]:
          return []
 
 
-def get_reflectances_remote_sensing(data_rho: gdal.Dataset, data_drho: gdal.Dataset) -> List[List[Dict[str, np.ndarray]]]:
+def get_reflectances_remote_sensing(data_rho: "_gdal.Dataset", data_drho: "_gdal.Dataset") -> List[List[Dict[str, np.ndarray]]]:
     """Parses remote sensing reflectance data from GDAL datasets."""
     _require_gdal()
     try:
