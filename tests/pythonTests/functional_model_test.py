@@ -20,10 +20,14 @@ import numpy as np
 import pickle
 import json
 import xllim
+import os
 
 
 # Fix the random seed for reproducibility across all tests
 SEED = 12345
+
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+DATA_REF_DIR = os.path.join(BASE_PATH, "..", "dataRef")
 
 def set_up_models():
     """
@@ -39,7 +43,7 @@ def set_up_models():
     physical_models.append({"name": "TestModel", "xllim": xllim.TestModel()})
 
     # Load geometries for JSC1 from JSON
-    with open("../dataRef/JSC1_BRDF.json", "r") as f:
+    with open(os.path.join(DATA_REF_DIR, "JSC1_BRDF.json"), "r") as f:
         data = json.load(f)
     geometries_JSC1 = {
         "name": "JSC1",
@@ -47,7 +51,7 @@ def set_up_models():
     }
 
     # Load geometries for Mukundpura from JSON
-    with open("../dataRef/mukundpura_bloc_poudre_BRDF.json", "r") as f:
+    with open(os.path.join(DATA_REF_DIR, "mukundpura_bloc_poudre_BRDF.json"), "r") as f:
         data = json.load(f)
     geometries_muk = {
         "name": "muk",
@@ -160,7 +164,7 @@ def test_importanceSampling(physical_model):
         used for better identification in test reports.
 
     """
-
+    
     L = physical_model["xllim"].getDimensionX()
     D = physical_model["xllim"].getDimensionY()
     covariance = np.ones(D) * 1e-5
@@ -187,12 +191,14 @@ def test_importanceSampling(physical_model):
         proposition_gmms, y_obs, y_err, N_0, B, J, covariance, verbose=0, seed=SEED
     )
 
+    file_name = "is_results_ref_{}.file".format(physical_model["name"])
+    file_path = os.path.join(DATA_REF_DIR, "is_results_ref", file_name)
     # # ! Only run once to generate ref
-    # with open("../dataRef/is_results_ref/is_results_ref_{}.file".format(physical_model["name"]), "wb") as f:
+    # with open(file_path, "wb") as f:
     #     pickle.dump(is_results, f)
     #     f.close()
 
-    with open("../dataRef/is_results_ref/is_results_ref_{}.file".format(physical_model["name"]), "rb") as f:
+    with open(file_path, "rb") as f:
         is_results_ref = pickle.load(f)
         f.close()
 
