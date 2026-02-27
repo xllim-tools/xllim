@@ -202,9 +202,9 @@ def test_gllim_workflow(gamma_type, sigma_type):
     file_name = "prediction_results_ref_{}_{}.file".format(gamma_type, sigma_type)
     file_path = os.path.join(DATA_REF_DIR, "prediction_results_ref", file_name)
     # # ! Only run once to generate ref
-    with open(file_path, "wb") as f:
-        pickle.dump(prediction_results, f)
-        f.close()
+    # with open(file_path, "wb") as f:
+    #     pickle.dump(prediction_results, f)
+    #     f.close()
 
     with open(file_path, "rb") as f:
         prediction_results_ref = pickle.load(f)
@@ -238,9 +238,9 @@ def test_trainJGMM():
     gllim_params_trained_jgmm = gllim.getParams()
 
     # # ! Only run once to generate ref
-    with open(os.path.join(DATA_REF_DIR, "gllim_params_trained_jgmm_ref.file"), "wb") as f:
-        pickle.dump(gllim_params_trained_jgmm, f)
-        f.close()
+    # with open(os.path.join(DATA_REF_DIR, "gllim_params_trained_jgmm_ref.file"), "wb") as f:
+    #     pickle.dump(gllim_params_trained_jgmm, f)
+    #     f.close()
 
     with open(os.path.join(DATA_REF_DIR, "gllim_params_trained_jgmm_ref.file"), "rb") as f:
         gllim_params_trained_jgmm_ref = pickle.load(f)

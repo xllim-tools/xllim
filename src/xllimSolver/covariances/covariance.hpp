@@ -2,8 +2,6 @@
 #define COVARIANCE_HPP
 
 #include <armadillo>
-#include <pybind11/pybind11.h>
-#include <carma>
 
 using namespace arma;
 
@@ -59,7 +57,6 @@ public:
     // Useful for conversion std::vector<Covariance> <=> Armadillo
     using Type = cube;
     static cube getTypeSize(unsigned K, unsigned dimension) { return cube(K, dimension, dimension); };
-    static Type from_python_array(const py::array_t<double>& arr) { return carma::arr_to_cube<double>(arr); };
 
     // Assignement operators
     FullCovariance &operator=(const FullCovariance &cov);
@@ -108,7 +105,6 @@ public:
     // Useful for conversion std::vector<Covariance> <=> Armadillo
     using Type = mat;
     static mat getTypeSize(unsigned K, unsigned dimension) { return mat(K, dimension); };
-    static Type from_python_array(const py::array_t<double>& arr) { return carma::arr_to_mat<double>(arr); };
 
     // Assignement operators
     DiagCovariance &operator=(const DiagCovariance &cov);
@@ -160,7 +156,6 @@ public:
     // Useful for conversion std::vector<Covariance> <=> Armadillo
     using Type = vec;
     static vec getTypeSize(unsigned K, unsigned dimension) { return vec(K); };
-    static Type from_python_array(const py::array_t<double>& arr) { return carma::arr_to_row<double>(arr); };
 
     // Assignement operators
     IsoCovariance &operator=(const IsoCovariance &cov);
