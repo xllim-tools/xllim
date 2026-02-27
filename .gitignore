@@ -26,6 +26,7 @@ Thumbs.db
 
 # Build directories
 build/
+wheelhouse/
 
 # Python cache
 __pycache__/
