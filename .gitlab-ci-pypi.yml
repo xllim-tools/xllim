@@ -73,3 +73,18 @@ release-testpypi:
   variables:
     TWINE_USERNAME: __token__
     TWINE_PASSWORD: $TESTPYPI_TOKEN
+
+pages:
+    stage: deploy
+    when: manual
+    tags:
+        - ci.inria.fr
+        - small
+    image: python:3.11-slim
+    script:
+        - pip install --upgrade pip
+        - pip install sphinx sphinx-rtd-theme myst-parser sphinx-copybutton
+        - sphinx-build -b html docs/sphinx/source public
+    artifacts:
+        paths:
+            - public

@@ -3,12 +3,9 @@
 # PyPI-related jobs are defined in .gitlab-ci-pypi.yml.
 # List of stages for jobs, and their order of execution
 stages:
-    - container
-    - build
     - package
     - publish-pypi
     - deploy
-    - apptainer
 
 include:
     - local: ".gitlab-ci-docker.yml"

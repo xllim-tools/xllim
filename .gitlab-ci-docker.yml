@@ -1,106 +1,33 @@
-
-# ------------------------------ docker stage ------------------------------
-
-build-docker-images:
-    stage: container
+docker-build:
+    stage: deploy
     when: manual
-    tags:
-        - ci.inria.fr
-        - small
     image: docker:stable
-    script:
-        - docker build -t "$CI_REGISTRY_IMAGE/xllim_base_image:$CI_COMMIT_BRANCH" --target base_image .
-        - docker build -t "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH" --target builder .
-        - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
-        - docker push "$CI_REGISTRY_IMAGE/xllim_base_image:$CI_COMMIT_BRANCH"
-        - docker push "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH"
-
-
-# ------------------------------ build stage ------------------------------
-# this on-job stage run build + test + deployement of xllim library
-# The build is made thanks to cmake
-# the tests are done with ctest for unittest and python script for integration tests
-# If the two precedent steps succeded then the xllim.so library is deploy through Gitlab artifacts
-
-compile-and-test-xllim:
-    stage: build
-    when: manual
-    artifacts:
-        paths:
-            - xllim*.so
+    needs: ["build-artifacts"]
     tags:
         - ci.inria.fr
         - small
-    image: "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH"
+    rules:
+        - if: $CI_COMMIT_TAG
     script:
-        # build step
-        - apt-get update
-        - apt-get install -y --no-install-recommends git
-        - git submodule init
-        - git submodule update
-        - git submodule
-        - rm -rf build && mkdir build && cd build
-        - cmake -S .. -B . -DPYTHON_LIBRARY_DIR="$(pwd)/.." -DCMAKE_BUILD_TYPE=Release
-        - make install
-
-        # cpp unit test step
-        - cp xllim*.so /usr/lib/python3/dist-packages/xllim.so
-        - ctest
-        - cd ..
-        
-        # python integration test step
-        - cd tests/pythonTests/
-        - pytest -v --tb=short --color=yes
-
-
-# ------------------------------ deploy stage ------------------------------
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker build -t "$CI_REGISTRY_IMAGE/xllim:$CI_COMMIT_TAG" .
+        - docker push "$CI_REGISTRY_IMAGE/xllim:$CI_COMMIT_TAG"
 
 build-apptainer-image:
-    stage: apptainer
+    stage: deploy
     when: manual
+    image: ghcr.io/apptainer/apptainer:1.4.4
     artifacts:
         paths:
             - xllim.sif
     tags:
         - ci.inria.fr
         - small
-    image: ubuntu
+    rules:
+        - if: $CI_COMMIT_TAG
     needs:
-        - deploy-xllim-minimal-docker-image
+        - docker-build
     script:
-        - apt update
-        - apt install -y software-properties-common
-        - add-apt-repository -y ppa:apptainer/ppa
-        - apt update
-        - apt install -y apptainer
-        - apptainer build xllim.sif docker://"$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
-
-deploy-xllim-minimal-docker-image:
-    stage: deploy
-    when: manual
-    tags:
-        - ci.inria.fr
-        - small
-    image: docker:stable
-    needs:
-        - compile-and-test-xllim
-    dependencies:
-        - compile-and-test-xllim  # Only fetch artifacts from the build job
-    script:
-        - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
-        - ls xllim*.so
-        - docker build -t "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH" --target runner .
-        - docker push "$CI_REGISTRY_IMAGE/xllim_runner:$CI_COMMIT_BRANCH"
-
-pages:
-    stage: deploy
-    when: manual
-    tags:
-        - ci.inria.fr
-        - small
-    image: "$CI_REGISTRY_IMAGE/xllim_builder:$CI_COMMIT_BRANCH"
-    script:
-        - sphinx-build -b html docs/sphinx/source public
-    artifacts:
-        paths:
-            - public
+        - export APPTAINER_DOCKER_USERNAME=$CI_REGISTRY_USER
+        - export APPTAINER_DOCKER_PASSWORD=$CI_REGISTRY_PASSWORD
+        - apptainer build xllim.sif docker://"$CI_REGISTRY_IMAGE/xllim:$CI_COMMIT_TAG"
