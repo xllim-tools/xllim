@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.21)
 
 project(xllim_cpp_core LANGUAGES CXX VERSION 2.0.0)
 
@@ -25,11 +25,12 @@ endif()
 # ##############################################################################
 #                                 REQUIREMENTS                                 #
 # ##############################################################################
-# Boost lib for random genrators ---------
-find_package(Boost 1.68.0 REQUIRED COMPONENTS system thread random)
+# Boost 1.78: matches the version built for the PyPI wheel, ensuring ABI consistency across CI and conda.
+find_package(Boost 1.78.0 REQUIRED COMPONENTS system thread random)
 message(STATUS "Found Boost: Version ${Boost_VERSION}, Libs: ${Boost_LIBRARIES}, Includes: ${Boost_INCLUDE_DIRS}")
 
-# OpenBlas, Lapack, blas -----------------
+# OpenBLAS selected explicitly. Version is not strictly pinned: BLAS/LAPACK ABI is historically stable,
+# so a loose bound avoids over-constraining while still selecting the correct backend.
 set(BLA_VENDOR "OpenBLAS" CACHE STRING "Preferred BLAS vendor")
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
@@ -42,7 +43,8 @@ if(DEFINED ENV{CONDA_PREFIX})
     set(Armadillo_DIR "$ENV{CONDA_PREFIX}/share/Armadillo/CMake" CACHE PATH "Directory containing ArmadilloConfig.cmake")
     message(STATUS "Set Armadillo_DIR to: ${Armadillo_DIR}")
 endif()
-find_package(Armadillo REQUIRED)
+# 12.6 is the minimum version validated against in the manylinux image in CI.
+find_package(Armadillo 12.6 REQUIRED)
 if(TARGET armadillo AND NOT TARGET armadillo::armadillo)
     add_library(armadillo::armadillo ALIAS armadillo)
     message(STATUS "Aliased 'armadillo' target to armadillo::armadillo.")

@@ -2,8 +2,8 @@
 requires = [
     "setuptools>=42",
     "wheel",
-    "scikit-build-core>=0.7.0",
-    "numpy>=1.21",
+    "scikit-build-core>=0.7.0, <1",
+    "numpy>=2.0, <3", # NumPy 2 ABI target; Numpy 1.x is EOL since Sept. 2025
     "cmake>=3.21",
     "ninja",
 ]
@@ -11,17 +11,17 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "xllim"
-version = "2.0.1" # Or your desired Python package version
+version = "2.0.2" # Or your desired Python package version
 dependencies = [
-    "numpy>=1.21",
-    "h5py",
+    "numpy>=2.0, <3", 
+    "h5py>=3.8, <4",
 ]
 authors = [
   { name="Luc Meyer", email="luc.meyer@inria.fr" },
 ]
 description = "xLLiM is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11,<3.13" # >=3.11 requirement from NumPy 2, <3.13 from CARMA 
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
