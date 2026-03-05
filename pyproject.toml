@@ -21,7 +21,7 @@ authors = [
 ]
 description = "xLLiM is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping."
 readme = "README.md"
-requires-python = ">=3.11,<3.13" # >=3.11 requirement from NumPy 2, <3.13 from CARMA 
+requires-python = ">=3.10" # We're building only for 3.11 & 3.12 (NumPy 2 and CARMA support req.), but leaving free for users to compile with non-supported versions
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
