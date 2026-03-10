@@ -33,7 +33,7 @@ build-artifacts:
       -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
       -DCMAKE_SHARED_LINKER_FLAGS='-static-libstdc++'
       -DCMAKE_MODULE_LINKER_FLAGS='-static-libstdc++'
-      -DBOOST_ROOT=/usr/local
+      -DBoost_ROOT=/usr/local
       -DBoost_NO_SYSTEM_PATHS=ON
       -DBoost_USE_STATIC_LIBS=ON"
 
