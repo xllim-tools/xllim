@@ -1,51 +1,84 @@
-# syntax=docker/dockerfile:1
+# ==============================================================================
+# GLOBAL ARGUMENTS
+# ==============================================================================
+# "SOURCE" controls whether to build from scratch ('local') or use CI artifacts ('ci')
+ARG SOURCE=local
 
+# ==============================================================================
+# STAGE 1: Builder (Manylinux 2.28)
+# Used only if SOURCE=local. Provides an isolated, standard build environment.
+# ==============================================================================
+FROM quay.io/pypa/manylinux_2_28_x86_64 AS builder
 
-FROM ubuntu:jammy AS base_image
+WORKDIR /app
 
-# Install xllim run-time dependencies
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends \
-	apt-utils \
-	python3 \
-	python3-numpy \
-	python3-pybind11 \
-	python3-h5py \
-	libarmadillo10 \
-	libgomp1 \
-	libpython3.10
+RUN dnf install -y blas-devel lapack-devel armadillo-devel
 
-# (optional) Copy some python scripts to test xllim in docker container
-RUN mkdir /home/pythonTests && mkdir /home/dataRef
-COPY tests/pythonTests /home/pythonTests/
-COPY tests/dataRef /home/dataRef
+ENV CXXFLAGS="-fPIC" \
+    CFLAGS="-fPIC" \
+    CMAKE_ARGS="-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF \
+        -DCMAKE_SHARED_LINKER_FLAGS='-static-libstdc++' \
+        -DCMAKE_MODULE_LINKER_FLAGS='-static-libstdc++' \
+        -DBoost_ROOT=/usr/local \
+        -DBoost_NO_SYSTEM_PATHS=ON \
+        -DBoost_USE_STATIC_LIBS=ON \
+        -DARMADILLO_INCLUDE_DIR=/usr/include"
 
+# Build and install Boost from source (specific version requirement)
+RUN curl -L https://archives.boost.io/release/1.78.0/source/boost_1_78_0.tar.gz -o boost.tar.gz \
+    && tar -xzf boost.tar.gz \
+    && cd boost_1_78_0 \
+    && ./bootstrap.sh --prefix=/usr/local \
+    && ./b2 --with-system --with-thread --with-random link=static variant=release cxxflags="-fPIC" cflags="-fPIC" -j$(nproc) install \
+    && cd .. \
+    && rm -rf boost_1_78_0 boost.tar.gz
 
-FROM base_image AS runner
-COPY xllim*.so /usr/lib/python3/dist-packages/xllim.so
-COPY xllim_cli.py /usr/bin/xllim_cli
-ENTRYPOINT [ "/usr/bin/xllim_cli" ]
+# Set Python 3.11 as the default build environment
+ENV PATH="/opt/python/cp311-cp311/bin:${PATH}"
 
+# Copy project source code
+COPY . .
 
-FROM base_image AS builder
+# 1. Build the Source Distribution (sdist)
+# 2. Generate the binary Wheel
+# 3. Use 'auditwheel' to bundle external shared libraries into the wheel
+RUN python -m build --sdist --outdir dist \
+    && pip wheel dist/*.tar.gz --no-deps -w /tmp/wheels \
+    && for whl in /tmp/wheels/*.whl; do \
+        auditwheel repair "$whl" --plat manylinux_2_28_x86_64 -w /internal_wheelhouse; \
+    done
 
-# Install xllim compilation dependencies
-RUN apt-get update
+# ==============================================================================
+# STAGE 2 & 3: Source Redirection (The Pivot)
+# ==============================================================================
 
-# Install compilation tools
-RUN apt-get install -y --no-install-recommends g++ cmake make
+# Option A: Local build (grab wheels from the builder stage)
+FROM scratch AS wheels-source-local
+COPY --from=builder /internal_wheelhouse/*.whl /wheels/
 
-# Install Armadillo-related dependencies
-RUN apt-get install -y --no-install-recommends libopenblas-dev liblapack-dev libarpack2-dev libsuperlu-dev libarmadillo-dev
+# Option B: CI build (grab wheels from the local host 'wheelhouse' directory)
+FROM scratch AS wheels-source-ci
+COPY wheelhouse/*.whl /wheels/
 
-# Install Python-related dependencies
-RUN apt-get install -y --no-install-recommends python3-dev python3-pip
+# Final selection stage
+FROM wheels-source-${SOURCE} AS wheels_to_install
 
-# Install documention related packages
-RUN pip install -U sphinx sphinx-rtd-theme myst_parser sphinx-copybutton
+# ==============================================================================
+# STAGE 4: Final Production Image
+# Lightweight runtime environment based on Debian Slim
+# ==============================================================================
+FROM python:3.11-slim AS final
 
-# Install python tests related packages
-RUN pip install -U pytest
+WORKDIR /app
 
-# ! Boost required but only used for boost/property_tree
-RUN apt-get install -y --no-install-recommends libboost-dev
+# Copy wheels from the selected source
+COPY --from=wheels_to_install /wheels /wheels
+
+# Install the package and cleanup
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir /wheels/*cp311*.whl \
+    && rm -rf /wheels
+
+# Verify installation on startup
+CMD ["python", "-c", "import xllim; print(xllim.__version__)"]

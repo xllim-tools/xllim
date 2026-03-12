@@ -1,0 +1,90 @@
+build-artifacts:
+  stage: package
+  when: manual
+  image: python:3.11
+  tags:
+    - ci.inria.fr
+    - small
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends docker.cli
+    - pip install --upgrade pip
+    - pip install build
+    - pip install cibuildwheel
+  script:
+    # cibuildwheel orchestrates the containerized build, repair (auditwheel), and testing
+    - python -m build --sdist --outdir dist
+    - cibuildwheel dist/*.tar.gz --output-dir wheelhouse
+  artifacts:
+    paths:
+      - dist/*.tar.gz
+      - wheelhouse/*.whl
+    expire_in: 1 week
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    # Use manylinux_2_28 (AlmaLinux 8) to ensure glibc compatibility with most modern distros
+    CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+    CIBW_TEST_REQUIRES: pytest numpy
+    CIBW_TEST_COMMAND: "pytest {project}/tests/pythonTests"
+    CIBW_ENVIRONMENT: >
+      CXXFLAGS="-fPIC"
+      CFLAGS="-fPIC"
+      CMAKE_ARGS="-DCMAKE_POSITION_INDEPENDENT_CODE=ON
+      -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
+      -DCMAKE_SHARED_LINKER_FLAGS='-static-libstdc++'
+      -DCMAKE_MODULE_LINKER_FLAGS='-static-libstdc++'
+      -DBoost_ROOT=/usr/local
+      -DBoost_NO_SYSTEM_PATHS=ON
+      -DBoost_USE_STATIC_LIBS=ON"
+
+    # Install all necessary dependancies in cibuildwheel conatiners
+    # epl-release : for access at Armadillo
+    # Boost Manual Compilation: We compile Boost 1.78 from source instead of using
+    # the system's 1.66 to meet the minimum requirement (>1.68 for boost/random/sobol.hpp)
+    # and ensure ABI compatibility by linking it statically into the final binary.
+    CIBW_BEFORE_ALL_LINUX: >
+      dnf install -y epel-release &&
+      dnf install -y blas-devel lapack-devel armadillo-devel &&
+      curl -L https://archives.boost.io/release/1.78.0/source/boost_1_78_0.tar.gz -o boost.tar.gz &&
+      tar -xzf boost.tar.gz &&
+      cd boost_1_78_0 &&
+      ./bootstrap.sh --prefix=/usr/local &&
+      ./b2 --with-system --with-thread --with-random link=static variant=release cxxflags="-fPIC" cflags="-fPIC" -j$(nproc) install &&
+      cd .. && rm -rf boost_1_78_0 boost.tar.gz
+    # Target Python 3.11–3.12 for x86_64. cp310 dropped: reduces CI cost and aligns with requires-python >=3.11.
+    CIBW_BUILD: "cp311-manylinux_x86_64 cp312-manylinux_x86_64"
+    CIBW_SKIP: "*-musllinux_*"
+
+
+release-testpypi:
+  stage: publish-pypi
+  when: manual
+  image: python:3.11-slim
+  tags:
+    - ci.inria.fr
+    - small
+  needs:
+    - job: build-artifacts
+      artifacts: true
+  script:
+    - pip install --upgrade pip twine
+    - twine check dist/* wheelhouse/*
+    - python -m twine upload --verbose --repository testpypi dist/*.tar.gz wheelhouse/*.whl
+  variables:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: $TESTPYPI_TOKEN
+
+pages:
+    stage: deploy
+    when: manual
+    tags:
+        - ci.inria.fr
+        - small
+    image: python:3.11-slim
+    script:
+        - pip install --upgrade pip
+        - pip install sphinx sphinx-rtd-theme myst-parser sphinx-copybutton
+        - sphinx-build -b html docs/sphinx/source public
+    artifacts:
+        paths:
+            - public

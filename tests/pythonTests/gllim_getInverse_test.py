@@ -22,6 +22,7 @@ import pytest
 import numpy as np
 import pickle
 import xllim
+import os
 
 
 # Model parameters
@@ -47,6 +48,9 @@ GLLIM_PARAMS_REF = {
 }
 GLLIM_PARAMS_NAME_LIST = ["Pi", "A", "B", "C", "Gamma", "Sigma"]
 
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+DATA_REF_DIR = os.path.join(BASE_PATH, "..", "dataRef")
+
 
 @pytest.mark.parametrize("gamma_type", COVARIANCE_TYPE_LIST)
 @pytest.mark.parametrize("sigma_type", COVARIANCE_TYPE_LIST)
@@ -66,12 +70,14 @@ def test_getInverse(gamma_type, sigma_type):
 
     gllim_params_star = gllim.getInverse()
 
+    file_name = "gllim_params_star_ref_{}_{}.file".format(gamma_type, sigma_type)
+    file_path = os.path.join(DATA_REF_DIR, "gllim_params_star_ref", file_name)
     # # ! Only run once to generate ref
-    # with open("../dataRef/gllim_params_star_ref/gllim_params_star_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
+    # with open(file_path, "wb") as f:
     #     pickle.dump(gllim_params_star, f)
     #     f.close()
 
-    with open("../dataRef/gllim_params_star_ref/gllim_params_star_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
+    with open(file_path, "rb") as f:
         gllim_params_star_ref = pickle.load(f)
         f.close()
 

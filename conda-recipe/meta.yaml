@@ -1,0 +1,65 @@
+{% set name = "xllim" %}
+{% set version = "2.0.2" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  skip: true  # [py<311 or py>=313]  # >=3.11 requirement from NumPy 2, <3.13 from CARMA 
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+    - cmake >=3.21
+    - ninja
+
+  host:
+    - python # Build python versions should not be constrained here
+    - pip
+    - setuptools >=42
+    - wheel
+    - scikit-build-core >=0.7.0, <1  
+    - numpy  # numpy build version is decided by the conda-forge-pinning-feedstock, cannot constrain it here. Good news, it's numpy 2
+    - boost >=1.78, <2.0  # 1.78 matches the PyPI wheel build; <2.0 ensures ABI stability
+    - libblas * *openblas
+    - liblapack * *openblas
+    - openblas
+    - armadillo >=12.6, <13  # 12.6 minimum tested; <13 bounds to compatible major ABI
+
+  run:
+    - python
+    - numpy >=2.0, <3  # NumPy 2 ABI target; Numpy 1.x is EOL since Sept. 2025
+    - h5py >=3.8, <4
+    - openblas >=0.3.15, <1
+    - libstdcxx-ng  # [linux]
+
+test:
+  imports:
+    - xllim
+    - xllim._core
+    - xllim.cli
+    - xllim.utils
+  commands:
+    - xllim_cli --help
+  requires:
+    - pip
+  source_files:
+    - tests/
+
+about:
+  home: https://gitlab.inria.fr/xllim
+  license: CeCILL-C
+  license_file: LICENCE.txt
+  summary: 'Python package for XLLiM with C++ core'
+  description: |
+    xLLiM is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping. It can be used to perform efficient inversion of high-dimensional models.
+  doc_url: https://xllim.gitlabpages.inria.fr/xllim/index.html
+  dev_url: https://gitlab.inria.fr/xllim
+
+anaconda_upload: False

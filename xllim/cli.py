@@ -16,18 +16,31 @@ import os
 import numpy as np
 from pathlib import Path
 from datetime import datetime
-from typing import Tuple, List, Dict, Any, Optional, Union
+from typing import Tuple, List, Dict, Any, Optional, Union, TYPE_CHECKING
 
-# Attempt Gdal import (try common namespaces)
+
+# Optional GDAL support for ENVI hyperspectral data.
+# GDAL is not a mandatory dependency of xllim because it requires native system libraries that cannot be reliably installed via pip alone.
+# We therefore:
+# - try to import it
+# - expose a boolean flag (HAS_GDAL)
+# - raise a clear runtime error only when ENVI functionality is used
 try:
     from osgeo import gdal
+    HAS_GDAL = True
 except ImportError:
     try:
         import gdal
+        HAS_GDAL = True
     except ImportError:
-        from unittest.mock import Mock
-        gdal = Mock()
-        print("\nWARNING: GDAL not found. ENVI file operations will not work.\n")
+        gdal = None
+        HAS_GDAL = False
+
+# ---- Static type checking import (for mypy / IDE only) ----
+# This block is not executed at runtime.
+# Type checkers treat TYPE_CHECKING as True.
+if TYPE_CHECKING:
+    from osgeo import gdal as _gdal
 
 try:
     import xllim
@@ -510,6 +523,26 @@ def _load_gllim_model(h5f: h5py.File) -> Any:
     except (TypeError, AttributeError, KeyError) as e:
         logger.error(f"Failed to load or set GLLiM parameters: {e}")
         raise RuntimeError("Could not load trained GLLiM model.") from e
+    
+def _require_gdal() -> None:
+    """
+    Ensure GDAL is available before using ENVI-related features.
+
+    Raises
+    ------
+    RuntimeError
+        If GDAL is not installed.
+    """
+    if not HAS_GDAL:
+        raise RuntimeError(
+            "\nGDAL is required for ENVI file support but is not installed.\n\n"
+            "GDAL cannot be installed reliably via 'pip install gdal' alone\n"
+            "because it depends on native system libraries.\n\n"
+            "Recommended installation method:\n\n"
+            "  - Using conda: conda install gdal\n"
+            "Or refer to README.md for advanced pip installation\n"
+            "After installation, restart your Python session.\n"
+        )
 
 # --- Core Command Functions ---
 
@@ -798,9 +831,9 @@ def train_model(h5f: h5py.File):
 
 # --- Prediction Related Functions ---
 
-def get_wavelengths_remote_sensing(data_rho: gdal.Dataset) -> List[str]:
+def get_wavelengths_remote_sensing(data_rho: "_gdal.Dataset") -> List[str]:
     """Extracts sorted wavelengths from GDAL dataset metadata."""
-    if not gdal: raise RuntimeError("GDAL is required for remote sensing data.")
+    _require_gdal()
     try:
         # Metadata might not be present or in expected format
         header = data_rho.GetMetadata_Dict() # e.g., {'Band_1': '450.0', 'Band_10': '900.0', ...}
@@ -823,9 +856,9 @@ def get_wavelengths_remote_sensing(data_rho: gdal.Dataset) -> List[str]:
          return []
 
 
-def get_reflectances_remote_sensing(data_rho: gdal.Dataset, data_drho: gdal.Dataset) -> List[List[Dict[str, np.ndarray]]]:
+def get_reflectances_remote_sensing(data_rho: "_gdal.Dataset", data_drho: "_gdal.Dataset") -> List[List[Dict[str, np.ndarray]]]:
     """Parses remote sensing reflectance data from GDAL datasets."""
-    if not gdal: raise RuntimeError("GDAL is required for remote sensing data.")
+    _require_gdal()
     try:
         nb_geometries = data_rho.RasterXSize    # Samples per scene/line
         nb_scenes = data_rho.RasterYSize        # Lines/scenes
@@ -908,7 +941,7 @@ def _load_observations(observations_file_path: str, relative_uncertainty: Union[
                     observations.append((name, Y, Y_u, wavelengths))
                 
         elif os.path.isdir(observations_file_path): # Assuming ENVI directory structure (requires GDAL)
-            if not gdal: raise RuntimeError("GDAL is required to load observations from a directory (ENVI format).")
+            _require_gdal()
             # Infer base name (assuming dir name matches base name of files inside)
             base_name = os.path.basename(observations_file_path)
             rho_path = os.path.join(observations_file_path, f'{base_name}_rho_mod')

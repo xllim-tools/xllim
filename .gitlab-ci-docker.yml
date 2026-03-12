@@ -1,0 +1,33 @@
+docker-build:
+    stage: deploy
+    when: manual
+    image: docker:stable
+    needs: ["build-artifacts"]
+    tags:
+        - ci.inria.fr
+        - small
+    rules:
+        - if: $CI_COMMIT_TAG
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker build --build-arg SOURCE=ci -t "$CI_REGISTRY_IMAGE/xllim:$CI_COMMIT_TAG" .
+        - docker push "$CI_REGISTRY_IMAGE/xllim:$CI_COMMIT_TAG"
+
+build-apptainer-image:
+    stage: deploy
+    when: manual
+    image: ghcr.io/apptainer/apptainer:1.4.4
+    artifacts:
+        paths:
+            - xllim.sif
+    tags:
+        - ci.inria.fr
+        - small
+    rules:
+        - if: $CI_COMMIT_TAG
+    needs:
+        - docker-build
+    script:
+        - export APPTAINER_DOCKER_USERNAME=$CI_REGISTRY_USER
+        - export APPTAINER_DOCKER_PASSWORD=$CI_REGISTRY_PASSWORD
+        - apptainer build xllim.sif docker://"$CI_REGISTRY_IMAGE/xllim:$CI_COMMIT_TAG"

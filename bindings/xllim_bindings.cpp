@@ -3,7 +3,7 @@
 #include "gllim_bindings.cpp"
 #include "../src/utils/utils.hpp"
 
-PYBIND11_MODULE(xllim, m)
+PYBIND11_MODULE(_core, m)
 {
     // Define the Python module and initialize function
     m.doc() = "Your module documentation";

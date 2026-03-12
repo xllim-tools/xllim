@@ -12,6 +12,36 @@
 
 namespace py = pybind11;
 
+/**
+ * @namespace conversion
+ * @brief Conversion utilities from NumPy arrays to Armadillo covariance types.
+ * Maintains separation of concerns: Python bindings layer handles serialization logic,
+ * core C++ covariance classes remain pure.
+ */
+namespace conversion
+{
+    /// Convert NumPy array to arma::cube (FullCovariance).
+    inline arma::cube from_python_full(const py::array_t<double>& arr) {
+        return carma::arr_to_cube<double>(arr);
+    }
+
+    /// Convert NumPy array to arma::mat (DiagCovariance).
+    inline arma::mat from_python_diag(const py::array_t<double>& arr) {
+        return carma::arr_to_mat<double>(arr);
+    }
+
+    /// Convert NumPy array to arma::vec (IsoCovariance) with dimension normalization.
+    /// Handles row/column format inconsistencies from NumPy serialization.
+    inline arma::vec from_python_iso(const py::array_t<double>& arr) {
+        auto mat_arr = carma::arr_to_mat<double>(arr);
+        if (mat_arr.n_rows == 1) {
+            arma::mat transposed = mat_arr.t();
+            return transposed.col(0);
+        }
+        return mat_arr.col(0);
+    }
+}  // namespace conversion
+
 // Getter function to convert C++ std::vector<arma::cube> to Python list of numpy arrays
 std::vector<py::array_t<double>> get_covs(const MergedGMMResult &self)
 {
@@ -174,13 +204,29 @@ void bind_gllim_templates(pybind11::module &m, const std::string &str)
                   // Create a new C++ instance
                   GLLiMParametersArray<TGamma, TSigma> p(0, 0, 0);
 
-                  // Restore the state from the tuple
-                  p.Pi = t[0].cast<decltype(p.Pi)>();
-                  p.A = t[1].cast<decltype(p.A)>();
-                  p.B = t[2].cast<decltype(p.B)>();
-                  p.C = t[3].cast<decltype(p.C)>();
-                  p.Gamma = t[4].cast<decltype(p.Gamma)>();
-                  p.Sigma = t[5].cast<decltype(p.Sigma)>();
+                  // Restore the state from the tuple.
+                  // Pi, A, B, C use direct carma conversion as their types are consistent across all covariance classes.
+                  p.Pi = carma::arr_to_row(t[0].cast<py::array_t<double>>());
+                  p.A = carma::arr_to_cube(t[1].cast<py::array_t<double>>());
+                  p.B = carma::arr_to_mat(t[2].cast<py::array_t<double>>());
+                  p.C = carma::arr_to_mat(t[3].cast<py::array_t<double>>());
+                  
+                  // Gamma and Sigma use type-specific converters to handle deserialization logic.
+                  // This maintains separation of concerns: Python/NumPy conversion stays in bindings,
+                  // while core covariance classes remain pure C++.
+                  if constexpr (std::is_same_v<typename TGamma::Type, arma::cube>)
+                      p.Gamma = conversion::from_python_full(t[4].cast<py::array_t<double>>());
+                  else if constexpr (std::is_same_v<typename TGamma::Type, arma::mat>)
+                      p.Gamma = conversion::from_python_diag(t[4].cast<py::array_t<double>>());
+                  else if constexpr (std::is_same_v<typename TGamma::Type, arma::vec>)
+                      p.Gamma = conversion::from_python_iso(t[4].cast<py::array_t<double>>());
+
+                  if constexpr (std::is_same_v<typename TSigma::Type, arma::cube>)
+                      p.Sigma = conversion::from_python_full(t[5].cast<py::array_t<double>>());
+                  else if constexpr (std::is_same_v<typename TSigma::Type, arma::mat>)
+                      p.Sigma = conversion::from_python_diag(t[5].cast<py::array_t<double>>());
+                  else if constexpr (std::is_same_v<typename TSigma::Type, arma::vec>)
+                      p.Sigma = conversion::from_python_iso(t[5].cast<py::array_t<double>>());
 
                   return p;
              }));

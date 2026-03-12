@@ -1,0 +1,46 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "scikit-build-core>=0.7.0, <1",
+    "numpy>=2.0, <3", # NumPy 2 ABI target; Numpy 1.x is EOL since Sept. 2025
+    "cmake>=3.21",
+    "ninja",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "xllim"
+version = "2.0.2" # Or your desired Python package version
+dependencies = [
+    "numpy>=2.0, <3", 
+    "h5py>=3.8, <4",
+]
+authors = [
+  { name="Luc Meyer", email="luc.meyer@inria.fr" },
+]
+description = "xLLiM is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping."
+readme = "README.md"
+requires-python = ">=3.10" # We're building only for 3.11 & 3.12 (NumPy 2 and CARMA support req.), but leaving free for users to compile with non-supported versions
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "CeCILL-C"
+license-files = ["LICENCE.txt"]
+
+[project.urls]
+Homepage = "https://xllim.gitlabpages.inria.fr/xllim/index.html"
+Issues = "https://gitlab.inria.fr/xllim/xllim/-/issues"
+
+[project.scripts]
+xllim_cli = "xllim.cli:main"
+
+[tool.scikit-build.sdist]
+include = ["extern/carma/**/*", "extern/pybind11/**/*", "tests/**/*"]
+
+[tool.scikit-build]
+cmake.source-dir = "." # Root CMakeLists.txt
+cmake.args = ["-G", "Ninja"]
+cmake.build-type = "Release"
+wheel.packages = ["xllim"]

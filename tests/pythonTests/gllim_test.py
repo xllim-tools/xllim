@@ -19,6 +19,7 @@ import pytest
 import numpy as np
 import pickle
 import xllim
+import os
 
 # Fix the random seed for reproducibility across all tests
 SEED = 12345
@@ -47,6 +48,9 @@ np.random.seed(SEED)
 Y_GEN = np.random.rand(D, N_GEN) * 1e-3
 np.random.seed(SEED)
 Y_TEST = np.random.rand(D, N_TEST) * 1e-3
+
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+DATA_REF_DIR = os.path.join(BASE_PATH, "..", "dataRef")
 
 
 @pytest.mark.parametrize("gamma_type", COVARIANCE_TYPE_LIST)
@@ -132,13 +136,15 @@ def test_gllim_workflow(gamma_type, sigma_type):
         1, # verbose
     )
     gllim_params_initialised = gllim.getParams()
-
+    
+    file_name = "gllim_params_initialised_ref_{}_{}.file".format(gamma_type, sigma_type)
+    file_path = os.path.join(DATA_REF_DIR, "gllim_params_initialised_ref", file_name)
     # # ! Only run once to generate ref
-    # with open("../dataRef/gllim_params_initialised_ref/gllim_params_initialised_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
+    # with open(file_path, "wb") as f:
     #     pickle.dump(gllim_params_initialised, f)
     #     f.close()
 
-    with open("../dataRef/gllim_params_initialised_ref/gllim_params_initialised_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
+    with open(file_path, "rb") as f:
         gllim_params_initialised_ref = pickle.load(f)
         f.close()
 
@@ -163,12 +169,14 @@ def test_gllim_workflow(gamma_type, sigma_type):
     )
     gllim_params_trained = gllim.getParams()
 
+    file_name = "gllim_params_trained_ref_{}_{}.file".format(gamma_type, sigma_type)
+    file_path = os.path.join(DATA_REF_DIR, "gllim_params_trained_ref", file_name)
     # # ! Only run once to generate ref
-    # with open("../dataRef/gllim_params_trained_ref/gllim_params_trained_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
+    # with open(file_path, "wb") as f:
     #     pickle.dump(gllim_params_trained, f)
     #     f.close()
 
-    with open("../dataRef/gllim_params_trained_ref/gllim_params_trained_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
+    with open(file_path, "rb") as f:
         gllim_params_trained_ref = pickle.load(f)
         f.close()
 
@@ -191,12 +199,14 @@ def test_gllim_workflow(gamma_type, sigma_type):
         1e-10, # prediction_floor
     )
 
+    file_name = "prediction_results_ref_{}_{}.file".format(gamma_type, sigma_type)
+    file_path = os.path.join(DATA_REF_DIR, "prediction_results_ref", file_name)
     # # ! Only run once to generate ref
-    # with open("../dataRef/prediction_results_ref/prediction_results_ref_{}_{}.file".format(gamma_type, sigma_type), "wb") as f:
+    # with open(file_path, "wb") as f:
     #     pickle.dump(prediction_results, f)
     #     f.close()
 
-    with open("../dataRef/prediction_results_ref/prediction_results_ref_{}_{}.file".format(gamma_type, sigma_type), "rb") as f:
+    with open(file_path, "rb") as f:
         prediction_results_ref = pickle.load(f)
         f.close()
 
@@ -228,11 +238,11 @@ def test_trainJGMM():
     gllim_params_trained_jgmm = gllim.getParams()
 
     # # ! Only run once to generate ref
-    # with open("../dataRef/gllim_params_trained_jgmm_ref.file", "wb") as f:
+    # with open(os.path.join(DATA_REF_DIR, "gllim_params_trained_jgmm_ref.file"), "wb") as f:
     #     pickle.dump(gllim_params_trained_jgmm, f)
     #     f.close()
 
-    with open("../dataRef/gllim_params_trained_jgmm_ref.file", "rb") as f:
+    with open(os.path.join(DATA_REF_DIR, "gllim_params_trained_jgmm_ref.file"), "rb") as f:
         gllim_params_trained_jgmm_ref = pickle.load(f)
         f.close()
 

@@ -4,7 +4,7 @@
 #include "../generator/RandomGenerator.hpp"
 #include "../utils/utils.hpp"
 #include "../logging/logger.hpp"
-#include <omp.h>
+// #include <omp.h>
 
 #include "multivariateGaussian.hpp"
 #define DELETED true
