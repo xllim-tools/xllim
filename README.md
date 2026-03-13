@@ -242,5 +242,5 @@ python3
 
 # Licence
 This software is licensed under the [BSD 3-Clause License](LICENCE.txt).
-While the software is free, we would appreciate it if you send us an e-mail at ``xllim-contact at inria.fr`` to let us know how you use it.
+While the software is free, we would appreciate it if you send us an email at `xllim-contact@inria.fr` to let us know how you use it.
 Also, please contact us if the licence does not meet your needs.
