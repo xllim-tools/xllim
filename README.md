@@ -1,95 +1,48 @@
 
-[[_TOC_]]
- 
-# Presentation
+# xLLiM
 
-``xLLiM`` is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping.
+`xLLiM` is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping.
 It can be used to perform efficient inversion of high-dimensional models. 
-``xLLiM`` integrates features such as:
+`xLLiM` integrates features such as:
 * Forward model functionnals. These can be implemented as C++ or as pure Python functions. The forward model can be used to generate data following a distribution and refine GLLiM results by sampling the PDF using various strategies.
 * Multi-initialization options
 * Post-GLLiM refinement methods such as Importance Sampling (IS) and Iterative Mixture Importance Sampling (IMIS)
-* Post-processing analysis, including confidence quantification on predictions, detection of multiple solutions, andpermutation of predictions in case of signal regularity.
-Currently, ``xLLiM`` supports only Gaussion probability distributions, but other distributions may be added to it in the future.
+* Post-processing analysis, including confidence quantification on predictions, detection of multiple solutions, and permutation of predictions in case of signal regularity.
+Currently, `xLLiM` supports only Gaussion probability distributions, but other distributions may be added to it in the future.
 
-``xLLiM`` is distributed as a compiled shared library in a Docker container, and is integrated in the [Planet-GLLiM](https://gitlab.inria.fr/xllim/planet-gllim) 
+`xLLiM` is distributed as a compiled shared library available and can be installed via conda, pip, or as a Docker container. It is integrated in the [Planet-GLLiM](https://gitlab.inria.fr/xllim/planet-gllim) 
 astrophysics application, that is distributed as a Docker image for local use and as a data processing service
 on [Allgo-18](https://allgo18.inria.fr/).
 
-The ``xLLiM`` method was previously implemented in ``R`` and is available on [CRAN](https://cran.r-project.org/web/packages/xLLiM/index.html)
-An experimental implementation in ``Julia`` exists as well.
+The `xLLiM` method was previously implemented in `R` and is available on [CRAN](https://cran.r-project.org/web/packages/xLLiM/index.html)
+An experimental implementation in `Julia` exists as well.
 
-This ``xLLiM`` implementation is derived from [Kernelo](https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is).
-``Kernelo`` is obsolete and is no longer maintained.
-
+This `xLLiM` implementation is derived from [Kernelo](https://gitlab.inria.fr/kernelo-mistis/kernelo-gllim-is).
+`Kernelo` is obsolete and is no longer maintained.
 
 # Documentation and API reference
 
-The API reference of the xLLiM module is available [here](https://xllim.gitlabpages.inria.fr/xllim/). 
+The API reference of the xLLiM module is available at [xLLiM API reference](https://xllim-tools.github.io/xllim/). 
 For more information you can find a complete scientific documentation in the [Planet-GLLiM documentation](https://xllim.gitlabpages.inria.fr/planet-gllim/)
-
-
-# Dependencies
-The library only runs in a Docker container. All the dependencies are installed in the *xllim_notebook* and the minimal *xllim_runner* docker images. 
-If you are setting up the environment manually, please refer to the requirements below.
-
-## Runtime Dependencies
-
-### Mandatory
-These packages are required for the core functionality of the library.
-| Name                 | version           |
-|----------------------|-------------------|
-| Armadillo            | 10.8.2            |
-| Python               | 3.10.12           |
-| Numpy                | 1.21.5            |
-
-### Optional: ENVI / GDAL Support
-xllim requires GDAL specifically for ENVI hyperspectral file support. Because GDAL depends on native system libraries, installation can be complex.
-
-#### Recommended (Most reliable)
-Using Conda is the simplest way to handle linked C libraries:
-```
-conda install gdal
-```
-
-#### Alternative: pip + system package (Advanced users)
-If installing via apt or brew, the Python GDAL version must match the system GDAL version.
-If the versions do not match, the installation will fail.
-
-Example on Ubuntu:
-
-1. Install system libraries
-```
-sudo apt install libgdal-dev gdal-bin
-```
-2. Check the system version
-```
-gdal-config --version 
-```
-3. Install the matching python wrapper (e.g., if version is 3.8.4)
-```
-pip install "gdal==3.8.4"
-```
-
-## Build Dependencies
-
-These are required only if you are compiling the library from source.
-| Name                 | version           |
-|----------------------|-------------------|
-| Ubuntu               | Jammy 22.04.3 LTS |
-| g++                  | 11.4.0            |
-| Armadillo            | 10.8.2            |
-| OpenMP               | 4.5               |
-| Python               | 3.10.12           |
-| Pybind11             | 2.11.1            |
-| Carma                | 0.6.7             |
-
 
 # How to run xLLiM ?
 
-xLLiM is distributed as a compiled shared library in a Docker container thus Docker is required. We highly recommand to run our library with Docker container technology. However is you are using Ubuntu 22.04 you can compile or run the module without Docker.
 
-## Multi-platform installation with Docker
+`xLLiM` can be installed and used in several ways, depending on your environment and preference.
+
+## 1. Conda-forge (recommanded)
+The simplest way to install `xLLiM` is via conda
+@Todo
+
+## 2. PyPI
+
+```bash
+pip install xLLiM
+```
+The official wheels are compatible with Linux x86_64 (manylinux_2_28), Python 3.11 and 3.12 only.
+
+## 3. Docker
+A minimal Docker image is available based on python:3.11-slim, which already includes xLLiM installed via the wheel generated by our CI pipeline:
 
 ### Prerequisite
 Docker Engine is available on a variety of Linux platforms, macOS and Windows 10. You can find the installation documentation on [Docker's documentation website](https://docs.docker.com/)
@@ -100,27 +53,29 @@ Docker Engine is available on a variety of Linux platforms, macOS and Windows 10
 #### Windows
 * Docker Desktop that contains everything to run a Docker Compose ([Installation instructions](https://docs.docker.com/desktop/windows/install/)). You will be asked to install a linux kernel on the first Docker Desktop run. Choose Ubuntu-20.04. [Instructions to install the linux kernel](https://docs.microsoft.com/en-us/windows/wsl/install)
 
-### The minimal xLLiM image
-
-This image is built from Ubuntu 22.04 and contains sufficient dependencies for xLLiM to run. 
-
 ### First steps
 
 1. Pull the docker image
+
+```bash
+docker pull <docker-image-name>
 ```
-docker pull registry.gitlab.inria.fr/xllim/xllim/xllim_minimal
-```
+
 2. Create your container
+
+```bash
+docker run -it --name [myContainer] <docker-image-name>
 ```
-docker run -it --name [myContainer] registry.gitlab.inria.fr/xllim/xllim/xllim_minimal
-```
+
+This allows you to use `xLLiM` without manually managing dependencies or Python environments.
+
 Once inside the container you can manage your workspace, install dependencies, run commands... Enter *exit* to exit the container.
 
 ### Use your container
 
 3. Copy local files into your container.
 ```
-docker cp [myFile] [myContainer]:/home/
+docker cp [myFile] [myContainer]:/app/
 ```
 4. Start your container
 ```
@@ -134,9 +89,7 @@ docker exec -it [myContainer] bash
 ```
 docker stop [myContainer]
 ```
-
 Note that changes made to the docker container (installing packages etc.) are **persistent**. However be careful not to delete your container, otherwise all modifications made within it would be lost. You can also bind your container to a volume with -v option. More details at docker [documentation](https://docs.docker.com/reference/cli/docker/).
-
 
 ### The Jupyter notebook image
 
@@ -182,12 +135,67 @@ After stopping the Docker container you should need to grant back file access to
 sudo chown -R $(id -u):$(id -g) "${PWD}"
 ```
 
+# Manual installation (optional)
+If you are setting up the environment manually, please refer to the requirements below.
+
+## Runtime Dependencies
+
+### Mandatory
+These packages are required for the core functionality of the library.
+| Name                 | version           |
+|----------------------|-------------------|
+| Armadillo            | 10.8.2            |
+| Python               | 3.10.12           |
+| Numpy                | 1.21.5            |
+
+### Optional: ENVI / GDAL Support
+xllim requires GDAL specifically for ENVI hyperspectral file support. Because GDAL depends on native system libraries, installation can be complex.
+
+#### Recommended (Most reliable)
+Using Conda is the simplest way to handle linked C libraries:
+```
+conda install gdal
+```
+
+### Alternative: pip + system package (Advanced users)
+If installing via apt or brew, the Python GDAL version must match the system GDAL version.
+If the versions do not match, the installation will fail.
+
+Example on Ubuntu:
+
+1. Install system libraries
+```
+sudo apt install libgdal-dev gdal-bin
+```
+2. Check the system version
+```
+gdal-config --version 
+```
+3. Install the matching python wrapper (e.g., if version is 3.8.4)
+```
+pip install "gdal==3.8.4"
+```
+
+## Build Dependencies
+
+These are required only if you are compiling the library from source.
+| Name                 | version           |
+|----------------------|-------------------|
+| Ubuntu               | Jammy 22.04.3 LTS |
+| g++                  | 11.4.0            |
+| Armadillo            | 10.8.2            |
+| OpenMP               | 4.5               |
+| Python               | 3.10.12           |
+| Pybind11             | 2.11.1            |
+| Carma                | 0.6.7             |
 
 ## Run on Ubuntu 22.04
 
-``xLLiM`` is built on Ubuntu 22.04, so if it your OS you can run it without Docker. It may also work with other Linux distribution but it is not tested.
+`xLLiM` is built on Ubuntu 22.04, so if it your OS you can run it without Docker. It may also work with other Linux distribution but it is not tested.
+
 1. Get the xLLiM extension 
-The extension .so file is then stored as artifact, and can be downloaded from [GitLab's CI page](https://gitlab.inria.fr/xllim/xllim/-/pipelines). Click on the menu on the right side of the latest succesful job and select ``compile-and-test-xllim:archive``. This will download an ``archive.zip`` file containing the extension ``.so`` file.
+The extension .so file is then stored as artifact, and can be downloaded from [GitLab's CI page](https://gitlab.inria.fr/xllim/xllim/-/pipelines). Click on the menu on the right side of the latest succesful job and select `compile-and-test-xllim:archive`. This will download an `archive.zip` file containing the extension `.so` file.
+
 2. Install dependecies
 ```
 sudo apt install python3 python3-numpy libarmadillo10 libgomp1
@@ -238,7 +246,6 @@ make install
 python3
 >>> import xllim
 ```
-
 
 # Licence
 This software is licensed under the [BSD 3-Clause License](LICENCE.txt).
