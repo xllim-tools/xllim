@@ -26,7 +26,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-license = "CeCILL-C"
+license = "BSD 3-Clause License"
 license-files = ["LICENCE.txt"]
 
 [project.urls]
