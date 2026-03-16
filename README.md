@@ -53,43 +53,30 @@ Docker Engine is available on a variety of Linux platforms, macOS and Windows 10
 #### Windows
 * Docker Desktop that contains everything to run a Docker Compose ([Installation instructions](https://docs.docker.com/desktop/windows/install/)). You will be asked to install a linux kernel on the first Docker Desktop run. Choose Ubuntu-20.04. [Instructions to install the linux kernel](https://docs.microsoft.com/en-us/windows/wsl/install)
 
-### First steps
+### Using the Docker image
 
-1. Pull the docker image
+Pull the image:
 
 ```bash
 docker pull <docker-image-name>
 ```
 
-2. Create your container
+Run your project by mounting your source directory:
 
 ```bash
-docker run -it --name [myContainer] <docker-image-name>
+docker run -it \
+  -v $(pwd):/workspace \
+  -w /workspace \
+  <docker-image-name> \
+  python main.py
 ```
-
 This allows you to use `xLLiM` without manually managing dependencies or Python environments.
 
-Once inside the container you can manage your workspace, install dependencies, run commands... Enter *exit* to exit the container.
+You can also open an interactive shell:
 
-### Use your container
-
-3. Copy local files into your container.
+```bash
+docker run -it -v $(pwd):/workspace -w /workspace <docker-image-name> bash
 ```
-docker cp [myFile] [myContainer]:/app/
-```
-4. Start your container
-```
-docker start [myContainer]
-```
-5. Enter into your container in interactive mode
-```
-docker exec -it [myContainer] bash
-```
-6. Stop your container
-```
-docker stop [myContainer]
-```
-Note that changes made to the docker container (installing packages etc.) are **persistent**. However be careful not to delete your container, otherwise all modifications made within it would be lost. You can also bind your container to a volume with -v option. More details at docker [documentation](https://docs.docker.com/reference/cli/docker/).
 
 ### The Jupyter notebook image
 

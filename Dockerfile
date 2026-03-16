@@ -80,5 +80,4 @@ RUN pip install --upgrade pip \
     && pip install --no-cache-dir /wheels/*cp311*.whl \
     && rm -rf /wheels
 
-# Verify installation on startup
-CMD ["python", "-c", "import xllim; print(xllim.__version__)"]
+CMD ["python3"]
