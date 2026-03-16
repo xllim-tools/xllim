@@ -6,8 +6,6 @@ on:
   release:
     types: [published]  # When a GitHub release is published (GitHub interface, safer than tag trigger)
   workflow_dispatch:  # manual activation
-  push: 
-    branches: [feature/ci/github-actions] # temp, for testing before merging on master
 
 jobs:
   build-wheels:
@@ -91,7 +89,7 @@ jobs:
     name: Upload to TestPyPI
     # Runs only on manual dispatch, to test publishing before an official release
     if: |
-      github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     needs: build-wheels
 
@@ -116,7 +114,7 @@ jobs:
           name: sdist
           path: dist
 
-      # No tokens here as we're using Trusted Publishing. Set up directly on (Test)PyPI
+      # No tokens here as we're using Trusted Publishing. Set up directly on TestPyPI
       - name: Publish package to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -150,6 +148,6 @@ jobs:
           name: sdist
           path: dist
 
-      # No tokens here as we're using Trusted Publishing. Set up directly on (Test)PyPI
+      # No tokens here as we're using Trusted Publishing. Set up directly on PyPI
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
