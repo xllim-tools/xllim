@@ -166,50 +166,6 @@ You can also open an interactive shell:
 docker run -it -v $(pwd):/workspace -w /workspace ghcr.io/xllim-tools/xllim/xllim:latest bash
 ```
 
-### The Jupyter notebook image
-
-The image is built from the official [jupyter/scipy-notebook](https://jupyter-docker-stacks.readthedocs.io/en/latest/) image adapted to xLLiM dependencies. This image offers the familiar JupyterLab user interface within a Python-based datascience environment.
-
-#### First steps
-
-1. Connect to Inria's GitLab
-```
-docker login registry.gitlab.inria.fr
-```
-2. Get the Dockerfile. You achieve this by using curl or wget.
-```
-curl --location -o jupyter.Dockerfile "https://gitlab.inria.fr/xllim/xllim/-/raw/master/jupyter.Dockerfile?ref_type=heads&inline=false"
-```
-3. Build the docker image named *xllim_jupyter_notebook*
-```
-docker build -f jupyter.Dockerfile -t "xllim_jupyter_notebook" --no-cache-filter install .
-```
-4. Create and run the container *xllim_notebook* and bind the volume to your current working directory.
-```
-docker run -it --name xllim_notebook -p 8888:8888 -v "${PWD}":/home/jovyan/work xllim_jupyter_notebook
-```
-5. You can find the JupyterLab server address (*http://127.0.0.1:8888/lab?token=[some-token]*) in the logs. Make sure there is not another Jupyter server running. Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
-Have fun !
-
-#### Use your container
-
-Once your container is set up it is very easy to use your xLLiM environment. All changes made to the docker container (installing packages, etc.) are **persistent**. Be careful not to delete your container, otherwise all modifications made within it would be lost. You can start and stop the container with the two simple commands below:
-```
-docker stop xllim_notebook
-docker start xllim_notebook
-```
-#### ⚠️ File permission issues
-
-Depending on your OS and Docker version you may face permission issues on the mounted volume (/home/jovyan/work/ directory).
-You can overcome this issue by granting file access to the virtual user (*jovyan*) when creating the container.
-```
-docker run -it --name xllim_notebook -p 8888:8888 -v "${PWD}":/home/jovyan/work xllim_jupyter_notebook bash -c "chown -R jovyan:users /home/jovyan/work && start-notebook.py"
-```
-After stopping the Docker container you may need to grant back file access to your host machine's user.
-```
-sudo chown -R $(id -u):$(id -g) "${PWD}"
-```
-
 ## 4. Manual installation (optional)
 If you need to compile `xLLiM` from source (e.g., for an unsupported platform or Python version, or for development), please refer to the requirements below.
 
