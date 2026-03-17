@@ -1,7 +1,7 @@
 name: Build and Publish
 
 on:
-  pull_request:
+  push:
     branches: [master]
   release:
     types: [published]  # When a GitHub release is published (GitHub interface, safer than tag trigger)
