@@ -19,10 +19,16 @@ dependencies = [
 authors = [
   { name="Luc Meyer", email="luc.meyer@inria.fr" },
 ]
+
+maintainers = [
+    {name = "xLLiM Team", email="xllim-contact@inria.fr"},
+]
+
 description = "xLLiM is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping."
 readme = "README.md"
 requires-python = ">=3.10" # We're building only for 3.11 & 3.12 (NumPy 2 and CARMA support req.), but leaving free for users to compile with non-supported versions
 classifiers = [
+    "Programming Language :: C++",
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
@@ -30,8 +36,9 @@ license = "BSD 3-Clause License"
 license-files = ["LICENCE.txt"]
 
 [project.urls]
-Homepage = "https://xllim.gitlabpages.inria.fr/xllim/index.html"
-Issues = "https://gitlab.inria.fr/xllim/xllim/-/issues"
+Repository = "https://github.com/xllim-tools/xllim"
+Documentation = "https://xllim-tools.github.io/xllim/"
+Issues = "https://github.com/xllim-tools/xllim/issues"
 
 [project.scripts]
 xllim_cli = "xllim.cli:main"
