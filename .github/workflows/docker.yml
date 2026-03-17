@@ -1,0 +1,101 @@
+name: Build container images
+
+# Triggered after "Build and Publish" completes (workflow_run allows cross-workflow
+# artifact sharing and ensures wheels are available before building images).
+on:
+  workflow_run:
+    workflows: ["Build and Publish"]
+    types: [completed]
+
+# Centralized image name to avoid duplication between jobs.
+# head_branch holds the tag name (e.g. "v1.2.3") when triggered by a release event.
+env:
+  IMAGE: ghcr.io/${{ github.repository }}/xllim:${{ github.event.workflow_run.head_branch }}
+  IMAGE_LATEST: ghcr.io/${{ github.repository }}/xllim:latest
+
+jobs:
+
+  docker-build:
+    # Only run when upstream workflow succeeded AND was triggered by a GitHub release
+    # (not a PR or manual dispatch), ensuring we only publish images for real releases.
+    if: |
+      github.event.workflow_run.conclusion == 'success' && 
+      github.event.workflow_run.event == 'release'
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Download wheels built by the upstream "Build and Publish" workflow run.
+      # run-id is required to fetch artifacts across workflow boundaries.
+      - name: Download wheels artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: wheelhouse
+
+      - name: Login to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Builds from pre-built wheels (SOURCE=ci) rather than compiling from source.
+      # Pushes both a versioned tag and :latest for convenience.
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}
+            ${{ env.IMAGE_LATEST }}
+          build-args: |
+            SOURCE=ci
+  
+  build-apptainer-image:
+    needs: docker-build
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write   
+
+    steps:
+      # Use the community action to install a pinned version of Apptainer
+      - name: Install Apptainer
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.4.4
+
+      # oras:// prefix is required to correctly scope the token to GHCR's OCI registry.
+      - name: Login to container registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | \
+          apptainer registry login -u ${{ github.actor }} --password-stdin oras://ghcr.io
+
+      # Convert the Docker image to a portable SIF (Singularity Image Format),
+      # used for HPC environments where Docker is unavailable.
+      - name: Build SIF image
+        run: apptainer build xllim.sif docker://${{ env.IMAGE }}
+
+      # Pushing SIF image to GHCR, with -sif suffix
+      - name: Push SIF image to GHCR
+        run: apptainer push xllim.sif oras://${{ env.IMAGE }}-sif
+
+      - name: Upload SIF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apptainer-image
+          path: xllim.sif
