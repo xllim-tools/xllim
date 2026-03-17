@@ -54,7 +54,7 @@ test:
 
 about:
   home: https://github.com/xllim-tools/xllim
-  license: BSD 3-Clause License
+  license: CeCILL-C
   license_file: LICENCE.txt
   summary: 'Python package for XLLiM with C++ core'
   description: |

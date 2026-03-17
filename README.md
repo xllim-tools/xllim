@@ -282,6 +282,6 @@ ctest --test-dir build
 The build type can be either *Debug* (`-O0 -g`) or *Release* (`-O2 -DNDEBUG`). To install the compiled module into your Python environment, use `pip install .` as described above.
 
 # Licence
-This software is licensed under the [BSD 3-Clause License](LICENCE.txt).
+This software is licensed under the GNU GPL-compatible [CeCILL-C License](LICENCE.txt).
 While the software is free, we would appreciate it if you send us an email at `xllim-contact@inria.fr` to let us know how you use it.
 Also, please contact us if the licence does not meet your needs.
