@@ -53,13 +53,13 @@ test:
     - tests/
 
 about:
-  home: https://gitlab.inria.fr/xllim
+  home: https://github.com/xllim-tools/xllim
   license: CeCILL-C
   license_file: LICENCE.txt
   summary: 'Python package for XLLiM with C++ core'
   description: |
     xLLiM is a C++ with Python bindings implementation of Gaussian Locally-Linear Mapping. It can be used to perform efficient inversion of high-dimensional models.
-  doc_url: https://xllim.gitlabpages.inria.fr/xllim/index.html
-  dev_url: https://gitlab.inria.fr/xllim
+  doc_url: https://xllim-tools.github.io/xllim/
+  dev_url: https://github.com/xllim-tools/xllim
 
 anaconda_upload: False
