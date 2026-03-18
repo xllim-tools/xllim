@@ -1,0 +1,9 @@
+# REQUIRED ONLY FOR LOCAL BUILD:
+# Do not upload to conda-forge, this is already handled by conda-forge-pinning-feedstock
+
+python:
+  - 3.11
+  - 3.12
+
+numpy:
+  - 2.0
