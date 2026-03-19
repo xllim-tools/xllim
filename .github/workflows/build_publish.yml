@@ -1,8 +1,6 @@
 name: Build and Publish
 
 on:
-  push:
-    branches: [master]
   release:
     types: [published]  # When a GitHub release is published (GitHub interface, safer than tag trigger)
   workflow_dispatch:  # manual activation
