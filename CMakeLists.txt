@@ -45,26 +45,43 @@ if(DEFINED ENV{CONDA_PREFIX})
 endif()
 # 12.6 is the minimum version validated against in the manylinux image in CI.
 find_package(Armadillo 12.6 REQUIRED)
-if(TARGET armadillo AND NOT TARGET armadillo::armadillo)
-    add_library(armadillo::armadillo ALIAS armadillo)
-    message(STATUS "Aliased 'armadillo' target to armadillo::armadillo.")
-else()
-    message(FATAL_ERROR "Armadillo not found")
+# Only create the alias if system carma won't do it for us via carmaConfig.cmake
+if(NOT XLLIM_USE_SYSTEM_CARMA)
+    if(TARGET armadillo AND NOT TARGET armadillo::armadillo)
+        add_library(armadillo::armadillo ALIAS armadillo)
+        message(STATUS "Aliased 'armadillo' target to armadillo::armadillo.")
+    else()
+        message(FATAL_ERROR "Armadillo not found")
+    endif()
 endif()
 
-# --- Pybind11 (vendored) ---
-set(PYBIND11_USE_CMAKE_MODULE OFF) # We use add_subdirectory
-set(PYBIND11_TEST OFF) # Don't build pybind11 tests
-add_subdirectory(extern/pybind11)
+# --- Pybind11 ---
+# XLLIM_USE_SYSTEM_PYBIND11 allow conda-forge builds to use system-installed pybind11 instead of vendored.
+# This satisfies conda-forge's non-vendorization policy while preserving
+# vendored pybind11 for PyPI/local builds (default: OFF).
+option(XLLIM_USE_SYSTEM_PYBIND11 "Use system-installed pybind11 instead of vendored" OFF)
+if(XLLIM_USE_SYSTEM_PYBIND11)
+    find_package(pybind11 REQUIRED CONFIG)
+    message(STATUS "Using system pybind11: ${pybind11_VERSION}")
+else()
+    set(PYBIND11_USE_CMAKE_MODULE OFF) # We use add_subdirectory
+    set(PYBIND11_TEST OFF) # Don't build pybind11 tests
+    add_subdirectory(extern/pybind11)
+endif()
 
-# --- Carma (vendored) ---
+# --- Carma ---
+# Allow conda-forge builds to use system-installed carma instead of vendored.
 # Carma will find Armadillo using find_package(Armadillo) internally.
 # It should pick up the same Armadillo target we found above.
-set(CARMA_BUILD_TESTS OFF)
-set(CARMA_BUILD_EXAMPLES OFF)
-# set(ARMADILLO_ROOT_DIR "/miniconda3/envs/build312/")
-add_subdirectory(extern/carma)
-# unset(ARMADILLO_ROOT_DIR)
+option(XLLIM_USE_SYSTEM_CARMA "Use system-installed carma instead of vendored" OFF)
+if(XLLIM_USE_SYSTEM_CARMA)
+    find_package(carma REQUIRED CONFIG)
+    message(STATUS "Using system carma: ${carma_VERSION}")
+else()
+    set(CARMA_BUILD_TESTS OFF)
+    set(CARMA_BUILD_EXAMPLES OFF)
+    add_subdirectory(extern/carma)
+endif()
 
 if(NOT Python_INCLUDE_DIRS AND NOT Python3_INCLUDE_DIRS) # CMake uses Python3_ for Python 3
     # scikit-build-core might set PYTHON_INCLUDE_DIR directly too
