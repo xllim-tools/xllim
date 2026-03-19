@@ -45,11 +45,14 @@ if(DEFINED ENV{CONDA_PREFIX})
 endif()
 # 12.6 is the minimum version validated against in the manylinux image in CI.
 find_package(Armadillo 12.6 REQUIRED)
-if(TARGET armadillo AND NOT TARGET armadillo::armadillo)
-    add_library(armadillo::armadillo ALIAS armadillo)
-    message(STATUS "Aliased 'armadillo' target to armadillo::armadillo.")
-else()
-    message(FATAL_ERROR "Armadillo not found")
+# Only create the alias if system carma won't do it for us via carmaConfig.cmake
+if(NOT XLLIM_USE_SYSTEM_CARMA)
+    if(TARGET armadillo AND NOT TARGET armadillo::armadillo)
+        add_library(armadillo::armadillo ALIAS armadillo)
+        message(STATUS "Aliased 'armadillo' target to armadillo::armadillo.")
+    else()
+        message(FATAL_ERROR "Armadillo not found")
+    endif()
 endif()
 
 # --- Pybind11 ---
