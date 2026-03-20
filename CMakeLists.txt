@@ -18,6 +18,10 @@ option(XLLIM_BUILD_TESTS "Build C++ tests" OFF) # Default to OFF for package bui
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON) # Prefer <Package>Config.cmake over Find<Package>.cmake
 if(DEFINED ENV{CONDA_PREFIX})
     list(PREPEND CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}")
+    # On Windows, conda installs headers/libs under Library/ which CMake modules don't search by default.
+    if(WIN32)
+        list(PREPEND CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}/Library")
+    endif()
     message(STATUS "Prepended CONDA_PREFIX to CMAKE_PREFIX_PATH: $ENV{CONDA_PREFIX}")
 else()
     message(WARNING "CONDA_PREFIX environment variable not set. Dependency resolution might be less predictable.")
@@ -29,8 +33,8 @@ endif()
 find_package(Boost 1.78.0 REQUIRED COMPONENTS system thread random)
 message(STATUS "Found Boost: Version ${Boost_VERSION}, Libs: ${Boost_LIBRARIES}, Includes: ${Boost_INCLUDE_DIRS}")
 
-# OpenBLAS selected explicitly. Version is not strictly pinned: BLAS/LAPACK ABI is historically stable,
-# so a loose bound avoids over-constraining while still selecting the correct backend.
+# FindBLAS on Windows+conda requires Library/ to be in CMAKE_PREFIX_PATH (done above).
+# BLA_VENDOR=OpenBLAS ensures the correct backend is selected on all platforms.
 set(BLA_VENDOR "OpenBLAS" CACHE STRING "Preferred BLAS vendor")
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)

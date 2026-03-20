@@ -2,8 +2,8 @@ name: Build and deploy documentation
 
 on:
   workflow_dispatch:
-  push:
-     branches: [master]
+  release:
+    types: [published]
 
 permissions:
   contents: read

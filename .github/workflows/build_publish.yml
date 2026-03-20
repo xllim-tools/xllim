@@ -4,6 +4,8 @@ on:
   release:
     types: [published]  # When a GitHub release is published (GitHub interface, safer than tag trigger)
   workflow_dispatch:  # manual activation
+  push:
+    branches: [feature/release/pypi-conda]
 
 jobs:
   build-wheels:
