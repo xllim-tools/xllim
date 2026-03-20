@@ -34,8 +34,10 @@ find_package(Boost 1.78.0 REQUIRED COMPONENTS system thread random)
 message(STATUS "Found Boost: Version ${Boost_VERSION}, Libs: ${Boost_LIBRARIES}, Includes: ${Boost_INCLUDE_DIRS}")
 
 # FindBLAS on Windows+conda requires Library/ to be in CMAKE_PREFIX_PATH (done above).
-# BLA_VENDOR=OpenBLAS ensures the correct backend is selected on all platforms.
-set(BLA_VENDOR "OpenBLAS" CACHE STRING "Preferred BLAS vendor")
+# Don't force a vendor when the build system (conda-forge) provides the correct BLAS already
+if(NOT DEFINED BLA_VENDOR)
+    set(BLA_VENDOR "OpenBLAS" CACHE STRING "Preferred BLAS vendor")
+endif()
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 message(STATUS "BLAS libraries: ${BLAS_LIBRARIES}")
