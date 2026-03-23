@@ -82,6 +82,11 @@ option(XLLIM_USE_SYSTEM_CARMA "Use system-installed carma instead of vendored" O
 if(XLLIM_USE_SYSTEM_CARMA)
     find_package(carma REQUIRED CONFIG)
     message(STATUS "Using system carma: ${carma_VERSION}")
+    # carmaConfig.cmake sets INTERFACE_PRECOMPILE_HEADERS to "${carma_INCLUDE_DIR}/carma_bits/cnalloc.h".
+    # On Windows conda-forge, carma_INCLUDE_DIR incorrectly resolves to the source tree instead of
+    # the host env, producing a broken absolute path in the generated cmake_pch.hxx.
+    # Clearing the PCH avoids this without any correctness impact (PCH is a build-speed optimisation only).
+    set_target_properties(carma::carma PROPERTIES INTERFACE_PRECOMPILE_HEADERS "")
 else()
     set(CARMA_BUILD_TESTS OFF)
     set(CARMA_BUILD_EXAMPLES OFF)
