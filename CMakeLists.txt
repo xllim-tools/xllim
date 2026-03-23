@@ -33,13 +33,12 @@ endif()
 find_package(Boost 1.78.0 REQUIRED COMPONENTS system thread random)
 message(STATUS "Found Boost: Version ${Boost_VERSION}, Libs: ${Boost_LIBRARIES}, Includes: ${Boost_INCLUDE_DIRS}")
 
-# FindBLAS on Windows+conda requires Library/ to be in CMAKE_PREFIX_PATH (done above).
-# Don't force a vendor when the build system (conda-forge) provides the correct BLAS already
-if(NOT DEFINED BLA_VENDOR)
-    set(BLA_VENDOR "OpenBLAS" CACHE STRING "Preferred BLAS vendor")
-endif()
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
+# No BLA_VENDOR is forced: any conforming BLAS (OpenBLAS, MKL, Accelerate…) is accepted.
+# Users can still override via -DBLA_VENDOR=<name> on the CMake command line.
+# MODULE mode: conda-forge's liblapack-config.cmake contains broken target references that
+# don't exist in the shim environment; FindBLAS/FindLAPACK modules work correctly.
+find_package(BLAS MODULE REQUIRED)
+find_package(LAPACK MODULE REQUIRED)
 message(STATUS "BLAS libraries: ${BLAS_LIBRARIES}")
 message(STATUS "LAPACK libraries: ${LAPACK_LIBRARIES}")
 
