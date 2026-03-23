@@ -1,3 +1,6 @@
+#ifdef _MSC_VER
+#  define _USE_MATH_DEFINES  // Required for M_PI on MSVC
+#endif
 #include "utils.hpp"
 
 using namespace utils;
@@ -298,7 +301,7 @@ umat generatePermutations(unsigned N)
 {
     umat permutations(factorial(N), N); // (N!, N)
     unsigned current_permutation = 0;
-    unsigned elements[N]; // Generate an 1D array of N elements from 0 to N-1
+    std::vector<unsigned> elements(N); // VLA not supported by MSVC; use std::vector instead
     for (unsigned n = 0; n < N; n++)
         elements[n] = n;
     do
@@ -306,7 +309,7 @@ umat generatePermutations(unsigned N)
         for (unsigned n = 0; n < N; n++)
             permutations(current_permutation, n) = elements[n]; // save the current permutation
         current_permutation++;
-    } while (std::next_permutation(elements, elements + N));
+    } while (std::next_permutation(elements.data(), elements.data() + N));
     return permutations;
 }
 

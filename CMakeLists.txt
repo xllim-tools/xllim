@@ -172,7 +172,6 @@ add_library(xllim_functionalModel STATIC
 set_target_properties(xllim_functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(xllim_functionalModel PUBLIC xllim_utils)
 
-set(CARMA_BINARY_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/extern/carma/include)
 add_library(xllim_pythonEmbed STATIC
     # src/functionalModel/FunctionalModel.cpp # Already in xllim_functionalModel, avoid ODR issues
     src/functionalModel/ExternalPythonModel.cpp
@@ -181,7 +180,8 @@ target_include_directories(xllim_pythonEmbed PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     ${EFFECTIVE_PYTHON_INCLUDE_DIRS}
-    ${carma_INCLUDE_DIR} # Use variable set by carma
+    # carma includes propagate via carma::carma INTERFACE target (do not add carma_INCLUDE_DIR manually:
+    # on Windows conda-forge it resolves incorrectly to the source tree instead of the host env)
 )
 set_target_properties(xllim_pythonEmbed PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(xllim_pythonEmbed PUBLIC xllim_utils pybind11::headers carma::carma)
@@ -198,7 +198,7 @@ set_target_properties(xllim_solver PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(xllim_solver PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    ${carma_INCLUDE_DIR}
+    # carma includes propagate via carma::carma INTERFACE target (see xllim_pythonEmbed comment)
 )
 target_link_libraries(xllim_solver PUBLIC armadillo::armadillo pybind11::headers carma::carma)
 
@@ -289,8 +289,16 @@ message(STATUS "  Python module target: _core")
 message(STATUS "  Build tests: ${XLLIM_BUILD_TESTS}")
 message(STATUS "  Armadillo includes: ${ARMADILLO_INCLUDE_DIRS}")
 message(STATUS "  Armadillo libraries: ${ARMADILLO_LIBRARIES}")
-message(STATUS "  Pybind11 include dir (from vendored): ${pybind11_INCLUDE_DIR}") # Check actual var from add_sub(pybind11)
-message(STATUS "  Carma include dir (from vendored): ${carma_INCLUDE_DIR}")     # Check actual var
+if(XLLIM_USE_SYSTEM_PYBIND11)
+    message(STATUS "  Pybind11: system (${pybind11_VERSION}), include dir: ${pybind11_INCLUDE_DIR}")
+else()
+    message(STATUS "  Pybind11: vendored, include dir: ${pybind11_INCLUDE_DIR}")
+endif()
+if(XLLIM_USE_SYSTEM_CARMA)
+    message(STATUS "  Carma: system (${carma_VERSION}), include dir: ${carma_INCLUDE_DIR}")
+else()
+    message(STATUS "  Carma: vendored, include dir: ${carma_INCLUDE_DIR}")
+endif()
 
 # ##############################################################################
 #                                  INSTALL                                     #
