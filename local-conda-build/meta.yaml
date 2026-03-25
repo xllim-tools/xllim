@@ -36,7 +36,7 @@ requirements:
     - scikit-build-core >=0.7.0,<1  
     - numpy  # numpy build version is decided by the conda-forge-pinning-feedstock, cannot constrain it here. Good news, it's numpy 2
     - boost  # Letting boost use the global pin to be compatible with other packages (and be rebuilt accordingly)
-    - armadillo >=12.6,<13  # 12.6 minimum tested; <13 bounds to compatible major ABI.
+    - armadillo >=12.6,<13  # 12.6 minimum tested; <13 bounds to compatible major ABI. Pulls libblas & liblapack.
     - pybind11 >=2.12,<3  # replaces vendored extern/pybind11; <3 needed (API break)
     - carma  # replaces vendored extern/carma
     - libblas    # explicit host dep so run_exports propagate the correct BLAS runtime
@@ -55,7 +55,8 @@ test:
     - xllim.cli
     - xllim.utils
   commands:
-    - xllim_cli --help
+    - xllim_cli --help  # [not win]
+    - python -m xllim.cli --help  # [win]  # console script wrapper unreliable on Windows (new process DLL activation)
     - pip check
   requires:
     - pip
