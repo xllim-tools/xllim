@@ -4,8 +4,7 @@ requires = [
     "wheel",
     "scikit-build-core>=0.7.0, <1",
     "numpy>=2.0, <3", # NumPy 2 ABI target; Numpy 1.x is EOL since Sept. 2025
-    "cmake>=3.21",
-    "ninja",
+    # cmake and ninja removed: scikit-build-core injects them automatically
 ]
 build-backend = "scikit_build_core.build"
 
@@ -48,6 +47,9 @@ include = ["extern/carma/**/*", "extern/pybind11/**/*", "tests/**/*"]
 
 [tool.scikit-build]
 cmake.source-dir = "." # Root CMakeLists.txt
-cmake.args = ["-G", "Ninja"]
+# Explicitly passing CMAKE_BUILD_TYPE as a cmake arg ensures Release mode on all platforms,
+# including Windows conda-forge where conda-build may inject debug CXXFLAGS
+# that override scikit-build-core's cmake.build-type setting.
+cmake.args = ["-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release"]
 cmake.build-type = "Release"
 wheel.packages = ["xllim"]

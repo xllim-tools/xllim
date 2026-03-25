@@ -33,13 +33,12 @@ endif()
 find_package(Boost 1.78.0 REQUIRED COMPONENTS system thread random)
 message(STATUS "Found Boost: Version ${Boost_VERSION}, Libs: ${Boost_LIBRARIES}, Includes: ${Boost_INCLUDE_DIRS}")
 
-# FindBLAS on Windows+conda requires Library/ to be in CMAKE_PREFIX_PATH (done above).
-# Don't force a vendor when the build system (conda-forge) provides the correct BLAS already
-if(NOT DEFINED BLA_VENDOR)
-    set(BLA_VENDOR "OpenBLAS" CACHE STRING "Preferred BLAS vendor")
-endif()
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
+# No BLA_VENDOR is forced: any conforming BLAS (OpenBLAS, MKL, Accelerate…) is accepted.
+# Users can still override via -DBLA_VENDOR=<name> on the CMake command line.
+# MODULE mode: conda-forge's liblapack-config.cmake contains broken target references that
+# don't exist in the shim environment; FindBLAS/FindLAPACK modules work correctly.
+find_package(BLAS MODULE REQUIRED)
+find_package(LAPACK MODULE REQUIRED)
 message(STATUS "BLAS libraries: ${BLAS_LIBRARIES}")
 message(STATUS "LAPACK libraries: ${LAPACK_LIBRARIES}")
 
@@ -83,6 +82,11 @@ option(XLLIM_USE_SYSTEM_CARMA "Use system-installed carma instead of vendored" O
 if(XLLIM_USE_SYSTEM_CARMA)
     find_package(carma REQUIRED CONFIG)
     message(STATUS "Using system carma: ${carma_VERSION}")
+    # carmaConfig.cmake sets INTERFACE_PRECOMPILE_HEADERS to "${carma_INCLUDE_DIR}/carma_bits/cnalloc.h".
+    # On Windows conda-forge, carma_INCLUDE_DIR incorrectly resolves to the source tree instead of
+    # the host env, producing a broken absolute path in the generated cmake_pch.hxx.
+    # Clearing the PCH avoids this without any correctness impact (PCH is a build-speed optimisation only).
+    set_target_properties(carma::carma PROPERTIES INTERFACE_PRECOMPILE_HEADERS "")
 else()
     set(CARMA_BUILD_TESTS OFF)
     set(CARMA_BUILD_EXAMPLES OFF)
@@ -173,7 +177,6 @@ add_library(xllim_functionalModel STATIC
 set_target_properties(xllim_functionalModel PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(xllim_functionalModel PUBLIC xllim_utils)
 
-set(CARMA_BINARY_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/extern/carma/include)
 add_library(xllim_pythonEmbed STATIC
     # src/functionalModel/FunctionalModel.cpp # Already in xllim_functionalModel, avoid ODR issues
     src/functionalModel/ExternalPythonModel.cpp
@@ -182,7 +185,8 @@ target_include_directories(xllim_pythonEmbed PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     ${EFFECTIVE_PYTHON_INCLUDE_DIRS}
-    ${carma_INCLUDE_DIR} # Use variable set by carma
+    # carma includes propagate via carma::carma INTERFACE target (do not add carma_INCLUDE_DIR manually:
+    # on Windows conda-forge it resolves incorrectly to the source tree instead of the host env)
 )
 set_target_properties(xllim_pythonEmbed PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(xllim_pythonEmbed PUBLIC xllim_utils pybind11::headers carma::carma)
@@ -199,7 +203,7 @@ set_target_properties(xllim_solver PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(xllim_solver PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    ${carma_INCLUDE_DIR}
+    # carma includes propagate via carma::carma INTERFACE target (see xllim_pythonEmbed comment)
 )
 target_link_libraries(xllim_solver PUBLIC armadillo::armadillo pybind11::headers carma::carma)
 
@@ -290,8 +294,16 @@ message(STATUS "  Python module target: _core")
 message(STATUS "  Build tests: ${XLLIM_BUILD_TESTS}")
 message(STATUS "  Armadillo includes: ${ARMADILLO_INCLUDE_DIRS}")
 message(STATUS "  Armadillo libraries: ${ARMADILLO_LIBRARIES}")
-message(STATUS "  Pybind11 include dir (from vendored): ${pybind11_INCLUDE_DIR}") # Check actual var from add_sub(pybind11)
-message(STATUS "  Carma include dir (from vendored): ${carma_INCLUDE_DIR}")     # Check actual var
+if(XLLIM_USE_SYSTEM_PYBIND11)
+    message(STATUS "  Pybind11: system (${pybind11_VERSION}), include dir: ${pybind11_INCLUDE_DIR}")
+else()
+    message(STATUS "  Pybind11: vendored, include dir: ${pybind11_INCLUDE_DIR}")
+endif()
+if(XLLIM_USE_SYSTEM_CARMA)
+    message(STATUS "  Carma: system (${carma_VERSION}), include dir: ${carma_INCLUDE_DIR}")
+else()
+    message(STATUS "  Carma: vendored, include dir: ${carma_INCLUDE_DIR}")
+endif()
 
 # ##############################################################################
 #                                  INSTALL                                     #

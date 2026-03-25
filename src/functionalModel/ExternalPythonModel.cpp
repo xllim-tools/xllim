@@ -1,7 +1,9 @@
+// carma must be included before armadillo (it defines macros armadillo reads at parse time).
+// Any header that transitively includes <armadillo> (e.g. FunctionalModel.hpp) must come after.
+#include <carma>
 #include "ExternalPythonModel.hpp"
 #include <pybind11/pybind11.h>
 // #include <pybind11/embed.h>
-#include <carma>
 
 namespace py = pybind11;
 using namespace py::literals;
