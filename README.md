@@ -64,7 +64,7 @@ Using Conda is the simplest way to handle linked C libraries:
 conda install gdal
 ```
 
-#### Alternative: pip + system package (Advanced users)
+#### Alternative: pip + system package
 If installing via apt or brew, the Python GDAL version must match the system GDAL version.
 If the versions do not match, the installation will fail.
 
@@ -90,12 +90,11 @@ pip install "gdal==3.8.4"
 ## 1. Conda-forge (recommended)
 The easiest way to install `xLLiM` is via conda.
 
-First create and activate an environment if you don't already have one:
+First create and activate an environment if you don't already have one (`<my-env>` is a placeholder).
 ```bash
-conda create -n <my-env> python=3.12
+conda create -n <my-env> -c conda-forge
 conda activate <my-env>
 ```
-(you can use python 3.11 or 3.12)
 
 Then install `xLLiM`. This will also install the required dependencies needed.
 ```bash
@@ -122,7 +121,7 @@ If you're on Mac or Windows, and are fine with Python 3.11/12, we recommend you 
 
 If you want to use a different Python version (3.10, 3.13, 3.14...):
 They've not been tested as some of `xLLiM` dependencies exclude these versions. It might be possible though. Then you may try:
-- Building from the sdist (```pip install xllim```): when no pre-built wheel matches your Python version or platform, pip automatically falls back to downloading the source distribution and compiling the C++ extension on your machine. The Python-side build tools (scikit-build-core, cmake, ninja, numpy, pybind11) are installed automatically. However, you must first install the native system libraries manually (compiler, Armadillo, OpenBLAS, Boost, LAPACK, carma — see [Section 4.](#4-manual-installation-optional) for details). If those are present, the build should succeed.
+- Building from the sdist (```pip install xllim```): when no pre-built wheel matches your Python version or platform, pip automatically falls back to downloading the source distribution and compiling the C++ extension on your machine. The Python-side build tools (scikit-build-core, cmake, ninja, numpy, pybind11) are installed automatically. However, you must first install the native system libraries manually (compiler, Armadillo, a BLAS/LAPACK implementation, Boost, carma — see [Section 4.](#4-manual-installation-optional) for details).
 .
 - Compiling, building and installing from scratch (advanced users) ([Section 4.](#4-manual-installation-optional))
 
@@ -183,7 +182,7 @@ These are required only if you are compiling the library from source.
 | Pybind11             | >= 2.12           | Auto-installed by pip when using `pip install .`                   |
 | Armadillo            | >= 12.6, < 13     | System-installed                                                   |
 | Boost                | >= 1.78, < 2      | System-installed; components: `system`, `thread`, `random`         |
-| OpenBLAS             | >= 0.3.15, < 1    | System-installed (BLAS + LAPACK backends)                          |
+| BLAS / LAPACK        | any               | System-installed; any conforming implementation is accepted (OpenBLAS, MKL, Apple Accelerate…) |
 | Carma                | >= 0.8.0          | System-installed (see installation notes below)                    |
 
 ### Build from source
@@ -203,8 +202,11 @@ sudo apt update
 # Compilation tools
 sudo apt-get install -y --no-install-recommends g++ cmake ninja-build
 
-# Armadillo and linear algebra backends
-sudo apt-get install -y --no-install-recommends libopenblas-dev liblapack-dev libarpack2-dev libsuperlu-dev libarmadillo-dev
+# BLAS/LAPACK — OpenBLAS is used here as an example; any conforming implementation works (MKL, etc.)
+sudo apt-get install -y --no-install-recommends libopenblas-dev liblapack-dev
+
+# Armadillo (pulls its own BLAS detection; the flags above satisfy it)
+sudo apt-get install -y --no-install-recommends libarpack2-dev libsuperlu-dev libarmadillo-dev
 
 # Python development headers
 sudo apt-get install -y --no-install-recommends python3-dev
@@ -221,14 +223,16 @@ curl -L https://github.com/RUrlus/carma/archive/refs/tags/v0.8.0.tar.gz -o carma
 tar -xzf carma.tar.gz
 cd carma-0.8.0 && mkdir build && cd build
 cmake -DCARMA_INSTALL_LIB=ON ..
-cmake --build . --target install
+cmake --build . --config Release --target install
 cd ../..
+rm -rf carma-0.8.0 carma.tar.gz
 ```
 
 > **Tip:** if you are using conda, all of the above can be installed in one step:
 > ```bash
-> conda install armadillo boost openblas carma
+> conda install armadillo boost libblas liblapack carma
 > ```
+> This pulls OpenBLAS by default; substitute a different `blas` build string (e.g., `libblas * *mkl`) to use an alternative BLAS implementation.
 
 3. Build and install
 ```bash
