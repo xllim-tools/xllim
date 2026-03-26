@@ -4,6 +4,7 @@ requires = [
     "wheel",
     "scikit-build-core>=0.7.0, <1",
     "numpy>=2.0, <3", # NumPy 2 ABI target; Numpy 1.x is EOL since Sept. 2025
+    "cmake>=3.21",
     "ninja",  # Explicit: auto-injection unreliable in manylinux (broken system ninja symlinked to make)
     "pybind11>=2.12.0",
 ]

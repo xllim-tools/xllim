@@ -122,7 +122,7 @@ If you're on Mac or Windows, and are fine with Python 3.11/12, we recommend you 
 
 If you want to use a different Python version (3.10, 3.13, 3.14...):
 They've not been tested as some of `xLLiM` dependencies exclude these versions. It might be possible though. Then you may try:
-- Building from the sdist (```pip install xllim```): when no pre-built wheel matches your Python version or platform, pip automatically falls back to downloading the source distribution and compiling the C++ extension on your machine. The Python-side build tools (scikit-build-core, cmake, ninja, numpy) are installed automatically. However, you must first install the native system libraries manually (compiler, Armadillo, OpenBLAS, Boost, LAPACK — see [Section 4.](#4-manual-installation-optional) for details). If those are present, the build should succeed.
+- Building from the sdist (```pip install xllim```): when no pre-built wheel matches your Python version or platform, pip automatically falls back to downloading the source distribution and compiling the C++ extension on your machine. The Python-side build tools (scikit-build-core, cmake, ninja, numpy, pybind11) are installed automatically. However, you must first install the native system libraries manually (compiler, Armadillo, OpenBLAS, Boost, LAPACK, carma — see [Section 4.](#4-manual-installation-optional) for details). If those are present, the build should succeed.
 .
 - Compiling, building and installing from scratch (advanced users) ([Section 4.](#4-manual-installation-optional))
 
@@ -174,25 +174,25 @@ If you need to compile `xLLiM` from source (e.g., for an unsupported platform or
 These are required only if you are compiling the library from source.
 | Name                 | Version           | Notes                                                              |
 |----------------------|-------------------|--------------------------------------------------------------------|
-| C++ compiler         | C++17 support     | System-installed (e.g., g++ >= 9, clang++ >= 5)                   |
+| C++ compiler         | C++17 support     | System-installed (e.g., g++ >= 9, clang++ >= 5)                    |
 | CMake                | >= 3.21           | Auto-installed by pip when using `pip install .`                   |
 | Ninja                | any               | Auto-installed by pip when using `pip install .`                   |
+| scikit-build-core    | >= 0.7.0, < 1     | Auto-installed by pip when using `pip install .`                   |
 | Python               | >= 3.11, < 3.13   | System-installed; see [Other Python versions](#other-python-versions) for other versions |
+| Numpy                | >= 2              | Auto-installed by pip when using `pip install .`                   |
+| Pybind11             | >= 2.12           | Auto-installed by pip when using `pip install .`                   |
 | Armadillo            | >= 12.6, < 13     | System-installed                                                   |
 | Boost                | >= 1.78, < 2      | System-installed; components: `system`, `thread`, `random`         |
 | OpenBLAS             | >= 0.3.15, < 1    | System-installed (BLAS + LAPACK backends)                          |
-| Pybind11             | 2.13.6            | Vendored as Git submodule — no manual install needed               |
-| Carma                | 0.8.0             | Vendored as Git submodule — no manual install needed               |
+| Carma                | >= 0.8.0          | System-installed (see installation notes below)                    |
 
 ### Build from source
 
 Since `xLLiM` contains C++ extensions with Python bindings, building from source requires native system libraries that pip cannot install automatically. The instructions below use a Debian/Ubuntu-based system as example - adapt package names for your distribution.
 
-> **Note:** Pybind11 and Carma are included as Git submodules in `extern/` and do not need to be installed separately.
-
-1. Clone the project with submodules
+1. Clone the project
 ```bash
-git clone --recurse-submodules https://github.com/xllim-tools/xllim.git
+git clone https://github.com/xllim-tools/xllim.git
 cd xllim
 ```
 
@@ -215,11 +215,26 @@ sudo apt-get install -y --no-install-recommends libboost-dev libboost-system-dev
 
 > ⚠️ **Boost version:** `xLLiM` requires Boost >= 1.78. Ubuntu 24.04+ ships a compatible version out of the box. On older distributions (e.g., Ubuntu 22.04 ships 1.74), you will need to build Boost >= 1.78 from source — see `.github/workflows/build_publish.yml` for an example.
 
+**carma** — not available in standard apt repositories; build from source:
+```bash
+curl -L https://github.com/RUrlus/carma/archive/refs/tags/v0.8.0.tar.gz -o carma.tar.gz
+tar -xzf carma.tar.gz
+cd carma-0.8.0 && mkdir build && cd build
+cmake -DCARMA_INSTALL_LIB=ON ..
+cmake --build . --target install
+cd ../..
+```
+
+> **Tip:** if you are using conda, all of the above can be installed in one step:
+> ```bash
+> conda install armadillo boost openblas carma
+> ```
+
 3. Build and install
 ```bash
 pip install .
 ```
-This uses [scikit-build-core](https://scikit-build-core.readthedocs.io/) to drive the CMake build automatically. The Python-side build tools (`scikit-build-core`, `cmake`, `ninja`, `numpy`) are fetched by pip as needed.
+This uses [scikit-build-core](https://scikit-build-core.readthedocs.io/) to drive the CMake build automatically. The Python-side build tools (`scikit-build-core`, `cmake`, `ninja`, `numpy`, `pybind11`) are fetched by pip as needed.
 
 4. Verify the installation
 ```
