@@ -30,7 +30,7 @@ requirements:
     - numpy  # numpy build version is decided by the conda-forge-pinning-feedstock, cannot constrain it here. Good news, it's numpy 2
     - boost  # Letting boost use the global pin to be compatible with other packages (and be rebuilt accordingly)
     - armadillo >=12.6,<13  # 12.6 minimum tested; <13 bounds to compatible major ABI. Pulls libblas & liblapack.
-    - pybind11 >=2.6.0
+    - pybind11 >=2.12.0
     - carma
     - libblas    # explicit host dep so run_exports propagate the correct BLAS runtime
     - liblapack  # idem

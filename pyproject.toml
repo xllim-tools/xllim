@@ -5,7 +5,7 @@ requires = [
     "scikit-build-core>=0.7.0, <1",
     "numpy>=2.0, <3", # NumPy 2 ABI target; Numpy 1.x is EOL since Sept. 2025
     "ninja",  # Explicit: auto-injection unreliable in manylinux (broken system ninja symlinked to make)
-    "pybind11>=v2.6.0",
+    "pybind11>=2.12.0",
 ]
 build-backend = "scikit_build_core.build"
 
