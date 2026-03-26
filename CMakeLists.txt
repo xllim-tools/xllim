@@ -50,48 +50,22 @@ if(DEFINED ENV{CONDA_PREFIX})
 endif()
 # 12.6 is the minimum version validated against in the manylinux image in CI.
 find_package(Armadillo 12.6 REQUIRED)
-# Only create the alias if system carma won't do it for us via carmaConfig.cmake
-if(NOT XLLIM_USE_SYSTEM_CARMA)
-    if(TARGET armadillo AND NOT TARGET armadillo::armadillo)
-        add_library(armadillo::armadillo ALIAS armadillo)
-        message(STATUS "Aliased 'armadillo' target to armadillo::armadillo.")
-    else()
-        message(FATAL_ERROR "Armadillo not found")
-    endif()
-endif()
+# Carma creates armadillo alias via carmaConfig.cmake
 
 # --- Pybind11 ---
-# XLLIM_USE_SYSTEM_PYBIND11 allow conda-forge builds to use system-installed pybind11 instead of vendored.
-# This satisfies conda-forge's non-vendorization policy while preserving
-# vendored pybind11 for PyPI/local builds (default: OFF).
-option(XLLIM_USE_SYSTEM_PYBIND11 "Use system-installed pybind11 instead of vendored" OFF)
-if(XLLIM_USE_SYSTEM_PYBIND11)
-    find_package(pybind11 REQUIRED CONFIG)
-    message(STATUS "Using system pybind11: ${pybind11_VERSION}")
-else()
-    set(PYBIND11_USE_CMAKE_MODULE OFF) # We use add_subdirectory
-    set(PYBIND11_TEST OFF) # Don't build pybind11 tests
-    add_subdirectory(extern/pybind11)
-endif()
+find_package(pybind11 REQUIRED CONFIG)
+message(STATUS "Using system pybind11: ${pybind11_VERSION}")
 
 # --- Carma ---
-# Allow conda-forge builds to use system-installed carma instead of vendored.
 # Carma will find Armadillo using find_package(Armadillo) internally.
 # It should pick up the same Armadillo target we found above.
-option(XLLIM_USE_SYSTEM_CARMA "Use system-installed carma instead of vendored" OFF)
-if(XLLIM_USE_SYSTEM_CARMA)
-    find_package(carma REQUIRED CONFIG)
-    message(STATUS "Using system carma: ${carma_VERSION}")
-    # carmaConfig.cmake sets INTERFACE_PRECOMPILE_HEADERS to "${carma_INCLUDE_DIR}/carma_bits/cnalloc.h".
-    # On Windows conda-forge, carma_INCLUDE_DIR incorrectly resolves to the source tree instead of
-    # the host env, producing a broken absolute path in the generated cmake_pch.hxx.
-    # Clearing the PCH avoids this without any correctness impact (PCH is a build-speed optimisation only).
-    set_target_properties(carma::carma PROPERTIES INTERFACE_PRECOMPILE_HEADERS "")
-else()
-    set(CARMA_BUILD_TESTS OFF)
-    set(CARMA_BUILD_EXAMPLES OFF)
-    add_subdirectory(extern/carma)
-endif()
+find_package(carma REQUIRED CONFIG)
+message(STATUS "Using system carma: ${carma_VERSION}")
+# carmaConfig.cmake sets INTERFACE_PRECOMPILE_HEADERS to "${carma_INCLUDE_DIR}/carma_bits/cnalloc.h".
+# On Windows conda-forge, carma_INCLUDE_DIR incorrectly resolves to the source tree instead of
+# the host env, producing a broken absolute path in the generated cmake_pch.hxx.
+# Clearing the PCH avoids this without any correctness impact (PCH is a build-speed optimisation only).
+set_target_properties(carma::carma PROPERTIES INTERFACE_PRECOMPILE_HEADERS "")
 
 if(NOT Python_INCLUDE_DIRS AND NOT Python3_INCLUDE_DIRS) # CMake uses Python3_ for Python 3
     # scikit-build-core might set PYTHON_INCLUDE_DIR directly too
@@ -294,16 +268,8 @@ message(STATUS "  Python module target: _core")
 message(STATUS "  Build tests: ${XLLIM_BUILD_TESTS}")
 message(STATUS "  Armadillo includes: ${ARMADILLO_INCLUDE_DIRS}")
 message(STATUS "  Armadillo libraries: ${ARMADILLO_LIBRARIES}")
-if(XLLIM_USE_SYSTEM_PYBIND11)
-    message(STATUS "  Pybind11: system (${pybind11_VERSION}), include dir: ${pybind11_INCLUDE_DIR}")
-else()
-    message(STATUS "  Pybind11: vendored, include dir: ${pybind11_INCLUDE_DIR}")
-endif()
-if(XLLIM_USE_SYSTEM_CARMA)
-    message(STATUS "  Carma: system (${carma_VERSION}), include dir: ${carma_INCLUDE_DIR}")
-else()
-    message(STATUS "  Carma: vendored, include dir: ${carma_INCLUDE_DIR}")
-endif()
+message(STATUS "  Pybind11: system (${pybind11_VERSION}), include dir: ${pybind11_INCLUDE_DIR}")
+message(STATUS "  Carma: system (${carma_VERSION}), include dir: ${carma_INCLUDE_DIR}")
 
 # ##############################################################################
 #                                  INSTALL                                     #
