@@ -205,8 +205,8 @@ sudo apt-get install -y --no-install-recommends g++ cmake ninja-build
 # BLAS/LAPACK — OpenBLAS is used here as an example; any conforming implementation works (MKL, etc.)
 sudo apt-get install -y --no-install-recommends libopenblas-dev liblapack-dev
 
-# Armadillo (pulls its own BLAS detection; the flags above satisfy it)
-sudo apt-get install -y --no-install-recommends libarpack2-dev libsuperlu-dev libarmadillo-dev
+# Armadillo
+sudo apt-get install -y --no-install-recommends libarmadillo-dev
 
 # Python development headers
 sudo apt-get install -y --no-install-recommends python3-dev
@@ -215,7 +215,19 @@ sudo apt-get install -y --no-install-recommends python3-dev
 sudo apt-get install -y --no-install-recommends libboost-dev libboost-system-dev libboost-thread-dev libboost-random-dev
 ```
 
-> ⚠️ **Boost version:** `xLLiM` requires Boost >= 1.78. Ubuntu 24.04+ ships a compatible version out of the box. On older distributions (e.g., Ubuntu 22.04 ships 1.74), you will need to build Boost >= 1.78 from source — see `.github/workflows/build_publish.yml` for an example.
+> ⚠️ **Boost version:** `xLLiM` requires Boost >= 1.78.0 (enforced by CMake). Ubuntu 24.04+ ships a compatible version out of the box. On older distributions (e.g., Ubuntu 22.04 ships 1.74), you will need to build Boost >= 1.78.0 from source:
+> ```bash
+> curl -L https://archives.boost.io/release/1.78.0/source/boost_1_78_0.tar.gz -o boost.tar.gz
+> tar -xzf boost.tar.gz
+> cd boost_1_78_0
+> ./bootstrap.sh --prefix=/usr/local
+> ./b2 --with-system --with-thread --with-random link=static variant=release -j$(nproc) install
+> cd .. && rm -rf boost_1_78_0 boost.tar.gz
+> ```
+> After building Boost to `/usr/local`, you must tell CMake where to find it by setting the `CMAKE_ARGS` environment variable before calling `pip install .`:
+> ```bash
+> export CMAKE_ARGS="-DBoost_ROOT=/usr/local -DBoost_NO_SYSTEM_PATHS=ON -DBoost_USE_STATIC_LIBS=ON"
+> ```
 
 **carma** — not available in standard apt repositories; build from source:
 ```bash

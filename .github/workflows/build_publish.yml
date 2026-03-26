@@ -57,7 +57,7 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: >
             dnf install -y epel-release &&
             dnf install -y blas-devel lapack-devel armadillo-devel &&
-            
+
             curl -L https://archives.boost.io/release/1.78.0/source/boost_1_78_0.tar.gz -o boost.tar.gz &&
             tar -xzf boost.tar.gz &&
             cd boost_1_78_0 &&
