@@ -119,14 +119,21 @@ Pre-built wheels are available for **Linux x86_64** (manylinux_2_28) with **Pyth
 **Mac/Windows:** conda (section :ref:`install-conda`) or Docker (section :ref:`install-docker`) are recommended.
 
 **Other Python versions (3.10, 3.13…):** not officially tested. You can try building from the source
-distribution — ``pip`` will fall back to it automatically when no wheel matches. However, you must first
+distribution - ``pip`` will fall back to it automatically when no wheel matches. However, you must first
 install the native system libraries manually (see section :ref:`install-manual`).
 
 
 .. _install-docker:
 
-3. Docker
-*********
+3. Docker / Apptainer (Singularity)
+************************************
+
+Pre-built container images are published for every release. Two formats are available: a standard
+**Docker** image for workstations and cloud environments, and an **Apptainer / Singularity** SIF image
+for HPC clusters where Docker is unavailable.
+
+Docker
+======
 
 A minimal Docker image based on ``python:3.11-slim`` is available, with ``xLLiM`` pre-installed.
 
@@ -149,8 +156,6 @@ Run your project by mounting your source directory:
      ghcr.io/xllim-tools/xllim/xllim:latest \
      python main.py
 
-This allows you to use ``xLLiM`` without manually managing dependencies or Python environments.
-
 You can also open an interactive shell:
 
 .. code-block:: bash
@@ -162,6 +167,52 @@ You can also open an interactive shell:
    Specific versions of the image are also available. See the
    `xLLiM GHCR registry <https://github.com/xllim-tools/xllim/pkgs/container/xllim%2Fxllim/versions>`_
    for the full list.
+
+
+.. _install-apptainer:
+
+Apptainer / Singularity (HPC)
+==============================
+
+`Apptainer <https://apptainer.org/>`_ (formerly Singularity) is a container runtime designed for
+HPC environments where Docker is typically not available or not allowed. It runs rootless and is
+natively supported on most HPC schedulers (SLURM, PBS, etc.).
+
+For every release, a **SIF** (Singularity Image Format) image is automatically built from the Docker
+image and published to the same GHCR registry with a ``-sif`` tag suffix.
+
+**Prerequisite:** Apptainer must be installed (typically already available on HPC clusters - check
+with your sysadmin). See the
+`Apptainer quick-start guide <https://apptainer.org/docs/user/latest/quick_start.html>`_.
+
+Pull the latest SIF image:
+
+.. code-block:: bash
+
+   apptainer pull xllim.sif oras://ghcr.io/xllim-tools/xllim/xllim:latest-sif
+
+Or pull a specific version (replace ``<version>`` with the desired release tag):
+
+.. code-block:: bash
+
+   apptainer pull xllim.sif oras://ghcr.io/xllim-tools/xllim/xllim:<version>-sif
+
+.. note::
+
+   Available versions are listed in the
+   `xLLiM GHCR registry <https://github.com/xllim-tools/xllim/pkgs/container/xllim%2Fxllim/versions>`_.
+
+Run your project by binding your working directory:
+
+.. code-block:: bash
+
+   apptainer run -B $(pwd):/workspace --pwd /workspace xllim.sif python main.py
+
+Or open an interactive shell:
+
+.. code-block:: bash
+
+   apptainer shell -B $(pwd):/workspace xllim.sif
 
 
 .. _install-manual:
@@ -272,7 +323,7 @@ pip cannot install automatically. The instructions below use a Debian/Ubuntu-bas
 
          export CMAKE_ARGS="-DBoost_ROOT=/usr/local -DBoost_NO_SYSTEM_PATHS=ON -DBoost_USE_STATIC_LIBS=ON"
 
-   **carma** — not available in standard apt repositories; build from source:
+   **carma** - not available in standard apt repositories; build from source:
 
    .. code-block:: bash
 

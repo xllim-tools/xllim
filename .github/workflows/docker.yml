@@ -90,9 +90,11 @@ jobs:
       - name: Build SIF image
         run: apptainer build xllim.sif docker://${{ env.IMAGE }}
 
-      # Pushing SIF image to GHCR, with -sif suffix
+      # Pushing SIF image to GHCR: versioned tag (<version>-sif) and :latest-sif for convenience.
       - name: Push SIF image to GHCR
-        run: apptainer push xllim.sif oras://${{ env.IMAGE }}-sif
+        run: |
+          apptainer push xllim.sif oras://${{ env.IMAGE }}-sif
+          apptainer push xllim.sif oras://${{ env.IMAGE_LATEST }}-sif
 
       - name: Upload SIF artifact
         uses: actions/upload-artifact@v4
