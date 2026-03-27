@@ -31,6 +31,8 @@ This `xLLiM` implementation is derived from [Kernelo](https://gitlab.inria.fr/ke
   - [Optional](#optional)
 - [xLLiM installation options](#xllim-installation-options)
   - [1. Conda-forge (recommended)](#1-conda-forge-recommended)
+    - [Installing a conda distribution](#installing-a-conda-distribution)
+    - [Installing xLLiM](#installing-xllim)
   - [2. PyPI](#2-pypi)
   - [3. Docker](#3-docker)
   - [4. Manual installation (optional)](#4-manual-installation-optional)
@@ -88,18 +90,62 @@ pip install "gdal==3.8.4"
 `xLLiM` can be installed and used in several ways, depending on your environment and preference.
 
 ## 1. Conda-forge (recommended)
-The easiest way to install `xLLiM` is via conda.
+The easiest way to install `xLLiM` is via a conda-compatible package manager. `xLLiM` is published on [conda-forge](https://conda-forge.org/), a community-maintained channel that provides up-to-date, cross-platform packages. The corresponding [xllim-feedstock](https://github.com/conda-forge/xllim-feedstock) contains the conda packaging recipe and tracks each release. That is where the conda recipe, managing xllim conda builds, should be updated if needed (refer to xllim-feedstock README for instructions).
 
-First create and activate an environment if you don't already have one (`<my-env>` is a placeholder).
+### Installing a conda distribution
+
+If you don't already have conda installed, several distributions are available. They all provide the `conda` command (or a drop-in equivalent) and can install packages from conda-forge:
+
+| Distribution | Description | Docs |
+|---|---|---|
+| **Micromamba** | Standalone, fast C++ reimplementation of conda. No base environment, no Python required. Defaults to conda-forge. | [mamba.readthedocs.io](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html) |
+| **Miniforge** | Community-maintained minimal installer. Defaults to conda-forge. | [github.com/conda-forge/miniforge](https://github.com/conda-forge/miniforge) |
+| **Miniconda** | Minimal installer from Anaconda. Defaults to the `defaults` channel (see warning below). | [docs.conda.io](https://docs.conda.io/en/latest/miniconda.html) |
+| **Anaconda** | Full-featured distribution with many pre-installed packages and a GUI. Defaults to `defaults` channel (see warning below). Heavier download. | [docs.anaconda.com](https://docs.anaconda.com/anaconda/install/) |
+
+> **Recommended: Micromamba or Miniforge.** Both default to conda-forge exclusively, so environments are clean and consistent. They are also significantly faster than the classic `conda` solver.
+
+#### Example: installing Micromamba on Linux
+
 ```bash
-conda create -n <my-env> -c conda-forge
+"${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+```
+
+This installs the `micromamba` binary and adds a shell initialisation block to your shell config. Restart your shell (or `source ~/.bashrc`), then verify:
+
+```bash
+micromamba --version
+```
+
+> On macOS the same command works. On Windows, see the [Micromamba installation docs](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html).
+
+### Installing xLLiM
+
+Once you have a conda distribution available, create and activate an environment (`<my-env>` is a placeholder):
+
+```bash
+# With conda or mamba
+conda create -n <my-env>
 conda activate <my-env>
+
+# With micromamba
+micromamba create -n <my-env>
+micromamba activate <my-env>
 ```
 
-Then install `xLLiM`. This will also install the required dependencies needed.
+Then install `xLLiM` (replace `conda` with `micromamba` if applicable). This will also install the required dependencies.
 ```bash
-conda install xllim
+conda install -c conda-forge xllim
 ```
+
+> ⚠️ **Anaconda/Miniconda users: channel conflict warning.** Anaconda and Miniconda default to Anaconda's proprietary `defaults` channel, which is **not** the same as conda-forge. Mixing channels (e.g., adding `-c conda-forge` to a `defaults`-based environment) can lead to subtle dependency conflicts and broken environments, because the two channels build packages independently and their ABI guarantees are not always compatible. If you use Anaconda or Miniconda, we strongly recommend creating a **conda-forge-only** environment before installing `xLLiM`:
+> ```bash
+> conda create -n <my-env> -c conda-forge --override-channels
+> conda activate <my-env>
+> conda config --env --add channels conda-forge
+> conda config --env --set channel_priority strict
+> ```
+> See the [conda-forge documentation on channel conflicts](https://mamba.readthedocs.io/en/latest/user_guide/troubleshooting.html#defaults-channels) for more details.
 
 ## 2. PyPI
 
