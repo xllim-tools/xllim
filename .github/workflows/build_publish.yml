@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -59,12 +57,20 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: >
             dnf install -y epel-release &&
             dnf install -y blas-devel lapack-devel armadillo-devel &&
+
             curl -L https://archives.boost.io/release/1.78.0/source/boost_1_78_0.tar.gz -o boost.tar.gz &&
             tar -xzf boost.tar.gz &&
             cd boost_1_78_0 &&
             ./bootstrap.sh --prefix=/usr/local &&
             ./b2 --with-system --with-thread --with-random link=static variant=release cxxflags="-fPIC" cflags="-fPIC" -j$(nproc) install &&
-            cd .. && rm -rf boost_1_78_0 boost.tar.gz
+            cd .. && rm -rf boost_1_78_0 boost.tar.gz &&
+
+            curl -L https://github.com/RUrlus/carma/archive/refs/tags/v0.8.0.tar.gz -o carma.tar.gz &&
+            tar -xzf carma.tar.gz &&
+            cd carma-0.8.0 &&
+            mkdir build && cd build &&
+            cmake -DCARMA_INSTALL_LIB=ON .. && 
+            cmake --build . --config Release --target install
 
           # Targets Python 3.11–3.12 for x86_64.
           CIBW_BUILD: "cp311-manylinux_x86_64 cp312-manylinux_x86_64"

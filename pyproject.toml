@@ -4,13 +4,15 @@ requires = [
     "wheel",
     "scikit-build-core>=0.7.0, <1",
     "numpy>=2.0, <3", # NumPy 2 ABI target; Numpy 1.x is EOL since Sept. 2025
+    "cmake>=3.21",
     "ninja",  # Explicit: auto-injection unreliable in manylinux (broken system ninja symlinked to make)
+    "pybind11>=2.12.0",
 ]
 build-backend = "scikit_build_core.build"
 
 [project]
 name = "xllim"
-version = "2.0.8" # Or your desired Python package version
+version = "2.0.9" # Or your desired Python package version
 dependencies = [
     "numpy>=2.0, <3", 
     "h5py>=3.8, <4",
@@ -43,7 +45,7 @@ Issues = "https://github.com/xllim-tools/xllim/issues"
 xllim_cli = "xllim.cli:main"
 
 [tool.scikit-build.sdist]
-include = ["extern/carma/**/*", "extern/pybind11/**/*", "tests/**/*"]
+include = ["tests/**/*"]
 
 [tool.scikit-build]
 cmake.source-dir = "." # Root CMakeLists.txt
