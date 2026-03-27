@@ -19,12 +19,14 @@ The recommended approach is via **conda-forge**, which handles all native depend
 ``xLLiM`` is published on `conda-forge <https://conda-forge.org/>`_, a community-maintained channel that provides
 up-to-date, cross-platform packages. The corresponding
 `xllim-feedstock <https://github.com/conda-forge/xllim-feedstock>`_ contains the conda packaging recipe
-and tracks each release.
+and tracks each release. That is where the conda recipe, managing xllim conda builds, should be updated 
+if needed (refer to xllim-feedstock README for instructions).
 
 Installing a conda distribution
 ================================
 
-If you do not already have conda installed, several distributions are available:
+If you don't already have conda installed, several distributions are available. They all provide the 
+conda command (or a drop-in equivalent) and can install packages from conda-forge:
 
 .. list-table::
    :header-rows: 1
@@ -33,7 +35,7 @@ If you do not already have conda installed, several distributions are available:
    * - Distribution
      - Description
      - Docs
-   * - **Micromamba** ⭐
+   * - **Micromamba** 
      - Standalone, fast C++ reimplementation of conda. No base environment, no Python required. Defaults to conda-forge.
      - `mamba.readthedocs.io <https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html>`_
    * - **Miniforge**
@@ -147,7 +149,9 @@ Run your project by mounting your source directory:
      ghcr.io/xllim-tools/xllim/xllim:latest \
      python main.py
 
-Open an interactive shell:
+This allows you to use ``xLLiM`` without manually managing dependencies or Python environments.
+
+You can also open an interactive shell:
 
 .. code-block:: bash
 
@@ -165,7 +169,8 @@ Open an interactive shell:
 4. Manual installation (build from source)
 ******************************************
 
-Required only for unsupported platforms, Python versions, or development purposes.
+If you need to compile ``xLLiM`` from source (e.g., for an unsupported platform or Python version, or for development), 
+please refer to the requirements below.
 
 Build dependencies
 ==================
@@ -211,8 +216,12 @@ Build dependencies
      - >= 0.8.0
      - System-installed (see below)
 
-Build steps (Debian/Ubuntu)
+Build from source
 ============================
+
+Since xLLiM contains C++ extensions with Python bindings, building from source requires native system libraries that 
+pip cannot install automatically. The instructions below use a Debian/Ubuntu-based system as example 
+- adapt package names for your distribution.
 
 1. Clone the repository:
 
