@@ -1,6 +1,8 @@
 name: Build and Publish
 
 on:
+  pull_request:
+    branches: [master]
   release:
     types: [published]  # When a GitHub release is published (GitHub interface, safer than tag trigger)
   workflow_dispatch:  # manual activation
@@ -9,6 +11,9 @@ jobs:
   build-wheels:
     name: Build Linux wheels with cibuildwheel
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository

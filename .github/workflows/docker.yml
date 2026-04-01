@@ -74,6 +74,7 @@ jobs:
 
     steps:
       # Use the community action to install a pinned version of Apptainer
+
       - name: Install Apptainer
         uses: eWaterCycle/setup-apptainer@v2
         with:
@@ -88,13 +89,18 @@ jobs:
       # Convert the Docker image to a portable SIF (Singularity Image Format),
       # used for HPC environments where Docker is unavailable.
       - name: Build SIF image
-        run: apptainer build xllim.sif docker://${{ env.IMAGE }}
+        env:
+          IMAGE: ${{ env.IMAGE }}  # Necessary to use the native variable evalutation syntax of the shell/script interpreter and avoid code injection critical vulnerability
+        run: apptainer build xllim.sif docker://$IMAGE
 
       # Pushing SIF image to GHCR: versioned tag (<version>-sif) and :latest-sif for convenience.
       - name: Push SIF image to GHCR
+        env:
+          IMAGE: ${{ env.IMAGE }}  
+          IMAGE_LATEST: ${{ env.IMAGE_LATEST }}  # Necessary to use the native variable evalutation syntax of the shell/script interpreter and avoid code injection critical vulnerability
         run: |
-          apptainer push xllim.sif oras://${{ env.IMAGE }}-sif
-          apptainer push xllim.sif oras://${{ env.IMAGE_LATEST }}-sif
+          apptainer push xllim.sif oras://$IMAGE-sif
+          apptainer push xllim.sif oras://$IMAGE_LATEST-sif
 
       - name: Upload SIF artifact
         uses: actions/upload-artifact@v4
