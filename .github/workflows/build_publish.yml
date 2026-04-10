@@ -8,10 +8,56 @@ on:
   workflow_dispatch:  # manual activation
 
 jobs:
+  test-cpp:
+    name: C++ tests (conda-forge)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: cpp_tests
+          create-args: >-
+            python=3.11
+            gxx_linux-64
+            cmake>=3.21
+            ninja
+            numpy
+            boost>=1.78
+            libboost-devel
+            armadillo>=12.6
+            pybind11>=2.12.0
+            carma
+            libblas
+            liblapack
+          init-shell: bash
+
+      - name: Configure
+        shell: bash -el {0}
+        run: |
+          mkdir build && cd build
+          cmake -DXLLIM_BUILD_TESTS=ON \
+                -DCMAKE_BUILD_TYPE=Debug \
+                -G Ninja ..
+
+      - name: Build
+        shell: bash -el {0}
+        run: cmake --build build -j$(nproc)
+
+      - name: Test
+        shell: bash -el {0}
+        run: |
+          cd build
+          ctest --output-on-failure
+
   build-wheels:
     name: Build Linux wheels with cibuildwheel
     runs-on: ubuntu-latest
-    
+    needs: test-cpp
+
     permissions:
       contents: read
 
