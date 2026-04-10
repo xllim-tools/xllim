@@ -122,6 +122,7 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 add_library(xllim_utils STATIC src/utils/utils.cpp)
+set_target_properties(xllim_utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(xllim_utils PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
@@ -230,7 +231,10 @@ if(XLLIM_BUILD_TESTS)
 
     add_executable(functionalModel_test
         tests/cppTests/functionalModel/TestModel_test.cpp
-        # ... other test files ...
+        tests/cppTests/functionalModel/ShkuratovModel_test.cpp
+        tests/cppTests/functionalModel/HapkeModel_test.cpp
+        tests/cppTests/functionalModel/ImportanceSampling_test.cpp
+        tests/cppTests/functionalModel/DataGeneration_test.cpp
     )
     target_link_libraries(functionalModel_test PRIVATE GTest::gtest_main xllim_functionalModel xllim_generator xllim_logging armadillo::armadillo)
 
@@ -239,7 +243,10 @@ if(XLLIM_BUILD_TESTS)
 
     add_executable(xllimSolver_test
         tests/cppTests/xllimSolver/covariancesTest/fullCovarianceTest.cpp
-        # ... other test files ...
+        tests/cppTests/xllimSolver/covariancesTest/diagCovarianceTest.cpp
+        tests/cppTests/xllimSolver/covariancesTest/isoCovarianceTest.cpp
+        tests/cppTests/xllimSolver/estimatorTest/emEstimator_test.cpp
+        # tests/cppTests/xllimSolver/estimatorTest/jgmm_test.cpp  # TODO test file
     )
     target_link_libraries(xllimSolver_test PRIVATE GTest::gtest_main xllim_solver xllim_utils xllim_logging armadillo::armadillo)
 
@@ -253,11 +260,18 @@ if(XLLIM_BUILD_TESTS)
     if(TARGET pythonEmbed_test)
       gtest_discover_tests(pythonEmbed_test)
     endif()
-    # ... and for other tests
+    if(TARGET generator_test)
+      gtest_discover_tests(generator_test)
+    endif()
     if(TARGET utils_test)
       gtest_discover_tests(utils_test)
     endif()
-    # ... etc.
+    if(TARGET xllimSolver_test)
+      gtest_discover_tests(xllimSolver_test)
+    endif()
+    if(TARGET integration_test)
+      gtest_discover_tests(integration_test)
+    endif()
 
 else()
     message(STATUS "Skipping C++ tests build as XLLIM_BUILD_TESTS is OFF (or not set)")
