@@ -21,7 +21,7 @@ protected:
         mat gamma_k = mat(L, L, fill::ones);
         gamma_k *= 0.1;
 
-        theta = GLLiMParameters<FullCovariance, FullCovariance>(L, D, K);
+        theta = GLLiMParameters<FullCovariance, FullCovariance>(K, D, L, 0);
         theta.Pi = Pi;
         for (unsigned k = 0; k < K; k++)
         {

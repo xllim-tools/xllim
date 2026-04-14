@@ -696,9 +696,9 @@ def copy_h5_section_dialog(src_h5f: h5py.File, dst_h5f: h5py.File):
         return
 
     print("Objects available to copy:")
-    for idx, group in enumerate(available_groups):
-        print(f"  {idx+1}. {group.name}")
-    idxses = range(len(available_groups))
+    for idx_ref, group in enumerate(available_groups):
+        print(f"  {idx_ref+1}. {group.name}")
+    idxses_ref = range(len(available_groups))
 
     while True:
         input_str = input("Enter numbers of sections to copy (comma-separated, e.g., 1,3) or 'q' to cancel: ").strip()
@@ -708,8 +708,8 @@ def copy_h5_section_dialog(src_h5f: h5py.File, dst_h5f: h5py.File):
 
         selected_indices = []
         try:
-            selected_indices = [int(x.strip()) for x in input_str.split(',') if x.strip()]
-            if not all(idx in idxses for idx in selected_indices):
+            selected_indices = [int(x.strip())-1 for x in input_str.split(',') if x.strip()]
+            if not all(idx_input in idxses_ref for idx_input in selected_indices):
                 raise ValueError("Invalid selection number.")
             break # Valid input
         except ValueError:
@@ -717,9 +717,9 @@ def copy_h5_section_dialog(src_h5f: h5py.File, dst_h5f: h5py.File):
 
     copy_count = 0
     fail_count = 0
-    for idx in selected_indices:
+    for idx_input in selected_indices:
         try:
-            _h5_copy(available_groups[idx-1], src_h5f, dst_h5f)
+            _h5_copy(available_groups[idx_input], src_h5f, dst_h5f)
             copy_count += 1
         except Exception:
             # Error logged in _h5_copy
