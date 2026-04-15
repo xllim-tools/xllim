@@ -38,6 +38,11 @@ This `xLLiM` implementation is derived from [Kernelo](https://gitlab.inria.fr/ke
     - [Docker](#docker)
     - [Apptainer / Singularity (HPC)](#apptainer--singularity-hpc)
   - [4. Manual installation (optional)](#4-manual-installation-optional)
+- [Using xLLiM](#using-xllim)
+  - [Python API vs Command-Line Interface](#python-api-vs-command-line-interface)
+  - [Quick start with the Python API](#quick-start-with-the-python-api)
+  - [Command-Line Interface (xllim_cli)](#command-line-interface-xllim_cli)
+- [Further documentation](#further-documentation)
 - [Licence](#licence)
 
 # Documentation and API reference
@@ -342,6 +347,91 @@ cmake --build build
 ctest --test-dir build
 ```
 The build type can be either *Debug* (`-O0 -g`) or *Release* (`-O2 -DNDEBUG`). To install the compiled module into your Python environment, use `pip install .` as described above.
+
+# Using xLLiM
+
+`xLLiM` can be used in two ways: as a **Python library** (`import xllim`) for full programmatic control, or via the **command-line interface** (`xllim_cli`) for a guided, file-based workflow. Both interfaces use the same underlying C++ engine.
+
+## Python API vs Command-Line Interface
+
+`xLLiM` exposes two interfaces that address different needs, and they can be used together.
+
+The **Python API** (`import xllim`) gives you direct access to all objects and intermediate results. You pass parameters as function arguments, work with NumPy arrays in memory, and have full control over the workflow. It is the natural choice for Jupyter notebooks, custom scripts, or integration into a larger pipeline.
+
+The **CLI** (`xllim_cli`) provides a guided, file-based workflow: all configuration, training data, and trained model parameters are stored in a single HDF5 file. You configure it once via interactive prompts, then run `generate`, `train`, and `predict` as separate commands. The resulting `.h5` file is a self-contained, shareable experiment record, useful for reproducibility or when you want to run the full pipeline without writing code.
+
+## Quick start with the Python API
+
+The [`examples/`](examples/) directory contains two Jupyter notebooks that walk you through the full workflow:
+
+- **[`example.ipynb`](examples/example.ipynb)**: Complete walkthrough using the basic `TestModel`: data generation, GLLiM training, prediction, importance sampling, and post-processing analysis with plots.
+- **[`example_hapke.ipynb`](examples/example_hapke.ipynb)**: Same workflow applied to the `HapkeModel` photometric model using real BRDF geometry data.
+
+For details on array shapes, dimension conventions (`K`, `D`, `L`, `N`, `L_t`, `L_w`), and parameter matrices (`Pi`, `A`, `B`, `C`, `Gamma`, `Sigma`), see the [Useful information](https://xllim-tools.github.io/xllim/getting_started/useful_info.html) page in the documentation.
+
+## Command-Line Interface (`xllim_cli`)
+
+The CLI provides a guided, no-code workflow where all configuration, training data, and trained model parameters are stored in a single **HDF5 file**.
+
+After installing `xllim`, the `xllim_cli` command is available directly in your terminal:
+
+```bash
+xllim_cli --help
+```
+
+### Available commands
+
+| Command | Description |
+|---------|-------------|
+| `edit <model.h5>` | Interactively configure all sections (functional model, generator, GLLiM, prediction, importance sampling, output) |
+| `print <model.h5>` | Print a summary of the HDF5 file contents (`-v` for detailed view) |
+| `generate <model.h5>` | Generate synthetic training data using the configured functional model and generator |
+| `train <model.h5>` | Train the GLLiM model using training data and configuration from the file |
+| `predict <model.h5> <observations> <output>` | Run the full prediction workflow (load model, predict, optional IS, write results) |
+| `import <type> <source> <model.h5>` | Import `geometries` (JSON/NPZ) or `train_data` (NPZ) into the HDF5 file |
+| `export <type> <model.h5> <output>` | Export `geometries`, `train_data`, or `trained_gllim` to NPZ |
+| `copy <source.h5> <dest.h5>` | Interactively copy sections between two HDF5 files |
+
+### Typical CLI workflow
+
+```bash
+# 1. Create and configure a new model file (interactive prompts)
+xllim_cli edit my_model.h5
+
+# 2. (Optional) Import geometries from an existing JSON file
+xllim_cli import geometries geometries.json my_model.h5
+
+# 3. Generate training data
+xllim_cli generate my_model.h5
+
+# 4. Train the GLLiM model
+xllim_cli train my_model.h5
+
+# 5. Inspect the file
+xllim_cli print my_model.h5 -v
+
+# 6. Run predictions on observations
+xllim_cli predict my_model.h5 observations.json results/ -f npz
+
+# 7. Export trained parameters for use elsewhere
+xllim_cli export trained_gllim my_model.h5 trained_params.npz
+```
+
+The `edit` command walks through six configuration sections in order:
+1. **Functional model**: choose from `Hapke`, `Shkuratov`, `External` (custom Python class), or `Test model`, each with its own sub-options.
+2. **Data generator**: dataset size `N`, generator type (`sobol`, `random`, `latin hypercube`), noise covariance, seed.
+3. **GLLiM model**: number of components `K`, covariance types (`full`/`diag`/`iso`), initialisation parameters, and training variant (`GLLiM` or `JGMM`).
+4. **Importance sampling**: IMIS parameters (`N_zero`, `B`, `J`, covariance, seed).
+5. **Prediction module**: merging options (`K_merged`, threshold), IS flags.
+6. **Output**: which results to write (fullGMM, mergedGMM, IS variants).
+
+The `predict` command accepts observations in **JSON**, **NPZ**, or **ENVI** format (ENVI requires GDAL, see [Optional dependencies](#envi--gdal-support)). Results are written as NPZ files by default.
+
+# Further documentation
+
+- [API reference](https://xllim-tools.github.io/xllim/): Full module documentation (classes, methods, parameters).
+- [Useful information](https://xllim-tools.github.io/xllim/getting_started/useful_info.html):  Dimension conventions, array shapes, and workflow summaries.
+- [Planet-GLLiM documentation](https://xllim.gitlabpages.inria.fr/planet-gllim/): Scientific background and application-level documentation.
 
 # Licence
 This software is licensed under the GNU GPL-compatible [CeCILL-C License](LICENCE.txt).
