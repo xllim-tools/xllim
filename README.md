@@ -379,6 +379,11 @@ After installing `xllim`, the `xllim_cli` command is available directly in your 
 xllim_cli --help
 ```
 
+> **Windows with conda:** on Windows, the `xllim_cli` console script may not work when xLLiM was installed via conda (the launcher embeds a build-time Python path that doesn't exist at runtime). Use `python -m xllim.cli` instead:
+> ```bash
+> python -m xllim.cli --help
+> ```
+
 ### Available commands
 
 | Command | Description |
