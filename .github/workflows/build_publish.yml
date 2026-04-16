@@ -83,7 +83,7 @@ jobs:
       - name: Run Python tests with coverage
         shell: bash -el {0}
         run: |
-          pip install .
+          pip install -e .
           pytest tests/pythonTests \
             --cov=xllim \
             --cov-report=xml:coverage-python.xml
