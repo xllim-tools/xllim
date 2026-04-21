@@ -29,6 +29,7 @@ This `xLLiM` implementation is derived from [Kernelo](https://gitlab.inria.fr/ke
 - [Runtime Dependencies](#runtime-dependencies)
   - [Mandatory](#mandatory)
   - [Optional](#optional)
+- [Platform support](#platform-support)
 - [xLLiM installation options](#xllim-installation-options)
   - [1. Conda-forge (recommended)](#1-conda-forge-recommended)
     - [Installing a conda distribution](#installing-a-conda-distribution)
@@ -91,6 +92,22 @@ gdal-config --version
 ```bash
 pip install "gdal==3.8.4"
 ```
+
+# Platform support
+
+The table below summarises which platforms and architectures have pre-built packages available for each distribution method.
+
+| Platform | pip | conda |
+|---|---|---|
+| Linux x86_64 | ✅ | ✅ |
+| Linux aarch64 (ARM) | — | ✅ |
+| macOS x86_64 | — | ✅ |
+| macOS arm64 (Apple Silicon) | — | ✅ |
+| Windows x86_64 | — | ✅ |
+
+— = no pre-built package; source build may be possible (see [Section 4](#4-manual-installation-optional)).
+
+**Docker and Apptainer**: the container image is built for Linux x86_64, but containers are designed to run on any host OS (Linux, macOS, or Windows) without requiring any native installation. If you are on macOS or Windows and do not want to manage a conda environment, this is the simplest path. See [Section 3](#3-docker--apptainer-singularity) for details.
 
 # xLLiM installation options
 
