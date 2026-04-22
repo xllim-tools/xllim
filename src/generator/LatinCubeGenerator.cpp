@@ -14,16 +14,29 @@ LatinCubeGenerator::LatinCubeGenerator(unsigned seed) {
 
 void LatinCubeGenerator::execute(mat &x) {
 
-    double *generated_x;
+    // Use a local int to avoid undefined behavior from casting unsigned to int&
+    int iseed = static_cast<int>(seed);
 
-    generated_x = DataGeneration::LatinCubeGenerator::latin_random_new (x.n_cols, x.n_rows,
-            reinterpret_cast<int &>(seed));
+    double *generated_x = DataGeneration::LatinCubeGenerator::latin_random_new(
+            x.n_cols, x.n_rows, iseed);
 
-    for(unsigned i=0; i<x.n_rows ; i++){
-        for(unsigned j=0; j<x.n_cols; j++){
-            x(i,j) = generated_x[i*x.n_cols+j];
+    // Propagate the updated seed value back
+    seed = static_cast<unsigned>(iseed);
+
+    // Explicit total size makes memory bounds verifiable (prevents S3519)
+    const uword total = x.n_rows * x.n_cols;
+
+    for (uword i = 0; i < x.n_rows; i++) {
+        for (uword j = 0; j < x.n_cols; j++) {
+            const uword idx = i * x.n_cols + j;
+            if (idx < total) {
+                x(i, j) = generated_x[idx];
+            }
         }
     }
+
+    // Release heap memory allocated by latin_random_new (prevents S3584)
+    delete[] generated_x;
 }
 
 //****************************************************************************80
