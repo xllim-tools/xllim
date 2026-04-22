@@ -1,4 +1,5 @@
 #include "HapkeModel.hpp"
+#include <stdexcept>  // for std::runtime_error
 // #include "../../src/logging/Logger.h"
 // #include <utility>
 
@@ -172,7 +173,7 @@ double HapkeModel::set_coef()
     else
     {
         // Logging::Logger::GetInstance()->log("\tInvalid Hapke model version", Logging::Logger::level(Logging::ERROR));
-        throw "Invalid Hapke model version";
+        throw std::runtime_error("Invalid Hapke model version");  // throw by value, not pointer (S1035)
     }
 }
 
@@ -194,7 +195,7 @@ vec HapkeModel::calculate_H(const vec &x, double omega)
     else
     {
         // Logging::Logger::GetInstance()->log("\tInvalid Hapke model version", Logging::Logger::level(Logging::ERROR));
-        throw "Invalid Hapke model version";
+        throw std::runtime_error("Invalid Hapke model version");  // throw by value, not pointer (S1035)
     }
 }
 
