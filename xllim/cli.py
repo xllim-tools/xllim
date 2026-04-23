@@ -208,7 +208,7 @@ EXTERNAL_MODEL_OPTIONS = (("class_name", "Python class name", None, H5_STRING),
                           ("file_name", "Python file name (.py)", None, H5_STRING),
                           ("file_path", "Path to the Python file", None, H5_STRING))
 GENERATOR_OPTIONS = (("N", "Dataset size (positive integer)", None, H5_INT),
-                     ("type", "Generator type", ("sobol", "random", "latin hypercube"), H5_STRING),
+                     ("type", "Generator type", ("sobol", "random", "latin_cube"), H5_STRING),
                      ("covariance", "Scalar covariance value (applied to all D dims)", None, H5_FLOAT),
                      ("seed", "Seed for random generator (integer)", None, H5_INT))
 GLLIM_OPTIONS = (('K', 'Number of GLLiM components (integer)', None, H5_INT),

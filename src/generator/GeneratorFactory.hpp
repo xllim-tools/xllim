@@ -6,6 +6,7 @@
 #include "SobolGenerator.hpp"
 #include "LatinCubeGenerator.hpp"
 #include <memory>
+#include <stdexcept>  // for std::runtime_error
 
 using namespace DataGeneration;
 
@@ -25,7 +26,7 @@ inline std::shared_ptr<Generator> createGenerator(const std::string &generator_t
     }
     else
     {
-        throw "Invalid Generator type. It must be one of the following : 'random', 'sobol, 'latin'.";
+        throw std::runtime_error("Invalid Generator type. It must be one of the following : 'random', 'sobol, 'latin'.");  // throw by value, not pointer (S1035)
     }
 }
 

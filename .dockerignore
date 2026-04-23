@@ -1,0 +1,35 @@
+# Exclude build artifacts (not needed to build the package from source)
+build/
+dist/
+wheelhouse/
+*.egg-info/
+
+# Exclude git history (can contain sensitive data like tokens in commit messages)
+.git/
+.github/
+
+# Exclude documentation and examples (not needed for compilation)
+docs/
+examples/
+
+# Exclude local conda build config
+local-conda-build/
+
+# Exclude test data (not needed for compilation)
+tests/
+
+# Exclude IDE and OS artifacts
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Exclude Python cache
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude sonar config
+sonar-project.properties
