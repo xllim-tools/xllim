@@ -456,6 +456,12 @@ The `predict` command accepts observations in **JSON**, **NPZ**, or **ENVI** for
 - [Planet-GLLiM documentation](https://xllim.gitlabpages.inria.fr/planet-gllim/): Scientific background and application-level documentation.
 
 # Licence
-This software is licensed under the GNU GPL-compatible [CeCILL-C License](LICENCE.txt).
-While the software is free, we would appreciate it if you send us an email at `xllim-contact@inria.fr` to let us know how you use it.
-Also, please contact us if the licence does not meet your needs.
+
+> **Note:** An administrative process is currently underway at Inria to release this software under the [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause).
+> This proprietary notice is temporary and will be replaced once the required institutional approvals have been granted.
+
+This software is the exclusive property of [Inria](https://www.inria.fr) and is
+distributed under a **proprietary license — all rights reserved**.
+No use, reproduction, modification, or distribution is permitted without prior written authorization from Inria. See [LICENCE.txt](LICENCE.txt) for the full terms.
+
+For any licensing enquiry, please contact us at `xllim-contact@inria.fr`.
