@@ -226,7 +226,7 @@ jobs:
     # Runs only when a GitHub release is published
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    needs: build-wheels
+    needs: [test-and-scan, build-wheels]
 
     environment:
       name: pypi  # Use of environment highly recommended when using trusted publishing
