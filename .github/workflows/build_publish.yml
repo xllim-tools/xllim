@@ -88,9 +88,12 @@ jobs:
                 --gcov-ignore-errors=no_working_dir_found \
                 --sonarqube coverage-cpp.xml
 
+      # --only-binary :all: : dependencies (runtime and build) are installed from wheels only, so no third-party
+      # setup script is run; the project itself is still built from source, as required for its C++ extension.
       - name: Install Python package
         shell: bash -el {0}
-        run: pip install -e .
+        run: |
+          pip install --only-binary :all: -e .
 
       - name: Run Python tests with coverage
         shell: bash -el {0}
